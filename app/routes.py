@@ -152,7 +152,7 @@ def gestionar_requerimientos():
     requerimientos = cur.fetchall()
     conn.close()
 
-    return render_template("requerimientos_admin.html", funcionarios=funcionarios, requerimientos=requerimientos)
+    return render_template("requerimientos_admin.html",  requerimientos=requerimientos, funcionarios=funcionarios, unidades=unidades)
     
 @main.route('/admin/tareas', methods=['GET', 'POST'])
 def gestionar_tareas():
