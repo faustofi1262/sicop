@@ -39,3 +39,22 @@ def gestionar_usuarios():
     conn.close()
 
     return render_template('usuarios_admin.html', usuarios=usuarios)
+@main.route('/admin/unidades', methods=['GET', 'POST'])
+def gestionar_unidades():
+    if session.get('rol') != 'Administrador':
+        return redirect('/login')
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    if request.method == 'POST':
+        nombre = request.form['nombre_unidad']
+        ubicacion = request.form['ubicacion']
+        cur.execute("INSERT INTO unidades (nombre_unidad, ubicacion) VALUES (%s, %s)", (nombre, ubicacion))
+        conn.commit()
+
+    cur.execute("SELECT id, nombre_unidad, ubicacion FROM unidades")
+    unidades = cur.fetchall()
+    conn.close()
+
+    return render_template('unidades_admin.html', unidades=unidades)
