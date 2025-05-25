@@ -357,6 +357,15 @@ def editar_requerimiento(id):
 
     conn.close()
     return render_template('editar_requerimiento.html', req=req, unidades=unidades, funcionarios=funcionarios)
+#AGREGAR BOTON ELIMINAR REQUERIMIENTO
+@main.route('/admin/requerimientos/eliminar/<int:id>', methods=['POST'])
+def eliminar_requerimiento(id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM requerimientos WHERE id = %s", (id,))
+    conn.commit()
+    conn.close()
+    return redirect('/admin/requerimientos')
 
 
 

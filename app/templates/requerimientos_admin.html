@@ -147,6 +147,11 @@
                     <td>
                     <a href="/admin/requerimientos/editar/{{ r[0] }}" class="btn btn-warning btn-sm">Editar</a>
                     </td>
+                    <td>
+                    <form action="/admin/requerimientos/eliminar/{{ r[0] }}" method="POST" onsubmit="return confirm('¿Está seguro de eliminar este requerimiento?');">
+                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                        </form>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
