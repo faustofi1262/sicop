@@ -32,3 +32,7 @@ def login():
             return render_template('login.html', error='Usuario o contraseña incorrectos')
 
     return render_template('login.html')
+@auth.route('/logout')
+def logout():
+    session.clear()  # Borra toda la sesión
+    return redirect('/login')
