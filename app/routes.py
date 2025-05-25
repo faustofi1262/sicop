@@ -313,6 +313,50 @@ def convertir_a_letras():
     valor = float(request.args.get("valor", 0))
     letras = num2words.num2words(valor, lang='es').capitalize()
     return letras
+@main.route('/admin/requerimientos/editar/<int:id>', methods=['GET', 'POST'])
+def editar_requerimiento(id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT id, nombre_unidad FROM unidades")
+    unidades = cur.fetchall()
+
+    cur.execute("SELECT nombre FROM usuarios")
+    funcionarios = cur.fetchall()
+
+    cur.execute("SELECT * FROM requerimientos WHERE id = %s", (id,))
+    req = cur.fetchone()
+
+    if request.method == 'POST':
+        data = (
+            request.form['mem_requi'],
+            request.form['fecha_memo_requi'],
+            request.form['unid_requirente'],
+            request.form['memo_vice_ad'],
+            request.form['fecha_memo_vice_ad'],
+            request.form['memo_dir_ad'],
+            request.form['fecha_memo_dir_ad'],
+            request.form['fecha_recep_req'],
+            request.form['breve_descr'],
+            request.form['monto_req'],
+            request.form['funcionario_encargado'],
+            id
+        )
+        cur.execute("""
+            UPDATE requerimientos SET
+                mem_requi=%s, fecha_memo_requi=%s, unid_requirente=%s,
+                memo_vice_ad=%s, fecha_memo_vice_ad=%s,
+                memo_dir_ad=%s, fecha_memo_dir_ad=%s,
+                fecha_recep_req=%s, breve_descr=%s, monto_req=%s,
+                funcionario_encargado=%s
+            WHERE id=%s
+        """, data)
+        conn.commit()
+        conn.close()
+        return redirect('/admin/requerimientos')
+
+    conn.close()
+    return render_template('editar_requerimiento.html', req=req, unidades=unidades, funcionarios=funcionarios)
 
 
 
