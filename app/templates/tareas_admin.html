@@ -57,7 +57,12 @@
             <div class="form-row">
                 <div class="col">
                     <label>Tipo de Proceso:</label>
-                    <input type="text" name="tipo_proceso" class="form-control form-control-sm" required>
+                    <select name="tipo_proceso" class="form-control form-control-sm" required>
+                        <option value="">-- Seleccione --</option>
+                        {% for tipo in tipos_proceso %}
+                            <option value="{{ tipo[0] }}">{{ tipo[0] }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
                 <div class="col">
                     <label>Estado del Requerimiento:</label>
@@ -179,5 +184,33 @@
             {% endfor %}
         </tbody>
     </table>
+    <script>
+    function numeroALetras(numero) {
+        const formatter = new Intl.NumberFormat('es-EC', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2
+        });
+        return formatter.format(numero).replace('$', '').replace('USD', '').trim();
+    }
+
+    function calcularYConvertir() {
+        const sinIva = parseFloat(document.querySelector('input[name="valor_sin_iva"]').value) || 0;
+        const exento = parseFloat(document.querySelector('input[name="valor_exento"]').value) || 0;
+        const total = sinIva + exento;
+
+        fetch(`/convertir_a_letras?valor=${total}`)
+            .then(response => response.text())
+            .then(texto => {
+                document.querySelector('input[name="valor_en_letras"]').value = texto;
+            });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelector('input[name="valor_sin_iva"]').addEventListener("input", calcularYConvertir);
+        document.querySelector('input[name="valor_exento"]').addEventListener("input", calcularYConvertir);
+    });
+</script>
+
 </body>
 </html>

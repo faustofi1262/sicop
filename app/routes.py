@@ -1,6 +1,8 @@
 from flask import Blueprint, session, redirect, render_template, request
 import psycopg2
 import os
+from flask import jsonify
+import num2words
 main = Blueprint('main', __name__)
 def get_db_connection():
     return psycopg2.connect(os.getenv("DATABASE_URL"))
@@ -157,6 +159,9 @@ def gestionar_requerimientos():
 def tareas():
     conn = get_db_connection()
     cur = conn.cursor()
+    # 🔽 carga los tipos de proceso
+    cur.execute("SELECT nombre_proceso FROM tipo_procesos")
+    tipos_proceso = cur.fetchall()
 
     # Obtener los requerimientos con memo_vice_ad, unidad y funcionario
     cur.execute("SELECT id, memo_vice_ad, unid_requirente, funcionario_encargado FROM requerimientos")
@@ -303,6 +308,12 @@ def editar_tarea(id):
 
     conn.close()
     return render_template('editar_tarea.html', requerimientos=requerimientos, tarea=tarea)
+@main.route('/convertir_a_letras')
+def convertir_a_letras():
+    valor = float(request.args.get("valor", 0))
+    letras = num2words.num2words(valor, lang='es').capitalize()
+    return letras
+
 
 
 
