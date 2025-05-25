@@ -37,80 +37,92 @@
 <body>
     <h2>Registrar Requerimiento</h2>
 
-   <form method="POST">
-    <div class="form-row">
-        <div class="col">
-            <label>Número Memo Requerimiento:</label>
-            <input type="text" name="mem_requi" class="form-control form-control-sm" required>
-        </div>
-        <div class="col">
-            <label>Fecha Memo Requerimiento:</label>
-            <input type="date" name="fecha_memo_requi" class="form-control form-control-sm" required>
-        </div>
-    </div>
+  <form method="POST">
 
-    <div class="form-row mt-2">
-        <div class="col">
-            <label>Unidad Requirente:</label>
-            <select name="unid_requirente" class="form-control form-control-sm" required>
-                <option value="">Seleccione una unidad</option>
-                {% for u in unidades %}
-                    <option value="{{ u[0] }}">{{ u[1] }}</option>
-                {% endfor %}
-            </select>
+    <!-- 📄 Información del Requerimiento -->
+    <fieldset class="border p-3 mb-3">
+        <legend class="w-auto px-2 font-weight-bold text-primary">📄 Información del Requerimiento</legend>
+        <div class="form-row">
+            <div class="col">
+                <label>Número Memo Requerimiento:</label>
+                <input type="text" name="mem_requi" class="form-control form-control-sm" required>
+            </div>
+            <div class="col">
+                <label>Fecha Memo Requerimiento:</label>
+                <input type="date" name="fecha_memo_requi" class="form-control form-control-sm" required>
+            </div>
         </div>
-        <div class="col">
-            <label>Funcionario Encargado:</label>
-            <select name="funcionario_encargado" class="form-control form-control-sm" required>
-                <option value="">-- Seleccione un funcionario --</option>
-                {% for f in funcionarios %}
-                    <option value="{{ f[0] }}">{{ f[0] }}</option>
-                {% endfor %}
-            </select>
+        <div class="form-row mt-2">
+            <div class="col">
+                <label>Unidad Requirente:</label>
+                <select name="unid_requirente" class="form-control form-control-sm" required>
+                    <option value="">Seleccione una unidad</option>
+                    {% for u in unidades %}
+                        <option value="{{ u[0] }}">{{ u[1] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col">
+                <label>Funcionario Encargado:</label>
+                <select name="funcionario_encargado" class="form-control form-control-sm" required>
+                    <option value="">-- Seleccione un funcionario --</option>
+                    {% for f in funcionarios %}
+                        <option value="{{ f[0] }}">{{ f[0] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
         </div>
-    </div>
+    </fieldset>
 
-    <div class="form-row mt-2">
-        <div class="col">
-            <label>Memo Viceadministración:</label>
-            <input type="text" name="memo_vice_ad" class="form-control form-control-sm">
+    <!-- 🧑‍💼 Datos Administrativos -->
+    <fieldset class="border p-3 mb-3">
+        <legend class="w-auto px-2 font-weight-bold text-primary">🧑‍💼 Datos Administrativos</legend>
+        <div class="form-row">
+            <div class="col">
+                <label>Memo Viceadministración:</label>
+                <input type="text" name="memo_vice_ad" class="form-control form-control-sm">
+            </div>
+            <div class="col">
+                <label>Fecha Memo Viceadministración:</label>
+                <input type="date" name="fecha_memo_vice_ad" class="form-control form-control-sm">
+            </div>
         </div>
-        <div class="col">
-            <label>Fecha Memo Viceadministración:</label>
-            <input type="date" name="fecha_memo_vice_ad" class="form-control form-control-sm">
+        <div class="form-row mt-2">
+            <div class="col">
+                <label>Memo Dirección Administrativa:</label>
+                <input type="text" name="memo_dir_ad" class="form-control form-control-sm">
+            </div>
+            <div class="col">
+                <label>Fecha Memo Dirección Administrativa:</label>
+                <input type="date" name="fecha_memo_dir_ad" class="form-control form-control-sm">
+            </div>
         </div>
-    </div>
+    </fieldset>
 
-    <div class="form-row mt-2">
-        <div class="col">
-            <label>Memo Dirección Administrativa:</label>
-            <input type="text" name="memo_dir_ad" class="form-control form-control-sm">
+    <!-- 📅 Fechas Clave -->
+    <fieldset class="border p-3 mb-3">
+        <legend class="w-auto px-2 font-weight-bold text-primary">📅 Fechas Clave</legend>
+        <div class="form-row">
+            <div class="col">
+                <label>Fecha de Recepción:</label>
+                <input type="date" name="fecha_recep_req" class="form-control form-control-sm">
+            </div>
+            <div class="col">
+                <label>Monto Requerido:</label>
+                <input type="number" name="monto_req" step="0.01" class="form-control form-control-sm" required>
+            </div>
         </div>
-        <div class="col">
-            <label>Fecha Memo Dirección Administrativa:</label>
-            <input type="date" name="fecha_memo_dir_ad" class="form-control form-control-sm">
-        </div>
-    </div>
+    </fieldset>
 
-    <div class="form-row mt-2">
-        <div class="col">
-            <label>Fecha de Recepción:</label>
-            <input type="date" name="fecha_recep_req" class="form-control form-control-sm">
-        </div>
-        <div class="col">
-            <label>Monto Requerido:</label>
-            <input type="number" name="monto_req" step="0.01" class="form-control form-control-sm" required>
-        </div>
-    </div>
-
-    <div class="form-group mt-2">
+    <!-- 💬 Observaciones -->
+    <fieldset class="border p-3 mb-3">
+        <legend class="w-auto px-2 font-weight-bold text-primary">💬 Observaciones</legend>
         <label>Breve Descripción:</label>
         <textarea name="breve_descr" class="form-control" rows="3"></textarea>
-    </div>
+    </fieldset>
 
-    <button type="submit" class="btn btn-primary mt-3">Guardar Requerimiento</button>
+    <button type="submit" class="btn btn-primary">Guardar Requerimiento</button>
 </form>
-
 
     <h2>Lista de Requerimientos</h2>
     <table>
