@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Tarea</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container py-4">
+    <h2 class="text-primary mb-4">✏️ Editar Tarea</h2>
+
+    <form method="POST">
+        <div class="form-group">
+            <label>Funcionario Encargado:</label>
+            <input type="text" name="funcionario_encargado" class="form-control form-control-sm" value="{{ tarea[2] }}" required>
+        </div>
+
+        <div class="form-row">
+            <div class="col">
+                <label>Tipo de Proceso:</label>
+                <input type="text" name="tipo_proceso" class="form-control form-control-sm" value="{{ tarea[3] }}" required>
+            </div>
+            <div class="col">
+                <label>Estado del Requerimiento:</label>
+                <input type="text" name="estado_requerimiento" class="form-control form-control-sm" value="{{ tarea[4] }}">
+            </div>
+        </div>
+
+        <label class="mt-2">Objeto de la Contratación:</label>
+        <textarea name="objeto_contratacion" class="form-control">{{ tarea[5] }}</textarea>
+
+        <div class="form-row mt-2">
+            <div class="col">
+                <label>Código del Proceso:</label>
+                <input type="text" name="codigo_proceso" class="form-control form-control-sm" value="{{ tarea[6] }}">
+            </div>
+            <div class="col">
+                <label>Fecha de Recepción:</label>
+                <input type="date" name="fecha_recepcion" class="form-control form-control-sm" value="{{ tarea[7] }}">
+            </div>
+        </div>
+
+        <div class="form-row mt-2">
+            <div class="col">
+                <label>Valor sin IVA:</label>
+                <input type="number" name="valor_sin_iva" step="0.01" class="form-control form-control-sm" value="{{ tarea[8] }}">
+            </div>
+            <div class="col">
+                <label>Valor Exento:</label>
+                <input type="number" name="valor_exento" step="0.01" class="form-control form-control-sm" value="{{ tarea[9] }}">
+            </div>
+        </div>
+
+        <label class="mt-2">Valor en Letras:</label>
+        <input type="text" name="valor_en_letras" class="form-control form-control-sm" value="{{ tarea[10] }}">
+
+        <label class="mt-2">Tipo de Proceso a Aplicar:</label>
+        <input type="text" name="tipo_proceso_aplicar" class="form-control form-control-sm" value="{{ tarea[11] }}">
+
+        <label class="mt-2">Base Legal:</label>
+        <input type="text" name="base_legal" class="form-control form-control-sm" value="{{ tarea[12] }}">
+
+        <label class="mt-2">Observaciones:</label>
+        <textarea name="observaciones" class="form-control">{{ tarea[13] }}</textarea>
+
+        <div class="form-row mt-2">
+            <div class="col">
+                <label>Fecha Envío Observaciones:</label>
+                <input type="date" name="fecha_envio_observaciones" class="form-control form-control-sm" value="{{ tarea[14] }}">
+            </div>
+            <div class="col">
+                <label>Fecha Corrección Observaciones:</label>
+                <input type="date" name="fecha_correccion_observacion" class="form-control form-control-sm" value="{{ tarea[15] }}">
+            </div>
+        </div>
+
+        <label class="mt-2">Nombre del Jefe de Compras:</label>
+        <input type="text" name="nombre_jefe_compras" class="form-control form-control-sm" value="{{ tarea[16] }}">
+
+        <label class="mt-2">Unidad Solicitante:</label>
+        <input type="text" name="unidad_solicitante" class="form-control form-control-sm" value="{{ tarea[17] }}">
+
+        <label class="mt-2">Administrador del Contrato:</label>
+        <input type="text" name="administrador_contrato" class="form-control form-control-sm" value="{{ tarea[18] }}">
+
+        <h5 class="mt-4 text-primary font-weight-bold">✅ Verificación de Documentos</h5>
+        <div class="form-row">
+            {% for i in range(19, 29) %}
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="{{ [
+                        'presenta_estudio_previo',
+                        'presenta_especificaciones',
+                        'presenta_terminos_referencia',
+                        'presenta_proformas',
+                        'presenta_estudio_mercado',
+                        'determinacion_necesidad',
+                        'consta_catalogo_electronico',
+                        'catalogado_incluido_gne',
+                        'consta_pac',
+                        'presenta_errores'
+                    ][i-19] }}" {% if tarea[i] %}checked{% endif %}>
+                    {{ [
+                        'Estudio Previo',
+                        'Especificaciones Técnicas',
+                        'Términos de Referencia',
+                        'Presenta Proformas',
+                        'Estudio de Mercado',
+                        'Determinación de la Necesidad',
+                        'En Catálogo Electrónico',
+                        'Catalogado Incluido GNE',
+                        'Consta en el PAC',
+                        'Presenta Errores'
+                    ][i-19] }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-check mt-3">
+            <input class="form-check-input" type="checkbox" name="cumple_normativa" {% if tarea[29] %}checked{% endif %}>
+            <label class="form-check-label">Cumple Normativa</label>
+        </div>
+
+        <button type="submit" class="btn btn-success mt-4">Guardar Cambios</button>
+        <a href="/admin/tareas" class="btn btn-secondary mt-4 ml-2">Cancelar</a>
+    </form>
+</body>
+</html>
