@@ -10,12 +10,12 @@ def get_db_connection():
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        correo = request.form['correo']
+        usuario = request.form['usuario']
         contraseña = request.form['contraseña']
 
         conn = get_db_connection()
         cur = conn.cursor()
-        cur.execute("SELECT id, nombre, rol FROM usuarios WHERE correo = %s AND contraseña = %s", (correo, contraseña))
+        cur.execute("SELECT id, nombre, rol FROM usuarios WHERE usuario = %s AND contraseña = %s", (usuario, contraseña))
         user = cur.fetchone()
         conn.close()
 
