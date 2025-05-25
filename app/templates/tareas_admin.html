@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Tareas</title>
+    <style>
+        body { font-family: Arial; background-color: #f4f8fc; padding: 20px; }
+        h2 { color: #003366; }
+        form {
+            background: #fff; padding: 20px;
+            border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 900px; margin: auto;
+        }
+        label { display: block; margin-top: 10px; }
+        input, textarea, select {
+            width: 100%; padding: 10px; margin-top: 5px; border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+        .row { display: flex; gap: 20px; }
+        .col { flex: 1; }
+        .checkboxes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
+        button {
+            margin-top: 20px; background-color: #003366; color: #fff;
+            padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;
+        }
+        button:hover { background-color: #002244; }
+    </style>
+</head>
+<body>
+    <h2>Gestión de Tareas del Proceso de Contratación</h2>
+    <form method="POST">
+        <div class="row">
+            <div class="col">
+                <label>Funcionario Encargado</label>
+                <input type="text" name="funcionario_encargado" required>
+            </div>
+            <div class="col">
+                <label>Tipo de Proceso</label>
+                <input type="text" name="tipo_proceso" required>
+            </div>
+        </div>
+        <label>Estado del Requerimiento</label>
+        <input type="text" name="estado_requerimiento">
+
+        <label>Objeto de la Contratación</label>
+        <textarea name="objeto_contratacion" rows="3"></textarea>
+
+        <div class="row">
+            <div class="col">
+                <label>Código del Proceso</label>
+                <input type="text" name="codigo_proceso">
+            </div>
+            <div class="col">
+                <label>Fecha de Recepción</label>
+                <input type="date" name="fecha_recepcion">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <label>Valor sin IVA</label>
+                <input type="number" step="0.01" name="valor_sin_iva">
+            </div>
+            <div class="col">
+                <label>Valor Exento</label>
+                <input type="number" step="0.01" name="valor_exento">
+            </div>
+        </div>
+
+        <label>Valor en Letras</label>
+        <input type="text" name="valor_en_letras">
+
+        <label>Tipo de Proceso a Aplicar</label>
+        <input type="text" name="tipo_proceso_aplicar">
+
+        <label>Base Legal</label>
+        <input type="text" name="base_legal">
+
+        <label>Observaciones</label>
+        <textarea name="observaciones" rows="2"></textarea>
+
+        <div class="row">
+            <div class="col">
+                <label>Fecha Envío Observaciones</label>
+                <input type="date" name="fecha_envio_observaciones">
+            </div>
+            <div class="col">
+                <label>Fecha Corrección Observaciones</label>
+                <input type="date" name="fecha_correccion_observacion">
+            </div>
+        </div>
+
+        <label>Nombre del Jefe de Compras</label>
+        <input type="text" name="nombre_jefe_compras">
+
+        <label>Unidad Solicitante</label>
+        <input type="text" name="unidad_solicitante">
+
+        <label>Administrador del Contrato</label>
+        <input type="text" name="administrador_contrato">
+
+        <h3>Verificación de Documentos</h3>
+        <div class="checkboxes">
+            <label><input type="checkbox" name="presenta_estudio_previo"> Estudio Previo</label>
+            <label><input type="checkbox" name="presenta_especificaciones"> Especificaciones Técnicas</label>
+            <label><input type="checkbox" name="presenta_terminos_referencia"> Términos de Referencia</label>
+            <label><input type="checkbox" name="presenta_proformas"> Presenta Proformas</label>
+            <label><input type="checkbox" name="presenta_estudio_mercado"> Estudio de Mercado</label>
+            <label><input type="checkbox" name="determinacion_necesidad"> Determinación de la Necesidad</label>
+            <label><input type="checkbox" name="consta_catalogo_electronico"> En Catálogo Electrónico</label>
+            <label><input type="checkbox" name="catalogado_incluido_gne"> Catalogado Incluido GNE</label>
+            <label><input type="checkbox" name="consta_pac"> En el PAC</label>
+            <label><input type="checkbox" name="presenta_errores"> Presenta Errores</label>
+            <label><input type="checkbox" name="cumple_normativa"> Cumple Normativa</label>
+        </div>
+
+        <button type="submit">Guardar Tarea</button>
+    </form>
+</body>
+</html>

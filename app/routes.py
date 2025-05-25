@@ -149,3 +149,62 @@ def gestionar_requerimientos():
     conn.close()
 
     return render_template('requerimientos_admin.html', requerimientos=requerimientos, unidades=unidades)
+@main.route('/admin/tareas', methods=['GET', 'POST'])
+def gestionar_tareas():
+    if session.get('rol') != 'Administrador':
+        return redirect('/login')
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    if request.method == 'POST':
+        data = (
+            request.form['funcionario_encargado'],
+            request.form['tipo_proceso'],
+            request.form['estado_requerimiento'],
+            request.form['objeto_contratacion'],
+            request.form['codigo_proceso'],
+            request.form['fecha_recepcion'],
+            request.form['valor_sin_iva'],
+            request.form['valor_en_letras'],
+            request.form['valor_exento'],
+            request.form['tipo_proceso_aplicar'],
+            request.form['base_legal'],
+            request.form['observaciones'],
+            request.form['fecha_envio_observaciones'],
+            request.form['fecha_correccion_observacion'],
+            request.form['nombre_jefe_compras'],
+            request.form['unidad_solicitante'],
+            request.form['administrador_contrato'],
+            'presenta_estudio_previo' in request.form,
+            'presenta_especificaciones' in request.form,
+            'presenta_terminos_referencia' in request.form,
+            'presenta_proformas' in request.form,
+            'presenta_estudio_mercado' in request.form,
+            'determinacion_necesidad' in request.form,
+            'consta_catalogo_electronico' in request.form,
+            'catalogado_incluido_gne' in request.form,
+            'consta_pac' in request.form,
+            'presenta_errores' in request.form,
+            'cumple_normativa' in request.form
+        )
+
+        cur.execute("""
+            INSERT INTO tareas (
+                funcionario_encargado, tipo_proceso, estado_requerimiento,
+                objeto_contratacion, codigo_proceso, fecha_recepcion,
+                valor_sin_iva, valor_en_letras, valor_exento, tipo_proceso_aplicar,
+                base_legal, observaciones, fecha_envio_observaciones,
+                fecha_correccion_observacion, nombre_jefe_compras, unidad_solicitante,
+                administrador_contrato,
+                presenta_estudio_previo, presenta_especificaciones, presenta_terminos_referencia,
+                presenta_proformas, presenta_estudio_mercado, determinacion_necesidad,
+                consta_catalogo_electronico, catalogado_incluido_gne, consta_pac,
+                presenta_errores, cumple_normativa
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                      %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, data)
+        conn.commit()
+
+    conn.close()
+    return render_template('tareas_admin.html')
