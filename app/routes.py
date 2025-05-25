@@ -149,6 +149,7 @@ def gestionar_requerimientos():
     conn.close()
 
     return render_template('requerimientos_admin.html', requerimientos=requerimientos, unidades=unidades)
+    
 @main.route('/admin/tareas', methods=['GET', 'POST'])
 def gestionar_tareas():
     if session.get('rol') != 'Administrador':
@@ -222,7 +223,7 @@ def gestionar_tareas():
     conn.close()
 
     return render_template("tareas_admin.html", requerimientos=requerimientos, tareas=tareas)
-    @main.route('/admin/tareas/eliminar/<int:id>', methods=['POST'])
+@main.route('/admin/tareas/eliminar/<int:id>', methods=['POST'])
 def eliminar_tarea(id):
     if session.get('rol') != 'Administrador':
         return redirect('/login')
