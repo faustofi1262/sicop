@@ -109,6 +109,9 @@ def gestionar_requerimientos():
 
     conn = get_db_connection()
     cur = conn.cursor()
+    # Obtener lista de funcionarios desde la tabla usuarios
+    cur.execute("SELECT nombre FROM usuarios")
+    funcionarios = cur.fetchall()
 
     # Obtener unidades para el selector
     cur.execute("SELECT id, nombre_unidad FROM unidades")
@@ -149,7 +152,7 @@ def gestionar_requerimientos():
     requerimientos = cur.fetchall()
     conn.close()
 
-    return render_template('requerimientos_admin.html', requerimientos=requerimientos, unidades=unidades)
+    return render_template("requerimientos_admin.html", funcionarios=funcionarios, requerimientos=requerimientos)
     
 @main.route('/admin/tareas', methods=['GET', 'POST'])
 def gestionar_tareas():

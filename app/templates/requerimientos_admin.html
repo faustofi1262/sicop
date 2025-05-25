@@ -72,7 +72,12 @@
             <input type="text" name="memo_dir_ad">
 
             <label>Funcionario Encargado:</label>
-            <input type="text" name="funcionario_encargado" required>
+            <select name="funcionario_encargado" required>
+    <option value="">-- Seleccione un funcionario --</option>
+    {% for f in funcionarios %}
+        <option value="{{ f[0] }}">{{ f[0] }}</option>
+    {% endfor %}
+            </select>
         </div>
         <div class="col">
             <label>Fecha Memo Dirección Administrativa:</label>
