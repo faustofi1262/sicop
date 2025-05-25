@@ -2,7 +2,6 @@ from flask import Blueprint, render_template, request, redirect, session
 import psycopg2
 import os
 
-# 🔽 AQUÍ va la línea que crea el blueprint
 auth = Blueprint('auth', __name__)
 
 def get_db_connection():
@@ -27,12 +26,8 @@ def login():
 
             if user[2] == 'Administrador':
                 return redirect('/admin_dashboard')
-            elif user[2] == 'Analista':
-                return redirect('/analista_dashboard')
-            elif user[2] == 'Jefe':
-                return redirect('/jefe_dashboard')
             else:
-                return redirect('/invitado_dashboard')
+                return redirect('/login')
         else:
             return render_template('login.html', error='Usuario o contraseña incorrectos')
 
