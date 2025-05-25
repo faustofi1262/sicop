@@ -157,8 +157,13 @@ def gestionar_tareas():
     conn = get_db_connection()
     cur = conn.cursor()
 
+    # Obtener requerimientos para el selector
+    cur.execute("SELECT id, memo_vice_ad, unid_requirente FROM requerimientos")
+    requerimientos = cur.fetchall()
+
     if request.method == 'POST':
         data = (
+            request.form['requerimiento_id'],
             request.form['funcionario_encargado'],
             request.form['tipo_proceso'],
             request.form['estado_requerimiento'],
@@ -191,12 +196,11 @@ def gestionar_tareas():
 
         cur.execute("""
             INSERT INTO tareas (
-                funcionario_encargado, tipo_proceso, estado_requerimiento,
-                objeto_contratacion, codigo_proceso, fecha_recepcion,
-                valor_sin_iva, valor_en_letras, valor_exento, tipo_proceso_aplicar,
-                base_legal, observaciones, fecha_envio_observaciones,
-                fecha_correccion_observacion, nombre_jefe_compras, unidad_solicitante,
-                administrador_contrato,
+                requerimiento_id, funcionario_encargado, tipo_proceso, estado_requerimiento,
+                objeto_contratacion, codigo_proceso, fecha_recepcion, valor_sin_iva,
+                valor_en_letras, valor_exento, tipo_proceso_aplicar, base_legal,
+                observaciones, fecha_envio_observaciones, fecha_correccion_observacion,
+                nombre_jefe_compras, unidad_solicitante, administrador_contrato,
                 presenta_estudio_previo, presenta_especificaciones, presenta_terminos_referencia,
                 presenta_proformas, presenta_estudio_mercado, determinacion_necesidad,
                 consta_catalogo_electronico, catalogado_incluido_gne, consta_pac,
@@ -206,5 +210,28 @@ def gestionar_tareas():
         """, data)
         conn.commit()
 
+    # Obtener tareas registradas con datos del requerimiento asociado
+    cur.execute("""
+        SELECT t.id, r.memo_vice_ad, r.unid_requirente,
+               t.funcionario_encargado, t.estado_requerimiento, t.tipo_proceso
+        FROM tareas t
+        JOIN requerimientos r ON t.requerimiento_id = r.id
+        ORDER BY t.id DESC
+    """)
+    tareas = cur.fetchall()
     conn.close()
-    return render_template('tareas_admin.html')
+
+    return render_template("tareas_admin.html", requerimientos=requerimientos, tareas=tareas)
+    @main.route('/admin/tareas/eliminar/<int:id>', methods=['POST'])
+def eliminar_tarea(id):
+    if session.get('rol') != 'Administrador':
+        return redirect('/login')
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM tareas WHERE id = %s", (id,))
+    conn.commit()
+    conn.close()
+
+    return redirect('/admin/tareas')
+

@@ -30,7 +30,32 @@
 <body>
     <h2>Gestión de Tareas del Proceso de Contratación</h2>
     <form method="POST">
-        <div class="row">
+        <form method="POST">
+    
+    <!-- Selector del número de oficio -->
+    <label>Seleccione el N° de Oficio (memo_vice_ad):</label>
+    <select name="requerimiento_id" id="requerimiento_id" onchange="mostrarUnidad()" required>
+        <option value="">-- Seleccione un memo --</option>
+        {% for r in requerimientos %}
+            <option value="{{ r[0] }}" data-unidad="{{ r[2] }}">{{ r[1] }}</option>
+        {% endfor %}
+    </select>
+
+    <!-- Unidad requirente que se llenará automáticamente -->
+    <label>Unidad Requirente:</label>
+    <input type="text" id="unidad" disabled style="background-color:#eee;">
+
+    <!-- Aquí comienza el resto del formulario (deshabilitado inicialmente) -->
+    <fieldset id="bloque_tarea" disabled>
+
+        <!-- campos de tareas... -->
+        <label>Funcionario Encargado</label>
+        <input type="text" name="funcionario_encargado" required>
+        <!-- y así todo lo demás... -->
+
+    </fieldset>
+</form>
+            <div class="row">
             <div class="col">
                 <label>Funcionario Encargado</label>
                 <input type="text" name="funcionario_encargado" required>
@@ -117,5 +142,56 @@
 
         <button type="submit">Guardar Tarea</button>
     </form>
+    <h3 style="margin-top:40px;">Tareas Registradas</h3>
+<table style="width:100%; border-collapse: collapse; background:#fff; margin-top:10px;">
+    <thead>
+        <tr style="background:#003366; color:white;">
+            <th style="padding:10px;">ID</th>
+            <th>N° Oficio</th>
+            <th>Unidad Requirente</th>
+            <th>Funcionario</th>
+            <th>Estado</th>
+            <th>Tipo de Proceso</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for t in tareas %}
+        <tr style="text-align:center;">
+            <td>{{ t[0] }}</td>
+            <td>{{ t[1] }}</td>
+            <td>{{ t[2] }}</td>
+            <td>{{ t[3] }}</td>
+            <td>{{ t[4] }}</td>
+            <td>{{ t[5] }}</td>
+            <td>
+                <form action="/admin/tareas/eliminar/{{ t[0] }}" method="POST" onsubmit="return confirm('¿Deseas eliminar esta tarea?');">
+                    <button type="submit" style="background-color:#c0392b; color:white; border:none; padding:6px 10px; border-radius:5px; cursor:pointer;">
+                        Eliminar
+                    </button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+    <script>
+function mostrarUnidad() {
+    const select = document.getElementById("requerimiento_id");
+    const unidad = select.options[select.selectedIndex].getAttribute("data-unidad");
+    document.getElementById("unidad").value = unidad;
+
+    // Habilitar el resto del formulario si hay selección válida
+    if (select.value !== "") {
+        document.getElementById("bloque_tarea").disabled = false;
+    } else {
+        document.getElementById("bloque_tarea").disabled = true;
+        document.getElementById("unidad").value = "";
+    }
+}
+</script>
+
 </body>
 </html>
