@@ -102,3 +102,50 @@ def gestionar_productos():
     conn.close()
 
     return render_template('productos_admin.html', productos=productos)
+@main.route('/admin/requerimientos', methods=['GET', 'POST'])
+def gestionar_requerimientos():
+    if session.get('rol') != 'Administrador':
+        return redirect('/login')
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    # Obtener unidades para el selector
+    cur.execute("SELECT id, nombre_unidad FROM unidades")
+    unidades = cur.fetchall()
+
+    if request.method == 'POST':
+        data = (
+            request.form['mem_requi'],
+            request.form['fecha_memo_requi'],
+            request.form['unid_requirente'],
+            request.form['memo_vice_ad'],
+            request.form['fecha_memo_vice_ad'],
+            request.form['memo_dir_ad'],
+            request.form['fecha_memo_dir_ad'],
+            request.form['fecha_recep_req'],
+            request.form['breve_descr'],
+            request.form['monto_req']
+        )
+
+        cur.execute("""
+            INSERT INTO requerimientos (
+                mem_requi, fecha_memo_requi, unid_requirente,
+                memo_vice_ad, fecha_memo_vice_ad,
+                memo_dir_ad, fecha_memo_dir_ad,
+                fecha_recep_req, breve_descr, monto_req
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, data)
+        conn.commit()
+
+    # Obtener todos los requerimientos para listar
+    cur.execute("""
+        SELECT r.id, r.mem_requi, r.fecha_memo_requi, u.nombre_unidad, r.monto_req
+        FROM requerimientos r
+        JOIN unidades u ON r.unid_requirente = u.id
+    """)
+    requerimientos = cur.fetchall()
+    conn.close()
+
+    return render_template('requerimientos_admin.html', requerimientos=requerimientos, unidades=unidades)

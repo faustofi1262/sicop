@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Requerimientos</title>
+    <style>
+        body { font-family: Arial; background-color: #f4f8fc; padding: 20px; }
+        h2 { color: #003366; }
+        form, table {
+            background: #fff; padding: 20px; margin-top: 20px;
+            border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+        th, td { padding: 10px; border: 1px solid #ccc; text-align: center; }
+        th { background-color: #003366; color: #fff; }
+        input, select, textarea {
+            width: 100%; padding: 8px; margin: 6px 0;
+        }
+        button {
+            background-color: #003366; color: white;
+            padding: 10px; border: none; border-radius: 6px; cursor: pointer;
+        }
+        button:hover { background-color: #002244; }
+    </style>
+</head>
+<body>
+    <h2>Registrar Requerimiento</h2>
+
+    <form method="POST">
+        <label>Número Memo Requerimiento:</label>
+        <input type="text" name="mem_requi" required>
+
+        <label>Fecha Memo Requerimiento:</label>
+        <input type="date" name="fecha_memo_requi" required>
+
+        <label>Unidad Requirente:</label>
+        <select name="unid_requirente" required>
+            <option value="">Seleccione una unidad</option>
+            {% for u in unidades %}
+                <option value="{{ u[0] }}">{{ u[1] }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Memo Viceadministración:</label>
+        <input type="text" name="memo_vice_ad">
+
+        <label>Fecha Memo Viceadministración:</label>
+        <input type="date" name="fecha_memo_vice_ad">
+
+        <label>Memo Dirección Administrativa:</label>
+        <input type="text" name="memo_dir_ad">
+
+        <label>Fecha Memo Dirección Administrativa:</label>
+        <input type="date" name="fecha_memo_dir_ad">
+
+        <label>Fecha de Recepción:</label>
+        <input type="date" name="fecha_recep_req">
+
+        <label>Breve Descripción:</label>
+        <textarea name="breve_descr" rows="3"></textarea>
+
+        <label>Monto Requerido:</label>
+        <input type="number" name="monto_req" step="0.01" required>
+
+        <button type="submit">Guardar Requerimiento</button>
+    </form>
+
+    <h2>Lista de Requerimientos</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Memo</th>
+                <th>Fecha</th>
+                <th>Unidad</th>
+                <th>Monto</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in requerimientos %}
+                <tr>
+                    <td>{{ r[0] }}</td>
+                    <td>{{ r[1] }}</td>
+                    <td>{{ r[2] }}</td>
+                    <td>{{ r[3] }}</td>
+                    <td>${{ '%.2f'|format(r[4]) }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
