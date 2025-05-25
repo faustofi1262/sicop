@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Usuarios</title>
+    <style>
+        body { font-family: Arial; background-color: #f4f8fc; padding: 20px; }
+        h2 { color: #003366; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
+        th, td { padding: 10px; border: 1px solid #ccc; }
+        th { background-color: #003366; color: #fff; }
+        form { background: #fff; padding: 20px; margin-top: 30px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        input, select, button { padding: 10px; margin: 8px 0; width: 100%; }
+        button { background-color: #003366; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+        button:hover { background-color: #002244; }
+    </style>
+</head>
+<body>
+    <h2>Gestión de Usuarios</h2>
+
+    <form method="POST">
+        <label>Nombre:</label>
+        <input type="text" name="nombre" required>
+        <label>Correo:</label>
+        <input type="email" name="correo" required>
+        <label>Contraseña:</label>
+        <input type="password" name="contraseña" required>
+        <label>Rol:</label>
+        <select name="rol" required>
+            <option value="Administrador">Administrador</option>
+            <option value="Analista">Analista</option>
+            <option value="Jefe">Jefe</option>
+            <option value="Invitado">Invitado</option>
+        </select>
+        <button type="submit">Registrar Usuario</button>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Rol</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in usuarios %}
+                <tr>
+                    <td>{{ u[0] }}</td>
+                    <td>{{ u[1] }}</td>
+                    <td>{{ u[2] }}</td>
+                    <td>{{ u[3] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
