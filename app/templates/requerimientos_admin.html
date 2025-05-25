@@ -27,43 +27,59 @@
     <h2>Registrar Requerimiento</h2>
 
     <form method="POST">
-        <label>Número Memo Requerimiento:</label>
-        <input type="text" name="mem_requi" required>
+    <div class="form-row">
+        <div class="col">
+            <label>Número Memo Requerimiento:</label>
+            <input type="text" name="mem_requi" required>
+        </div>
+        <div class="col">
+            <label>Fecha Memo Requerimiento:</label>
+            <input type="date" name="fecha_memo_requi" required>
+        </div>
+    </div>
 
-        <label>Fecha Memo Requerimiento:</label>
-        <input type="date" name="fecha_memo_requi" required>
+    <label>Unidad Requirente:</label>
+    <select name="unid_requirente" required>
+        <option value="">Seleccione una unidad</option>
+        {% for u in unidades %}
+            <option value="{{ u[0] }}">{{ u[1] }}</option>
+        {% endfor %}
+    </select>
 
-        <label>Unidad Requirente:</label>
-        <select name="unid_requirente" required>
-            <option value="">Seleccione una unidad</option>
-            {% for u in unidades %}
-                <option value="{{ u[0] }}">{{ u[1] }}</option>
-            {% endfor %}
-        </select>
+    <div class="form-row">
+        <div class="col">
+            <label>Memo Viceadministración:</label>
+            <input type="text" name="memo_vice_ad">
+        </div>
+        <div class="col">
+            <label>Fecha Memo Viceadministración:</label>
+            <input type="date" name="fecha_memo_vice_ad">
+        </div>
+    </div>
 
-        <label>Memo Viceadministración:</label>
-        <input type="text" name="memo_vice_ad">
+    <div class="form-row">
+        <div class="col">
+            <label>Memo Dirección Administrativa:</label>
+            <input type="text" name="memo_dir_ad">
+        </div>
+        <div class="col">
+            <label>Fecha Memo Dirección Administrativa:</label>
+            <input type="date" name="fecha_memo_dir_ad">
+        </div>
+    </div>
 
-        <label>Fecha Memo Viceadministración:</label>
-        <input type="date" name="fecha_memo_vice_ad">
+    <label>Fecha de Recepción:</label>
+    <input type="date" name="fecha_recep_req">
 
-        <label>Memo Dirección Administrativa:</label>
-        <input type="text" name="memo_dir_ad">
+    <label>Breve Descripción:</label>
+    <textarea name="breve_descr" rows="3"></textarea>
 
-        <label>Fecha Memo Dirección Administrativa:</label>
-        <input type="date" name="fecha_memo_dir_ad">
+    <label>Monto Requerido:</label>
+    <input type="number" name="monto_req" step="0.01" required>
 
-        <label>Fecha de Recepción:</label>
-        <input type="date" name="fecha_recep_req">
+    <button type="submit">Guardar Requerimiento</button>
+</form>
 
-        <label>Breve Descripción:</label>
-        <textarea name="breve_descr" rows="3"></textarea>
-
-        <label>Monto Requerido:</label>
-        <input type="number" name="monto_req" step="0.01" required>
-
-        <button type="submit">Guardar Requerimiento</button>
-    </form>
 
     <h2>Lista de Requerimientos</h2>
     <table>
