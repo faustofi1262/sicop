@@ -153,17 +153,13 @@ def gestionar_requerimientos():
     conn.close()
 
     return render_template("requerimientos_admin.html",  requerimientos=requerimientos, funcionarios=funcionarios, unidades=unidades)
-    
 @main.route('/admin/tareas', methods=['GET', 'POST'])
-def gestionar_tareas():
-    if session.get('rol') != 'Administrador':
-        return redirect('/login')
-
+def tareas():
     conn = get_db_connection()
     cur = conn.cursor()
 
-    # Obtener requerimientos para el selector
-    cur.execute("SELECT id, memo_vice_ad, unid_requirente FROM requerimientos")
+    # Obtener los requerimientos con memo_vice_ad, unidad y funcionario
+    cur.execute("SELECT id, memo_vice_ad, unid_requirente, funcionario_encargado FROM requerimientos")
     requerimientos = cur.fetchall()
 
     if request.method == 'POST':
@@ -176,8 +172,8 @@ def gestionar_tareas():
             request.form['codigo_proceso'],
             request.form['fecha_recepcion'],
             request.form['valor_sin_iva'],
-            request.form['valor_en_letras'],
             request.form['valor_exento'],
+            request.form['valor_en_letras'],
             request.form['tipo_proceso_aplicar'],
             request.form['base_legal'],
             request.form['observaciones'],
@@ -203,30 +199,31 @@ def gestionar_tareas():
             INSERT INTO tareas (
                 requerimiento_id, funcionario_encargado, tipo_proceso, estado_requerimiento,
                 objeto_contratacion, codigo_proceso, fecha_recepcion, valor_sin_iva,
-                valor_en_letras, valor_exento, tipo_proceso_aplicar, base_legal,
-                observaciones, fecha_envio_observaciones, fecha_correccion_observacion,
-                nombre_jefe_compras, unidad_solicitante, administrador_contrato,
+                valor_exento, valor_en_letras, tipo_proceso_aplicar, base_legal, observaciones,
+                fecha_envio_observaciones, fecha_correccion_observacion, nombre_jefe_compras,
+                unidad_solicitante, administrador_contrato,
                 presenta_estudio_previo, presenta_especificaciones, presenta_terminos_referencia,
                 presenta_proformas, presenta_estudio_mercado, determinacion_necesidad,
                 consta_catalogo_electronico, catalogado_incluido_gne, consta_pac,
                 presenta_errores, cumple_normativa
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                      %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """, data)
         conn.commit()
 
-    # Obtener tareas registradas con datos del requerimiento asociado
+    # Consultar tareas para mostrar tabla
     cur.execute("""
-        SELECT t.id, r.memo_vice_ad, r.unid_requirente,
-               t.funcionario_encargado, t.estado_requerimiento, t.tipo_proceso
+        SELECT t.id, r.memo_vice_ad, r.unid_requirente, t.funcionario_encargado,
+               t.estado_requerimiento, t.tipo_proceso
         FROM tareas t
         JOIN requerimientos r ON t.requerimiento_id = r.id
-        ORDER BY t.id DESC
     """)
     tareas = cur.fetchall()
     conn.close()
 
-    return render_template("tareas_admin.html", requerimientos=requerimientos, tareas=tareas)
+    return render_template('tareas_admin.html', requerimientos=requerimientos, tareas=tareas)    
+
 @main.route('/admin/tareas/eliminar/<int:id>', methods=['POST'])
 def eliminar_tarea(id):
     if session.get('rol') != 'Administrador':

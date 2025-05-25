@@ -146,5 +146,48 @@
             <button type="submit" class="btn btn-primary mt-4">Guardar Tarea</button>
         </fieldset>
     </form>
+      <!-- Formulario Tareas -->
+        <fieldset id="bloque_tarea" class="border p-3" disabled>
+            <legend class="w-auto text-primary font-weight-bold">📝 Información del Proceso</legend>
+            <!-- (campos omitidos por brevedad, igual a los anteriores) -->
+            <button type="submit" class="btn btn-primary mt-4">Guardar Tarea</button>
+        </fieldset>
+    </form>
+
+    <hr class="my-5">
+    <h4 class="text-primary">📋 Tareas Registradas</h4>
+    <table class="table table-bordered table-striped table-sm mt-3">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Memo</th>
+                <th>Unidad</th>
+                <th>Funcionario</th>
+                <th>Estado</th>
+                <th>Tipo de Proceso</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in tareas %}
+            <tr>
+                <td>{{ t[0] }}</td>
+                <td>{{ t[1] }}</td>
+                <td>{{ t[2] }}</td>
+                <td>{{ t[3] }}</td>
+                <td>{{ t[4] }}</td>
+                <td>{{ t[5] }}</td>
+                <td>
+                    <!-- Futuro botón Editar -->
+                    <!-- <a href="/admin/tareas/editar/{{ t[0] }}" class="btn btn-warning btn-sm">Editar</a> -->
+
+                    <form action="/admin/tareas/eliminar/{{ t[0] }}" method="POST" style="display:inline;" onsubmit="return confirm('¿Deseas eliminar esta tarea?');">
+                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </body>
 </html>
