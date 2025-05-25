@@ -58,3 +58,22 @@ def gestionar_unidades():
     conn.close()
 
     return render_template('unidades_admin.html', unidades=unidades)
+@main.route('/admin/procesos', methods=['GET', 'POST'])
+def gestionar_procesos():
+    if session.get('rol') != 'Administrador':
+        return redirect('/login')
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    if request.method == 'POST':
+        nombre = request.form['nombre_proceso']
+        regimen = request.form['tipo_regimen']
+        cur.execute("INSERT INTO tipo_procesos (nombre_proceso, tipo_regimen) VALUES (%s, %s)", (nombre, regimen))
+        conn.commit()
+
+    cur.execute("SELECT id, nombre_proceso, tipo_regimen FROM tipo_procesos")
+    procesos = cur.fetchall()
+    conn.close()
+
+    return render_template('procesos_admin.html', procesos=procesos)
