@@ -236,4 +236,13 @@ def eliminar_tarea(id):
     conn.close()
 
     return redirect('/admin/tareas')
+@main.route('/admin/tareas/eliminar/<int:id>', methods=['POST'])
+def eliminar_tarea(id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM tareas WHERE id = %s", (id,))
+    conn.commit()
+    conn.close()
+    return redirect('/admin/tareas')
+
 
