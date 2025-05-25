@@ -4,192 +4,147 @@
 <head>
     <meta charset="UTF-8">
     <title>Gestión de Tareas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { font-family: Arial; background-color: #f4f8fc; padding: 20px; }
-        h2 { color: #003366; }
-        form {
-            background: #fff; padding: 20px;
-            border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            max-width: 900px; margin: auto;
-        }
-        label { display: block; margin-top: 10px; }
-        input, textarea, select {
-            width: 100%; padding: 10px; margin-top: 5px; border-radius: 6px;
-            border: 1px solid #ccc;
-        }
-        .row { display: flex; gap: 20px; }
-        .col { flex: 1; }
-        .checkboxes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
-        button {
-            margin-top: 20px; background-color: #003366; color: #fff;
-            padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;
-        }
-        button:hover { background-color: #002244; }
+        fieldset { border-radius: 8px; }
+        legend { font-size: 1.1rem; }
     </style>
+    <script>
+        function mostrarDatos() {
+            const select = document.getElementById("requerimiento_id");
+            const unidad = select.options[select.selectedIndex].getAttribute("data-unidad");
+            const funcionario = select.options[select.selectedIndex].getAttribute("data-funcionario");
+
+            document.getElementById("unidad").value = unidad;
+            document.getElementById("funcionario_encargado").value = funcionario;
+
+            document.getElementById("bloque_tarea").disabled = (select.value === "");
+        }
+    </script>
 </head>
-<body>
-    <h2>Gestión de Tareas del Proceso de Contratación</h2>
+<body class="container py-4">
+    <h2 class="text-primary mb-4">Gestión de Tareas del Proceso de Contratación</h2>
+
     <form method="POST">
-        <form method="POST">
-    
-    <!-- Selector del número de oficio -->
-    <label>Seleccione el N° de Oficio (memo_vice_ad):</label>
-    <select name="requerimiento_id" id="requerimiento_id" onchange="mostrarUnidad()" required>
-        <option value="">-- Seleccione un memo --</option>
-        {% for r in requerimientos %}
-            <option value="{{ r[0] }}" data-unidad="{{ r[2] }}" data-funcionario="{{ r[3] }}">{{ r[1] }}</option>
-        {% endfor %}
-    </select>
-
-    <!-- Unidad requirente que se llenará automáticamente -->
-    <label>Unidad Requirente:</label>
-    <input type="text" id="unidad" disabled style="background-color:#eee;">
-
-    <!-- Aquí comienza el resto del formulario (deshabilitado inicialmente) -->
-    <fieldset id="bloque_tarea" disabled>
-
-        <!-- campos de tareas... -->
-        <label>Funcionario Encargado</label>
-        <input type="text" name="funcionario_encargado" required>
-        <!-- y así todo lo demás... -->
-
-    </fieldset>
-</form>
-            <div class="row">
-            <div class="col">
-                <label>Funcionario Encargado</label>
-                <input type="text" name="funcionario_encargado" required>
+        <!-- Selección del Requerimiento -->
+        <fieldset class="border p-3 mb-4">
+            <legend class="w-auto text-primary font-weight-bold">📑 Requerimiento Vinculado</legend>
+            <div class="form-row">
+                <div class="col-md-6">
+                    <label>Seleccione el N° de Oficio (memo_vice_ad):</label>
+                    <select name="requerimiento_id" id="requerimiento_id" class="form-control form-control-sm" onchange="mostrarDatos()" required>
+                        <option value="">-- Seleccione un memo --</option>
+                        {% for r in requerimientos %}
+                            <option value="{{ r[0] }}" data-unidad="{{ r[2] }}" data-funcionario="{{ r[3] }}">{{ r[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label>Unidad Requirente:</label>
+                    <input type="text" id="unidad" class="form-control form-control-sm" disabled>
+                </div>
+                <div class="col-md-3">
+                    <label>Funcionario Encargado:</label>
+                    <input type="text" id="funcionario_encargado" name="funcionario_encargado" class="form-control form-control-sm" readonly>
+                </div>
             </div>
-            <div class="col">
-                <label>Tipo de Proceso</label>
-                <input type="text" name="tipo_proceso" required>
+        </fieldset>
+
+        <!-- Formulario Tareas -->
+        <fieldset id="bloque_tarea" class="border p-3" disabled>
+            <legend class="w-auto text-primary font-weight-bold">📝 Información del Proceso</legend>
+
+            <div class="form-row">
+                <div class="col">
+                    <label>Tipo de Proceso:</label>
+                    <input type="text" name="tipo_proceso" class="form-control form-control-sm" required>
+                </div>
+                <div class="col">
+                    <label>Estado del Requerimiento:</label>
+                    <input type="text" name="estado_requerimiento" class="form-control form-control-sm">
+                </div>
             </div>
-        </div>
-        <label>Estado del Requerimiento</label>
-        <input type="text" name="estado_requerimiento">
 
-        <label>Objeto de la Contratación</label>
-        <textarea name="objeto_contratacion" rows="3"></textarea>
+            <label class="mt-2">Objeto de la Contratación:</label>
+            <textarea name="objeto_contratacion" class="form-control" rows="2"></textarea>
 
-        <div class="row">
-            <div class="col">
-                <label>Código del Proceso</label>
-                <input type="text" name="codigo_proceso">
+            <div class="form-row mt-2">
+                <div class="col">
+                    <label>Código del Proceso:</label>
+                    <input type="text" name="codigo_proceso" class="form-control form-control-sm">
+                </div>
+                <div class="col">
+                    <label>Fecha de Recepción:</label>
+                    <input type="date" name="fecha_recepcion" class="form-control form-control-sm">
+                </div>
             </div>
-            <div class="col">
-                <label>Fecha de Recepción</label>
-                <input type="date" name="fecha_recepcion">
+
+            <div class="form-row mt-2">
+                <div class="col">
+                    <label>Valor sin IVA:</label>
+                    <input type="number" name="valor_sin_iva" step="0.01" class="form-control form-control-sm">
+                </div>
+                <div class="col">
+                    <label>Valor Exento:</label>
+                    <input type="number" name="valor_exento" step="0.01" class="form-control form-control-sm">
+                </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col">
-                <label>Valor sin IVA</label>
-                <input type="number" step="0.01" name="valor_sin_iva">
+            <label class="mt-2">Valor en Letras:</label>
+            <input type="text" name="valor_en_letras" class="form-control form-control-sm">
+
+            <label class="mt-2">Tipo de Proceso a Aplicar:</label>
+            <input type="text" name="tipo_proceso_aplicar" class="form-control form-control-sm">
+
+            <label class="mt-2">Base Legal:</label>
+            <input type="text" name="base_legal" class="form-control form-control-sm">
+
+            <label class="mt-2">Observaciones:</label>
+            <textarea name="observaciones" class="form-control" rows="2"></textarea>
+
+            <div class="form-row mt-2">
+                <div class="col">
+                    <label>Fecha Envío Observaciones:</label>
+                    <input type="date" name="fecha_envio_observaciones" class="form-control form-control-sm">
+                </div>
+                <div class="col">
+                    <label>Fecha Corrección Observaciones:</label>
+                    <input type="date" name="fecha_correccion_observacion" class="form-control form-control-sm">
+                </div>
             </div>
-            <div class="col">
-                <label>Valor Exento</label>
-                <input type="number" step="0.01" name="valor_exento">
+
+            <label class="mt-2">Nombre del Jefe de Compras:</label>
+            <input type="text" name="nombre_jefe_compras" class="form-control form-control-sm">
+
+            <label class="mt-2">Unidad Solicitante:</label>
+            <input type="text" name="unidad_solicitante" class="form-control form-control-sm">
+
+            <label class="mt-2">Administrador del Contrato:</label>
+            <input type="text" name="administrador_contrato" class="form-control form-control-sm">
+
+            <h5 class="mt-4 text-primary font-weight-bold">✅ Verificación de Documentos</h5>
+            <div class="form-row">
+                <div class="col-md-4">
+                    <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_estudio_previo"> Estudio Previo</div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_terminos_referencia"> Términos de Referencia</div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_estudio_mercado"> Estudio de Mercado</div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" name="consta_catalogo_electronico"> En Catálogo Electrónico</div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" name="consta_pac"> En el PAC</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_especificaciones"> Especificaciones Técnicas</div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_proformas"> Presenta Proformas</div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" name="determinacion_necesidad"> Determinación de la Necesidad</div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" name="catalogado_incluido_gne"> Catalogado Incluido GNE</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_errores"> Presenta Errores</div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" name="cumple_normativa"> Cumple Normativa</div>
+                </div>
             </div>
-        </div>
 
-        <label>Valor en Letras</label>
-        <input type="text" name="valor_en_letras">
-
-        <label>Tipo de Proceso a Aplicar</label>
-        <input type="text" name="tipo_proceso_aplicar">
-
-        <label>Base Legal</label>
-        <input type="text" name="base_legal">
-
-        <label>Observaciones</label>
-        <textarea name="observaciones" rows="2"></textarea>
-
-        <div class="row">
-            <div class="col">
-                <label>Fecha Envío Observaciones</label>
-                <input type="date" name="fecha_envio_observaciones">
-            </div>
-            <div class="col">
-                <label>Fecha Corrección Observaciones</label>
-                <input type="date" name="fecha_correccion_observacion">
-            </div>
-        </div>
-
-        <label>Nombre del Jefe de Compras</label>
-        <input type="text" name="nombre_jefe_compras">
-
-        <label>Unidad Solicitante</label>
-        <input type="text" name="unidad_solicitante">
-
-        <label>Administrador del Contrato</label>
-        <input type="text" name="administrador_contrato">
-
-        <h3>Verificación de Documentos</h3>
-        <div class="checkboxes">
-            <label><input type="checkbox" name="presenta_estudio_previo"> Estudio Previo</label>
-            <label><input type="checkbox" name="presenta_especificaciones"> Especificaciones Técnicas</label>
-            <label><input type="checkbox" name="presenta_terminos_referencia"> Términos de Referencia</label>
-            <label><input type="checkbox" name="presenta_proformas"> Presenta Proformas</label>
-            <label><input type="checkbox" name="presenta_estudio_mercado"> Estudio de Mercado</label>
-            <label><input type="checkbox" name="determinacion_necesidad"> Determinación de la Necesidad</label>
-            <label><input type="checkbox" name="consta_catalogo_electronico"> En Catálogo Electrónico</label>
-            <label><input type="checkbox" name="catalogado_incluido_gne"> Catalogado Incluido GNE</label>
-            <label><input type="checkbox" name="consta_pac"> En el PAC</label>
-            <label><input type="checkbox" name="presenta_errores"> Presenta Errores</label>
-            <label><input type="checkbox" name="cumple_normativa"> Cumple Normativa</label>
-        </div>
-
-        <button type="submit">Guardar Tarea</button>
+            <button type="submit" class="btn btn-primary mt-4">Guardar Tarea</button>
+        </fieldset>
     </form>
-    <h3 style="margin-top:40px;">Tareas Registradas</h3>
-<table style="width:100%; border-collapse: collapse; background:#fff; margin-top:10px;">
-    <thead>
-        <tr style="background:#003366; color:white;">
-            <th style="padding:10px;">ID</th>
-            <th>N° Oficio</th>
-            <th>Unidad Requirente</th>
-            <th>Funcionario</th>
-            <th>Estado</th>
-            <th>Tipo de Proceso</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for t in tareas %}
-        <tr style="text-align:center;">
-            <td>{{ t[0] }}</td>
-            <td>{{ t[1] }}</td>
-            <td>{{ t[2] }}</td>
-            <td>{{ t[3] }}</td>
-            <td>{{ t[4] }}</td>
-            <td>{{ t[5] }}</td>
-            <td>
-                <form action="/admin/tareas/eliminar/{{ t[0] }}" method="POST" onsubmit="return confirm('¿Deseas eliminar esta tarea?');">
-                    <button type="submit" style="background-color:#c0392b; color:white; border:none; padding:6px 10px; border-radius:5px; cursor:pointer;">
-                        Eliminar
-                    </button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-   <!-- Habilita los campos memorando y desplaya unidad, y funcionario -->
-<script>
-function mostrarDatos() {
-    const select = document.getElementById("requerimiento_id");
-    const unidad = select.options[select.selectedIndex].getAttribute("data-unidad");
-    const funcionario = select.options[select.selectedIndex].getAttribute("data-funcionario");
-
-    document.getElementById("unidad").value = unidad;
-    document.getElementById("funcionario_encargado").value = funcionario;
-
-    document.getElementById("bloque_tarea").disabled = (select.value === "");
-}
-</script>
-</body>
-</html>
-
 </body>
 </html>
