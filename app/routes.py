@@ -236,6 +236,73 @@ def eliminar_tarea(id):
     conn.close()
 
     return redirect('/admin/tareas')
+@main.route('/admin/tareas/editar/<int:id>', methods=['GET', 'POST'])
+def editar_tarea(id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    # Obtener requerimientos para selector
+    cur.execute("SELECT id, memo_vice_ad, unid_requirente, funcionario_encargado FROM requerimientos")
+    requerimientos = cur.fetchall()
+
+    # Obtener la tarea a editar
+    cur.execute("SELECT * FROM tareas WHERE id = %s", (id,))
+    tarea = cur.fetchone()
+
+    if request.method == 'POST':
+        # Procesar edición
+        data = (
+            request.form['funcionario_encargado'],
+            request.form['tipo_proceso'],
+            request.form['estado_requerimiento'],
+            request.form['objeto_contratacion'],
+            request.form['codigo_proceso'],
+            request.form['fecha_recepcion'],
+            request.form['valor_sin_iva'],
+            request.form['valor_exento'],
+            request.form['valor_en_letras'],
+            request.form['tipo_proceso_aplicar'],
+            request.form['base_legal'],
+            request.form['observaciones'],
+            request.form['fecha_envio_observaciones'],
+            request.form['fecha_correccion_observacion'],
+            request.form['nombre_jefe_compras'],
+            request.form['unidad_solicitante'],
+            request.form['administrador_contrato'],
+            'presenta_estudio_previo' in request.form,
+            'presenta_especificaciones' in request.form,
+            'presenta_terminos_referencia' in request.form,
+            'presenta_proformas' in request.form,
+            'presenta_estudio_mercado' in request.form,
+            'determinacion_necesidad' in request.form,
+            'consta_catalogo_electronico' in request.form,
+            'catalogado_incluido_gne' in request.form,
+            'consta_pac' in request.form,
+            'presenta_errores' in request.form,
+            'cumple_normativa' in request.form,
+            id  # Para WHERE
+        )
+        cur.execute("""
+            UPDATE tareas SET
+                funcionario_encargado=%s, tipo_proceso=%s, estado_requerimiento=%s,
+                objeto_contratacion=%s, codigo_proceso=%s, fecha_recepcion=%s,
+                valor_sin_iva=%s, valor_exento=%s, valor_en_letras=%s,
+                tipo_proceso_aplicar=%s, base_legal=%s, observaciones=%s,
+                fecha_envio_observaciones=%s, fecha_correccion_observacion=%s,
+                nombre_jefe_compras=%s, unidad_solicitante=%s, administrador_contrato=%s,
+                presenta_estudio_previo=%s, presenta_especificaciones=%s,
+                presenta_terminos_referencia=%s, presenta_proformas=%s,
+                presenta_estudio_mercado=%s, determinacion_necesidad=%s,
+                consta_catalogo_electronico=%s, catalogado_incluido_gne=%s,
+                consta_pac=%s, presenta_errores=%s, cumple_normativa=%s
+            WHERE id=%s
+        """, data)
+        conn.commit()
+        conn.close()
+        return redirect('/admin/tareas')
+
+    conn.close()
+    return render_template('editar_tarea.html', requerimientos=requerimientos, tarea=tarea)
 
 
 
