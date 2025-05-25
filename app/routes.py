@@ -125,7 +125,8 @@ def gestionar_requerimientos():
             request.form['fecha_memo_dir_ad'],
             request.form['fecha_recep_req'],
             request.form['breve_descr'],
-            request.form['monto_req']
+            request.form['monto_req'],
+            request.form['funcionario_encargado'] 
         )
 
         cur.execute("""
@@ -133,9 +134,9 @@ def gestionar_requerimientos():
                 mem_requi, fecha_memo_requi, unid_requirente,
                 memo_vice_ad, fecha_memo_vice_ad,
                 memo_dir_ad, fecha_memo_dir_ad,
-                fecha_recep_req, breve_descr, monto_req
+                fecha_recep_req, breve_descr, monto_req, funcionario_encargado
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """, data)
         conn.commit()
 
