@@ -10,14 +10,12 @@ def get_db_connection():
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        usuario = request.form['usuario']
+        correo = request.form['correo']
         contraseña = request.form['contraseña']
-
-        correo_completo = f"{usuario}@utmachala.edu.ec"
 
         conn = get_db_connection()
         cur = conn.cursor()
-        cur.execute("SELECT id, nombre, rol FROM usuarios WHERE correo = %s AND contraseña = %s", (correo_completo, contraseña))
+        cur.execute("SELECT id, nombre, rol FROM usuarios WHERE correo = %s AND contraseña = %s", (correo, contraseña))
         user = cur.fetchone()
         conn.close()
 
@@ -28,12 +26,8 @@ def login():
 
             if user[2] == 'Administrador':
                 return redirect('/admin_dashboard')
-            elif user[2] == 'Analista':
-                return redirect('/analista_dashboard')
-            elif user[2] == 'Jefe':
-                return redirect('/jefe_dashboard')
             else:
-                return redirect('/invitado_dashboard')
+                return redirect('/login')
         else:
             return render_template('login.html', error='Usuario o contraseña incorrectos')
 
