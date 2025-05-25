@@ -1,21 +1,14 @@
-from flask import Blueprint, render_template, request, redirect, session
-import psycopg2
-import os
-
-auth = Blueprint('auth', __name__)
-
-def get_db_connection():
-    return psycopg2.connect(os.getenv("DATABASE_URL"))
-
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         usuario = request.form['usuario']
         contraseña = request.form['contraseña']
 
+        correo_completo = f"{usuario}@utmachala.edu.ec"
+
         conn = get_db_connection()
         cur = conn.cursor()
-        cur.execute("SELECT id, nombre, rol FROM usuarios WHERE usuario = %s AND contraseña = %s", (usuario, contraseña))
+        cur.execute("SELECT id, nombre, rol FROM usuarios WHERE correo = %s AND contraseña = %s", (correo_completo, contraseña))
         user = cur.fetchone()
         conn.close()
 
@@ -26,8 +19,12 @@ def login():
 
             if user[2] == 'Administrador':
                 return redirect('/admin_dashboard')
+            elif user[2] == 'Analista':
+                return redirect('/analista_dashboard')
+            elif user[2] == 'Jefe':
+                return redirect('/jefe_dashboard')
             else:
-                return redirect('/login')
+                return redirect('/invitado_dashboard')
         else:
             return render_template('login.html', error='Usuario o contraseña incorrectos')
 
