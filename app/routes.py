@@ -77,3 +77,28 @@ def gestionar_procesos():
     conn.close()
 
     return render_template('procesos_admin.html', procesos=procesos)
+@main.route('/admin/productos', methods=['GET', 'POST'])
+def gestionar_productos():
+    if session.get('rol') != 'Administrador':
+        return redirect('/login')
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    if request.method == 'POST':
+        descripcion = request.form['descripcion']
+        unidad = request.form['unidad']
+        cantidad = int(request.form['cantidad'])
+        valor_uni = float(request.form['valor_uni'])
+
+        cur.execute("""
+            INSERT INTO productos (descripcion, unidad, cantidad, valor_uni)
+            VALUES (%s, %s, %s, %s)
+        """, (descripcion, unidad, cantidad, valor_uni))
+        conn.commit()
+
+    cur.execute("SELECT id, descripcion, unidad, cantidad, valor_uni, total FROM productos")
+    productos = cur.fetchall()
+    conn.close()
+
+    return render_template('productos_admin.html', productos=productos)
