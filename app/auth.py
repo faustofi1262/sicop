@@ -1,10 +1,10 @@
 from flask import Blueprint, render_template, request, redirect, session
 import psycopg2
 import os
-from .auth import auth
+
+# 🔽 AQUÍ va la línea que crea el blueprint
 auth = Blueprint('auth', __name__)
-# Register the blueprint in your main application file (e.g., app.py) where 'app' is defined:
-# app.register_blueprint(auth)
+
 def get_db_connection():
     return psycopg2.connect(os.getenv("DATABASE_URL"))
 
