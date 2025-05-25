@@ -60,7 +60,8 @@
 </head>
 <body>
     <div class="login-box">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/Escudo_de_la_UTMACH.png" alt="UTMACH" class="logo">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="UTMACH university crest featuring a shield with academic symbols on a blue and gold background, surrounded by a laurel wreath and the text Universidad Técnica de Machala, conveying a formal and scholarly atmosphere">
+
         <h2>Ingreso al sistema SICOP</h2>
         <form method="POST">
             <input name="correo" type="email" placeholder="Correo institucional" required>
