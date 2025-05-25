@@ -1,4 +1,4 @@
-from flask import Blueprint, session, redirect, render_template
+from flask import Blueprint, session, redirect, render_template, request
 import psycopg2
 import os
 main = Blueprint('main', __name__)
