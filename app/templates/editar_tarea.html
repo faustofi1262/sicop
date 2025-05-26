@@ -115,7 +115,8 @@
         <input type="text" name="administrador_contrato" class="form-control form-control-sm" value="{{ tarea[18] or '' }}">
 
         <h5 class="mt-4 text-primary font-weight-bold">✅ Verificación de Documentos</h5>
-        <div class="form-check mt-2">
+        <div class="form-row">
+            <div class="col-md-4">
             <input class="form-check-input" type="checkbox" name="Estudio Previo" {% if tarea[29] %}checked{% endif %}>
             <label class="form-check-label">Estudio Previo</label>
              <input class="form-check-input" type="checkbox" name="Términos de Referencia" {% if tarea[30] %}checked{% endif %}>
@@ -126,6 +127,8 @@
             <label class="form-check-label">En Catálogo Electrónico</label>
             <input class="form-check-input" type="checkbox" name="En el PAC" {% if tarea[33] %}checked{% endif %}>
             <label class="form-check-label">En el PAC</label>
+         </div>
+         <div class="col-md-4">
             <input class="form-check-input" type="checkbox" name="Especificaciones Técnicas" {% if tarea[33] %}checked{% endif %}>
             <label class="form-check-label">Especificaciones Técnicas</label>
             <input class="form-check-input" type="checkbox" name="Presenta Proformas" {% if tarea[33] %}checked{% endif %}>
@@ -134,6 +137,8 @@
             <label class="form-check-label">Determinación de la Necesidad</label>
             <input class="form-check-input" type="checkbox" name="Catalogado Incluido GNE" {% if tarea[33] %}checked{% endif %}>
             <label class="form-check-label">Catalogado Incluido GNE</label>
+        </div>
+        <div class="col-md-4">
             <input class="form-check-input" type="checkbox" name="Presenta Errores" {% if tarea[33] %}checked{% endif %}>
             <label class="form-check-label">Presenta Errores</label>
             <input class="form-check-input" type="checkbox" name="Cumple Normativa" {% if tarea[33] %}checked{% endif %}>
