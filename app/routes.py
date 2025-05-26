@@ -396,3 +396,38 @@ def gestionar_partidas(req_id):
     conn.close()
 
     return render_template("partidas_form.html", partidas=partidas, req_id=req_id)
+@main.route('/admin/partidas/editar/<int:partida_id>', methods=['GET', 'POST'])
+def editar_partida(partida_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    if request.method == 'POST':
+        nombre_part = request.form['nombre_part']
+        num_part = request.form['num_part']
+        fuente = request.form['fuente']
+        programa = request.form['programa']
+        monto = request.form['monto']
+
+        cur.execute("""
+            UPDATE partidas
+            SET nombre_part=%s, num_part=%s, fuente=%s, programa=%s, monto=%s
+            WHERE id=%s
+        """, (nombre_part, num_part, fuente, programa, monto, partida_id))
+        conn.commit()
+        conn.close()
+        return redirect(request.referrer)
+
+    cur.execute("SELECT * FROM partidas WHERE id = %s", (partida_id,))
+    partida = cur.fetchone()
+    conn.close()
+    return render_template('editar_partida.html', partida=partida)
+
+
+@main.route('/admin/partidas/eliminar/<int:partida_id>', methods=['POST'])
+def eliminar_partida(partida_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM partidas WHERE id = %s", (partida_id,))
+    conn.commit()
+    conn.close()
+    return redirect(request.referrer)
