@@ -59,7 +59,7 @@
 </head>
 <body>
     <div class="encabezado">
-        <img src="/static/logo.png" class="logo" alt="Escudo UTMACH">
+        <img src="/static/escudo_utmach.png" class="logo" alt="Escudo UTMACH">
         <div class="titulo">UNIVERSIDAD TÉCNICA DE MACHALA</div>
         <div>Unidad de Compras Públicas</div>
         <div>RUC: 1267894560001 | Santa Rosa - El Oro</div>
@@ -88,7 +88,7 @@
             <li class="check">{% if presenta_estudio_mercado %}✔{% else %}✖{% endif %} Estudio de Mercado</li>
             <li class="check">{% if determinacion_necesidad %}✔{% else %}✖{% endif %} Determinación de la Necesidad</li>
             <li class="check">{% if consta_catalogo_electronico %}✔{% else %}✖{% endif %} En Catálogo Electrónico</li>
-            <li class="check">{% if costa_poa %}✔{% else %}✖{% endif %} Conta en el POA</li>
+            <li class="check">{% if catalogado_incluido_gne %}✔{% else %}✖{% endif %} Catalogado Incluido GNE</li>
             <li class="check">{% if consta_pac %}✔{% else %}✖{% endif %} Consta en el PAC</li>
             <li class="check">{% if presenta_errores %}✔{% else %}✖{% endif %} Presenta Errores</li>
             <li class="check">{% if cumple_normativa %}✔{% else %}✖{% endif %} Cumple Normativa</li>
@@ -97,7 +97,7 @@
 
     <h5 class="subtitulo">3. CONCLUSIÓN</h5>
     <div class="cuadro">
-        El proceso propuesto corresponde a: <strong>{{ tipo_regimen }}</strong><br>
+        El proceso propuesto corresponde a: <strong>{{ tipo_proceso_aplicar }}</strong><br>
         Base Legal: {{ base_legal }}<br>
         Observaciones: {{ observaciones }}
     </div>
@@ -114,6 +114,7 @@
     <div class="text-center btn-imprimir">
         <button onclick="window.print()" class="btn btn-primary">📄 Imprimir PDF</button>
         <a href="/admin/tareas" class="btn btn-secondary ml-2">🔙 Regresar a Tareas</a>
+        <a href="/informe/verificacion/{{ request.view_args['id_tarea'] }}/pdf" class="btn btn-success ml-2">⬇ Descargar PDF</a>
     </div>
 
 </body>
