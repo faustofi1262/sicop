@@ -165,7 +165,11 @@ def tareas():
     tipos_proceso = cur.fetchall()
 
     # Obtener requerimientos para el selector
-    cur.execute("SELECT id, memo_vice_ad, unid_requirente, funcionario_encargado FROM requerimientos")
+    cur.execute("""
+        SELECT r.id, r.memo_vice_ad, u.nombre_unidad, r.funcionario_encargado
+        FROM requerimientos r
+        JOIN unidades u ON r.unid_requirente = u.id
+    """)
     requerimientos = cur.fetchall()
 
     if request.method == 'POST':
