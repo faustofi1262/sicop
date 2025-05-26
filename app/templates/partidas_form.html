@@ -1,0 +1,70 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ingreso de Partidas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container mt-4">
+    <h3 class="mb-3 text-primary">🧾 Ingreso de Partidas para el Requerimiento #{{ req_id }}</h3>
+
+    <form method="POST" class="border rounded p-4 bg-white shadow-sm">
+        <div class="form-row">
+            <div class="col-md-6 mb-3">
+                <label>Nombre de la Partida:</label>
+                <input type="text" name="nombre_part" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Número de Partida:</label>
+                <input type="text" name="num_part" class="form-control" required>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-md-6 mb-3">
+                <label>Fuente de Financiamiento:</label>
+                <input type="text" name="fuente" class="form-control">
+            </div>
+            <div class="col-md-4 mb-3">
+                <label>Programa:</label>
+                <input type="text" name="programa" class="form-control">
+            </div>
+            <div class="col-md-2 mb-3">
+                <label>Monto:</label>
+                <input type="number" step="0.01" name="monto" class="form-control" required>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success">💾 Agregar Partida</button>
+        <a href="/admin/requerimientos" class="btn btn-secondary ml-2">⬅️ Volver</a>
+    </form>
+
+    <hr>
+    <h5 class="mt-4">Partidas Registradas</h5>
+    <table class="table table-sm table-bordered mt-2 bg-white">
+        <thead class="thead-dark">
+            <tr>
+                <th>Nombre</th>
+                <th>Número</th>
+                <th>Fuente</th>
+                <th>Programa</th>
+                <th>Monto</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in partidas %}
+            <tr>
+                <td>{{ p[0] }}</td>
+                <td>{{ p[1] }}</td>
+                <td>{{ p[2] }}</td>
+                <td>{{ p[3] }}</td>
+                <td>$ {{ '%.2f'|format(p[4]) }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center">No hay partidas registradas aún.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

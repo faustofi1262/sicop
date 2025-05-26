@@ -366,6 +366,30 @@ def eliminar_requerimiento(id):
     conn.commit()
     conn.close()
     return redirect('/admin/requerimientos')
+#agrega botn para agregar partidas
+@main.route('/admin/requerimientos/<int:req_id>/partidas', methods=['GET', 'POST'])
+def gestionar_partidas(req_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    if request.method == 'POST':
+        nombre_part = request.form['nombre_part']
+        num_part = request.form['num_part']
+        fuente = request.form['fuente']
+        programa = request.form['programa']
+        monto = request.form['monto']
+
+        cur.execute("""
+            INSERT INTO partidas (requerimiento_id, nombre_part, num_part, fuente, programa, monto)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (req_id, nombre_part, num_part, fuente, programa, monto))
+        conn.commit()
+
+    cur.execute("SELECT nombre_part, num_part, fuente, programa, monto FROM partidas WHERE requerimiento_id = %s", (req_id,))
+    partidas = cur.fetchall()
+    conn.close()
+
+    return render_template("partidas_form.html", partidas=partidas, req_id=req_id)
 
 
 
