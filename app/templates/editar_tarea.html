@@ -55,7 +55,7 @@
     <input type="text" name="valor_en_letras" class="form-control form-control-sm" value="{{ tarea[9] }}">
 
     <label class="mt-2">Tipo de Proceso a Aplicar:</label>
-    <input type="text" name="tipo_proceso_aplicar" class="form-control form-control-sm" value="{{ tarea[10] }}">
+    <input type="text" name="tipo_regimen" class="form-control form-control-sm" value="{{ tarea[10] }}">
 
     <label class="mt-2">Base Legal:</label>
     <input type="text" name="base_legal" class="form-control form-control-sm" value="{{ tarea[11] }}">
@@ -96,7 +96,7 @@
             <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_especificaciones" {% if tarea[19] %}checked{% endif %}> Especificaciones Técnicas</div>
             <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_proformas" {% if tarea[21] %}checked{% endif %}> Presenta Proformas</div>
             <div class="form-check"><input class="form-check-input" type="checkbox" name="determinacion_necesidad" {% if tarea[23] %}checked{% endif %}> Determinación de la Necesidad</div>
-            <div class="form-check"><input class="form-check-input" type="checkbox" name="catalogado_incluido_gne" {% if tarea[25] %}checked{% endif %}> Catalogado Incluido GNE</div>
+            <div class="form-check"><input class="form-check-input" type="checkbox" name="costa_poa" {% if tarea[25] %}checked{% endif %}> Catalogado Incluido GNE</div>
         </div>
         <div class="col-md-4">
             <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_errores" {% if tarea[27] %}checked{% endif %}> Presenta Errores</div>
