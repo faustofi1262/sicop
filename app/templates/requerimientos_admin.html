@@ -112,21 +112,10 @@
                 <input type="number" name="monto_req" step="0.01" class="form-control form-control-sm" required>
             </div>
         </div>
-        <div class="col">
-            <label>Programa:</label>
-            <input type="text" name="programa" class="form-control form-control-sm" value="{{ request.form.get('programa', '') }}">
-        </div>
-         </div>
-            <label class="mt-2">Descripción del Programa:</label>
-            <textarea name="descripcion" rows="2" class="form-control">{{ request.form.get('descripcion', '') }}</textarea>
-        <div class="form-row mt-2">
-        <div class="col">
-            <label>Fuente de Financiamiento:</label>
-            <input type="text" name="fuente_financiamiento" class="form-control form-control-sm" value="{{ request.form.get('fuente_financiamiento', '') }}">
-        </div>
-        <div class="col">
-            <label>Número de Partida:</label>
-            <input type="text" name="numero_partida" class="form-control form-control-sm" value="{{ request.form.get('numero_partida', '') }}">
+        <div class="mt-3">
+            <a href="/admin/requerimientos/{{ requerimiento_id }}/partidas" class="btn btn-primary">
+             ➕ Ingresar Partidas
+            </a>
         </div>
      </div>
     </fieldset>
