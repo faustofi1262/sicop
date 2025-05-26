@@ -162,7 +162,7 @@ def tareas():
     # 🔽 carga los tipos de proceso
     cur.execute("SELECT nombre_proceso FROM tipo_procesos")
     tipos_proceso = cur.fetchall()
-    return render_template("tareas_admin.html", ..., tipos_proceso=tipos_proceso)
+    render_template("tareas_admin.html", requerimientos=requerimientos, tareas=tareas, tipos_proceso=tipos_proceso)
     # Obtener los requerimientos con memo_vice_ad, unidad y funcionario
     cur.execute("SELECT id, memo_vice_ad, unid_requirente, funcionario_encargado FROM requerimientos")
     requerimientos = cur.fetchall()
