@@ -17,8 +17,10 @@
 
             document.getElementById("unidad").value = unidad;
             document.getElementById("funcionario_encargado").value = funcionario;
-
-            document.getElementById("bloque_tarea").disabled = (select.value === "");
+            // habilitar bloque
+            if (unidad) {
+                document.getElementById("bloque_tarea").removeAttribute("disabled");
+            }
         }
     </script>
 </head>
@@ -57,7 +59,7 @@
             <div class="form-row">
                 <div class="col">
                     <label>Tipo de Proceso:</label>
-                    <select name="tipo_proceso" class="form-control form-control-sm" required>
+                    <select name="tipo_proceso" class="form-control">
                         <option value="">-- Seleccione --</option>
                         {% for tipo in tipos_proceso %}
                             <option value="{{ tipo[0] }}">{{ tipo[0] }}</option>
