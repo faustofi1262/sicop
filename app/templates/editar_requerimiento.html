@@ -36,7 +36,7 @@
                 <select name="funcionario_encargado" class="form-control form-control-sm" required>
                     <option value="">-- Seleccione un funcionario --</option>
                     {% for f in funcionarios %}
-                        <option value="{{ f[0] }}" {% if req[10] == f[0] %}selected{% endif %}>{{ f[0] }}</option>
+                        <option value="{{ f[0] }}" {% if req[11] == f[0] %}selected{% endif %}>{{ f[0] }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -68,10 +68,32 @@
         <input type="date" name="fecha_recep_req" class="form-control form-control-sm" value="{{ req[8] }}">
 
         <label class="mt-2">Breve Descripción:</label>
-        <textarea name="breve_descr" rows="3" class="form-control">{{ req[9] }}</textarea>
+        <textarea name="breve_descr" rows="2" class="form-control">{{ req[9] }}</textarea>
 
-        <label class="mt-2">Monto Requerido:</label>
-        <input type="number" name="monto_req" step="0.01" class="form-control form-control-sm" value="{{ req[10] }}">
+        <div class="form-row mt-2">
+            <div class="col">
+                <label>Monto Requerido:</label>
+                <input type="number" name="monto_req" step="0.01" class="form-control form-control-sm" value="{{ req[10] }}">
+            </div>
+            <div class="col">
+                <label>Programa:</label>
+                <input type="text" name="programa" class="form-control form-control-sm" value="{{ req[12] }}">
+            </div>
+        </div>
+
+        <label class="mt-2">Descripción del Programa:</label>
+        <textarea name="descripcion" rows="2" class="form-control">{{ req[13] }}</textarea>
+
+        <div class="form-row mt-2">
+            <div class="col">
+                <label>Fuente de Financiamiento:</label>
+                <input type="text" name="fuente_financiamiento" class="form-control form-control-sm" value="{{ req[14] }}">
+            </div>
+            <div class="col">
+                <label>Número de Partida:</label>
+                <input type="text" name="numero_partida" class="form-control form-control-sm" value="{{ req[15] }}">
+            </div>
+        </div>
 
         <button type="submit" class="btn btn-success mt-4">Guardar Cambios</button>
         <a href="/admin/requerimientos" class="btn btn-secondary mt-4 ml-2">Cancelar</a>
