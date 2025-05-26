@@ -312,7 +312,8 @@ def editar_tarea(id):
         return redirect('/admin/tareas')
 
     conn.close()
-    return render_template('editar_tarea.html', requerimientos=requerimientos, tarea=tarea)
+    return render_template('editar_tarea.html', requerimientos=requerimientos, tarea=tarea, tipos_proceso=tipos_proceso)
+
 @main.route('/convertir_a_letras')
 def convertir_a_letras():
     valor = float(request.args.get("valor", 0))
@@ -474,50 +475,3 @@ def generar_informe_verificacion(id_tarea):
         cumple_normativa=tarea[28],
         nombre_jefe_compras=tarea[15]
     )
-from flask import make_response
-from weasyprint import HTML
-
-@main.route('/informe/verificacion/<int:id_tarea>/pdf')
-def generar_pdf_verificacion(id_tarea):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM tareas WHERE id = %s", (id_tarea,))
-    tarea = cur.fetchone()
-    conn.close()
-
-    if not tarea:
-        return "Tarea no encontrada", 404
-
-    from datetime import date
-    rendered_html = render_template("informe_verificacion.html",
-        fecha=date.today().strftime('%d/%m/%Y'),
-        unidad_solicitante=tarea[16],
-        funcionario_encargado=tarea[1],
-        objeto_contratacion=tarea[4],
-        codigo_proceso=tarea[5],
-        tipo_proceso=tarea[2],
-        valor_sin_iva=tarea[7],
-        valor_exento=tarea[8],
-        valor_en_letras=tarea[9],
-        tipo_proceso_aplicar=tarea[10],
-        base_legal=tarea[11],
-        observaciones=tarea[12],
-        presenta_estudio_previo=tarea[18],
-        presenta_especificaciones=tarea[19],
-        presenta_terminos_referencia=tarea[20],
-        presenta_proformas=tarea[21],
-        presenta_estudio_mercado=tarea[22],
-        determinacion_necesidad=tarea[23],
-        consta_catalogo_electronico=tarea[24],
-        catalogado_incluido_gne=tarea[25],
-        consta_pac=tarea[26],
-        presenta_errores=tarea[27],
-        cumple_normativa=tarea[28],
-        nombre_jefe_compras=tarea[15]
-    )
-
-    pdf = HTML(string=rendered_html, base_url=".").write_pdf()
-    response = make_response(pdf)
-    response.headers['Content-Type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = f'inline; filename=informe_verificacion_{id_tarea}.pdf'
-    return response
