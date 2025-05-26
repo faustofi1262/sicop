@@ -159,11 +159,12 @@ def gestionar_requerimientos():
 def tareas():
     conn = get_db_connection()
     cur = conn.cursor()
-    # 🔽 carga los tipos de proceso
+
+    # Cargar tipos de proceso
     cur.execute("SELECT nombre_proceso FROM tipo_procesos")
     tipos_proceso = cur.fetchall()
-    render_template('tareas_admin.html', requerimientos=requerimientos, tareas=tareas, tipos_proceso=tipos_proceso)
-    # Obtener los requerimientos con memo_vice_ad, unidad y funcionario
+
+    # Obtener requerimientos para el selector
     cur.execute("SELECT id, memo_vice_ad, unid_requirente, funcionario_encargado FROM requerimientos")
     requerimientos = cur.fetchall()
 
@@ -217,7 +218,6 @@ def tareas():
         """, data)
         conn.commit()
 
-    # Consultar tareas para mostrar tabla
     cur.execute("""
         SELECT t.id, r.memo_vice_ad, r.unid_requirente, t.funcionario_encargado,
                t.estado_requerimiento, t.tipo_proceso
@@ -227,7 +227,8 @@ def tareas():
     tareas = cur.fetchall()
     conn.close()
 
-    return render_template('tareas_admin.html', requerimientos=requerimientos, tareas=tareas)    
+    return render_template('tareas_admin.html', requerimientos=requerimientos, tareas=tareas, tipos_proceso=tipos_proceso)
+
 
 @main.route('/admin/tareas/eliminar/<int:id>', methods=['POST'])
 def eliminar_tarea(id):
