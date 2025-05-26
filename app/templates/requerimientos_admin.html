@@ -113,7 +113,7 @@
             </div>
         </div>
         <div class="mt-3">
-            <a href="/admin/requerimientos/{{ requerimiento_id }}/partidas" class="btn btn-primary">
+           <a href="/admin/requerimientos/{{ req[0] }}/partidas" class="btn btn-primary"></a>
              ➕ Ingresar Partidas
             </a>
         </div>
@@ -158,6 +158,11 @@
                             <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                         </form>
                     </td>
+                    <td>
+                    <a href="/admin/requerimientos/{{ req[0] }}/partidas" class="btn btn-sm btn-primary">
+                     ➕ Ingresar Partidas
+                    </a>
+                    </td>  
                 </tr>
             {% endfor %}
         </tbody>

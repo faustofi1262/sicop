@@ -366,6 +366,7 @@ def eliminar_requerimiento(id):
     conn.commit()
     conn.close()
     return redirect('/admin/requerimientos')
+
 #agrega botn para agregar partidas
 @main.route('/admin/requerimientos/<int:req_id>/partidas', methods=['GET', 'POST'])
 def gestionar_partidas(req_id):
