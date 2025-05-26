@@ -251,7 +251,7 @@ def editar_tarea(id):
     conn = get_db_connection()
     cur = conn.cursor()
 
-    # Obtener requerimientos para selector
+   # Obtener requerimientos para selector
     cur.execute("SELECT id, memo_vice_ad, unid_requirente, funcionario_encargado FROM requerimientos")
     requerimientos = cur.fetchall()
 
@@ -259,6 +259,9 @@ def editar_tarea(id):
     cur.execute("SELECT * FROM tareas WHERE id = %s", (id,))
     tarea = cur.fetchone()
 
+    cur.execute("SELECT nombre_proceso FROM tipo_procesos")
+    tipos_proceso = cur.fetchall()
+    
     if request.method == 'POST':
         # Procesar edición
         data = (
