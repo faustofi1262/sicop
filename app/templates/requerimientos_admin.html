@@ -111,21 +111,15 @@
                 <label>Monto Requerido:</label>
                 <input type="number" name="monto_req" step="0.01" class="form-control form-control-sm" required>
             </div>
-        <div class="form-row mt-2">
-        <div class="col">
-            <label>Monto Requerido:</label>
-            <input type="number" name="monto_req" step="0.01" class="form-control form-control-sm" value="{{ request.form.get('monto_req', '') }}">
         </div>
         <div class="col">
             <label>Programa:</label>
             <input type="text" name="programa" class="form-control form-control-sm" value="{{ request.form.get('programa', '') }}">
         </div>
-    </div>
-
-    <label class="mt-2">Descripción del Programa:</label>
-    <textarea name="descripcion" rows="2" class="form-control">{{ request.form.get('descripcion', '') }}</textarea>
-
-    <div class="form-row mt-2">
+         </div>
+            <label class="mt-2">Descripción del Programa:</label>
+            <textarea name="descripcion" rows="2" class="form-control">{{ request.form.get('descripcion', '') }}</textarea>
+        <div class="form-row mt-2">
         <div class="col">
             <label>Fuente de Financiamiento:</label>
             <input type="text" name="fuente_financiamiento" class="form-control form-control-sm" value="{{ request.form.get('fuente_financiamiento', '') }}">
