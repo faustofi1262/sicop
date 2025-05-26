@@ -39,29 +39,29 @@
             <input type="date" name="fecha_recepcion" class="form-control form-control-sm" value="{{ tarea[6] or '' }}">
         </div>
     </div>
-
     <div class="form-row mt-2">
         <div class="col">
             <label>Valor sin IVA:</label>
             <input type="number" step="0.01" name="valor_sin_iva" class="form-control form-control-sm" value="{{ tarea[7] }}">
-        </div>
+    </div>
         <div class="col">
             <label>Valor Exento:</label>
             <input type="number" step="0.01" name="valor_exento" class="form-control form-control-sm" value="{{ tarea[8] }}">
         </div>
     </div>
+
     <label class="mt-2">Valor en Letras:</label>
-        <input type="text" name="valor_en_letras" value="{{ tarea[9] }}">
+    <input type="text" name="valor_en_letras" class="form-control form-control-sm" value="{{ tarea[9] }}">
 
     <label class="mt-2">Tipo de Proceso a Aplicar:</label>
-    <input type="text" name="tipo_regimen" class="form-control form-control-sm" value="{{ tarea[10] }}">
+    <input type="text" name="tipo_proceso_aplicar" class="form-control form-control-sm" value="{{ tarea[10] }}">
 
     <label class="mt-2">Base Legal:</label>
     <input type="text" name="base_legal" class="form-control form-control-sm" value="{{ tarea[11] }}">
 
     <label class="mt-2">Observaciones:</label>
     <textarea name="observaciones" class="form-control">{{ tarea[12] }}</textarea>
-
+    
     <div class="form-row mt-2">
         <div class="col">
             <label>Fecha Envío Observaciones:</label>
