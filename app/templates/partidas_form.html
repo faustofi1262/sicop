@@ -61,7 +61,7 @@
                     <td>{{ p[3] }}</td>
                     <td>${{ '%.2f'|format(p[4]) }}</td>
                     <td>
-                        <a href="/admin/requerimientos/{{ req_id }}/partidas/editar/{{ loop.index0 }}" class="btn btn-warning btn-sm">Editar</a>
+                        <a href="/admin/partidas/editar/{{ p[0] }}" class="btn btn-warning btn-sm">Editar</a>
                         <form action="/admin/requerimientos/{{ req_id }}/partidas/eliminar/{{ loop.index0 }}" method="POST" class="d-inline" onsubmit="return confirm('¿Está seguro de eliminar esta partida?');">
                             <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                         </form>

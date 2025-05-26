@@ -387,7 +387,7 @@ def gestionar_partidas(req_id):
         conn.commit()
 
     cur.execute("""
-        SELECT nombre_part, num_part, fuente, programa, monto
+        SELECT id, nombre_part, num_part, fuente, programa, monto
         FROM partidas
         WHERE requerimiento_id = %s
         ORDER BY id ASC
