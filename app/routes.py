@@ -385,12 +385,13 @@ def gestionar_partidas(req_id):
         """, (req_id, nombre_part, num_part, fuente, programa, monto))
         conn.commit()
 
-    cur.execute("SELECT nombre_part, num_part, fuente, programa, monto FROM partidas WHERE requerimiento_id = %s", (req_id,))
+    cur.execute("""
+        SELECT nombre_part, num_part, fuente, programa, monto
+        FROM partidas
+        WHERE requerimiento_id = %s
+        ORDER BY id ASC
+    """, (req_id,))
     partidas = cur.fetchall()
     conn.close()
 
     return render_template("partidas_form.html", partidas=partidas, req_id=req_id)
-
-
-
-
