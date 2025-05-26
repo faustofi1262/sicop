@@ -7,26 +7,39 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            font-size: 14px;
+            font-size: 13px;
             padding: 40px;
-            background-color: #f4f8fc;
+            background-color: #fff;
             color: #000;
+            border: 3px double #003366;
+            margin: 30px;
+        }
+        .encabezado {
+            text-align: center;
+            border-bottom: 2px solid #003366;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .logo {
+            width: 80px;
+            margin-bottom: 10px;
         }
         .titulo {
-            text-align: center;
             font-weight: bold;
             color: #003366;
-            font-size: 22px;
-            margin-bottom: 10px;
+            font-size: 18px;
         }
         .subtitulo {
             font-weight: bold;
             margin-top: 20px;
             color: #003366;
+            text-decoration: underline;
         }
-        .linea {
-            border-top: 2px solid #003366;
-            margin: 15px 0;
+        .cuadro {
+            border: 1px solid #003366;
+            background-color: #f0f4fb;
+            padding: 10px;
+            border-radius: 5px;
         }
         .firma {
             margin-top: 60px;
@@ -35,32 +48,23 @@
         .check {
             font-weight: bold;
         }
-        table tr td {
+        table td {
             padding: 6px;
             vertical-align: top;
         }
-        .cuadro {
-            border: 1px solid #999;
-            padding: 10px;
-            border-radius: 6px;
-            background-color: #eef2f8;
-        }
-        .logo {
-            width: 100px;
+        .btn-imprimir {
+            margin-top: 30px;
         }
     </style>
 </head>
 <body>
-
-    <div class="text-center mb-4">
-        <img src="/static/escudo_utmach.png" alt="Logo UTMACH" class="logo mb-2">
+    <div class="encabezado">
+        <img src="/static/escudo_utmach.png" class="logo" alt="Escudo UTMACH">
         <div class="titulo">UNIVERSIDAD TÉCNICA DE MACHALA</div>
         <div>Unidad de Compras Públicas</div>
-        <div>Machala - El Oro | RUC: 0760001580001</div>
-        <div class="mt-2"><strong>Fecha:</strong> {{ fecha }}</div>
+        <div>RUC: 1267894560001 | Santa Rosa - El Oro</div>
+        <div><strong>Fecha:</strong> {{ fecha }}</div>
     </div>
-
-    <div class="linea"></div>
 
     <h5 class="subtitulo">1. DATOS GENERALES</h5>
     <table class="table table-sm">
@@ -75,19 +79,21 @@
     </table>
 
     <h5 class="subtitulo">2. VERIFICACIÓN DE DOCUMENTOS</h5>
-    <ul>
-        <li class="check">{% if presenta_estudio_previo %}✔{% else %}✖{% endif %} Estudio Previo</li>
-        <li class="check">{% if presenta_especificaciones %}✔{% else %}✖{% endif %} Especificaciones Técnicas</li>
-        <li class="check">{% if presenta_terminos_referencia %}✔{% else %}✖{% endif %} Términos de Referencia</li>
-        <li class="check">{% if presenta_proformas %}✔{% else %}✖{% endif %} Presenta Proformas</li>
-        <li class="check">{% if presenta_estudio_mercado %}✔{% else %}✖{% endif %} Estudio de Mercado</li>
-        <li class="check">{% if determinacion_necesidad %}✔{% else %}✖{% endif %} Determinación de la Necesidad</li>
-        <li class="check">{% if consta_catalogo_electronico %}✔{% else %}✖{% endif %} En Catálogo Electrónico</li>
-        <li class="check">{% if catalogado_incluido_gne %}✔{% else %}✖{% endif %} Catalogado Incluido GNE</li>
-        <li class="check">{% if consta_pac %}✔{% else %}✖{% endif %} Consta en el PAC</li>
-        <li class="check">{% if presenta_errores %}✔{% else %}✖{% endif %} Presenta Errores</li>
-        <li class="check">{% if cumple_normativa %}✔{% else %}✖{% endif %} Cumple Normativa</li>
-    </ul>
+    <div class="cuadro">
+        <ul class="mb-0">
+            <li class="check">{% if presenta_estudio_previo %}✔{% else %}✖{% endif %} Estudio Previo</li>
+            <li class="check">{% if presenta_especificaciones %}✔{% else %}✖{% endif %} Especificaciones Técnicas</li>
+            <li class="check">{% if presenta_terminos_referencia %}✔{% else %}✖{% endif %} Términos de Referencia</li>
+            <li class="check">{% if presenta_proformas %}✔{% else %}✖{% endif %} Presenta Proformas</li>
+            <li class="check">{% if presenta_estudio_mercado %}✔{% else %}✖{% endif %} Estudio de Mercado</li>
+            <li class="check">{% if determinacion_necesidad %}✔{% else %}✖{% endif %} Determinación de la Necesidad</li>
+            <li class="check">{% if consta_catalogo_electronico %}✔{% else %}✖{% endif %} En Catálogo Electrónico</li>
+            <li class="check">{% if catalogado_incluido_gne %}✔{% else %}✖{% endif %} Catalogado Incluido GNE</li>
+            <li class="check">{% if consta_pac %}✔{% else %}✖{% endif %} Consta en el PAC</li>
+            <li class="check">{% if presenta_errores %}✔{% else %}✖{% endif %} Presenta Errores</li>
+            <li class="check">{% if cumple_normativa %}✔{% else %}✖{% endif %} Cumple Normativa</li>
+        </ul>
+    </div>
 
     <h5 class="subtitulo">3. CONCLUSIÓN</h5>
     <div class="cuadro">
@@ -98,22 +104,17 @@
 
     <div class="row firma">
         <div class="col text-center">
-            <p>______________________________<br>
-            {{ nombre_jefe_compras }}<br>
-            Jefe de Compras Públicas</p>
+            <p>______________________________<br>{{ nombre_jefe_compras }}<br>Jefe de Compras Públicas</p>
         </div>
         <div class="col text-center">
-            <p>______________________________<br>
-            {{ funcionario_encargado }}<br>
-            Analista de Compras</p>
+            <p>______________________________<br>{{ funcionario_encargado }}<br>Analista de Compras</p>
         </div>
     </div>
 
-    <div class="text-center mt-4">
+    <div class="text-center btn-imprimir">
         <button onclick="window.print()" class="btn btn-primary">📄 Imprimir PDF</button>
+        <a href="/admin/tareas" class="btn btn-secondary ml-2">🔙 Regresar a Tareas</a>
     </div>
-    <div class="text-center mt-2">
-        <a href="/admin/tareas" class="btn btn-secondary">🔙 Regresar a Tareas</a>
-    </div>
+
 </body>
 </html>
