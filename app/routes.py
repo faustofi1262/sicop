@@ -214,7 +214,7 @@ def tareas():
                 unidad_solicitante, administrador_contrato,
                 presenta_estudio_previo, presenta_especificaciones, presenta_terminos_referencia,
                 presenta_proformas, presenta_estudio_mercado, determinacion_necesidad,
-                consta_catalogo_electronico, costa_poa, consta_pac,
+                consta_catalogo_electronico, catalogado_incluido_gne, consta_pac,
                 presenta_errores, cumple_normativa
             )
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
@@ -312,8 +312,7 @@ def editar_tarea(id):
         return redirect('/admin/tareas')
 
     conn.close()
-    return render_template('editar_tarea.html', requerimientos=requerimientos, tarea=tarea, tipos_proceso=tipos_proceso)
-
+    return render_template('editar_tarea.html', requerimientos=requerimientos, tarea=tarea)
 @main.route('/convertir_a_letras')
 def convertir_a_letras():
     valor = float(request.args.get("valor", 0))
