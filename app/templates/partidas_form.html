@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -55,14 +56,14 @@
             <tbody>
                 {% for p in partidas %}
                 <tr>
-                    <td>{{ p[0] }}</td>
                     <td>{{ p[1] }}</td>
                     <td>{{ p[2] }}</td>
                     <td>{{ p[3] }}</td>
-                    <td>${{ '%.2f'|format(p[4]) }}</td>
+                    <td>{{ p[4] }}</td>
+                    <td>${{ '%.2f'|format(p[5]) }}</td>
                     <td>
                         <a href="/admin/partidas/editar/{{ p[0] }}" class="btn btn-warning btn-sm">Editar</a>
-                        <form action="/admin/requerimientos/{{ req_id }}/partidas/eliminar/{{ loop.index0 }}" method="POST" class="d-inline" onsubmit="return confirm('¿Está seguro de eliminar esta partida?');">
+                        <form action="/admin/partidas/eliminar/{{ p[0] }}" method="POST" class="d-inline" onsubmit="return confirm('¿Está seguro de eliminar esta partida?');">
                             <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
                         </form>
                     </td>
