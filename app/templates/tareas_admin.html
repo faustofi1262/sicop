@@ -16,6 +16,7 @@
             const funcionario = select.options[select.selectedIndex].getAttribute("data-funcionario");
 
             document.getElementById("unidad").value = unidad;
+            document.getElementById("unidad_solicitante").value = unidad;
             document.getElementById("funcionario_encargado").value = funcionario;
             // habilitar bloque
             if (unidad) {
@@ -123,8 +124,12 @@
             <label class="mt-2">Nombre del Jefe de Compras:</label>
             <input type="text" name="nombre_jefe_compras" class="form-control form-control-sm">
 
-            <label class="mt-2">Unidad Solicitante:</label>
-            <input type="text" name="unidad_solicitante" class="form-control form-control-sm">
+            <!-- El campo visible solo informativo -->
+            <label>Unidad Requirente:</label>
+            <input type="text" id="unidad" class="form-control" disabled>
+
+            <!-- El campo oculto que se enviará al guardar -->
+            <input type="hidden" name="unidad_solicitante" id="unidad_solicitante" value="">
 
             <label class="mt-2">Administrador del Contrato:</label>
             <input type="text" name="administrador_contrato" class="form-control form-control-sm">
