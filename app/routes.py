@@ -199,7 +199,7 @@ def tareas():
             'presenta_estudio_mercado' in request.form,
             'determinacion_necesidad' in request.form,
             'consta_catalogo_electronico' in request.form,
-            'costa_poa' in request.form,
+            'consta_poa' in request.form,
             'consta_pac' in request.form,
             'presenta_errores' in request.form,
             'cumple_normativa' in request.form
@@ -214,7 +214,7 @@ def tareas():
                 unidad_solicitante, administrador_contrato,
                 presenta_estudio_previo, presenta_especificaciones, presenta_terminos_referencia,
                 presenta_proformas, presenta_estudio_mercado, determinacion_necesidad,
-                consta_catalogo_electronico, catalogado_incluido_gne, consta_pac,
+                consta_catalogo_electronico, consta_poa, consta_pac,
                 presenta_errores, cumple_normativa
             )
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
@@ -289,7 +289,7 @@ def editar_tarea(id):
             'presenta_estudio_mercado' in request.form,
             'determinacion_necesidad' in request.form,
             'consta_catalogo_electronico' in request.form,
-            'costa_poa' in request.form,
+            'consta_poa' in request.form,
             'consta_pac' in request.form,
             'presenta_errores' in request.form,
             'cumple_normativa' in request.form,
@@ -306,7 +306,7 @@ def editar_tarea(id):
                 presenta_estudio_previo=%s, presenta_especificaciones=%s,
                 presenta_terminos_referencia=%s, presenta_proformas=%s,
                 presenta_estudio_mercado=%s, determinacion_necesidad=%s,
-                consta_catalogo_electronico=%s, costa_poa=%s,
+                consta_catalogo_electronico=%s, consta_poa=%s,
                 consta_pac=%s, presenta_errores=%s, cumple_normativa=%s
             WHERE id=%s
         """, data)
@@ -471,7 +471,7 @@ def generar_informe_verificacion(id_tarea):
         presenta_estudio_mercado=tarea[22],
         determinacion_necesidad=tarea[23],
         consta_catalogo_electronico=tarea[24],
-        costa_poa=tarea[25],
+        consta_poa=tarea[25],
         consta_pac=tarea[26],
         presenta_errores=tarea[27],
         cumple_normativa=tarea[28],
