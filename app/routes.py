@@ -15,6 +15,11 @@ def admin_dashboard():
     if session.get('rol') != 'Administrador':
         return redirect('/login')
     return render_template('admin_dashboard.html', nombre=session.get('user_name'))
+@main.route('/analista_dashboard')
+def analista_dashboard():
+    if session.get('rol') != 'Analista':
+        return redirect('/login')
+    return render_template('analista_dashboard.html', nombre=session.get('user_name'))
 
 @main.route('/admin/usuarios', methods=['GET', 'POST'])
 def gestionar_usuarios():
