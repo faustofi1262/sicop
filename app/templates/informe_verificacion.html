@@ -64,8 +64,12 @@
         <div>Unidad de Compras Públicas</div>
         <div>RUC: 1267894560001 | Machala - El Oro</div>
         <div><strong>Fecha:</strong> {{ fecha }}</div>
+        <div style="text-align: right;">
+        <strong>Fecha:</strong> {{ fecha }}<br>
+        <strong>Código:</strong> UTMACH-UCP-{{ tarea_id|string.zfill(3, '0') }}
+        </div>
     </div>
-    <h5 class="text-right">Código: UTMACH-UCP-2025-INF-{{ tarea_id|string.zfill(3, '0') }}</h5>
+    
     <h5 class="subtitulo">1. DATOS GENERALES</h5>
     <table class="table table-sm">
         <tr><td><strong>Unidad Requirente:</strong></td><td>{{ unidad_solicitante }}</td></tr>
