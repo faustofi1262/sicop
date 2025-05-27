@@ -2,62 +2,46 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Panel Administrador - SICOP</title>
+    <title>Panel del Analista</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f8fc;
         }
-        .header {
-            background-color: #003366;
-            color: #ffffff;
-            padding: 20px;
-            text-align: center;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 28px;
-        }
-        .container {
+        .dashboard {
             max-width: 800px;
-            margin: 40px auto;
-            background-color: #ffffff;
+            margin: 60px auto;
             padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        .welcome {
-            font-size: 20px;
+        h2 {
             color: #003366;
-            margin-bottom: 20px;
+            text-align: center;
+            margin-bottom: 30px;
         }
-        .logout-btn {
-            background-color: #003366;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .logout-btn:hover {
-            background-color: #002244;
+        .btn-block {
+            display: block;
+            width: 100%;
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Panel de Administración - SICOP</h1>
-    </div>
+    <div class="dashboard">
+        <h2>🎯 Panel del Analista</h2>
+        <p class="text-center">Bienvenido, {{ nombre }}</p>
 
-    <div class="container">
-        <p class="welcome"><strong>Bienvenido, {{ nombre }} (Analista)</strong></p>
-        <p>Acceso completo a todas las funciones del Analista.</p>
+        <a href="/admin/requerimientos" class="btn btn-primary btn-block">📋 Ingresar Requerimientos</a>
+        <a href="/admin/tareas" class="btn btn-success btn-block">🛠️ Ingresar Tareas</a>
+        <a href="#" class="btn btn-warning btn-block">🧾 Ingresar Orden de Compra</a>
+        <a href="#" class="btn btn-info btn-block">📄 Crear Pliegos</a>
+        <a href="#" class="btn btn-secondary btn-block">📊 Reportes</a>
 
-        <form action="/logout" method="GET">
-            <button class="logout-btn" type="submit">Cerrar sesión</button>
-        </form>
+        <div class="text-center mt-4">
+            <a href="/logout" class="btn btn-outline-danger">🔓 Cerrar sesión</a>
+        </div>
     </div>
 </body>
 </html>
