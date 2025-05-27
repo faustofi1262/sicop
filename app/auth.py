@@ -23,11 +23,14 @@ def login():
             session['user_id'] = user[0]
             session['user_name'] = user[1]
             session['rol'] = user[2]
-
             if user[2] == 'Administrador':
                 return redirect('/admin_dashboard')
+            elif user[2] == 'Analista':
+                return redirect('/analista_dashboard')  # 👈 agrega esta línea
+            elif user[2] == 'Jefe':
+                return redirect('/jefe_dashboard')
             else:
-                return redirect('/login')
+                return redirect('/invitado_dashboard')
         else:
             return render_template('login.html', error='Usuario o contraseña incorrectos')
 
