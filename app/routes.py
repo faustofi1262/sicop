@@ -17,15 +17,6 @@ def requiere_roles(*roles):
         return decorated_function
     return wrapper
 
-@main.route('/')
-def index():
-    return redirect('/login')
-
-@main.route('/admin_dashboard')
-@requiere_roles('Administrador')
-def admin_dashboard():
-    return render_template('admin_dashboard.html', nombre=session.get('user_name'))
-
 @main.route('/admin/usuarios', methods=['GET', 'POST'])
 @requiere_roles('Administrador')
 def gestionar_usuarios():
