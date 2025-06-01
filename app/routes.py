@@ -157,7 +157,9 @@ def gestionar_productos():
     conn.close()
 
     return render_template('productos_admin.html', productos=productos)
+
 @main.route('/admin/requerimientos', methods=['GET', 'POST'])
+@requiere_roles('Administrador', 'Analista')
 def gestionar_requerimientos():
     if session.get('rol') != 'Administrador':
         return redirect('/login')
