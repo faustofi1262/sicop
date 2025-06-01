@@ -488,4 +488,36 @@ def generar_informe_verificacion(id_tarea):
         cumple_normativa=tarea[28],
         nombre_jefe_compras=tarea[15]
     )
+@main.route('/admin/permisos', methods=['GET', 'POST'])
+def gestionar_permisos():
+    if session.get('rol') != 'Administrador':
+        return redirect('/login')
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    # Definir roles y módulos disponibles
+    roles = ['Analista', 'Invitado', 'Jefe']
+    modulos = ['requerimientos', 'tareas', 'ordenes_compra', 'crear_pliegos', 'reportes']
+
+    # POST: Guardar cambios
+    if request.method == 'POST':
+        cur.execute("DELETE FROM permisos")  # Limpia permisos existentes (simplificado)
+        for rol in roles:
+            for modulo in modulos:
+                checkbox_name = f"perm_{rol}_{modulo}"
+                if checkbox_name in request.form:
+                    cur.execute("INSERT INTO permisos (rol, modulo) VALUES (%s, %s)", (rol, modulo))
+        conn.commit()
+
+    # GET: Cargar permisos actuales
+    cur.execute("SELECT rol, modulo FROM permisos")
+    rows = cur.fetchall()
+    permisos = {rol: {modulo: False for modulo in modulos} for rol in roles}
+    for rol, modulo in rows:
+        permisos[rol][modulo] = True
+
+    conn.close()
+
+    return render_template("gestionar_permisos.html", roles=roles, modulos=modulos, permisos=permisos)
 
