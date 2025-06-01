@@ -3,6 +3,7 @@ import psycopg2
 import os
 from flask import jsonify
 import num2words
+main = Blueprint('main', __name__)
 # ✅ Decorador para requerir roles
 
 def requiere_roles(*roles):
@@ -49,8 +50,6 @@ def gestionar_usuarios():
     return render_template('usuarios_admin.html', usuarios=usuarios)
 
 # (continúa aplicando @requiere_roles según corresponda en las demás rutas...)
-
-main = Blueprint('main', __name__)
 def get_db_connection():
     return psycopg2.connect(os.getenv("DATABASE_URL"))
 @main.route('/')
