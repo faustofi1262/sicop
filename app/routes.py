@@ -3,6 +3,7 @@ import psycopg2
 import os
 from flask import jsonify
 import num2words
+from functools import wraps
 main = Blueprint('main', __name__)
 # ✅ Decorador para requerir roles
 
