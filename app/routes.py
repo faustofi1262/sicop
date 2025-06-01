@@ -457,7 +457,12 @@ def generar_informe_verificacion(id_tarea):
         return "Tarea no encontrada", 404
 
     from datetime import date
+
+    # 👉 Aquí agregas esta línea
+    codigo_verificacion = f"VERF-UTMACH-2025-{str(id_tarea).zfill(3)}"
+
     return render_template("informe_verificacion.html",
+        codigo_verificacion=codigo_verificacion,  # 👉 lo envías al template
         fecha=date.today().strftime('%d/%m/%Y'),
         unidad_solicitante=tarea[16],
         funcionario_encargado=tarea[1],
@@ -465,8 +470,8 @@ def generar_informe_verificacion(id_tarea):
         codigo_proceso=tarea[5],
         tipo_proceso=tarea[2],
         valor_sin_iva=tarea[7],
-        valor_exento=tarea[9],
-        valor_en_letras=tarea[8],
+        valor_exento=tarea[8],
+        valor_en_letras=tarea[9],
         tipo_regimen=tarea[10],
         base_legal=tarea[11],
         observaciones=tarea[12],
@@ -483,3 +488,4 @@ def generar_informe_verificacion(id_tarea):
         cumple_normativa=tarea[28],
         nombre_jefe_compras=tarea[15]
     )
+
