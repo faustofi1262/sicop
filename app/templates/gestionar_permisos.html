@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Permisos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container py-4">
+    <h2 class="text-primary mb-4">🔐 Gestión de Permisos por Rol</h2>
+    <form method="POST">
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Rol</th>
+                    {% for modulo in modulos %}
+                        <th>{{ modulo | capitalize }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for rol in roles %}
+                    <tr>
+                        <td><strong>{{ rol }}</strong></td>
+                        {% for modulo in modulos %}
+                            <td class="text-center">
+                                <input type="checkbox" name="perm_{{ rol }}_{{ modulo }}"
+                                       {% if permisos[rol][modulo] %}checked{% endif %}>
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-success">💾 Guardar Permisos</button>
+        <a href="/admin_dashboard" class="btn btn-secondary ml-2">⬅️ Volver</a>
+    </form>
+</body>
+</html>
