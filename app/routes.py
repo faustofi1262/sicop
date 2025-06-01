@@ -3,6 +3,53 @@ import psycopg2
 import os
 from flask import jsonify
 import num2words
+# ✅ Decorador para requerir roles
+
+def requiere_roles(*roles):
+    def wrapper(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if session.get('rol') not in roles:
+                return redirect('/login')
+            return f(*args, **kwargs)
+        return decorated_function
+    return wrapper
+
+@main.route('/')
+def index():
+    return redirect('/login')
+
+@main.route('/admin_dashboard')
+@requiere_roles('Administrador')
+def admin_dashboard():
+    return render_template('admin_dashboard.html', nombre=session.get('user_name'))
+
+@main.route('/admin/usuarios', methods=['GET', 'POST'])
+@requiere_roles('Administrador')
+def gestionar_usuarios():
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        correo = request.form['correo']
+        contraseña = request.form['contraseña']
+        rol = request.form['rol']
+
+        cur.execute("""
+            INSERT INTO usuarios (nombre, correo, contraseña, rol)
+            VALUES (%s, %s, %s, %s)
+        """, (nombre, correo, contraseña, rol))
+        conn.commit()
+
+    cur.execute("SELECT id, nombre, correo, rol FROM usuarios")
+    usuarios = cur.fetchall()
+    conn.close()
+
+    return render_template('usuarios_admin.html', usuarios=usuarios)
+
+# (continúa aplicando @requiere_roles según corresponda en las demás rutas...)
+
 main = Blueprint('main', __name__)
 def get_db_connection():
     return psycopg2.connect(os.getenv("DATABASE_URL"))
