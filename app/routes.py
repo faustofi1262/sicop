@@ -321,7 +321,7 @@ def editar_tarea(id):
         return redirect('/admin/tareas')
 
     conn.close()
-    return render_template('editar_tarea.html', requerimientos=requerimientos, tarea=tarea, tipos_proceso=tipos_proceso)
+    return render_template('editar_tarea.html', requerimientos=requerimientos, tarea=tarea, 
 @main.route('/convertir_a_letras')
 def convertir_a_letras():
     valor = float(request.args.get("valor", 0))
