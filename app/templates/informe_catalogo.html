@@ -1,87 +1,98 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Informe de Certificación CATE</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <title>Informe de Catálogo Electrónico</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { font-family: 'Arial', sans-serif; font-size: 14px; background-color: #fff; margin: 30px; }
-        .border-box { border: 2px solid #003366; padding: 20px; border-radius: 8px; }
-        h4, h5 { color: #003366; font-weight: bold; }
-        .logo { max-width: 120px; }
-        .table-bordered td, .table-bordered th { border: 1px solid #003366 !important; }
-        .nota-box {
-            border: 1px dashed #666;
-            background-color: #f9f9f9;
-            padding: 15px;
-            margin-top: 20px;
-            font-size: 13px;
-            font-style: italic;
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #000;
+            background: #fff;
+        }
+        .reporte {
+            border: 1px solid #003366;
+            margin: 30px auto;
+            max-width: 900px;
+            padding: 30px;
+            border-radius: 6px;
+        }
+        .titulo {
+            font-weight: bold;
+            color: #003366;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subrayado {
+            text-decoration: underline;
+        }
+        .firmas {
+            margin-top: 50px;
+        }
+        .firmas p {
+            margin-bottom: 2px;
+        }
+        .firmas .linea {
+            margin: 40px 0 5px 0;
+        }
+        .no-print {
+            display: none;
+        }
+        @media screen {
+            .no-print {
+                display: block;
+            }
+        }
+        @media print {
+            .no-print {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="border-box">
-        <div class="text-center">
-            <img src="/static/escudo.png" class="logo mb-2">
-            <h4>UNIVERSIDAD TÉCNICA DE MACHALA</h4>
-            <h5>UNIDAD DE CONTRATACIÓN PÚBLICA</h5>
-            <p><strong>CERTIFICACIÓN DE DISPONIBILIDAD EN CATÁLOGO ELECTRÓNICO</strong></p>
-        </div>
+    <div class="reporte px-4 py-4">
+        <h5 class="titulo">UNIVERSIDAD TÉCNICA DE MACHALA</h5>
+        <p class="text-center mb-1">Unidad de Compras Públicas</p>
+        <p class="text-center mb-4">RUC: 1267894560001 | Santa Rosa - El Oro</p>
 
-        <p class="mt-4"><strong>Fecha:</strong> {{ fecha }}</p>
-        <p><strong>Unidad Solicitante:</strong> {{ unidad_solicitante }}</p>
-        <p><strong>Funcionario Encargado:</strong> {{ funcionario_encargado }}</p>
+        <p class="text-right"><strong>Fecha:</strong> {{ fecha }}</p>
+        <h5 class="subrayado mb-3">CERTIFICACIÓN DE CATÁLOGO ELECTRÓNICO</h5>
 
-        <p><strong>Objeto de Contratación:</strong> {{ objeto_contratacion }}</p>
-        <p><strong>Código del Proceso:</strong> {{ codigo_proceso }}</p>
-        <p><strong>Tipo de Procedimiento:</strong> {{ tipo_proceso }}</p>
-        <p><strong>Tipo de Régimen:</strong> {{ tipo_regimen }}</p>
-        <p><strong>Valor sin IVA:</strong> {{ valor_sin_iva }}</p>
-        <p><strong>Valor Exento:</strong> {{ valor_exento }}</p>
-        <p><strong>Valor en Letras:</strong> {{ valor_en_letras }}</p>
-        <p><strong>Base Legal:</strong> {{ base_legal }}</p>
+        <p>Se deja constancia que el bien o servicio denominado:</p>
+        <p class="font-weight-bold text-uppercase">"{{ objeto_contratacion }}"</p>
 
-        <div class="mt-4">
-            <strong>Resultado:</strong>
+        <p>
             {% if consta_catalogo_electronico %}
-                <p class="text-success">El bien o servicio <strong>consta</strong> en el Catálogo Electrónico del SERCOP.</p>
+                El bien o servicio <strong>consta</strong> en el Catálogo Electrónico del <strong>SERCOP</strong>.
             {% else %}
-                <p class="text-danger">El bien o servicio <strong>NO consta</strong> en el Catálogo Electrónico del SERCOP.</p>
+                El bien o servicio <strong>NO consta</strong> en el Catálogo Electrónico del <strong>SERCOP</strong>.
             {% endif %}
-        </div>
+        </p>
 
-        <div class="nota-box">
-            NOTA: El presente informe se expide como certificación de consulta en el catálogo electrónico de SERCOP. La inclusión o exclusión de los bienes o servicios en dicho catálogo podrá variar, por lo cual se recomienda verificar la vigencia a la fecha de ejecución del procedimiento.
-        </div>
+        <p class="mt-4"><strong>NOTA:</strong> El presente informe se emite como certificación de consulta en el catálogo electrónico de SERCOP. La inclusión o exclusión de los bienes o servicios en dicho catálogo podría variar, por lo cual se recomienda verificar la vigencia a la fecha de ejecución del procedimiento.</p>
 
-        <div class="text-right mt-4">
-            <p><strong>Código:</strong> {{ codigo_reporte }}</p>
-        </div>
+        <p class="text-right mt-4"><strong>Código:</strong> REP-CATE-UTMACH-2025-{{ tarea_id|string.zfill(3) }}</p>
 
-        <div class="text-center mt-5">
-            <a href="/admin/tareas" class="btn btn-secondary">⬅ Volver a Tareas</a>
-            <button onclick="window.print()" class="btn btn-primary ml-3">🖨 Imprimir PDF</button>
+        <hr class="mt-5">
+        <div class="row mt-5 text-center">
+            <div class="col-md-6">
+                <p><strong>Elaborado por:</strong></p>
+                <br><br>
+                <p>___________________________</p>
+                <p>{{ funcionario_encargado }}</p>
+                <p>Responsable del Requerimiento</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Verificado por:</strong></p>
+                <br><br>
+                <p>___________________________</p>
+                <p>{{ nombre_jefe_compras }}</p>
+                <p>Jefe de la Unidad de Compras Públicas</p>
+            </div>
         </div>
     </div>
-    <hr class="mt-5">
-
-<div class="row mt-5 text-center">
-    <div class="col-md-6">
-        <p><strong>Elaborado por:</strong></p>
-        <br><br><br>
-        <p>___________________________</p>
-        <p>{{ funcionario_encargado }}</p>
-        <p>Responsable del Requerimiento</p>
-    </div>
-    <div class="col-md-6">
-        <p><strong>Verificado por:</strong></p>
-        <br><br><br>
-        <p>___________________________</p>
-        <p>{{ nombre_jefe_compras }}</p>
-        <p>Jefe de la Unidad de Compras Públicas</p>
-    </div>
-</div>
-
 </body>
 </html>
