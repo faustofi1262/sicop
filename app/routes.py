@@ -265,8 +265,8 @@ def editar_tarea(id):
     cur.execute("SELECT * FROM tareas WHERE id = %s", (id,))
     tarea = cur.fetchone()
 
-    #cur.execute("SELECT nombre_proceso FROM tipo_procesos")
-    #tipos_proceso = cur.fetchall()
+    cur.execute("SELECT nombre_proceso FROM tipo_procesos")
+    tipos_proceso = cur.fetchall()
     
     if request.method == 'POST':
         # Procesar edición
