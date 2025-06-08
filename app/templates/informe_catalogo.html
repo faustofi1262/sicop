@@ -1,98 +1,77 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Informe de Catálogo Electrónico</title>
+    <title>Informe de Verificación - Catálogo Electrónico</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            color: #000;
-            background: #fff;
-        }
-        .reporte {
-            border: 1px solid #003366;
-            margin: 30px auto;
-            max-width: 900px;
+        body { font-family: Arial, sans-serif; background-color: #fff; padding: 40px; }
+        .recuadro {
+            border: 2px solid #003366;
             padding: 30px;
-            border-radius: 6px;
+            border-radius: 10px;
         }
-        .titulo {
-            font-weight: bold;
-            color: #003366;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        .subrayado {
-            text-decoration: underline;
-        }
-        .firmas {
-            margin-top: 50px;
-        }
-        .firmas p {
-            margin-bottom: 2px;
-        }
-        .firmas .linea {
-            margin: 40px 0 5px 0;
-        }
-        .no-print {
-            display: none;
-        }
-        @media screen {
-            .no-print {
-                display: block;
-            }
+        h4, h5 { color: #003366; text-align: center; }
+        .subtitulo { font-weight: bold; margin-top: 20px; color: #003366; }
+        .firmas div { text-align: center; margin-top: 60px; }
+        .firmas p { margin: 2px 0; }
+        .nota {
+            border: 1px dashed #555; background: #f9f9f9; padding: 15px;
+            font-size: 0.9rem; margin-top: 30px;
         }
         @media print {
-            .no-print {
-                display: none;
-            }
+            .no-print { display: none; }
         }
     </style>
 </head>
 <body>
-    <div class="reporte px-4 py-4">
-        <h5 class="titulo">UNIVERSIDAD TÉCNICA DE MACHALA</h5>
-        <p class="text-center mb-1">Unidad de Compras Públicas</p>
-        <p class="text-center mb-4">RUC: 1267894560001 | Santa Rosa - El Oro</p>
+    <div class="recuadro">
+        <h4>UNIVERSIDAD TÉCNICA DE MACHALA</h4>
+        <h5>UNIDAD DE CONTRATACIÓN PÚBLICA</h5>
+        <hr>
 
         <p class="text-right"><strong>Fecha:</strong> {{ fecha }}</p>
-        <h5 class="subrayado mb-3">CERTIFICACIÓN DE CATÁLOGO ELECTRÓNICO</h5>
+        <p class="text-right"><strong>Código:</strong> REP-CATE-UTMACH-2025-{{ "%03d"|format(tarea_id) }}</p>
 
-        <p>Se deja constancia que el bien o servicio denominado:</p>
-        <p class="font-weight-bold text-uppercase">"{{ objeto_contratacion }}"</p>
+        <h5 class="mt-4">INFORME DE REVISIÓN SOBRE EL USO DE CATÁLOGO ELECTRÓNICO</h5>
 
-        <p>
+        <p class="subtitulo">Datos Generales</p>
+        <p><strong>Unidad Requirente:</strong> {{ unidad_solicitante }}</p>
+        <p><strong>Funcionario Encargado:</strong> {{ funcionario_encargado }}</p>
+        <p><strong>Objeto de la Contratación:</strong> {{ objeto_contratacion }}</p>
+
+        <p class="subtitulo">Análisis</p>
+        <p>Según la información registrada, se verifica si el bien o servicio requerido se encuentra disponible en el Catálogo Electrónico del SERCOP.</p>
+
+        <p><strong>Resultado:</strong>
             {% if consta_catalogo_electronico %}
-                El bien o servicio <strong>consta</strong> en el Catálogo Electrónico del <strong>SERCOP</strong>.
+                ✅ El bien/servicio <strong>consta</strong> en el catálogo electrónico.
             {% else %}
-                El bien o servicio <strong>NO consta</strong> en el Catálogo Electrónico del <strong>SERCOP</strong>.
+                ❌ El bien/servicio <strong>NO consta</strong> en el catálogo electrónico.
             {% endif %}
         </p>
 
-        <p class="mt-4"><strong>NOTA:</strong> El presente informe se emite como certificación de consulta en el catálogo electrónico de SERCOP. La inclusión o exclusión de los bienes o servicios en dicho catálogo podría variar, por lo cual se recomienda verificar la vigencia a la fecha de ejecución del procedimiento.</p>
+        <div class="nota">
+            <strong>Nota:</strong> El presente informe se emite con base en la revisión documental y registros disponibles, no comprometiendo responsabilidad sobre aspectos técnicos o legales ajenos al análisis de disponibilidad en el Catálogo Electrónico del SERCOP.
+        </div>
 
-        <p class="text-right mt-4"><strong>Código:</strong> REP-CATE-UTMACH-2025-{{ "%03d"|format(tarea_id) }}</p>
-        
-        <hr class="mt-5">
-        <div class="row mt-5 text-center">
+        <div class="firmas row">
             <div class="col-md-6">
-                <p><strong>Elaborado por:</strong></p>
-                <br><br>
-                <p>___________________________</p>
-                <p>{{ funcionario_encargado }}</p>
+                <p>--------------------------------------------</p>
+                <p><strong>{{ funcionario_encargado }}</strong></p>
                 <p>Responsable del Requerimiento</p>
             </div>
             <div class="col-md-6">
-                <p><strong>Verificado por:</strong></p>
-                <br><br>
-                <p>___________________________</p>
-                <p>{{ nombre_jefe_compras }}</p>
-                <p>Jefe de la Unidad de Compras Públicas</p>
+                <p>--------------------------------------------</p>
+                <p><strong>{{ nombre_jefe_compras }}</strong></p>
+                <p>Jefe de Contratación Pública</p>
             </div>
         </div>
+    </div>
+
+    <div class="no-print text-center mt-4">
+        <a href="/admin/tareas" class="btn btn-secondary">⬅️ Volver</a>
+        <button onclick="window.print()" class="btn btn-primary">🖨️ Imprimir PDF</button>
     </div>
 </body>
 </html>
