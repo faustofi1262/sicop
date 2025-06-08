@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte CATE</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 40px;
+        }
+        .marco {
+            border: 2px solid #003366;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .encabezado {
+            text-align: center;
+            border-bottom: 3px solid #003366;
+            padding-bottom: 15px;
+        }
+        .titulo {
+            font-size: 1.4rem;
+            color: #003366;
+            margin-top: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .nota {
+            background-color: #f1f8ff;
+            border-left: 4px solid #007bff;
+            padding: 10px 15px;
+            margin-top: 20px;
+            font-size: 0.95rem;
+        }
+        .firma {
+            margin-top: 60px;
+            text-align: center;
+        }
+        .firma p {
+            margin-bottom: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="encabezado">
+        <img src="/static/logo_utmach.png" alt="Logo UTMACH" height="80">
+        <h5 class="mt-2">UNIVERSIDAD TÉCNICA DE MACHALA</h5>
+        <h6>Unidad de Compras Públicas</h6>
+    </div>
+
+    <div class="titulo">
+        INFORME DE CERTIFICACIÓN DE CATÁLOGO ELECTRÓNICO<br>
+        <small class="text-muted">N° {{ codigo_reporte }}</small>
+    </div>
+
+    <div class="marco">
+        <p><strong>Fecha:</strong> {{ fecha }}</p>
+        <p><strong>Unidad Requirente:</strong> {{ unidad_solicitante }}</p>
+        <p><strong>Responsable del Requerimiento:</strong> {{ funcionario_encargado }}</p>
+        <p><strong>Objeto de Contratación:</strong> {{ objeto_contratacion }}</p>
+        <p><strong>Tipo de Proceso:</strong> {{ tipo_proceso }}</p>
+
+        <p class="mt-3">
+            Una vez verificado el objeto de contratación proporcionado por el área requirente, se informa que el bien o servicio
+            <strong>{{ 'SÍ' if consta_catalogo_electronico else 'NO' }}</strong> consta en el Catálogo Electrónico
+            administrado por el Servicio Nacional de Contratación Pública, conforme al artículo 46 de la LOSNCP.
+        </p>
+
+        <div class="nota">
+            <strong>Artículo 46 LOSNCP:</strong> "Los procedimientos de catálogo electrónico serán obligatorios cuando exista el bien o servicio requerido."
+        </div>
+
+        <div class="firma">
+            <p><strong>___________________________</strong></p>
+            <p><strong>Nombre:</strong> {{ nombre_jefe_compras }}</p>
+            <p><strong>Cargo:</strong> Jefa de la Unidad de Compras Públicas</p>
+        </div>
+    </div>
+
+    <div class="mt-4 text-center">
+        <a href="/admin/tareas" class="btn btn-outline-secondary">⬅ Volver a Tareas</a>
+    </div>
+</body>
+</html>

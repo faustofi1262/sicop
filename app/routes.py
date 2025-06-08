@@ -488,6 +488,32 @@ def generar_informe_verificacion(id_tarea):
         cumple_normativa=tarea[28],
         nombre_jefe_compras=tarea[15]
     )
+@main.route('/informe/catalogo/<int:id_tarea>')
+def generar_informe_catalogo(id_tarea):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM tareas WHERE id = %s", (id_tarea,))
+    tarea = cur.fetchone()
+    conn.close()
+
+    if not tarea:
+        return "Tarea no encontrada", 404
+
+    from datetime import date
+    codigo_reporte = f"REP-CATE-UTMACH-2025-{str(id_tarea).zfill(3)}"
+
+    return render_template("informe_catalogo.html",
+        fecha=date.today().strftime('%d/%m/%Y'),
+        codigo_reporte=codigo_reporte,
+        unidad_solicitante=tarea[16],
+        funcionario_encargado=tarea[1],
+        tipo_proceso=tarea[2],
+        objeto_contratacion=tarea[4],
+        valor_sin_iva=tarea[7],
+        valor_exento=tarea[8],
+        valor_en_letras=tarea[9],
+        consta_catalogo_electronico=tarea[24]
+    )
 @main.route('/admin/permisos', methods=['GET', 'POST'])
 def gestionar_permisos():
     if session.get('rol') != 'Administrador':
