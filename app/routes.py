@@ -321,7 +321,10 @@ def editar_tarea(id):
         return redirect('/admin/tareas')
 
     conn.close()
-    return render_template('editar_tarea.html', requerimientos=requerimientos, tarea=tarea, 
+    return render_template('tareas_admin.html', requerimientos=requerimientos, tareas=tareas)
+    # The following line was incorrect and is removed:
+    # return render_template('editar_tarea.html', requerimientos=requerimientos, tarea=tarea,  
+
 @main.route('/convertir_a_letras')
 def convertir_a_letras():
     valor = float(request.args.get("valor", 0))
