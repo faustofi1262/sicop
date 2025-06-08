@@ -488,11 +488,11 @@ def generar_informe_verificacion(id_tarea):
         cumple_normativa=tarea[28],
         nombre_jefe_compras=tarea[15]
     )
-@main.route('/informe/catalogo/<int:id_tarea>')
-def generar_informe_catalogo(id_tarea):
+@main.route('/informe/catalogo/<int:tarea_id>')
+def generar_informe_catalogo(tarea_id):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM tareas WHERE id = %s", (id_tarea,))
+    cur.execute("SELECT * FROM tareas WHERE id = %s", (tarea_id,))
     tarea = cur.fetchone()
     conn.close()
 
@@ -500,20 +500,34 @@ def generar_informe_catalogo(id_tarea):
         return "Tarea no encontrada", 404
 
     from datetime import date
-    codigo_reporte = f"REP-CATE-UTMACH-2025-{str(id_tarea).zfill(3)}"
-
     return render_template("informe_catalogo.html",
         fecha=date.today().strftime('%d/%m/%Y'),
-        codigo_reporte=codigo_reporte,
         unidad_solicitante=tarea[16],
         funcionario_encargado=tarea[1],
-        tipo_proceso=tarea[2],
         objeto_contratacion=tarea[4],
+        codigo_proceso=tarea[5],
+        tipo_proceso=tarea[2],
         valor_sin_iva=tarea[7],
         valor_exento=tarea[8],
         valor_en_letras=tarea[9],
-        consta_catalogo_electronico=tarea[24]
+        tipo_regimen=tarea[10],
+        base_legal=tarea[11],
+        observaciones=tarea[12],
+        presenta_estudio_previo=tarea[18],
+        presenta_especificaciones=tarea[19],
+        presenta_terminos_referencia=tarea[20],
+        presenta_proformas=tarea[21],
+        presenta_estudio_mercado=tarea[22],
+        determinacion_necesidad=tarea[23],
+        consta_catalogo_electronico=tarea[24],
+        consta_poa=tarea[25],
+        consta_pac=tarea[26],
+        presenta_errores=tarea[27],
+        cumple_normativa=tarea[28],
+        nombre_jefe_compras=tarea[15],
+        tarea_id=tarea_id  # ← ESTA ES LA CLAVE
     )
+
 @main.route('/admin/permisos', methods=['GET', 'POST'])
 def gestionar_permisos():
     if session.get('rol') != 'Administrador':
