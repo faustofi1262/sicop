@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -15,91 +16,91 @@
                 <select name="tipo_proceso" class="form-control form-control-sm" required>
                     <option value="">-- Seleccione --</option>
                     {% for tipo in tipos_proceso %}
-                        <option value="{{ tipo[0] }}" {% if tarea[2] == tipo[0] %}selected{% endif %}>{{ tipo[0] }}</option>
+                        <option value="{{ tipo[0] }}" {% if tarea.tipo_proceso == tipo[0] %}selected{% endif %}>{{ tipo[0] }}</option>
                     {% endfor %}
                 </select>
             </div>
             <div class="col">
                 <label>Estado del Requerimiento:</label>
-                <input type="text" name="estado_requerimiento" class="form-control form-control-sm" value="{{ tarea[3] }}">
+                <input type="text" name="estado_requerimiento" class="form-control form-control-sm" value="{{ tarea.estado_requerimiento }}">
             </div>
         </div>
 
         <label class="mt-2">Objeto de la Contratación:</label>
-        <textarea name="objeto_contratacion" class="form-control" rows="2">{{ tarea[4] }}</textarea>
+        <textarea name="objeto_contratacion" class="form-control" rows="2">{{ tarea.objeto_contratacion }}</textarea>
 
         <div class="form-row mt-2">
             <div class="col">
                 <label>Código del Proceso:</label>
-                <input type="text" name="codigo_proceso" class="form-control form-control-sm" value="{{ tarea[5] }}">
+                <input type="text" name="codigo_proceso" class="form-control form-control-sm" value="{{ tarea.codigo_proceso }}">
             </div>
             <div class="col">
                 <label>Fecha de Recepción:</label>
-                <input type="date" name="fecha_recepcion" class="form-control form-control-sm" value="{{ tarea[6] }}">
+                <input type="date" name="fecha_recepcion" class="form-control form-control-sm" value="{{ tarea.fecha_recepcion }}">
             </div>
         </div>
 
         <div class="form-row mt-2">
             <div class="col">
                 <label>Valor sin IVA:</label>
-                <input type="number" name="valor_sin_iva" step="0.01" class="form-control form-control-sm" value="{{ tarea[7] }}">
+                <input type="number" name="valor_sin_iva" step="0.01" class="form-control form-control-sm" value="{{ tarea.valor_sin_iva }}">
             </div>
             <div class="col">
                 <label>Valor Exento:</label>
-                <input type="number" name="valor_exento" step="0.01" class="form-control form-control-sm" value="{{ tarea[8] }}">
+                <input type="number" name="valor_exento" step="0.01" class="form-control form-control-sm" value="{{ tarea.valor_exento }}">
             </div>
         </div>
 
         <label class="mt-2">Valor en Letras:</label>
-        <input type="text" name="valor_en_letras" class="form-control form-control-sm" value="{{ tarea[9] }}">
+        <input type="text" name="valor_en_letras" class="form-control form-control-sm" value="{{ tarea.valor_en_letras }}">
 
-        <label class="mt-2">Tipo de Proceso a Aplicar:</label>
-        <input type="text" name="tipo_proceso_aplicar" class="form-control form-control-sm" value="{{ tarea[10] }}">
+        <label class="mt-2">Tipo de Régimen:</label>
+        <input type="text" name="tipo_regimen" class="form-control form-control-sm" value="{{ tarea.tipo_regimen }}">
 
         <label class="mt-2">Base Legal:</label>
-        <input type="text" name="base_legal" class="form-control form-control-sm" value="{{ tarea[11] }}">
+        <input type="text" name="base_legal" class="form-control form-control-sm" value="{{ tarea.base_legal }}">
 
         <label class="mt-2">Observaciones:</label>
-        <textarea name="observaciones" class="form-control">{{ tarea[12] }}</textarea>
+        <textarea name="observaciones" class="form-control">{{ tarea.observaciones }}</textarea>
 
         <div class="form-row mt-2">
             <div class="col">
                 <label>Fecha Envío Observaciones:</label>
-                <input type="date" name="fecha_envio_observaciones" class="form-control form-control-sm" value="{{ tarea[13] or '' }}">
+                <input type="date" name="fecha_envio_observaciones" class="form-control form-control-sm" value="{{ tarea.fecha_envio_observaciones or '' }}">
             </div>
             <div class="col">
                 <label>Fecha Corrección Observaciones:</label>
-                <input type="date" name="fecha_correccion_observacion" class="form-control form-control-sm" value="{{ tarea[14] or '' }}">
+                <input type="date" name="fecha_correccion_observacion" class="form-control form-control-sm" value="{{ tarea.fecha_correccion_observacion or '' }}">
             </div>
         </div>
 
         <label class="mt-2">Nombre del Jefe de Compras:</label>
-        <input type="text" name="nombre_jefe_compras" class="form-control form-control-sm" value="{{ tarea[15] }}">
+        <input type="text" name="nombre_jefe_compras" class="form-control form-control-sm" value="{{ tarea.nombre_jefe_compras }}">
 
         <label class="mt-2">Unidad Solicitante:</label>
-        <input type="text" name="unidad_solicitante" class="form-control form-control-sm" value="{{ tarea[16] }}">
+        <input type="text" name="unidad_solicitante" class="form-control form-control-sm" value="{{ tarea.unidad_solicitante }}">
 
         <label class="mt-2">Administrador del Contrato:</label>
-        <input type="text" name="administrador_contrato" class="form-control form-control-sm" value="{{ tarea[17] }}">
+        <input type="text" name="administrador_contrato" class="form-control form-control-sm" value="{{ tarea.administrador_contrato }}">
 
         <h5 class="mt-4 text-primary font-weight-bold">✅ Verificación de Documentos</h5>
         <div class="form-row">
             <div class="col-md-4">
-                <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_estudio_previo" {% if tarea[18] %}checked{% endif %}> Estudio Previo</div>
-                <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_terminos_referencia" {% if tarea[20] %}checked{% endif %}> Términos de Referencia</div>
-                <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_estudio_mercado" {% if tarea[22] %}checked{% endif %}> Estudio de Mercado</div>
-                <div class="form-check"><input class="form-check-input" type="checkbox" name="consta_catalogo_electronico" {% if tarea[24] %}checked{% endif %}> En Catálogo Electrónico</div>
-                <div class="form-check"><input class="form-check-input" type="checkbox" name="consta_pac" {% if tarea[26] %}checked{% endif %}> En el PAC</div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_estudio_previo" {% if tarea.presenta_estudio_previo %}checked{% endif %}> Estudio Previo</div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_terminos_referencia" {% if tarea.presenta_terminos_referencia %}checked{% endif %}> Términos de Referencia</div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_estudio_mercado" {% if tarea.presenta_estudio_mercado %}checked{% endif %}> Estudio de Mercado</div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" name="consta_catalogo_electronico" {% if tarea.consta_catalogo_electronico %}checked{% endif %}> En Catálogo Electrónico</div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" name="consta_pac" {% if tarea.consta_pac %}checked{% endif %}> En el PAC</div>
             </div>
             <div class="col-md-4">
-                <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_especificaciones" {% if tarea[19] %}checked{% endif %}> Especificaciones Técnicas</div>
-                <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_proformas" {% if tarea[21] %}checked{% endif %}> Presenta Proformas</div>
-                <div class="form-check"><input class="form-check-input" type="checkbox" name="determinacion_necesidad" {% if tarea[23] %}checked{% endif %}> Determinación de la Necesidad</div>
-                <div class="form-check"><input class="form-check-input" type="checkbox" name="consta_poa" {% if tarea[25] %}checked{% endif %}> Catalogado Incluido GNE</div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_especificaciones" {% if tarea.presenta_especificaciones %}checked{% endif %}> Especificaciones Técnicas</div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_proformas" {% if tarea.presenta_proformas %}checked{% endif %}> Presenta Proformas</div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" name="determinacion_necesidad" {% if tarea.determinacion_necesidad %}checked{% endif %}> Determinación de la Necesidad</div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" name="consta_poa" {% if tarea.consta_poa %}checked{% endif %}> Catalogado Incluido GNE</div>
             </div>
             <div class="col-md-4">
-                <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_errores" {% if tarea[27] %}checked{% endif %}> Presenta Errores</div>
-                <div class="form-check"><input class="form-check-input" type="checkbox" name="cumple_normativa" {% if tarea[28] %}checked{% endif %}> Cumple Normativa</div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_errores" {% if tarea.presenta_errores %}checked{% endif %}> Presenta Errores</div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" name="cumple_normativa" {% if tarea.cumple_normativa %}checked{% endif %}> Cumple Normativa</div>
             </div>
         </div>
 
