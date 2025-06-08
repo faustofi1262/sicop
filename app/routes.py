@@ -257,19 +257,19 @@ def editar_tarea(id):
     conn = get_db_connection()
     cur = conn.cursor()
 
-   # Obtener requerimientos para selector
+    # Obtener requerimientos para selector
     cur.execute("SELECT id, memo_vice_ad, unid_requirente, funcionario_encargado FROM requerimientos")
     requerimientos = cur.fetchall()
+
+    # Obtener tipos de proceso (esto FALTABA si no estaba antes del return)
+    cur.execute("SELECT nombre_proceso FROM tipo_procesos")
+    tipos_proceso = cur.fetchall()
 
     # Obtener la tarea a editar
     cur.execute("SELECT * FROM tareas WHERE id = %s", (id,))
     tarea = cur.fetchone()
 
-    cur.execute("SELECT nombre_proceso FROM tipo_procesos")
-    tipos_proceso = cur.fetchall()
-    
     if request.method == 'POST':
-        # Procesar edición
         data = (
             request.form['funcionario_encargado'],
             request.form['tipo_proceso'],
@@ -299,7 +299,7 @@ def editar_tarea(id):
             'consta_pac' in request.form,
             'presenta_errores' in request.form,
             'cumple_normativa' in request.form,
-            id  # Para WHERE
+            id
         )
         cur.execute("""
             UPDATE tareas SET
@@ -321,10 +321,10 @@ def editar_tarea(id):
         return redirect('/admin/tareas')
 
     conn.close()
-    return render_template('editar_tarea.html', requerimientos=requerimientos, tarea=tarea, tipos_proceso=tipos_proceso)
-    # The following line was incorrect and is removed:
-    # return render_template('editar_tarea.html', requerimientos=requerimientos, tarea=tarea,  
-
+    return render_template('editar_tarea.html',
+                           requerimientos=requerimientos,
+                           tarea=tarea,
+                           tipos_proceso=tipos_proceso)
 @main.route('/convertir_a_letras')
 def convertir_a_letras():
     valor = float(request.args.get("valor", 0))
