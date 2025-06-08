@@ -321,7 +321,7 @@ def editar_tarea(id):
         return redirect('/admin/tareas')
 
     conn.close()
-    return render_template('tareas_admin.html', requerimientos=requerimientos, tareas=tareas)
+    return render_template('editar_tarea.html', requerimientos=requerimientos, tarea=tarea, tipos_proceso=tipos_proceso)
     # The following line was incorrect and is removed:
     # return render_template('editar_tarea.html', requerimientos=requerimientos, tarea=tarea,  
 
