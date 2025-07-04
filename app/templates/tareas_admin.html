@@ -28,7 +28,7 @@
 <body class="container py-4">
     <h2 class="text-primary mb-4">Gestión de Tareas del Proceso de Contratación</h2>
 
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
         <!-- Selección del Requerimiento -->
         <fieldset class="border p-3 mb-4">
             <legend class="w-auto text-primary font-weight-bold">📑 Requerimiento Vinculado</legend>
@@ -133,6 +133,8 @@
 
             <label class="mt-2">Administrador del Contrato:</label>
             <input type="text" name="administrador_contrato" class="form-control form-control-sm">
+            <label class="mt-3">📷 Captura del PAC (opcional):</label>
+            <input type="file" name="imagen_pac" class="form-control-file">
 
             <h5 class="mt-4 text-primary font-weight-bold">✅ Verificación de Documentos</h5>
             <div class="form-row">
