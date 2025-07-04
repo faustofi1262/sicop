@@ -527,7 +527,35 @@ def generar_informe_catalogo(tarea_id):
         nombre_jefe_compras=tarea[15],
         tarea_id=tarea_id  # ← ESTA ES LA CLAVE
     )
+    # AGREGA CERTIFICACION PAC 
+@main.route('/informe/pac/<int:tarea_id>')
+def informe_pac(tarea_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM tareas WHERE id = %s", (tarea_id,))
+    tarea = cur.fetchone()
+    conn.close()
 
+    if not tarea:
+        return "Tarea no encontrada", 404
+
+    from datetime import date
+    return render_template('informe_pac.html',
+        tarea_id=tarea_id,
+        fecha=date.today().strftime('%d/%m/%Y'),
+        unidad_solicitante=tarea[16],
+        funcionario_encargado=tarea[1],
+        objeto_contratacion=tarea[4],
+        codigo_proceso=tarea[5],
+        tipo_proceso=tarea[2],
+        valor_sin_iva=tarea[7],
+        valor_exento=tarea[8],
+        valor_en_letras=tarea[9],
+        tipo_regimen=tarea[10],
+        base_legal=tarea[11],
+        observaciones=tarea[12],
+        imagen_pac=tarea[30] if len(tarea) > 30 else None  # Ajusta según tu tabla
+    )
 @main.route('/admin/permisos', methods=['GET', 'POST'])
 def gestionar_permisos():
     if session.get('rol') != 'Administrador':
@@ -549,7 +577,7 @@ def gestionar_permisos():
                 if checkbox_name in request.form:
                     cur.execute("INSERT INTO permisos (rol, modulo) VALUES (%s, %s)", (rol, modulo))
         conn.commit()
-
+    
     # GET: Cargar permisos actuales
     cur.execute("SELECT rol, modulo FROM permisos")
     rows = cur.fetchall()
