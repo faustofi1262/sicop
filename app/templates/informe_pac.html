@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Informe PAC</title>
+</head>
+<body>
+    <h1>Informe de Certificación PAC</h1>
+    <p><strong>Objeto:</strong> {{ objeto_contratacion }}</p>
+    <p><strong>Unidad:</strong> {{ unidad_solicitante }}</p>
+    <p><strong>Código:</strong> REP-PAC-UTMACH-2025-{{ "%03d"|format(tarea_id) }}</p>
+
+    {% if imagen_pac %}
+        <img src="{{ url_for('static', filename='uploads/' ~ imagen_pac) }}" style="max-width: 300px;">
+    {% else %}
+        <p>No se ha cargado imagen del PAC.</p>
+    {% endif %}
+</body>
+</html>
