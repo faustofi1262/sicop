@@ -260,7 +260,6 @@ def tareas():
 
     return render_template('tareas_admin.html', requerimientos=requerimientos, tareas=tareas, tipos_proceso=tipos_proceso)
 
-
 @main.route('/admin/tareas/eliminar/<int:id>', methods=['POST'])
 def eliminar_tarea(id):
     if session.get('rol') != 'Administrador':
