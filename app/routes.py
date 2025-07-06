@@ -233,23 +233,6 @@ def tareas():
         conn.commit()
 
     cur.execute("""
-            INSERT INTO tareas (
-                requerimiento_id, funcionario_encargado, tipo_proceso, estado_requerimiento,
-                objeto_contratacion, codigo_proceso, fecha_recepcion, valor_sin_iva,
-                valor_exento, valor_en_letras, tipo_regimen, base_legal, observaciones,
-                fecha_envio_observaciones, fecha_correccion_observacion, nombre_jefe_compras,
-                unidad_solicitante, administrador_contrato,
-                presenta_estudio_previo, presenta_especificaciones, presenta_terminos_referencia,
-                presenta_proformas, presenta_estudio_mercado, determinacion_necesidad,
-                consta_catalogo_electronico, consta_poa, consta_pac,
-                presenta_errores, cumple_normativa
-            )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, data)
-    conn.commit()
-
-    cur.execute("""
         SELECT t.id, r.memo_vice_ad, r.unid_requirente, t.funcionario_encargado,
                t.estado_requerimiento, t.tipo_proceso
         FROM tareas t
