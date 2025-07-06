@@ -166,17 +166,16 @@ def tareas():
     conn = get_db_connection()
     cur = conn.cursor()
 
-    # Cargar tipos de proceso
     cur.execute("SELECT nombre_proceso FROM tipo_procesos")
     tipos_proceso = cur.fetchall()
 
-    # Obtener requerimientos para el selector
     cur.execute("""
         SELECT r.id, r.memo_vice_ad, u.nombre_unidad, r.funcionario_encargado
         FROM requerimientos r
         JOIN unidades u ON r.unid_requirente = u.id
     """)
     requerimientos = cur.fetchall()
+
     if request.method == 'POST':
         imagen = request.files.get('imagen_pac')
         imagen_data = imagen.read() if imagen and imagen.filename else None
