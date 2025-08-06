@@ -76,8 +76,11 @@
         <label class="mt-2">Nombre del Jefe de Compras:</label>
         <input type="text" name="nombre_jefe_compras" class="form-control form-control-sm" value="{{ tarea[15] }}">
 
-        <label class="mt-2">Unidad Solicitante:</label>
+        <label class="mt-2">Unidad requirente:</label>
         <input type="text" name="unidad_solicitante" class="form-control form-control-sm" value="{{ tarea[16] }}">
+        
+        <label class="mt-2">Funcionario Encargado:</label>
+        <input type="text" name="funcionario_encargado" class="form-control form-control-sm" value="{{ tarea[1] }}">
 
         <label class="mt-2">Administrador del Contrato:</label>
         <input type="text" name="administrador_contrato" class="form-control form-control-sm" value="{{ tarea[17] }}">
@@ -95,7 +98,7 @@
                 <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_especificaciones" {% if tarea[19] %}checked{% endif %}> Especificaciones Técnicas</div>
                 <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_proformas" {% if tarea[21] %}checked{% endif %}> Presenta Proformas</div>
                 <div class="form-check"><input class="form-check-input" type="checkbox" name="determinacion_necesidad" {% if tarea[23] %}checked{% endif %}> Determinación de la Necesidad</div>
-                <div class="form-check"><input class="form-check-input" type="checkbox" name="consta_poa" {% if tarea[25] %}checked{% endif %}> Catalogado Incluido GNE</div>
+                <div class="form-check"><input class="form-check-input" type="checkbox" name="consta_poa" {% if tarea[25] %}checked{% endif %}> Certificacion POA</div>
             </div>
             <div class="col-md-4">
                 <div class="form-check"><input class="form-check-input" type="checkbox" name="presenta_errores" {% if tarea[27] %}checked{% endif %}> Presenta Errores</div>
