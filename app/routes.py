@@ -180,7 +180,12 @@ def tareas():
         imagen = request.files.get('imagen_pac')
         imagen_data = imagen.read() if imagen and imagen.filename else None
 
+        valor_sin_iva = float(request.form.get('valor_sin_iva') or 0)
+        valor_exento = float(request.form.get('valor_exento') or 0)
+        valor_total = valor_sin_iva + valor_exento
+        valor_en_letras = num2words.num2words(valor_total, lang='es').capitalize()
         data = (
+            
             request.form['requerimiento_id'],
             request.form['funcionario_encargado'],
             request.form['tipo_proceso'],
@@ -190,7 +195,7 @@ def tareas():
             request.form['fecha_recepcion'],
             float(request.form.get('valor_sin_iva') or 0),
             float(request.form.get('valor_exento') or 0),
-            request.form['valor_en_letras'],
+            valor_en_letras,
             request.form['tipo_regimen'],
             request.form['base_legal'],
             request.form['observaciones'],
@@ -272,6 +277,10 @@ def editar_tarea(id):
     tarea = cur.fetchone()
 
     if request.method == 'POST':
+        valor_sin_iva = float(request.form.get('valor_sin_iva') or 0)
+        valor_exento = float(request.form.get('valor_exento') or 0)
+        valor_total = valor_sin_iva + valor_exento
+        valor_en_letras = num2words.num2words(valor_total, lang='es').capitalize()
         data = (
             request.form['funcionario_encargado'],
             request.form['tipo_proceso'],
@@ -281,7 +290,7 @@ def editar_tarea(id):
             request.form['fecha_recepcion'],
             float(request.form.get('valor_sin_iva') or 0),
             float(request.form.get('valor_exento') or 0),
-            request.form['valor_en_letras'],
+            valor_en_letras,
             request.form['tipo_regimen'],
             request.form['base_legal'],
             request.form['observaciones'],
