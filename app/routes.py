@@ -188,7 +188,37 @@ def tareas():
         centavos = int(round((valor_total - entero) * 100))
         letras = num2words.num2words(entero, lang='es').capitalize()
         valor_en_letras = f"{letras} con {centavos:02d}/100 dólares americanos"
-        data = (
+    # 1) Tomamos el código que viene del form
+        codigo = request.form['codigo_proceso'].strip()
+
+    # 2) Validamos duplicado
+        cur.execute("SELECT 1 FROM tareas WHERE codigo_proceso = %s", (codigo,))
+        dup = cur.fetchone()
+
+        if dup:
+    # Recarga listas para re-renderizar la página con el error
+            cur.execute("""
+                SELECT t.id, r.memo_vice_ad, r.unid_requirente, t.funcionario_encargado,
+                       t.estado_requerimiento, t.tipo_proceso
+                FROM tareas t
+                JOIN requerimientos r ON t.requerimiento_id = r.id
+            """)
+        tareas_list = cur.fetchall()
+
+    # ¡Ojo! Reutilizamos las variables ya cargadas arriba:
+    # - tipos_proceso
+    # - requerimientos
+
+        conn.close()
+        return render_template(
+            'tareas_admin.html',
+            requerimientos=requerimientos,
+            tareas=tareas_list,
+            tipos_proceso=tipos_proceso,
+            error_codigo="El código de proceso ya existe. Debe ser único."
+        )
+           # 3) Si no hay duplicado, continuamos con la inserción    
+    data = (
             
             request.form['requerimiento_id'],
             request.form['funcionario_encargado'],
@@ -222,7 +252,7 @@ def tareas():
             imagen_data
         )
 
-        cur.execute("""
+    cur.execute("""
             INSERT INTO tareas (
                 requerimiento_id, funcionario_encargado, tipo_proceso, estado_requerimiento,
                 objeto_contratacion, codigo_proceso, fecha_recepcion, valor_sin_iva,
@@ -238,7 +268,7 @@ def tareas():
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
                     %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """, data)
-        conn.commit()
+    conn.commit()
 
     cur.execute("""
         SELECT t.id, r.memo_vice_ad, r.unid_requirente, t.funcionario_encargado,
@@ -289,7 +319,38 @@ def editar_tarea(id):
         centavos = int(round((valor_total - entero) * 100))
         letras = num2words.num2words(entero, lang='es').capitalize()
         valor_en_letras = f"{letras} con {centavos:02d}/100 dólares americanos"
-        data = (
+    # 1) Tomamos el código que viene del form
+        codigo = request.form['codigo_proceso'].strip()
+
+    # 2) Validamos duplicado
+        cur.execute("SELECT 1 FROM tareas WHERE codigo_proceso = %s", (codigo,))
+        dup = cur.fetchone()
+
+        if dup:
+    # Recarga listas para re-renderizar la página con el error
+            cur.execute("""
+                SELECT t.id, r.memo_vice_ad, r.unid_requirente, t.funcionario_encargado,
+                       t.estado_requerimiento, t.tipo_proceso
+                FROM tareas t
+                JOIN requerimientos r ON t.requerimiento_id = r.id
+            """)
+        tareas_list = cur.fetchall()
+
+    # ¡Ojo! Reutilizamos las variables ya cargadas arriba:
+    # - tipos_proceso
+    # - requerimientos
+
+        conn.close()
+        return render_template(
+            'tareas_admin.html',
+            requerimientos=requerimientos,
+            tareas=tareas_list,
+            tipos_proceso=tipos_proceso,
+            error_codigo="El código de proceso ya existe. Debe ser único."
+        )
+           # 3) Si no hay duplicado, continuamos con la inserción   
+        
+    data = (
             request.form['funcionario_encargado'],
             request.form['tipo_proceso'],
             request.form['estado_requerimiento'],
@@ -320,7 +381,7 @@ def editar_tarea(id):
             'cumple_normativa' in request.form,
             id
         )
-        cur.execute("""
+    cur.execute("""
             UPDATE tareas SET
                 funcionario_encargado=%s, tipo_proceso=%s, estado_requerimiento=%s,
                 objeto_contratacion=%s, codigo_proceso=%s, fecha_recepcion=%s,
@@ -335,9 +396,9 @@ def editar_tarea(id):
                 consta_pac=%s, presenta_errores=%s, cumple_normativa=%s
             WHERE id=%s
         """, data)
-        conn.commit()
-        conn.close()
-        return redirect('/admin/tareas')
+    conn.commit()
+    conn.close()
+    return redirect('/admin/tareas')
 
     conn.close()
     return render_template('editar_tarea.html', requerimientos=requerimientos, tarea=tarea, tipos_proceso=tipos_proceso)

@@ -80,6 +80,9 @@
                 <div class="col">
                     <label>Código del Proceso:</label>
                     <input type="text" name="codigo_proceso" class="form-control form-control-sm">
+                    {% if error_codigo %}
+                    <div class="text-danger small mt-1">{{ error_codigo }}</div>
+                    {% endif %}
                 </div>
                 <div class="col">
                     <label>Fecha de Recepción:</label>
