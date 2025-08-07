@@ -183,7 +183,11 @@ def tareas():
         valor_sin_iva = float(request.form.get('valor_sin_iva') or 0)
         valor_exento = float(request.form.get('valor_exento') or 0)
         valor_total = valor_sin_iva + valor_exento
-        valor_en_letras = num2words.num2words(valor_total, lang='es').capitalize()
+
+        entero = int(valor_total)
+        centavos = int(round((valor_total - entero) * 100))
+        letras = num2words.num2words(entero, lang='es').capitalize()
+        valor_en_letras = f"{letras} con {centavos:02d}/100 dólares americanos"
         data = (
             
             request.form['requerimiento_id'],
@@ -280,7 +284,11 @@ def editar_tarea(id):
         valor_sin_iva = float(request.form.get('valor_sin_iva') or 0)
         valor_exento = float(request.form.get('valor_exento') or 0)
         valor_total = valor_sin_iva + valor_exento
-        valor_en_letras = num2words.num2words(valor_total, lang='es').capitalize()
+
+        entero = int(valor_total)
+        centavos = int(round((valor_total - entero) * 100))
+        letras = num2words.num2words(entero, lang='es').capitalize()
+        valor_en_letras = f"{letras} con {centavos:02d}/100 dólares americanos"
         data = (
             request.form['funcionario_encargado'],
             request.form['tipo_proceso'],
