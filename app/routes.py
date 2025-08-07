@@ -188,36 +188,30 @@ def tareas():
         centavos = int(round((valor_total - entero) * 100))
         letras = num2words.num2words(entero, lang='es').capitalize()
         valor_en_letras = f"{letras} con {centavos:02d}/100 dólares americanos"
-    # 1) Tomamos el código que viene del form
-        codigo = request.form['codigo_proceso'].strip()
-
-    # 2) Validamos duplicado
+         # VALIDACIÓN: evitar código repetido
+    codigo = request.form.get('codigo_proceso', '').strip()
+    if codigo:
         cur.execute("SELECT 1 FROM tareas WHERE codigo_proceso = %s", (codigo,))
         dup = cur.fetchone()
-
         if dup:
-    # Recarga listas para re-renderizar la página con el error
+            # Recargar listas para volver a la página con error
             cur.execute("""
                 SELECT t.id, r.memo_vice_ad, r.unid_requirente, t.funcionario_encargado,
                        t.estado_requerimiento, t.tipo_proceso
                 FROM tareas t
                 JOIN requerimientos r ON t.requerimiento_id = r.id
             """)
-        tareas_list = cur.fetchall()
+            tareas_list = cur.fetchall()
 
-    # ¡Ojo! Reutilizamos las variables ya cargadas arriba:
-    # - tipos_proceso
-    # - requerimientos
-
-        conn.close()
-        return render_template(
-            'tareas_admin.html',
-            requerimientos=requerimientos,
-            tareas=tareas_list,
-            tipos_proceso=tipos_proceso,
-            error_codigo="El código de proceso ya existe. Debe ser único."
-        )
-           # 3) Si no hay duplicado, continuamos con la inserción    
+            conn.close()
+            return render_template(
+                'tareas_admin.html',
+                requerimientos=requerimientos,
+                tareas=tareas_list,
+                tipos_proceso=tipos_proceso,
+                error_codigo="El código de proceso ya existe. Debe ser único."
+            )
+    # 3) Si no hay duplicado, continuamos con la inserción    
     data = (
             
             request.form['requerimiento_id'],
