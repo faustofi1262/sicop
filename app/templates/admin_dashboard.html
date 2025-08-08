@@ -38,10 +38,21 @@
         <a href="/admin/requerimientos" class="btn btn-primary btn-block">📋 Ingresar Requerimientos</a>
         <a href="/admin/tareas" class="btn btn-success btn-block">🛠️ Ingresar Tareas</a>
         <a href="#" class="btn btn-warning btn-block">🧾 Ingresar Orden de Compra</a>
+        <!-- Botón para Ingresar Tipos de Procesos -->
+        <a href="{{ url_for('tipo_procesos') }}" class="btn btn-primary btn-lg w-100 mb-2" 
+        style="background-color:#8E44AD; border:none;">
+        📑 Ingresar Tipos de Procesos
+        </a>
+
+    <!-- Botón para Ingresar Tipos de Régimen -->
+        <a href="{{ url_for('tipo_regimen') }}" class="btn btn-primary btn-lg w-100 mb-2" 
+        style="background-color:#D35400; border:none;">
+        ⚖️ Ingresar Tipos de Régimen
+        </a>
         <a href="#" class="btn btn-info btn-block">📄 Crear Pliegos</a>
         <a href="#" class="btn btn-secondary btn-block">📊 Reportes</a>
         <div class="text-center mt-4">
-            <a href="/logout" class="btn btn-outline-danger">🔓 Cerrar sesión</a>
+        <a href="/logout" class="btn btn-outline-danger">🔓 Cerrar sesión</a>
         </form>
     </div>
 </body>

@@ -2,13 +2,13 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4">📑 Gestión de Tipos de Procesos</h2>
+    <h2 class="mb-4">⚖️ Gestión de Tipos de Régimen</h2>
 
     <!-- Formulario para agregar -->
     <form method="POST" class="mb-4">
         <div class="row">
             <div class="col-md-8">
-                <input type="text" name="nombre_proceso" class="form-control" placeholder="Nombre del proceso" required>
+                <input type="text" name="nombre_regimen" class="form-control" placeholder="Nombre del régimen" required>
             </div>
             <div class="col-md-4">
                 <button type="submit" class="btn btn-primary w-100">➕ Agregar</button>
@@ -21,14 +21,14 @@
         <thead class="table-dark">
             <tr>
                 <th>ID</th>
-                <th>Nombre del Proceso</th>
+                <th>Nombre del Régimen</th>
             </tr>
         </thead>
         <tbody>
-            {% for p in procesos %}
+            {% for r in regimenes %}
             <tr>
-                <td>{{ p[0] }}</td>
-                <td>{{ p[1] }}</td>
+                <td>{{ r[0] }}</td>
+                <td>{{ r[1] }}</td>
             </tr>
             {% else %}
             <tr>
