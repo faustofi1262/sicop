@@ -266,85 +266,23 @@ def tareas():
         conn.commit()
 
     # Siempre cargar lista de tareas para GET y POST exitoso
-    cur.execute("""
-        SELECT t.id, r.memo_vice_ad, r.unid_requirente, t.funcionario_encargado,
-               t.estado_requerimiento, t.tipo_proceso
-        FROM tareas t
-        JOIN requerimientos r ON t.requerimiento_id = r.id
-    """)
-    tareas_list = cur.fetchall()
-    conn.close()
+        cur.execute("""
+            SELECT t.id, r.memo_vice_ad, r.unid_requirente, t.funcionario_encargado,
+                t.estado_requerimiento, t.tipo_proceso
+            FROM tareas t
+            JOIN requerimientos r ON t.requerimiento_id = r.id
+        """)
+        tareas_list = cur.fetchall()
+        conn.close()
 
-    return render_template(
-        'tareas_admin.html',
-        requerimientos=requerimientos,
-        tareas=tareas_list,
-        tipos_proceso=tipos_proceso,
-        error_codigo=error_codigo
-    )
-
-    data = (
-            
-            request.form['requerimiento_id'],
-            request.form['funcionario_encargado'],
-            request.form['tipo_proceso'],
-            request.form['estado_requerimiento'],
-            request.form['objeto_contratacion'],
-            request.form['codigo_proceso'],
-            request.form['fecha_recepcion'],
-            float(request.form.get('valor_sin_iva') or 0),
-            float(request.form.get('valor_exento') or 0),
-            valor_en_letras,
-            request.form['tipo_regimen'],
-            request.form['base_legal'],
-            request.form['observaciones'],
-            request.form.get('fecha_envio_observaciones') or None,
-            request.form.get('fecha_correccion_observacion') or None,
-            request.form['nombre_jefe_compras'],
-            request.form['unidad_solicitante'] or None,
-            request.form['administrador_contrato'] or None,
-            'presenta_estudio_previo' in request.form,
-            'presenta_especificaciones' in request.form,
-            'presenta_terminos_referencia' in request.form,
-            'presenta_proformas' in request.form,
-            'presenta_estudio_mercado' in request.form,
-            'determinacion_necesidad' in request.form,
-            'consta_catalogo_electronico' in request.form,
-            'consta_poa' in request.form,
-            'consta_pac' in request.form,
-            'presenta_errores' in request.form,
-            'cumple_normativa' in request.form,
-            imagen_data
+        return render_template(
+            'tareas_admin.html',
+            requerimientos=requerimientos,
+            tareas=tareas_list,
+            tipos_proceso=tipos_proceso,
+            error_codigo=error_codigo
         )
-
-    cur.execute("""
-            INSERT INTO tareas (
-                requerimiento_id, funcionario_encargado, tipo_proceso, estado_requerimiento,
-                objeto_contratacion, codigo_proceso, fecha_recepcion, valor_sin_iva,
-                valor_exento, valor_en_letras, tipo_regimen, base_legal, observaciones,
-                fecha_envio_observaciones, fecha_correccion_observacion, nombre_jefe_compras,
-                unidad_solicitante, administrador_contrato,
-                presenta_estudio_previo, presenta_especificaciones, presenta_terminos_referencia,
-                presenta_proformas, presenta_estudio_mercado, determinacion_necesidad,
-                consta_catalogo_electronico, consta_poa, consta_pac,
-                presenta_errores, cumple_normativa,
-                imagen_pac
-            )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, data)
-    conn.commit()
-
-    cur.execute("""
-        SELECT t.id, r.memo_vice_ad, r.unid_requirente, t.funcionario_encargado,
-               t.estado_requerimiento, t.tipo_proceso
-        FROM tareas t
-        JOIN requerimientos r ON t.requerimiento_id = r.id
-    """)
-    tareas = cur.fetchall()
-    conn.close()
-
-    return render_template('tareas_admin.html', requerimientos=requerimientos, tareas=tareas, tipos_proceso=tipos_proceso)
+# The following block was removed because it was outside any function and caused a "cur is not defined" error.
 
 @main.route('/admin/tareas/eliminar/<int:id>', methods=['POST'])
 def eliminar_tarea(id):
