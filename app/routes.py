@@ -163,61 +163,126 @@ def gestionar_requerimientos():
     return render_template("requerimientos_admin.html",  requerimientos=requerimientos, funcionarios=funcionarios, unidades=unidades)
 @main.route('/admin/tareas', methods=['GET', 'POST'])
 def tareas():
-    conn = get_db_connection()
-    cur = conn.cursor()
+        conn = get_db_connection()
+        cur = conn.cursor()
 
-    cur.execute("SELECT nombre_proceso FROM tipo_procesos")
-    tipos_proceso = cur.fetchall()
+    # Cargar combos para GET y para recarga en errores
+        cur.execute("SELECT nombre_proceso FROM tipo_procesos")
+        tipos_proceso = cur.fetchall()
 
-    cur.execute("""
-        SELECT r.id, r.memo_vice_ad, u.nombre_unidad, r.funcionario_encargado
-        FROM requerimientos r
-        JOIN unidades u ON r.unid_requirente = u.id
-    """)
-    requerimientos = cur.fetchall()
+        cur.execute("""
+            SELECT r.id, r.memo_vice_ad, u.nombre_unidad, r.funcionario_encargado
+            FROM requerimientos r
+            JOIN unidades u ON r.unid_requirente = u.id
+        """)
+        requerimientos = cur.fetchall()
 
-    if request.method == 'POST':
-        imagen = request.files.get('imagen_pac')
-        imagen_data = imagen.read() if imagen and imagen.filename else None
+        error_codigo = None  # Para mostrar mensaje en HTML si hay duplicado
 
-        valor_sin_iva = float(request.form.get('valor_sin_iva') or 0)
-        valor_exento = float(request.form.get('valor_exento') or 0)
-        valor_total = valor_sin_iva + valor_exento
+        if request.method == 'POST':
+            imagen = request.files.get('imagen_pac')
+            imagen_data = imagen.read() if imagen and imagen.filename else None
 
-        entero = int(valor_total)
-        centavos = int(round((valor_total - entero) * 100))
-        letras = num2words.num2words(entero, lang='es').capitalize()
-        valor_en_letras = f"{letras} con {centavos:02d}/100 dólares americanos"
-        # 1) Tomamos el código que viene del form
-        codigo = request.form['codigo_proceso'].strip()
+        # Calcular valor en letras
+            valor_sin_iva = float(request.form.get('valor_sin_iva') or 0)
+            valor_exento = float(request.form.get('valor_exento') or 0)
+            valor_total = valor_sin_iva + valor_exento
+            entero = int(valor_total)
+            centavos = int(round((valor_total - entero) * 100))
+            letras = num2words.num2words(entero, lang='es').capitalize()
+            valor_en_letras = f"{letras} con {centavos:02d}/100 dólares americanos"
 
-    # 2) Validamos duplicado
-        cur.execute("SELECT 1 FROM tareas WHERE codigo_proceso = %s", (codigo,))
-        dup = cur.fetchone()
+        # Validar código único
+            codigo = request.form.get('codigo_proceso', '').strip()
+            if codigo:
+                cur.execute("SELECT 1 FROM tareas WHERE codigo_proceso = %s", (codigo,))
+                if cur.fetchone():
+                # Volvemos a la vista con mensaje de error
+                    cur.execute("""
+                        SELECT t.id, r.memo_vice_ad, r.unid_requirente, t.funcionario_encargado,
+                               t.estado_requerimiento, t.tipo_proceso
+                        FROM tareas t
+                        JOIN requerimientos r ON t.requerimiento_id = r.id
+                    """)
+                    tareas_list = cur.fetchall()
+                    conn.close()
+                    return render_template(
+                        'tareas_admin.html',
+                        requerimientos=requerimientos,
+                        tareas=tareas_list,
+                        tipos_proceso=tipos_proceso,
+                        error_codigo="El código de proceso ya existe. Debe ser único."
+                    )
 
-        if dup:
-    # Recarga listas para re-renderizar la página con el error
-            cur.execute("""
-                SELECT t.id, r.memo_vice_ad, r.unid_requirente, t.funcionario_encargado,
-                       t.estado_requerimiento, t.tipo_proceso
-                FROM tareas t
-                JOIN requerimientos r ON t.requerimiento_id = r.id
-            """)
-        tareas_list = cur.fetchall()
-
-    # ¡Ojo! Reutilizamos las variables ya cargadas arriba:
-    # - tipos_proceso
-    # - requerimientos
-
-        conn.close()
-        return render_template(
-            'tareas_admin.html',
-            requerimientos=requerimientos,
-            tareas=tareas_list,
-            tipos_proceso=tipos_proceso,
-            error_codigo="El código de proceso ya existe. Debe ser único."
+        # Si no hay duplicado, insertar
+        data = (
+            request.form.get('requerimiento_id'),
+            request.form.get('funcionario_encargado'),
+            request.form.get('tipo_proceso'),
+            request.form.get('estado_requerimiento'),
+            request.form.get('objeto_contratacion'),
+            codigo,
+            request.form.get('fecha_recepcion'),
+            valor_sin_iva,
+            valor_exento,
+            valor_en_letras,
+            request.form.get('tipo_regimen'),
+            request.form.get('base_legal'),
+            request.form.get('observaciones'),
+            request.form.get('fecha_envio_observaciones') or None,
+            request.form.get('fecha_correccion_observacion') or None,
+            request.form.get('nombre_jefe_compras'),
+            request.form.get('unidad_solicitante') or None,
+            request.form.get('administrador_contrato') or None,
+            'presenta_estudio_previo' in request.form,
+            'presenta_especificaciones' in request.form,
+            'presenta_terminos_referencia' in request.form,
+            'presenta_proformas' in request.form,
+            'presenta_estudio_mercado' in request.form,
+            'determinacion_necesidad' in request.form,
+            'consta_catalogo_electronico' in request.form,
+            'consta_poa' in request.form,
+            'consta_pac' in request.form,
+            'presenta_errores' in request.form,
+            'cumple_normativa' in request.form,
+            imagen_data
         )
-           # 3) Si no hay duplicado, continuamos con la inserción    
+
+        cur.execute("""
+            INSERT INTO tareas (
+                requerimiento_id, funcionario_encargado, tipo_proceso, estado_requerimiento,
+                objeto_contratacion, codigo_proceso, fecha_recepcion, valor_sin_iva,
+                valor_exento, valor_en_letras, tipo_regimen, base_legal, observaciones,
+                fecha_envio_observaciones, fecha_correccion_observacion, nombre_jefe_compras,
+                unidad_solicitante, administrador_contrato,
+                presenta_estudio_previo, presenta_especificaciones, presenta_terminos_referencia,
+                presenta_proformas, presenta_estudio_mercado, determinacion_necesidad,
+                consta_catalogo_electronico, consta_poa, consta_pac,
+                presenta_errores, cumple_normativa, imagen_pac
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, data)
+        conn.commit()
+
+    # Siempre cargar lista de tareas para GET y POST exitoso
+    cur.execute("""
+        SELECT t.id, r.memo_vice_ad, r.unid_requirente, t.funcionario_encargado,
+               t.estado_requerimiento, t.tipo_proceso
+        FROM tareas t
+        JOIN requerimientos r ON t.requerimiento_id = r.id
+    """)
+    tareas_list = cur.fetchall()
+    conn.close()
+
+    return render_template(
+        'tareas_admin.html',
+        requerimientos=requerimientos,
+        tareas=tareas_list,
+        tipos_proceso=tipos_proceso,
+        error_codigo=error_codigo
+    )
+
     data = (
             
             request.form['requerimiento_id'],
