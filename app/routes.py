@@ -295,45 +295,53 @@ def editar_tarea(id):
     conn = get_db_connection()
     cur = conn.cursor()
 
-    # Obtener requerimientos para selector
     cur.execute("SELECT id, memo_vice_ad, unid_requirente, funcionario_encargado FROM requerimientos")
     requerimientos = cur.fetchall()
-
-    # Obtener tipos de proceso (esto FALTABA si no estaba antes del return)
     cur.execute("SELECT nombre_proceso FROM tipo_procesos")
     tipos_proceso = cur.fetchall()
-
-    # Obtener la tarea a editar
     cur.execute("SELECT * FROM tareas WHERE id = %s", (id,))
     tarea = cur.fetchone()
 
     if request.method == 'POST':
+        # Valor en letras
         valor_sin_iva = float(request.form.get('valor_sin_iva') or 0)
         valor_exento = float(request.form.get('valor_exento') or 0)
         valor_total = valor_sin_iva + valor_exento
-
         entero = int(valor_total)
         centavos = int(round((valor_total - entero) * 100))
         letras = num2words.num2words(entero, lang='es').capitalize()
         valor_en_letras = f"{letras} con {centavos:02d}/100 dólares americanos"
+
+        # Validar código único (excluyendo esta tarea)
+        codigo = (request.form.get('codigo_proceso') or '').strip()
+        if codigo:
+            cur.execute("SELECT 1 FROM tareas WHERE codigo_proceso = %s AND id <> %s", (codigo, id))
+            if cur.fetchone():
+                conn.close()
+                return render_template('editar_tarea.html',
+                                       requerimientos=requerimientos,
+                                       tarea=tarea,
+                                       tipos_proceso=tipos_proceso,
+                                       error_codigo="El código de proceso ya existe. Debe ser único.")
+
         data = (
-            request.form.get['funcionario_encargado'],
-            request.form.get['tipo_proceso'],
-            request.form.get['estado_requerimiento'],
-            request.form.get['objeto_contratacion'],
-            request.form.get['codigo_proceso'],
-            request.form.get['fecha_recepcion'],
-            float(request.form.get('valor_sin_iva') or 0),
-            float(request.form.get('valor_exento') or 0),
+            request.form.get('funcionario_encargado'),
+            request.form.get('tipo_proceso'),
+            request.form.get('estado_requerimiento'),
+            request.form.get('objeto_contratacion'),
+            codigo,
+            request.form.get('fecha_recepcion') or None,
+            valor_sin_iva,
+            valor_exento,
             valor_en_letras,
-            request.form.get['tipo_regimen'],
-            request.form.get['base_legal'],
-            request.form.get['observaciones'],
+            request.form.get('tipo_regimen'),
+            request.form.get('base_legal'),
+            request.form.get('observaciones'),
             request.form.get('fecha_envio_observaciones') or None,
             request.form.get('fecha_correccion_observacion') or None,
-            request.form.get['nombre_jefe_compras'],
-            request.form.get['unidad_solicitante'] or None,
-            request.form.get['administrador_contrato'] or None,
+            request.form.get('nombre_jefe_compras'),
+            request.form.get('unidad_solicitante') or None,
+            request.form.get('administrador_contrato') or None,
             'presenta_estudio_previo' in request.form,
             'presenta_especificaciones' in request.form,
             'presenta_terminos_referencia' in request.form,
@@ -347,6 +355,7 @@ def editar_tarea(id):
             'cumple_normativa' in request.form,
             id
         )
+
         cur.execute("""
             UPDATE tareas SET
                 funcionario_encargado=%s, tipo_proceso=%s, estado_requerimiento=%s,
@@ -367,7 +376,10 @@ def editar_tarea(id):
         return redirect('/admin/tareas')
 
     conn.close()
-    return render_template('editar_tarea.html', requerimientos=requerimientos, tarea=tarea, tipos_proceso=tipos_proceso)
+    return render_template('editar_tarea.html',
+                           requerimientos=requerimientos,
+                           tarea=tarea,
+                           tipos_proceso=tipos_proceso)
 @main.route('/convertir_a_letras')
 def convertir_a_letras():
     valor = float(request.args.get("valor", 0))
