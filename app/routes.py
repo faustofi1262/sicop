@@ -646,4 +646,46 @@ def gestionar_permisos():
     conn.close()
 
     return render_template("gestionar_permisos.html", roles=roles, modulos=modulos, permisos=permisos)
+# ------------------- TIPOS DE PROCESOS -------------------
+@main.route('/admin/tipo_procesos', methods=['GET', 'POST'])
+def tipo_procesos():
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    if request.method == 'POST':
+        nombre = request.form.get('nombre_proceso', '').strip()
+        if nombre:
+            # Evita duplicados
+            cur.execute("SELECT 1 FROM tipo_procesos WHERE nombre_proceso = %s", (nombre,))
+            if not cur.fetchone():
+                cur.execute("INSERT INTO tipo_procesos (nombre_proceso) VALUES (%s)", (nombre,))
+                conn.commit()
+
+    cur.execute("SELECT id, nombre_proceso FROM tipo_procesos ORDER BY id ASC")
+    procesos = cur.fetchall()
+    conn.close()
+
+    return render_template('tipo_procesos.html', procesos=procesos)
+
+
+# ------------------- TIPOS DE RÉGIMEN -------------------
+@main.route('/admin/tipo_regimen', methods=['GET', 'POST'])
+def tipo_regimen():
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    if request.method == 'POST':
+        nombre = request.form.get('nombre_regimen', '').strip()
+        if nombre:
+            # Evita duplicados
+            cur.execute("SELECT 1 FROM tipo_regimen WHERE nombre_regimen = %s", (nombre,))
+            if not cur.fetchone():
+                cur.execute("INSERT INTO tipo_regimen (nombre_regimen) VALUES (%s)", (nombre,))
+                conn.commit()
+
+    cur.execute("SELECT id, nombre_regimen FROM tipo_regimen ORDER BY id ASC")
+    regimenes = cur.fetchall()
+    conn.close()
+
+    return render_template('tipo_regimen.html', regimenes=regimenes)
 
