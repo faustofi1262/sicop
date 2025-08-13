@@ -32,20 +32,19 @@
 
   <!-- ENCABEZADO -->
   <div class="hdr">
-    <div style="width:110px;">
+  <div style="width:110px;">
     <img src="{{ url_for('static', filename='img/utmach.png') }}" alt="UTMACH"
          style="max-width:100%; height:auto;">
-    <!-- Coloca el logo si deseas -->
-    <div style="width:100px;height:60px; border:0"></div>
-    <div class="titulo">
-      <div class="marca">ORDEN DE COMPRA – ÍNFIMA CUANTÍA</div>
-      <div class="small">Formato oficial para contratación por ínfima cuantía</div>
-    </div>
-    <div style="width:160px; text-align:right; font-size:12px;">
-      <div><b>No.:</b> {{ oc[1] }}</div>
-      <div><b>Fecha:</b> {{ oc[2] }}</div>
-    </div>
   </div>
+  <div class="titulo">
+    <div class="marca">ORDEN DE COMPRA – ÍNFIMA CUANTÍA</div>
+    <div class="small">Formato oficial para contratación por ínfima cuantía</div>
+  </div>
+  <div style="width:160px; text-align:right; font-size:12px;">
+    <div><b>No.:</b> {{ oc[1] }}</div>
+    <div><b>Fecha:</b> {{ oc[2] }}</div>
+  </div>
+</div>
   <div class="linea"></div>
 
   <!-- REFERENCIAS -->
