@@ -1,41 +1,37 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tipos de Régimen</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body class="container mt-4">
+  <h2 class="mb-4">⚖️ Gestión de Tipos de Régimen</h2>
 
-{% block content %}
-<div class="container mt-4">
-    <h2 class="mb-4">⚖️ Gestión de Tipos de Régimen</h2>
+  <form method="POST" class="mb-4">
+    <div class="form-row">
+      <div class="col-md-8">
+        <input type="text" name="nombre_regimen" class="form-control" placeholder="Nombre del régimen" required />
+      </div>
+      <div class="col-md-4">
+        <button type="submit" class="btn btn-primary w-100">➕ Agregar</button>
+      </div>
+    </div>
+  </form>
 
-    <!-- Formulario para agregar -->
-    <form method="POST" class="mb-4">
-        <div class="row">
-            <div class="col-md-8">
-                <input type="text" name="nombre_regimen" class="form-control" placeholder="Nombre del régimen" required>
-            </div>
-            <div class="col-md-4">
-                <button type="submit" class="btn btn-primary w-100">➕ Agregar</button>
-            </div>
-        </div>
-    </form>
+  <table class="table table-bordered table-striped">
+    <thead class="thead-dark">
+      <tr><th>ID</th><th>Nombre del Régimen</th></tr>
+    </thead>
+    <tbody>
+      {% for r in regimenes %}
+        <tr><td>{{ r[0] }}</td><td>{{ r[1] }}</td></tr>
+      {% else %}
+        <tr><td colspan="2" class="text-center">No hay registros</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
-    <!-- Tabla de registros -->
-    <table class="table table-bordered table-striped">
-        <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>Nombre del Régimen</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for r in regimenes %}
-            <tr>
-                <td>{{ r[0] }}</td>
-                <td>{{ r[1] }}</td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="2" class="text-center">No hay registros</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% endblock %}
+  <a href="/admin_dashboard" class="btn btn-secondary mt-3">← Volver</a>
+</body>
+</html>
