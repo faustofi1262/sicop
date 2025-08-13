@@ -22,10 +22,21 @@
     .small { font-size: 12px; }
     .vspace { margin-top: 6px; }
     @media print {
-      .no-print { display:none !important; }
-      a[href]:after { content:""; }
-      body { margin:0; }
-    }
+  body::before {
+    content: "";
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 65%;
+    height: 65%;
+    transform: translate(-50%, -50%);
+    background: url("{{ url_for('static', filename='img/utmach.png') }}") center/contain no-repeat;
+    opacity: 0.06;           /* Ajusta intensidad */
+    z-index: -1;             /* Detrás del contenido */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
   </style>
 </head>
 <body>
