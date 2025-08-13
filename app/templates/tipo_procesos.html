@@ -25,7 +25,16 @@
     </thead>
     <tbody>
       {% for p in procesos %}
-        <tr><td>{{ p[0] }}</td><td>{{ p[1] }}</td></tr>
+       <tr>
+        <td>{{ p[0] }}</td>
+        <td>{{ p[1] }}</td>
+    <td>
+        <form method="POST" action="{{ url_for('main.eliminar_tipo_proceso', id=p[0]) }}" style="display:inline;" 
+              onsubmit="return confirm('¿Seguro que deseas eliminar este tipo de proceso?');">
+            <button type="submit" class="btn btn-danger btn-sm">🗑 Eliminar</button>
+        </form>
+    </td>
+    </tr>
       {% else %}
         <tr><td colspan="2" class="text-center">No hay registros</td></tr>
       {% endfor %}

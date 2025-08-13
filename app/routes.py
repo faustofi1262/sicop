@@ -675,6 +675,15 @@ def tipo_procesos():
 
     return render_template('tipo_procesos.html', procesos=procesos)
 
+@main.route('/admin/tipo_procesos/eliminar/<int:id>', methods=['POST'])
+def eliminar_tipo_proceso(id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM tipo_procesos WHERE id = %s", (id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('main.tipo_procesos'))
+
 
 # ------------------- TIPOS DE RÉGIMEN -------------------
 @main.route('/admin/tipo_regimen', methods=['GET', 'POST'])
