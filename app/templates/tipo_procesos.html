@@ -7,7 +7,10 @@
 </head>
 <body class="container mt-4">
   <h2 class="mb-4">📑 Gestión de Tipos de Procesos</h2>
-
+   <!-- Mensaje de error opcional -->
+  {% if error %}
+    <div class="alert alert-warning">{{ error }}</div>
+  {% endif %}
   <form method="POST" class="mb-4">
     <div class="form-row">
       <div class="col-md-8">
