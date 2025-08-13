@@ -848,5 +848,13 @@ def imprimir_oc(oc_id):
     if not oc:
         return "OC no encontrada", 404
 
-    return render_template('orden_compra_print.html', oc=oc, items=items)
+    # total en letras (xx/100 dólares americanos)
+    from num2words import num2words
+    total = float(oc[24] or 0)  # índice 24 = total según la tabla propuesta
+    entero = int(total)
+    centavos = int(round((total - entero) * 100))
+    letras = num2words(entero, lang='es').capitalize()
+    total_letras = f"{letras} con {centavos:02d}/100 dólares americanos"
+
+    return render_template('orden_compra_print.html', oc=oc, items=items, total_letras=total_letras)
 

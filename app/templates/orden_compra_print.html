@@ -5,47 +5,89 @@
   <title>Orden de Compra</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body{ padding: 30px; font-size: 13px; }
-    .linea { border-bottom: 2px solid #003366; margin: 10px 0 20px; }
+    :root { --azul:#0f3b77; }
+    body { padding: 28px; font-size: 12.5px; color:#111; }
+    h1,h2,h3,h4,h5,h6 { margin:0; }
+    .hdr { display:flex; align-items:center; }
+    .hdr .titulo { flex:1; text-align:center; }
+    .marca { color:var(--azul); font-weight:700; letter-spacing:.5px; }
+    .linea { height:3px; background:var(--azul); margin:8px 0 16px; }
+    .box { border:1px solid var(--azul); border-radius:6px; padding:10px; background:#f7fbff; margin-bottom:8px; }
+    .ttl { color:var(--azul); font-weight:700; font-size:13px; margin-top:6px; margin-bottom:6px; }
+    .table-sm td, .table-sm th { padding:.35rem .5rem; vertical-align:top; }
+    .totales th, .totales td { font-size:13px; }
+    .firmas { margin-top:36px; }
+    .firmas .col { text-align:center; }
+    .firma-line { border-top:1px solid #333; margin-top:55px; padding-top:6px; font-size:12px; }
     .small { font-size: 12px; }
-    .box { border:1px solid #003366; padding:10px; border-radius:6px; background:#f7fbff; }
-    @media print { .no-print { display:none; } }
+    .vspace { margin-top: 6px; }
+    @media print {
+      .no-print { display:none !important; }
+      a[href]:after { content:""; }
+      body { margin:0; }
+    }
   </style>
 </head>
 <body>
-  <div class="d-flex justify-content-between">
-    <h5 class="text-primary">ÓRDEN DE COMPRA – ÍNFIMA CUANTÍA</h5>
-    <div class="text-right small">
+
+  <!-- ENCABEZADO -->
+  <div class="hdr">
+    <!-- Coloca el logo si deseas -->
+    <div style="width:100px;height:60px; border:0"></div>
+    <div class="titulo">
+      <div class="marca">ORDEN DE COMPRA – ÍNFIMA CUANTÍA</div>
+      <div class="small">Formato oficial para contratación por ínfima cuantía</div>
+    </div>
+    <div style="width:160px; text-align:right; font-size:12px;">
       <div><b>No.:</b> {{ oc[1] }}</div>
       <div><b>Fecha:</b> {{ oc[2] }}</div>
     </div>
   </div>
   <div class="linea"></div>
 
-  <div class="box mb-2">
-    <b>Área Requirente:</b> {{ oc[3] or '' }} &nbsp;&nbsp; |
-    <b>Certificación Presupuestaria:</b> {{ oc[4] or '' }}
-  </div>
-  <div class="box mb-3">
-    <b>Objeto de la Contratación:</b> {{ oc[5] or '' }}
+  <!-- REFERENCIAS -->
+  <div class="box">
+    <div><b>Área requirente:</b> {{ oc[3] or '' }}</div>
+    <div class="vspace"><b>Certificación presupuestaria:</b> {{ oc[4] or '' }}</div>
   </div>
 
-  <h6 class="text-primary mt-3">Proveedor</h6>
+  <!-- OBJETO -->
+  <div class="ttl">Objeto de la contratación</div>
+  <div class="box">{{ oc[5] or '' }}</div>
+
+  <!-- PROVEEDOR -->
+  <div class="ttl">Datos del proveedor</div>
   <table class="table table-sm">
-    <tr><td><b>Proveedor:</b> {{ oc[6] or '' }}</td><td><b>RUC:</b> {{ oc[7] or '' }}</td><td><b>Teléfono:</b> {{ oc[8] or '' }}</td></tr>
-    <tr><td colspan="3"><b>Dirección:</b> {{ oc[9] or '' }} | <b>Correo:</b> {{ oc[10] or '' }}</td></tr>
-    <tr><td><b>Proforma N°:</b> {{ oc[11] or '' }}</td><td><b>Fecha:</b> {{ oc[12] or '' }}</td><td><b>Contacto:</b> {{ oc[13] or '' }}</td></tr>
-    <tr><td colspan="3"><b>Vigencia:</b> {{ oc[14] or '' }}</td></tr>
+    <tr>
+      <td><b>Proveedor:</b> {{ oc[6] or '' }}</td>
+      <td><b>RUC:</b> {{ oc[7] or '' }}</td>
+      <td><b>Teléfono:</b> {{ oc[8] or '' }}</td>
+    </tr>
+    <tr>
+      <td colspan="3"><b>Dirección:</b> {{ oc[9] or '' }} &nbsp; | &nbsp; <b>Correo:</b> {{ oc[10] or '' }}</td>
+    </tr>
+    <tr>
+      <td><b>Proforma N°:</b> {{ oc[11] or '' }}</td>
+      <td><b>Fecha proforma:</b> {{ oc[12] or '' }}</td>
+      <td><b>Contacto:</b> {{ oc[13] or '' }}</td>
+    </tr>
+    <tr>
+      <td colspan="3"><b>Vigencia:</b> {{ oc[14] or '' }}</td>
+    </tr>
   </table>
 
-  <h6 class="text-primary mt-3">Detalle</h6>
+  <!-- DETALLE -->
+  <div class="ttl">Detalle de la orden</div>
   <table class="table table-bordered table-sm">
     <thead class="thead-light">
       <tr>
-        <th>ITEM</th><th>CPC</th><th>DESCRIPCIÓN</th><th>UNID.</th>
-        <th class="text-right">CANT.</th>
-        <th class="text-right">V. UNIT.</th>
-        <th class="text-right">V. TOTAL</th>
+        <th style="width:60px">Item</th>
+        <th style="width:110px">CPC</th>
+        <th>Descripción</th>
+        <th style="width:110px">Unidad</th>
+        <th class="text-right" style="width:110px">Cantidad</th>
+        <th class="text-right" style="width:130px">V. Unitario</th>
+        <th class="text-right" style="width:130px">V. Total</th>
       </tr>
     </thead>
     <tbody>
@@ -61,27 +103,51 @@
       </tr>
       {% endfor %}
     </tbody>
-    <tfoot>
-      <tr><th colspan="6" class="text-right">SUBTOTAL $</th><th class="text-right">{{ '%.2f'|format(oc[22] or 0) }}</th></tr>
-      <tr><th colspan="6" class="text-right">IVA 12% $</th><th class="text-right">{{ '%.2f'|format(oc[23] or 0) }}</th></tr>
-      <tr><th colspan="6" class="text-right">TOTAL $</th><th class="text-right">{{ '%.2f'|format(oc[24] or 0) }}</th></tr>
-    </tfoot>
   </table>
 
-  <div class="row">
-    <div class="col-md-6">
-      <div class="box mb-2"><b>Forma de pago:</b> {{ oc[15] or '' }}</div>
-      <div class="box mb-2"><b>Plazo de ejecución:</b> {{ oc[16] or '' }}</div>
-      <div class="box mb-2"><b>Lugar de entrega:</b> {{ oc[17] or '' }}</div>
+  <!-- TOTALES -->
+  <table class="table table-sm totales">
+    <tr>
+      <th class="text-right" style="width:85%">SUBTOTAL $</th>
+      <td class="text-right" style="width:15%">{{ '%.2f'|format(oc[22] or 0) }}</td>
+    </tr>
+    <tr>
+      <th class="text-right">IVA 12% $</th>
+      <td class="text-right">{{ '%.2f'|format(oc[23] or 0) }}</td>
+    </tr>
+    <tr>
+      <th class="text-right">TOTAL $</th>
+      <td class="text-right">{{ '%.2f'|format(oc[24] or 0) }}</td>
+    </tr>
+  </table>
+
+  <!-- TOTAL EN LETRAS -->
+  <div class="box"><b>Total en letras:</b> {{ total_letras }}</div>
+
+  <!-- CONDICIONES / CLAÚSULAS -->
+  <div class="ttl">Condiciones de la contratación</div>
+  <div class="box">
+    <div><b>Forma de pago:</b> {{ oc[15] or '' }}</div>
+    <div><b>Plazo de ejecución:</b> {{ oc[16] or '' }}</div>
+    <div><b>Lugar de entrega:</b> {{ oc[17] or '' }}</div>
+    <div><b>Administrador de la orden:</b> {{ oc[18] or '' }}</div>
+    <div><b>Multas:</b> {{ oc[19] or '' }}</div>
+    <div><b>Garantía:</b> {{ oc[20] or '' }}</div>
+    <div><b>Base legal:</b> {{ oc[21] or '' }}</div>
+    {% if oc[25] %}
+    <div class="vspace"><b>Observaciones:</b> {{ oc[25] }}</div>
+    {% endif %}
+  </div>
+
+  <!-- FIRMAS -->
+  <div class="row firmas">
+    <div class="col">
+      <div class="firma-line">AUTORIDAD / ADMINISTRADOR</div>
     </div>
-    <div class="col-md-6">
-      <div class="box mb-2"><b>Administrador de la orden:</b> {{ oc[18] or '' }}</div>
-      <div class="box mb-2"><b>Multas:</b> {{ oc[19] or '' }}</div>
-      <div class="box mb-2"><b>Garantía:</b> {{ oc[20] or '' }}</div>
+    <div class="col">
+      <div class="firma-line">CONTRATISTA</div>
     </div>
   </div>
-  <div class="box mb-2"><b>Base legal:</b> {{ oc[21] or '' }}</div>
-  <div class="box"><b>Observaciones:</b> {{ oc[25] or '' }}</div>
 
   <div class="text-center mt-4 no-print">
     <button class="btn btn-primary" onclick="window.print()">📄 Imprimir</button>
@@ -89,3 +155,4 @@
   </div>
 </body>
 </html>
+
