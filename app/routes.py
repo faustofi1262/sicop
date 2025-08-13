@@ -176,6 +176,9 @@ def tareas():
         JOIN unidades u ON r.unid_requirente = u.id
     """)
     requerimientos = cur.fetchall()
+    # Cargar tipos de régimen para el <select>
+    cur.execute("SELECT id, nombre_regimen FROM tipo_regimen ORDER BY nombre_regimen ASC")
+    regimenes = cur.fetchall()
 
     if request.method == 'POST':
         # ---- TODO lo que usa request.form VA DENTRO DEL POST ----
@@ -209,6 +212,7 @@ def tareas():
                                        requerimientos=requerimientos,
                                        tareas=tareas_list,
                                        tipos_proceso=tipos_proceso,
+                                       regimenes=regimenes,   # <- AÑADIR
                                        error_codigo="El código de proceso ya existe. Debe ser único.")
 
         data = (
@@ -274,7 +278,8 @@ def tareas():
     return render_template('tareas_admin.html',
                            requerimientos=requerimientos,
                            tareas=tareas_list,
-                           tipos_proceso=tipos_proceso)
+                           tipos_proceso=tipos_proceso,
+                           regimenes=regimenes)  # <- AÑADIR
 
 # The following block was removed because it was outside any function and caused a "cur is not defined" error.
 
@@ -301,7 +306,8 @@ def editar_tarea(id):
     tipos_proceso = cur.fetchall()
     cur.execute("SELECT * FROM tareas WHERE id = %s", (id,))
     tarea = cur.fetchone()
-
+    cur.execute("SELECT id, nombre_regimen FROM tipo_regimen ORDER BY nombre_regimen ASC")
+    regimenes = cur.fetchall()
     if request.method == 'POST':
         # Valor en letras
         valor_sin_iva = float(request.form.get('valor_sin_iva') or 0)
@@ -322,6 +328,7 @@ def editar_tarea(id):
                                        requerimientos=requerimientos,
                                        tarea=tarea,
                                        tipos_proceso=tipos_proceso,
+                                       regimenes=regimenes,
                                        error_codigo="El código de proceso ya existe. Debe ser único.")
 
         data = (
@@ -379,7 +386,8 @@ def editar_tarea(id):
     return render_template('editar_tarea.html',
                            requerimientos=requerimientos,
                            tarea=tarea,
-                           tipos_proceso=tipos_proceso)
+                           tipos_proceso=tipos_proceso,
+                           regimenes=regimenes)
 @main.route('/convertir_a_letras')
 def convertir_a_letras():
     valor = float(request.args.get("valor", 0))
