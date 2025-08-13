@@ -53,8 +53,15 @@
         <label class="mt-2">Valor en Letras:</label>
         <input type="text" name="valor_en_letras" class="form-control form-control-sm" value="{{ tarea[9] }}">
 
-        <label class="mt-2">Tipo de Proceso a Aplicar:</label>
-        <input type="text" name="tipo_regimen" class="form-control form-control-sm" value="{{ tarea[10] }}">
+        <label class="mt-2">Tipo de Régimen:</label>
+        <select name="tipo_regimen" class="form-control form-control-sm" required>
+        <option value="">-- Seleccione --</option>
+        {% for r in regimenes %}
+        <option value="{{ r[1] }}" {% if r[1] == tarea[10] %}selected{% endif %}>
+        {{ r[1] }}
+        </option>
+        {% endfor %}
+        </select>
 
         <label class="mt-2">Base Legal:</label>
         <input type="text" name="base_legal" class="form-control form-control-sm" value="{{ tarea[11] }}">
