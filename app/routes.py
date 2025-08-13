@@ -675,14 +675,27 @@ def tipo_procesos():
 
     return render_template('tipo_procesos.html', procesos=procesos)
 
-@main.route('/admin/tipo_procesos/eliminar/<int:id>', methods=['POST'])
-def eliminar_tipo_proceso(id):
+@main.route('/admin/tipo_procesos/eliminar/<int:proc_id>', methods=['POST'])
+def eliminar_tipo_proceso(proc_id):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("DELETE FROM tipo_procesos WHERE id = %s", (id,))
-    conn.commit()
-    conn.close()
-    return redirect(url_for('main.tipo_procesos'))
+
+    error_msg = None
+    try:
+        cur.execute("DELETE FROM tipo_procesos WHERE id = %s", (proc_id,))
+        conn.commit()
+    except Exception as e:
+        # Si está referenciado en tareas u otra tabla, habrá error de integridad
+        conn.rollback()
+        error_msg = "No se puede eliminar: el tipo de proceso está en uso."
+    finally:
+        cur.execute("SELECT id, nombre_proceso FROM tipo_procesos ORDER BY id ASC")
+        procesos = cur.fetchall()
+        conn.close()
+
+    # Volvemos a la misma página y, si hubo problema, mostramos el mensaje
+    return render_template('tipo_procesos.html', procesos=procesos, error=error_msg)
+
 
 
 # ------------------- TIPOS DE RÉGIMEN -------------------
