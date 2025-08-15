@@ -724,8 +724,27 @@ def ordenes_compra():
     # Lista + formulario creación
     conn = get_db_connection()
     cur = conn.cursor()
+    # --- GET temprano: listar y salir ---
+    if request.method == 'GET':
+    # Lista de OCs
+        cur.execute("""SELECT id, numero_oc, fecha, proveedor, total
+                   FROM ordenes_compra
+                   ORDER BY id DESC""")
+    ocs = cur.fetchall()
 
-    if request.method == 'POST':
+    # Memos de tareas para el selector
+    cur.execute("""
+        SELECT t.id, r.memo_vice_ad
+        FROM tareas t
+        JOIN requerimientos r ON t.requerimiento_id = r.id
+        ORDER BY r.memo_vice_ad ASC
+    """)
+    tareas_memos = cur.fetchall()
+
+    conn.close()
+    return render_template('ordenes_compra.html', ocs=ocs, tareas_memos=tareas_memos)
+
+if request.method == 'POST':
         # Cabecera
         numero_oc = (request.form.get('numero_oc') or '').strip()
         fecha = request.form.get('fecha') or None
