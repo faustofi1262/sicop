@@ -799,7 +799,7 @@ def ordenes_compra():
             cur.execute("""SELECT id, numero_oc, fecha, proveedor, total
                            FROM ordenes_compra ORDER BY id DESC""")
             ocs = cur.fetchall()
-        👉 AQUÍ: cargar los memos de tareas para el selector
+        
         cur.execute("""
             SELECT t.id, r.memo_vice_ad
             FROM tareas t
