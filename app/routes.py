@@ -857,4 +857,37 @@ def imprimir_oc(oc_id):
     total_letras = f"{letras} con {centavos:02d}/100 dólares americanos"
 
     return render_template('orden_compra_print.html', oc=oc, items=items, total_letras=total_letras)
+@main.route('/api/tarea/<int:tarea_id>')
+def api_tarea(tarea_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT 
+            t.id,
+            r.memo_vice_ad,
+            u.nombre_unidad   AS area_requirente,
+            t.objeto_contratacion,
+            t.codigo_proceso,
+            t.tipo_proceso,
+            COALESCE(t.numero_certificacion,'') AS numero_certificacion
+        FROM tareas t
+        JOIN requerimientos r ON t.requerimiento_id = r.id
+        JOIN unidades u       ON r.unid_requirente = u.id
+        WHERE t.id = %s
+    """, (tarea_id,))
+    row = cur.fetchone()
+    conn.close()
+
+    if not row:
+        return jsonify({"error": "No existe la tarea"}), 404
+
+    return jsonify({
+        "id": row[0],
+        "memo": row[1],
+        "area_requirente": row[2],
+        "objeto_contratacion": row[3],
+        "codigo_proceso": row[4],
+        "tipo_proceso": row[5],
+        "numero_certificacion": row[6],
+    })
 
