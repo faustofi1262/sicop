@@ -56,6 +56,39 @@
   <!-- FORMULARIO NUEVA OC -->
   <h5 class="text-primary">Nueva Orden de Compra</h5>
   <form method="POST" id="form-oc">
+     <div class="form-group">
+    <label>Seleccionar memo (Vicerrectorado Administrativo):</label>
+    <select id="sel_tarea_memo" class="form-control form-control-sm">
+      <option value="">-- Seleccione --</option>
+      {% for t in tareas_memos %}
+        <option value="{{ t[0] }}">{{ t[1] }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <!-- id de la tarea para el POST -->
+  <input type="hidden" name="tarea_id" id="tarea_id">
+
+  <!-- ⬇️ Tus campos existentes de la OC -->
+  <div class="form-group">
+    <label>Área requirente</label>
+    <input name="area_requirente" class="form-control form-control-sm">
+  </div>
+
+  <div class="form-group">
+    <label>Objeto de contratación</label>
+    <textarea name="objeto" class="form-control form-control-sm"></textarea>
+  </div>
+
+  <div class="form-group">
+    <label>N° de certificación presupuestaria</label>
+    <input name="cert_presupuestaria" class="form-control form-control-sm">
+  </div>
+
+  <div class="form-group">
+    <label>N° de Orden de Compra</label>
+    <input name="numero_oc" class="form-control form-control-sm">
+  </div>
     <div class="form-row">
       <div class="col-md-3">
         <label>N° Orden de Compra</label>
@@ -158,6 +191,42 @@
       <a href="/admin_dashboard" class="btn btn-secondary">← Volver</a>
     </div>
   </form>
+<script>
+document.getElementById('sel_tarea_memo').addEventListener('change', async function () {
+  const id = this.value;
+  document.getElementById('tarea_id').value = id || '';
+  if (!id) return;
+
+  const res = await fetch('/api/tarea/' + id);
+  if (!res.ok) return alert('No se pudo obtener la tarea');
+  const t = await res.json();
+
+  const area = document.querySelector('input[name="area_requirente"]');
+  const obj  = document.querySelector('textarea[name="objeto"], input[name="objeto"]');
+  const cert = document.querySelector('input[name="cert_presupuestaria"]');
+  const nro  = document.querySelector('input[name="numero_oc"]');
+
+  if (area) area.value = t.area_requirente || '';
+  if (obj)  obj.value  = t.objeto_contratacion || '';
+  if (cert) cert.value = t.numero_certificacion || '';
+
+  // Forzar regla de Ínfima Cuantía
+  const tipo = (t.tipo_proceso || '').toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const esInfima = tipo.includes('infima') && tipo.includes('cuantia');
+
+  if (esInfima && nro) {
+    nro.value = t.codigo_proceso || '';
+    nro.readOnly = true;
+    nro.classList.add('bg-light');
+    nro.title = 'Se toma del código del proceso (Ínfima Cuantía)';
+  } else if (nro) {
+    nro.readOnly = false;
+    nro.classList.remove('bg-light');
+    nro.title = '';
+  }
+});
+</script>
 
 <script>
 function agregarFila() {

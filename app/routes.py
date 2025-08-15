@@ -757,7 +757,41 @@ def ordenes_compra():
         total = float(request.form.get('total') or 0)
 
         observaciones = request.form.get('observaciones')
+        tarea_id = request.form.get('tarea_id')
 
+        if tarea_id:
+            cur.execute("""
+                SELECT 
+                    t.tipo_proceso, 
+                    t.codigo_proceso,
+                    u.nombre_unidad AS area_requirente,
+                    t.objeto_contratacion,
+                    COALESCE(t.numero_certificacion,'') AS numero_certificacion
+                FROM tareas t
+                JOIN requerimientos r ON t.requerimiento_id = r.id
+                JOIN unidades u       ON r.unid_requirente = u.id
+                WHERE t.id = %s
+            """, (tarea_id,))
+            row = cur.fetchone()
+
+            if row:
+                tipo, cod_proc, area_src, obj_src, cert_src = row
+
+                # Normaliza "Ínfima Cuantía"
+                tipo_norm = (tipo or '').lower().replace('í','i').replace('á','a').replace('ú','u')
+                es_infima = ('infima' in tipo_norm) and ('cuantia' in tipo_norm)
+
+                # Si es Ínfima Cuantía, el N° de OC = código del proceso
+                if es_infima and cod_proc:
+                    numero_oc = cod_proc
+
+                # Completa campos vacíos con los de la tarea
+                if not area_requirente:
+                    area_requirente = area_src
+                if not objeto:
+                    objeto = obj_src
+                if not cert_presupuestaria:
+                    cert_presupuestaria = cert_sr
         # Validar número único
         cur.execute("SELECT 1 FROM ordenes_compra WHERE numero_oc = %s", (numero_oc,))
         if cur.fetchone():
@@ -765,12 +799,21 @@ def ordenes_compra():
             cur.execute("""SELECT id, numero_oc, fecha, proveedor, total
                            FROM ordenes_compra ORDER BY id DESC""")
             ocs = cur.fetchall()
-            conn.close()
-            return render_template('ordenes_compra.html', ocs=ocs,
+        👉 AQUÍ: cargar los memos de tareas para el selector
+        cur.execute("""
+            SELECT t.id, r.memo_vice_ad
+            FROM tareas t
+            JOIN requerimientos r ON t.requerimiento_id = r.id
+            ORDER BY r.memo_vice_ad ASC
+        """)
+        tareas_memos = cur.fetchall()
+
+        conn.close()
+        return render_template('ordenes_compra.html', ocs=ocs,
                                    error_oc="El número de OC ya existe. Debe ser único.")
 
-        # Insert cabecera
-        cur.execute("""
+    # Insert cabecera
+    cur.execute("""
             INSERT INTO ordenes_compra (
                 numero_oc, fecha, area_requirente, cert_presupuestaria, objeto,
                 proveedor, ruc, telefono, direccion, correo,
@@ -784,18 +827,17 @@ def ordenes_compra():
               proforma_num, proforma_fecha, contacto, vigencia,
               forma_pago, plazo_ejecucion, lugar_entrega, administrador_orden, multas, garantia, base_legal,
               subtotal, iva, total, observaciones))
-        oc_id = cur.fetchone()[0]
+    oc_id = cur.fetchone()[0]
 
         # Insert ítems (arrays paralelos)
-        items = request.form.getlist('item[]')
-        cpcs = request.form.getlist('cpc[]')
-        descs = request.form.getlist('descripcion[]')
-        unidades = request.form.getlist('unidad[]')
-        cants = request.form.getlist('cantidad[]')
-        vunits = request.form.getlist('v_unitario[]')
-        vtotals = request.form.getlist('v_total[]')
-
-        for i in range(len(items)):
+    items = request.form.getlist('item[]')
+    cpcs = request.form.getlist('cpc[]')
+    descs = request.form.getlist('descripcion[]')
+    unidades = request.form.getlist('unidad[]')
+    cants = request.form.getlist('cantidad[]')
+    vunits = request.form.getlist('v_unitario[]')
+    vtotals = request.form.getlist('v_total[]')
+    for i in range(len(items)):
             if not descs[i].strip():
                 continue
             cur.execute("""
@@ -812,7 +854,7 @@ def ordenes_compra():
                 float(vtotals[i] or 0),
             ))
 
-        conn.commit()
+    conn.commit()
 
     # LISTAR
     cur.execute("""SELECT id, numero_oc, fecha, proveedor, total
