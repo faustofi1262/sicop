@@ -68,31 +68,29 @@
 
   <!-- id de la tarea para el POST -->
   <input type="hidden" name="tarea_id" id="tarea_id">
-
-  <!-- ⬇️ Tus campos existentes de la OC -->
-  <div class="form-group">
-    <label>Área requirente</label>
-    <input name="area_requirente" class="form-control form-control-sm">
-  </div>
-
-  <div class="form-group">
-    <label>Objeto de contratación</label>
-    <textarea name="objeto" class="form-control form-control-sm"></textarea>
-  </div>
-   <div class="form-row">
+    <div class="form-row">
       <div class="col-md-3">
         <label>N° Orden de Compra</label>
-        <input name="numero_oc" class="form-control form-control-sm" required>
+       <input id="numero_oc" name="numero_oc" class="form-control form-control-sm" required>
       </div>
       <div class="col-md-3">
         <label>Fecha</label>
         <input type="date" name="fecha" class="form-control form-control-sm" required>
       </div>
-     </div>
+      <div class="col-md-6">
+        <label>Área Requirente</label>
+        <input id="area_requirente" name="area_requirente" class="form-control form-control-sm">
+      </div>
+    </div>
+
     <div class="form-row mt-2">
       <div class="col-md-6">
         <label>N° Cert. Presupuestaria</label>
-        <input name="cert_presupuestaria" class="form-control form-control-sm">
+       <input id="cert_presupuestaria" name="cert_presupuestaria" class="form-control form-control-sm">
+      </div>
+      <div class="col-md-6">
+        <label>Objeto de la Contratación</label>
+        <input id="objeto" name="objeto" class="form-control form-control-sm">
       </div>
     </div>
 
@@ -182,10 +180,10 @@ document.getElementById('sel_tarea_memo').addEventListener('change', async funct
   if (!res.ok) return alert('No se pudo obtener la tarea');
   const t = await res.json();
 
-  const area = document.querySelector('input[name="area_requirente"]');
-  const obj  = document.querySelector('textarea[name="objeto"], input[name="objeto"]');
-  const cert = document.querySelector('input[name="cert_presupuestaria"]');
-  const nro  = document.querySelector('input[name="numero_oc"]');
+  const area = document.getElementById('area_requirente');
+  const obj  = document.getElementById('objeto');
+  const cert = document.getElementById('cert_presupuestaria');
+  const nro  = document.getElementById('numero_oc');
 
   if (area) area.value = t.area_requirente || '';
   if (obj)  obj.value  = t.objeto_contratacion || '';
