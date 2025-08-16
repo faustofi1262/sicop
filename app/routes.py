@@ -721,104 +721,20 @@ def tipo_regimen():
 # ------------------- ÓRDENES DE COMPRA -------------------
 @main.route('/admin/ordenes_compra', methods=['GET', 'POST'])
 def ordenes_compra():
-    # Lista + formulario creación
     conn = get_db_connection()
     cur = conn.cursor()
-    # --- GET temprano: listar y salir ---
+
+    # ---------- GET: listar y mostrar formulario ----------
     if request.method == 'GET':
-    # Lista de OCs
-        cur.execute("""SELECT id, numero_oc, fecha, proveedor, total
-                   FROM ordenes_compra
-                   ORDER BY id DESC""")
-    ocs = cur.fetchall()
+        # Lista de OCs
+        cur.execute("""
+            SELECT id, numero_oc, fecha, proveedor, total
+            FROM ordenes_compra
+            ORDER BY id DESC
+        """)
+        ocs = cur.fetchall()
 
-    # Memos de tareas para el selector
-    cur.execute("""
-        SELECT t.id, r.memo_vice_ad
-        FROM tareas t
-        JOIN requerimientos r ON t.requerimiento_id = r.id
-        ORDER BY r.memo_vice_ad ASC
-    """)
-    tareas_memos = cur.fetchall()
-
-    conn.close()
-    return render_template('ordenes_compra.html', ocs=ocs, tareas_memos=tareas_memos)
-
-if request.method == 'POST':
-        # Cabecera
-        numero_oc = (request.form.get('numero_oc') or '').strip()
-        fecha = request.form.get('fecha') or None
-        area_requirente = request.form.get('area_requirente')
-        cert_presupuestaria = request.form.get('cert_presupuestaria')
-        objeto = request.form.get('objeto')
-
-        proveedor = request.form.get('proveedor')
-        ruc = request.form.get('ruc')
-        telefono = request.form.get('telefono')
-        direccion = request.form.get('direccion')
-        correo = request.form.get('correo')
-
-        proforma_num = request.form.get('proforma_num')
-        proforma_fecha = request.form.get('proforma_fecha') or None
-        contacto = request.form.get('contacto')
-        vigencia = request.form.get('vigencia')
-
-        forma_pago = request.form.get('forma_pago')
-        plazo_ejecucion = request.form.get('plazo_ejecucion')
-        lugar_entrega = request.form.get('lugar_entrega')
-        administrador_orden = request.form.get('administrador_orden')
-        multas = request.form.get('multas')
-        garantia = request.form.get('garantia')
-        base_legal = request.form.get('base_legal')
-
-        subtotal = float(request.form.get('subtotal') or 0)
-        iva = float(request.form.get('iva') or 0)
-        total = float(request.form.get('total') or 0)
-
-        observaciones = request.form.get('observaciones')
-        tarea_id = request.form.get('tarea_id')
-
-        if tarea_id:
-            cur.execute("""
-                SELECT 
-                    t.tipo_proceso, 
-                    t.codigo_proceso,
-                    u.nombre_unidad AS area_requirente,
-                    t.objeto_contratacion,
-                    COALESCE(t.numero_certificacion,'') AS numero_certificacion
-                FROM tareas t
-                JOIN requerimientos r ON t.requerimiento_id = r.id
-                JOIN unidades u       ON r.unid_requirente = u.id
-                WHERE t.id = %s
-            """, (tarea_id,))
-            row = cur.fetchone()
-
-            if row:
-                tipo, cod_proc, area_src, obj_src, cert_src = row
-
-                # Normaliza "Ínfima Cuantía"
-                tipo_norm = (tipo or '').lower().replace('í','i').replace('á','a').replace('ú','u')
-                es_infima = ('infima' in tipo_norm) and ('cuantia' in tipo_norm)
-
-                # Si es Ínfima Cuantía, el N° de OC = código del proceso
-                if es_infima and cod_proc:
-                    numero_oc = cod_proc
-
-                # Completa campos vacíos con los de la tarea
-                if not area_requirente:
-                    area_requirente = area_src
-                if not objeto:
-                    objeto = obj_src
-                if not cert_presupuestaria:
-                    cert_presupuestaria = cert_sr
-        # Validar número único
-        cur.execute("SELECT 1 FROM ordenes_compra WHERE numero_oc = %s", (numero_oc,))
-        if cur.fetchone():
-            # Recargar lista con error
-            cur.execute("""SELECT id, numero_oc, fecha, proveedor, total
-                           FROM ordenes_compra ORDER BY id DESC""")
-            ocs = cur.fetchall()
-        
+        # Memos de tareas para el selector del formulario
         cur.execute("""
             SELECT t.id, r.memo_vice_ad
             FROM tareas t
@@ -828,27 +744,118 @@ if request.method == 'POST':
         tareas_memos = cur.fetchall()
 
         conn.close()
-        return render_template('ordenes_compra.html', ocs=ocs,
-                                   error_oc="El número de OC ya existe. Debe ser único.")
+        return render_template('ordenes_compra.html',
+                               ocs=ocs,
+                               tareas_memos=tareas_memos)
 
-    # Insert cabecera
+    # ---------- POST: crear OC ----------
+    # Cabecera
+    numero_oc = (request.form.get('numero_oc') or '').strip()
+    fecha = request.form.get('fecha') or None
+    area_requirente = request.form.get('area_requirente')
+    cert_presupuestaria = request.form.get('cert_presupuestaria')
+    objeto = request.form.get('objeto')
+
+    proveedor = request.form.get('proveedor')
+    ruc = request.form.get('ruc')
+    telefono = request.form.get('telefono')
+    direccion = request.form.get('direccion')
+    correo = request.form.get('correo')
+
+    proforma_num = request.form.get('proforma_num')
+    proforma_fecha = request.form.get('proforma_fecha') or None
+    contacto = request.form.get('contacto')
+    vigencia = request.form.get('vigencia')
+
+    forma_pago = request.form.get('forma_pago')
+    plazo_ejecucion = request.form.get('plazo_ejecucion')
+    lugar_entrega = request.form.get('lugar_entrega')
+    administrador_orden = request.form.get('administrador_orden')
+    multas = request.form.get('multas')
+    garantia = request.form.get('garantia')
+    base_legal = request.form.get('base_legal')
+
+    subtotal = float(request.form.get('subtotal') or 0)
+    iva = float(request.form.get('iva') or 0)
+    total = float(request.form.get('total') or 0)
+    observaciones = request.form.get('observaciones')
+
+    # Si vino tarea_id, completar y aplicar la regla de Ínfima Cuantía
+    tarea_id = request.form.get('tarea_id')
+    if tarea_id:
+        cur.execute("""
+            SELECT 
+                t.tipo_proceso,
+                t.codigo_proceso,
+                u.nombre_unidad AS area_requirente_src,
+                t.objeto_contratacion AS objeto_src,
+                COALESCE(t.numero_certificacion,'') AS cert_src
+            FROM tareas t
+            JOIN requerimientos r ON t.requerimiento_id = r.id
+            JOIN unidades u       ON r.unid_requirente = u.id
+            WHERE t.id = %s
+        """, (tarea_id,))
+        row = cur.fetchone()
+        if row:
+            tipo, cod_proc, area_src, obj_src, cert_src = row
+            # Normaliza: í,á,é,ó,ú -> i,a,e,o,u
+            tipo_norm = (tipo or '').lower()
+            for a,b in (('í','i'),('á','a'),('é','e'),('ó','o'),('ú','u')):
+                tipo_norm = tipo_norm.replace(a,b)
+            es_infima = ('infima' in tipo_norm) and ('cuantia' in tipo_norm)
+
+            if es_infima and cod_proc:
+                numero_oc = cod_proc  # forzar número de OC = código del proceso
+
+            if not area_requirente:
+                area_requirente = area_src
+            if not objeto:
+                objeto = obj_src
+            if not cert_presupuestaria:
+                cert_presupuestaria = cert_src
+
+    # Validar número de OC único
+    cur.execute("SELECT 1 FROM ordenes_compra WHERE numero_oc = %s", (numero_oc,))
+    if cur.fetchone():
+        # Re-render con error (y volver a pasar tareas_memos)
+        cur.execute("""
+            SELECT t.id, r.memo_vice_ad
+            FROM tareas t
+            JOIN requerimientos r ON t.requerimiento_id = r.id
+            ORDER BY r.memo_vice_ad ASC
+        """)
+        tareas_memos = cur.fetchall()
+
+        cur.execute("""
+            SELECT id, numero_oc, fecha, proveedor, total
+            FROM ordenes_compra
+            ORDER BY id DESC
+        """)
+        ocs = cur.fetchall()
+        conn.close()
+        return render_template('ordenes_compra.html',
+                               ocs=ocs,
+                               tareas_memos=tareas_memos,
+                               error="El número de Orden de Compra ya existe.")
+
+    # Insert cabecera OC
     cur.execute("""
-            INSERT INTO ordenes_compra (
-                numero_oc, fecha, area_requirente, cert_presupuestaria, objeto,
-                proveedor, ruc, telefono, direccion, correo,
-                proforma_num, proforma_fecha, contacto, vigencia,
-                forma_pago, plazo_ejecucion, lugar_entrega, administrador_orden, multas, garantia, base_legal,
-                subtotal, iva, total, observaciones
-            ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-            RETURNING id
-        """, (numero_oc, fecha, area_requirente, cert_presupuestaria, objeto,
-              proveedor, ruc, telefono, direccion, correo,
-              proforma_num, proforma_fecha, contacto, vigencia,
-              forma_pago, plazo_ejecucion, lugar_entrega, administrador_orden, multas, garantia, base_legal,
-              subtotal, iva, total, observaciones))
+        INSERT INTO ordenes_compra (
+            numero_oc, fecha, area_requirente, cert_presupuestaria, objeto,
+            proveedor, ruc, telefono, direccion, correo,
+            proforma_num, proforma_fecha, contacto, vigencia,
+            forma_pago, plazo_ejecucion, lugar_entrega, administrador_orden, multas, garantia, base_legal,
+            subtotal, iva, total, observaciones
+        ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        RETURNING id
+    """, (numero_oc, fecha, area_requirente, cert_presupuestaria, objeto,
+          proveedor, ruc, telefono, direccion, correo,
+          proforma_num, proforma_fecha, contacto, vigencia,
+          forma_pago, plazo_ejecucion, lugar_entrega, administrador_orden, multas, garantia, base_legal,
+          subtotal, iva, total, observaciones))
     oc_id = cur.fetchone()[0]
 
-        # Insert ítems (arrays paralelos)
+    # Insert ítems
     items = request.form.getlist('item[]')
     cpcs = request.form.getlist('cpc[]')
     descs = request.form.getlist('descripcion[]')
@@ -856,32 +863,27 @@ if request.method == 'POST':
     cants = request.form.getlist('cantidad[]')
     vunits = request.form.getlist('v_unitario[]')
     vtotals = request.form.getlist('v_total[]')
+
     for i in range(len(items)):
-            if not descs[i].strip():
-                continue
-            cur.execute("""
-                INSERT INTO oc_items (oc_id, item, cpc, descripcion, unidad, cantidad, v_unitario, v_total)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
-            """, (
-                oc_id,
-                int(items[i] or 0),
-                cpcs[i] or None,
-                descs[i],
-                unidades[i] or None,
-                float(cants[i] or 0),
-                float(vunits[i] or 0),
-                float(vtotals[i] or 0),
-            ))
+        if not descs[i].strip():
+            continue
+        cur.execute("""
+            INSERT INTO oc_items (oc_id, item, cpc, descripcion, unidad, cantidad, v_unitario, v_total)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+        """, (
+            oc_id,
+            int(items[i] or 0),
+            cpcs[i] or None,
+            descs[i],
+            unidades[i] or None,
+            float(cants[i] or 0),
+            float(vunits[i] or 0),
+            float(vtotals[i] or 0),
+        ))
 
     conn.commit()
-
-    # LISTAR
-    cur.execute("""SELECT id, numero_oc, fecha, proveedor, total
-                   FROM ordenes_compra ORDER BY id DESC""")
-    ocs = cur.fetchall()
     conn.close()
-    return render_template('ordenes_compra.html', ocs=ocs)
-
+    return redirect('/admin/ordenes_compra')
 
 @main.route('/admin/ordenes_compra/eliminar/<int:oc_id>', methods=['POST'])
 def eliminar_oc(oc_id):
