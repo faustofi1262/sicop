@@ -214,7 +214,7 @@ def tareas():
                                        tipos_proceso=tipos_proceso,
                                        regimenes=regimenes,   # <- AÑADIR
                                        error_codigo="El código de proceso ya existe. Debe ser único.")
-
+        numero_certificacion = request.form.get('numero_certificacion'),
         data = (
             request.form.get('requerimiento_id'),
             request.form.get('funcionario_encargado'),
@@ -245,8 +245,8 @@ def tareas():
             'consta_pac' in request.form,
             'presenta_errores' in request.form,
             'cumple_normativa' in request.form,
-            numero_certificacion = request.form.get('numero_certificacion')
-            imagen_data
+            numero_certificacion,
+            imagen_data,
         )
 
         cur.execute("""
@@ -261,8 +261,14 @@ def tareas():
                 consta_catalogo_electronico, consta_poa, consta_pac,
                 presenta_errores, cumple_normativa, numero_certificacion, imagen_pac
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s)
+            VALUES (
+            %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,
+            %s,%s,%s,%s,%s,
+            %s,%s,%s,%s,%s,%s,
+            %s,%s,%s,
+            %s,%s,
+            %s,%s
+            )
         """, data)
         conn.commit()
 
