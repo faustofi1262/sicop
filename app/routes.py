@@ -245,6 +245,7 @@ def tareas():
             'consta_pac' in request.form,
             'presenta_errores' in request.form,
             'cumple_normativa' in request.form,
+            numero_certificacion = request.form.get('numero_certificacion')
             imagen_data
         )
 
@@ -258,10 +259,10 @@ def tareas():
                 presenta_estudio_previo, presenta_especificaciones, presenta_terminos_referencia,
                 presenta_proformas, presenta_estudio_mercado, determinacion_necesidad,
                 consta_catalogo_electronico, consta_poa, consta_pac,
-                presenta_errores, cumple_normativa, imagen_pac
+                presenta_errores, cumple_normativa, numero_certificacion, imagen_pac
             )
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,%s, %s)
         """, data)
         conn.commit()
 
@@ -360,6 +361,7 @@ def editar_tarea(id):
             'consta_pac' in request.form,
             'presenta_errores' in request.form,
             'cumple_normativa' in request.form,
+            request.form.get('numero_certificacion'),
             id
         )
 
@@ -375,7 +377,7 @@ def editar_tarea(id):
                 presenta_terminos_referencia=%s, presenta_proformas=%s,
                 presenta_estudio_mercado=%s, determinacion_necesidad=%s,
                 consta_catalogo_electronico=%s, consta_poa=%s,
-                consta_pac=%s, presenta_errores=%s, cumple_normativa=%s
+                consta_pac=%s, presenta_errores=%s, cumple_normativa=%s, numero_certificacion=%s
             WHERE id=%s
         """, data)
         conn.commit()
