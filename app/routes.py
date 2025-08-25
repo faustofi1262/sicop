@@ -214,7 +214,7 @@ def tareas():
                                        tipos_proceso=tipos_proceso,
                                        regimenes=regimenes,   # <- AÑADIR
                                        error_codigo="El código de proceso ya existe. Debe ser único.")
-        numero_certificacion = request.form.get('numero_certificacion'),
+        numero_certificacion = request.form.get('numero_certificacion')
         data = (
             request.form.get('requerimiento_id'),
             request.form.get('funcionario_encargado'),
