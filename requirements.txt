@@ -4,3 +4,5 @@ python-dotenv==1.0.1
 psycopg2-binary==2.9.9
 SQLAlchemy==2.0.29
 num2words
+docxtpl==0.16.7
+num2words==0.5.13

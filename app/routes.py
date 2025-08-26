@@ -3,6 +3,11 @@ import psycopg2
 import os
 from flask import jsonify
 import num2words
+from decimal import Decimal
+from docxtpl import DocxTemplate
+from num2words import num2words
+import io
+
 main = Blueprint('main', __name__)
 def get_db_connection():
     return psycopg2.connect(os.getenv("DATABASE_URL"))
@@ -961,4 +966,60 @@ def api_tarea(tarea_id):
         "tipo_proceso": row[5],
         "numero_certificacion": row[6],
     })
+@main.route('/reporte/oc/docx/<int:oc_id>')
+def reporte_oc_docx(oc_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT id, numero_oc, fecha, area_requirente, cert_presupuestaria, objeto,
+               proveedor, ruc, telefono, direccion, correo,
+               proforma_num, proforma_fecha, contacto, vigencia,
+               forma_pago, plazo_ejecucion, lugar_entrega, administrador_orden, multas, garantia, base_legal,
+               subtotal, iva, total, observaciones
+        FROM ordenes_compra
+        WHERE id=%s
+    """, (oc_id,))
+    oc = cur.fetchone()
+    cur.execute("""
+        SELECT item, cpc, descripcion, unidad, cantidad, v_unitario, v_total
+        FROM oc_items
+        WHERE oc_id=%s
+        ORDER BY item
+    """, (oc_id,))
+    items = cur.fetchall()
+    conn.close()
+    if not oc: return "OC no encontrada", 404
 
+    def fmt2(v):
+        try: return f"{Decimal(v or 0):.2f}"
+        except: return "0.00"
+
+    total = float(oc[24] or 0)
+    entero = int(total); cent = int(round((total - entero) * 100))
+    total_letras = f"{num2words(entero, lang='es').capitalize()} con {cent:02d}/100 dólares americanos"
+
+    ctx = {
+        "numero_oc": oc[1], "fecha": str(oc[2] or ""), "area_requirente": oc[3] or "",
+        "cert_presupuestaria": oc[4] or "", "objeto": oc[5] or "",
+        "proveedor": oc[6] or "", "ruc": oc[7] or "", "telefono": oc[8] or "",
+        "direccion": oc[9] or "", "correo": oc[10] or "",
+        "proforma_num": oc[11] or "", "proforma_fecha": str(oc[12] or ""),
+        "contacto": oc[13] or "", "vigencia": oc[14] or "",
+        "forma_pago": oc[15] or "", "plazo_ejecucion": oc[16] or "",
+        "lugar_entrega": oc[17] or "", "administrador_orden": oc[18] or "",
+        "multas": oc[19] or "", "garantia": oc[20] or "", "base_legal": oc[21] or "",
+        "subtotal_fmt": fmt2(oc[22]), "iva_fmt": fmt2(oc[23]), "total_fmt": fmt2(oc[24]),
+        "total_letras": total_letras, "observaciones": oc[25] or "",
+        "items": [{
+            "item": it[0], "cpc": it[1] or "", "descripcion": it[2] or "",
+            "unidad": it[3] or "", "cantidad_fmt": fmt2(it[4]),
+            "v_unitario_fmt": fmt2(it[5]), "v_total_fmt": fmt2(it[6])
+        } for it in items]
+    }
+
+    tpl = DocxTemplate("app/templates/reports/oc_template.docx")
+    tpl.render(ctx)
+    buf = io.BytesIO(); tpl.save(buf); buf.seek(0)
+    return send_file(buf, as_attachment=True,
+                     download_name=f"OC_{oc[1]}.docx",
+                     mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
