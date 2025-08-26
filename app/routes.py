@@ -902,32 +902,48 @@ def eliminar_oc(oc_id):
     conn.close()
     return redirect('/admin/ordenes_compra')
 
-
 @main.route('/informe/orden_compra/<int:oc_id>')
 def imprimir_oc(oc_id):
-    # Render “PDF friendly” (imprime desde el navegador)
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM ordenes_compra WHERE id = %s", (oc_id,))
+
+    # Cabecera en el MISMO orden que usa el template
+    cur.execute("""
+        SELECT id, numero_oc, fecha, area_requirente, cert_presupuestaria, objeto,
+               proveedor, ruc, telefono, direccion, correo,
+               proforma_num, proforma_fecha, contacto, vigencia,
+               forma_pago, plazo_ejecucion, lugar_entrega, administrador_orden, multas, garantia, base_legal,
+               subtotal, iva, total, observaciones
+        FROM ordenes_compra
+        WHERE id=%s
+    """, (oc_id,))
     oc = cur.fetchone()
 
-    cur.execute("""SELECT item, cpc, descripcion, unidad, cantidad, v_unitario, v_total
-                   FROM oc_items WHERE oc_id = %s ORDER BY item ASC""", (oc_id,))
+    # Ítems
+    cur.execute("""
+        SELECT item, cpc, descripcion, unidad, cantidad, v_unitario, v_total
+        FROM oc_items
+        WHERE oc_id=%s
+        ORDER BY item
+    """, (oc_id,))
     items = cur.fetchall()
-    conn.close()
 
+    conn.close()
     if not oc:
         return "OC no encontrada", 404
 
-    # total en letras (xx/100 dólares americanos)
+    # total en letras
     from num2words import num2words
-    total = float(oc[24] or 0)  # índice 24 = total según la tabla propuesta
+    total = float(oc[24] or 0)  # índice 24 = TOTAL según el SELECT de arriba
     entero = int(total)
     centavos = int(round((total - entero) * 100))
     letras = num2words(entero, lang='es').capitalize()
     total_letras = f"{letras} con {centavos:02d}/100 dólares americanos"
 
-    return render_template('orden_compra_print.html', oc=oc, items=items, total_letras=total_letras)
+    # Usa el nuevo template con proveedor en dos columnas
+    return render_template('informe_orden_compra.html',
+                           oc=oc, items=items, total_letras=total_letras)
+# ------------------- API para detalles de tarea -------------------
 @main.route('/api/tarea/<int:tarea_id>')
 def api_tarea(tarea_id):
     conn = get_db_connection()
