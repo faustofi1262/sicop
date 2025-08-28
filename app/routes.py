@@ -1137,7 +1137,7 @@ def reporte_oc_xlsx(oc_id):
     return send_file(bio, as_attachment=True,
                      download_name=f"OC_{oc[1]}.xlsx",
                      mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    @main.route('/dev/oc_template_excel')
+@main.route('/dev/oc_template_excel')
 def dev_oc_template_excel():
     try:
         from openpyxl import Workbook
