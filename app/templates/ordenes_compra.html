@@ -38,7 +38,7 @@
           <td class="text-right">$ {{ '%.2f'|format(r[4] or 0) }}</td>
           <td>
             <a class="btn btn-info btn-sm" href="/informe/orden_compra/{{ r[0] }}">Imprimir</a>
-            <a class="btn btn-secondary btn-sm" href="/reporte/oc/docx/{{ r[0] }}">Descargar DOCX</a>
+            <a class="btn btn-success btn-sm" href="/reporte/oc/xlsx/{{ r[0] }}">Descargar Excel</a>
             <form action="/admin/ordenes_compra/eliminar/{{ r[0] }}" method="POST" style="display:inline"
                   onsubmit="return confirm('¿Eliminar la OC {{ r[1] }}?');">
               <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>

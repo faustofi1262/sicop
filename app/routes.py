@@ -1,12 +1,14 @@
 from flask import Blueprint, session, redirect, render_template, request
 import psycopg2
 import os
-from flask import jsonify, send_file
+from flask import jsonify, send_file, current_app
 import num2words
 from decimal import Decimal
 from docxtpl import DocxTemplate
 from num2words import num2words
 import io
+from openpyxl import load_workbook
+from openpyxl.styles import Border, Side
 
 main = Blueprint('main', __name__)
 def get_db_connection():
@@ -1023,3 +1025,241 @@ def reporte_oc_docx(oc_id):
     return send_file(buf, as_attachment=True,
                      download_name=f"OC_{oc[1]}.docx",
                      mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+    def _fmt2(x):
+    try: return f"{Decimal(x or 0):.2f}"
+    except: return "0.00"
+
+def _replace_placeholders(ws, mapping):
+    for row in ws.iter_rows(values_only=False):
+        for cell in row:
+            v = cell.value
+            if isinstance(v, str):
+                for k, val in mapping.items():
+                    token = "{{ " + k + " }}"
+                    if token in v:
+                        cell.value = v.replace(token, str(val))
+
+def _find_items_anchor(ws):
+    for i, row in enumerate(ws.iter_rows(values_only=True), start=1):
+        if str(row[0] or "").strip() == "#ITEMS#":
+            return i
+    return None
+
+def _copy_row_style(src_row, dst_row):
+    # Copia bordes y alineación básicos
+    thin = Side(style="thin")
+    border = Border(left=thin, right=thin, top=thin, bottom=thin)
+    for s, d in zip(src_row, dst_row):
+        d.border = s.border if s.border and any([s.border.left.style, s.border.right.style, s.border.top.style, s.border.bottom.style]) else border
+        d.alignment = s.alignment or d.alignment
+        d.number_format = s.number_format or d.number_format
+
+@main.route('/reporte/oc/xlsx/<int:oc_id>')
+def reporte_oc_xlsx(oc_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT id, numero_oc, fecha, area_requirente, cert_presupuestaria, objeto,
+               proveedor, ruc, telefono, direccion, correo,
+               proforma_num, proforma_fecha, contacto, vigencia,
+               forma_pago, plazo_ejecucion, lugar_entrega, administrador_orden, multas, garantia, base_legal,
+               subtotal, iva, total, observaciones
+        FROM ordenes_compra
+        WHERE id=%s
+    """, (oc_id,))
+    oc = cur.fetchone()
+    cur.execute("""
+        SELECT item, cpc, descripcion, unidad, cantidad, v_unitario, v_total
+        FROM oc_items WHERE oc_id=%s ORDER BY item
+    """, (oc_id,))
+    items = cur.fetchall()
+    conn.close()
+    if not oc:
+        return "OC no encontrada", 404
+
+    total = float(oc[24] or 0)
+    entero = int(total); cent = int(round((total - entero)*100))
+    total_letras = f"{num2words(entero, lang='es').capitalize()} con {cent:02d}/100 dólares americanos"
+
+    mapping = {
+        "numero_oc": oc[1], "fecha": str(oc[2] or ""), "area_requirente": oc[3] or "",
+        "cert_presupuestaria": oc[4] or "", "objeto": oc[5] or "",
+        "proveedor": oc[6] or "", "ruc": oc[7] or "", "telefono": oc[8] or "",
+        "direccion": oc[9] or "", "correo": oc[10] or "",
+        "proforma_num": oc[11] or "", "proforma_fecha": str(oc[12] or ""),
+        "contacto": oc[13] or "", "vigencia": oc[14] or "",
+        "forma_pago": oc[15] or "", "plazo_ejecucion": oc[16] or "",
+        "lugar_entrega": oc[17] or "", "administrador_orden": oc[18] or "",
+        "multas": oc[19] or "", "garantia": oc[20] or "", "base_legal": oc[21] or "",
+        "subtotal_fmt": _fmt2(oc[22]), "iva_fmt": _fmt2(oc[23]), "total_fmt": _fmt2(oc[24]),
+        "total_letras": total_letras, "observaciones": oc[25] or "",
+    }
+
+    # Carga plantilla (ajusta la ruta si la copias dentro del proyecto)
+    tpl_path = "app/templates/reports/oc_template_excel.xlsx"
+    wb = load_workbook(tpl_path)
+    ws = wb.active
+
+    # Reemplaza placeholders sueltos
+    _replace_placeholders(ws, mapping)
+
+    # Inserta ítems en el ancla
+    anchor_row = _find_items_anchor(ws)
+    if anchor_row is None:
+        return "No se encontró el marcador #ITEMS# en la plantilla", 500
+
+    # Mantén una copia de la fila ancla para estilos
+    model_row = [cell for cell in ws[anchor_row]]
+    # Borra la fila ancla
+    ws.delete_rows(anchor_row, 1)
+
+    # Inserta tantas filas como ítems
+    for idx, it in enumerate(items, start=0):
+        ws.insert_rows(anchor_row + idx)
+        row_cells = [ws.cell(row=anchor_row + idx, column=col) for col in range(1, 8)]
+        # Copia estilos
+        _copy_row_style(model_row, row_cells)
+        # Asigna valores
+        row_cells[0].value = it[0]
+        row_cells[1].value = it[1]
+        row_cells[2].value = it[2]
+        row_cells[3].value = it[3]
+        row_cells[4].value = float(it[4] or 0)
+        row_cells[4].number_format = "0.00"
+        row_cells[5].value = float(it[5] or 0)
+        row_cells[5].number_format = "0.00"
+        row_cells[6].value = float(it[6] or 0)
+        row_cells[6].number_format = "0.00"
+
+    # Entrega como descarga
+    bio = io.BytesIO()
+    wb.save(bio); bio.seek(0)
+    return send_file(bio, as_attachment=True,
+                     download_name=f"OC_{oc[1]}.xlsx",
+                     mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    @main.route('/dev/oc_template_excel')
+def dev_oc_template_excel():
+    try:
+        from openpyxl import Workbook
+        from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
+        from openpyxl.utils import get_column_letter
+        from openpyxl.worksheet.page import PageMargins
+    except Exception as e:
+        return f"Falta instalar openpyxl. Agrega openpyxl==3.1.5 a requirements.txt y redeploy. Detalle: {e}", 500
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "OC"
+    # Márgenes / ajuste a página
+    ws.page_margins = PageMargins(left=0.3, right=0.3, top=0.5, bottom=0.5)
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
+    ws.page_setup.fitToWidth = 1
+    ws.page_setup.fitToHeight = 0
+
+    # Anchos de columnas
+    for col, w in zip("ABCDEFG", [8,12,45,16,12,14,14]):
+        ws.column_dimensions[col].width = w
+
+    # Estilos
+    b = Border(left=Side(style="thin"), right=Side(style="thin"),
+               top=Side(style="thin"), bottom=Side(style="thin"))
+    bold = Font(bold=True, name="Calibri", size=11)
+    norm = Font(bold=False, name="Calibri", size=11)
+    center = Alignment(horizontal="center", vertical="center", wrap_text=True)
+    left = Alignment(horizontal="left", vertical="center", wrap_text=True)
+    right = Alignment(horizontal="right", vertical="center", wrap_text=True)
+
+    # Título
+    ws.merge_cells("A1:G1")
+    c = ws["A1"]; c.value = "ÍNFIMA CUANTÍA"; c.font = Font(bold=True, size=16); c.alignment = center
+
+    row = 3
+    def label(lbl, ph):
+        nonlocal row
+        ws[f"A{row}"] = lbl; ws[f"A{row}"].font = bold; ws[f"A{row}"].alignment = left
+        ws.merge_cells(f"C{row}:G{row}")
+        ws[f"C{row}"] = ph; ws[f"C{row}"].font = norm; ws[f"C{row}"].alignment = left
+        row += 1
+
+    label("No. DE ORDEN DE COMPRA:", "{{ numero_oc }}")
+    label("FECHA:", "{{ fecha }}")
+    label("ÁREA REQUIRENTE:", "{{ area_requirente }}")
+    label("NÚMERO DE CERTIFICACIÓN PRESUPUESTARIA:", "{{ cert_presupuestaria }}")
+    row += 1
+
+    # Objeto
+    ws.merge_cells(f"A{row}:G{row}")
+    ws[f"A{row}"] = "OBJETO DE CONTRATACIÓN"; ws[f"A{row}"].font = bold; row += 1
+    ws.merge_cells(f"A{row}:G{row+1}")
+    ws[f"A{row}"] = "{{ objeto }}"; ws[f"A{row}"].alignment = left; row += 3
+
+    # Datos del proveedor
+    ws.merge_cells(f"A{row}:G{row}")
+    ws[f"A{row}"] = "DATOS DEL PROVEEDOR"; ws[f"A{row}"].font = bold; row += 1
+
+    def full(lbl, ph):
+        nonlocal row
+        ws.merge_cells(f"A{row}:B{row}"); ws[f"A{row}"] = lbl; ws[f"A{row}"].font = bold
+        ws.merge_cells(f"C{row}:G{row}"); ws[f"C{row}"] = ph; ws[f"C{row}"].alignment = left
+        row += 1
+
+    full("PROVEEDOR:", "{{ proveedor }}")
+    # RUC | TELÉFONO
+    ws.merge_cells(f"A{row}:B{row}"); ws[f"A{row}"] = "RUC:"; ws[f"A{row}"].font = bold
+    ws.merge_cells(f"C{row}:D{row}"); ws[f"C{row}"] = "{{ ruc }}"
+    ws.merge_cells(f"E{row}:F{row}"); ws[f"E{row}"] = "TELÉFONO:"; ws[f"E{row}"].font = bold
+    ws[f"G{row}"] = "{{ telefono }}"; row += 1
+    full("DIRECCIÓN:", "{{ direccion }}")
+    full("CORREO:", "{{ correo }}")
+    # PROFORMA | FECHA
+    ws.merge_cells(f"A{row}:B{row}"); ws[f"A{row}"] = "PROFORMA Nro.:"; ws[f"A{row}"].font = bold
+    ws.merge_cells(f"C{row}:D{row}"); ws[f"C{row}"] = "{{ proforma_num }}"
+    ws.merge_cells(f"E{row}:F{row}"); ws[f"E{row}"] = "FECHA:"; ws[f"E{row}"].font = bold
+    ws[f"G{row}"] = "{{ proforma_fecha }}"; row += 1
+    # CONTACTO | VIGENCIA
+    ws.merge_cells(f"A{row}:B{row}"); ws[f"A{row}"] = "CONTACTO:"; ws[f"A{row}"].font = bold
+    ws.merge_cells(f"C{row}:D{row}"); ws[f"C{row}"] = "{{ contacto }}"
+    ws.merge_cells(f"E{row}:F{row}"); ws[f"E{row}"] = "VIGENCIA:"; ws[f"E{row}"].font = bold
+    ws[f"G{row}"] = "{{ vigencia }}"; row += 2
+
+    # Detalle
+    ws.merge_cells(f"A{row}:G{row}")
+    ws[f"A{row}"] = "DETALLE"; ws[f"A{row}"].font = bold; row += 1
+
+    hdr = ["ITEM","CPC","DESCRIPCIÓN","UNIDAD DE MEDIDA","CANTIDAD","V. UNITARIO","V. TOTAL"]
+    for col, h in enumerate(hdr, start=1):
+        cell = ws.cell(row=row, column=col, value=h)
+        cell.font = bold; cell.alignment = center
+        cell.border = b; cell.fill = PatternFill("solid", fgColor="DDDDDD")
+    row += 1
+
+    # Fila ancla para ítems (el generador insertará filas aquí)
+    for col, v in enumerate(["#ITEMS#","","","","","",""], start=1):
+        c = ws.cell(row=row, column=col, value=v)
+        c.alignment = center if col in (1,2,4,5,6,7) else left
+        c.border = b
+    row += 2
+
+    # Totales
+    ws.merge_cells(f"A{row}:F{row}"); ws[f"A{row}"] = "SUBTOTAL $"; ws[f"A{row}"].alignment = right; ws[f"A{row}"].font = bold
+    ws[f"G{row}"] = "{{ subtotal_fmt }}"; ws[f"G{row}"].alignment = right; row += 1
+    ws.merge_cells(f"A{row}:F{row}"); ws[f"A{row}"] = "IVA 12% $"; ws[f"A{row}"].alignment = right; ws[f"A{row}"].font = bold
+    ws[f"G{row}"] = "{{ iva_fmt }}"; ws[f"G{row}"].alignment = right; row += 1
+    ws.merge_cells(f"A{row}:F{row}"); ws[f"A{row}"] = "TOTAL $"; ws[f"A{row}"].alignment = right; ws[f"A{row}"].font = bold
+    ws[f"G{row}"] = "{{ total_fmt }}"; ws[f"G{row}"].alignment = right; row += 2
+
+    # Total en letras
+    ws.merge_cells(f"A{row}:G{row}"); ws[f"A{row}"] = "TOTAL EN LETRAS"; ws[f"A{row}"].font = bold; row += 1
+    ws.merge_cells(f"A{row}:G{row+1}"); ws[f"A{row}"] = "{{ total_letras }}"
+
+    # Guardar a disco
+    save_dir = os.path.join(current_app.root_path, 'templates', 'reports')
+    os.makedirs(save_dir, exist_ok=True)
+    save_path = os.path.join(save_dir, 'oc_template_excel.xlsx')
+    wb.save(save_path)
+
+    # Devolver como descarga
+    bio = io.BytesIO(); wb.save(bio); bio.seek(0)
+    return send_file(bio, as_attachment=True,
+                     download_name='oc_template_excel.xlsx',
+                     mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
