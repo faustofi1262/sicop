@@ -403,11 +403,22 @@ def editar_tarea(id):
                            tarea=tarea,
                            tipos_proceso=tipos_proceso,
                            regimenes=regimenes)
-@main.route('/convertir_a_letras')
+@main.route('/convertir_a_letras', methods=['POST'])
 def convertir_a_letras():
-    valor = float(request.args.get("valor", 0))
-    letras = num2words.num2words(valor, lang='es').capitalize()
-    return letras
+    try:
+        data = request.get_json()
+        valor = float(data.get("valor", 0))
+
+        entero = int(valor)
+        centavos = int(round((valor - entero) * 100))
+        letras = num2words(entero, lang='es').capitalize()
+
+        return jsonify({
+            "letras": f"{letras} con {centavos:02d}/100 dólares americanos"
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
 @main.route('/admin/requerimientos/editar/<int:id>', methods=['GET', 'POST'])
 def editar_requerimiento(id):
     conn = get_db_connection()

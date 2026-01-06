@@ -229,11 +229,23 @@
         const exento = parseFloat(document.querySelector('input[name="valor_exento"]').value) || 0;
         const total = sinIva + exento;
 
-        fetch(`/convertir_a_letras?valor=${total}`)
-            .then(response => response.text())
-            .then(texto => {
-                document.querySelector('input[name="valor_en_letras"]').value = texto;
-            });
+        fetch('/convertir_a_letras', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ valor: total })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.letras) {
+                document.getElementById('valor_en_letras').value = data.letras;
+            } else {
+                document.getElementById('valor_en_letras').value = '';
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        document.getElementById('valor_en_letras').value = '';
+    });
     }
 
     document.addEventListener("DOMContentLoaded", function() {
