@@ -197,7 +197,7 @@ def tareas():
         valor_total = valor_sin_iva + valor_exento
         entero = int(valor_total)
         centavos = int(round((valor_total - entero) * 100))
-        letras = num2words.num2words(entero, lang='es').capitalize()
+        letras = num2words(entero, lang='es').capitalize()
         valor_en_letras = f"{letras} con {centavos:02d}/100 dólares americanos"
 
         # Validar código único
@@ -319,6 +319,9 @@ def editar_tarea(id):
     tipos_proceso = cur.fetchall()
     cur.execute("SELECT * FROM tareas WHERE id = %s", (id,))
     tarea = cur.fetchone()
+    if not tarea:
+        conn.close()
+        return "Tarea no encontrada", 404
     cur.execute("SELECT id, nombre_regimen FROM tipo_regimen ORDER BY nombre_regimen ASC")
     regimenes = cur.fetchall()
     if request.method == 'POST':
@@ -328,7 +331,7 @@ def editar_tarea(id):
         valor_total = valor_sin_iva + valor_exento
         entero = int(valor_total)
         centavos = int(round((valor_total - entero) * 100))
-        letras = num2words.num2words(entero, lang='es').capitalize()
+        letras = num2words(entero, lang='es').capitalize()
         valor_en_letras = f"{letras} con {centavos:02d}/100 dólares americanos"
 
         # Validar código único (excluyendo esta tarea)
