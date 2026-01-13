@@ -229,7 +229,7 @@
         const exento = parseFloat(document.querySelector('input[name="valor_exento"]').value) || 0;
         const total = sinIva + exento;
 
-        fetch('/convertir_a_letras', {
+        fetch('/admin/convertir_a_letras', { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ valor: total })

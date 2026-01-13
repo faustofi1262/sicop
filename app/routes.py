@@ -2,10 +2,9 @@ from flask import Blueprint, session, redirect, render_template, request
 import psycopg2
 import os
 from flask import jsonify, send_file, current_app
-import num2words
+from num2words import num2words
 from decimal import Decimal
 from docxtpl import DocxTemplate
-from num2words import num2words
 import io
 from openpyxl import load_workbook
 from openpyxl.styles import Border, Side
@@ -403,7 +402,7 @@ def editar_tarea(id):
                            tarea=tarea,
                            tipos_proceso=tipos_proceso,
                            regimenes=regimenes)
-@main.route('/convertir_a_letras', methods=['POST'])
+@main.route('/admin/convertir_a_letras', methods=['POST'])
 def convertir_a_letras():
     try:
         data = request.get_json()
