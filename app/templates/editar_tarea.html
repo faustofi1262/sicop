@@ -51,7 +51,14 @@
         </div>
 
         <label class="mt-2">Valor en Letras:</label>
-        <input type="text" name="valor_en_letras" class="form-control form-control-sm" value="{{ tarea[9] }}">
+        <input 
+            type="text"
+            id="valor_en_letras"
+            name="valor_en_letras"
+            class="form-control"
+            value="{{ tarea[9] }}"
+            readonly
+        >
 
         <label class="mt-2">Tipo de Régimen:</label>
         <select name="tipo_regimen" class="form-control form-control-sm" required>

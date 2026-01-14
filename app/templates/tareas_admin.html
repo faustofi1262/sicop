@@ -61,9 +61,9 @@
         </fieldset>
 
         <!-- Formulario Tareas -->
-        <fieldset id="bloque_tarea" class="border p-3" disabled>
+        
             <legend class="w-auto text-primary font-weight-bold">📝 Información del Proceso</legend>
-
+            <fieldset id="bloque_tarea" class="border p-3">
             <div class="form-row">
                 <div class="col">
                     <label>Tipo de Proceso:</label>
@@ -106,7 +106,13 @@
             </div>
 
             <label class="mt-2">Valor en Letras:</label>
-            <input type="text" name="valor_en_letras" class="form-control form-control-sm">
+            <input
+                type="text"
+                id="valor_en_letras"
+                name="valor_en_letras"
+                class="form-control form-control-sm"
+                readonly
+            >
 
             <label class="mt-2">Tipo de Régimen:</label>
             <select name="tipo_regimen" class="form-control form-control-sm" required>
@@ -137,10 +143,6 @@
 
             <label class="mt-2">Nombre del Jefe de Compras:</label>
             <input type="text" name="nombre_jefe_compras" class="form-control form-control-sm">
-
-            <!-- El campo visible solo informativo -->
-            <label>Unidad Requirente:</label>
-            <input type="text" id="unidad" class="form-control" disabled>
 
             <!-- El campo oculto que se enviará al guardar -->
             <input type="hidden" name="unidad_solicitante" id="unidad_solicitante" value="">
@@ -215,44 +217,53 @@
         </tbody>
     </table>
     <script>
-    function numeroALetras(numero) {
-        const formatter = new Intl.NumberFormat('es-EC', {
-            style: 'currency',
-            currency: 'USD',
-            minimumFractionDigits: 2
-        });
-        return formatter.format(numero).replace('$', '').replace('USD', '').trim();
+    function calcularYConvertir() {
+    console.log('Calculando valor en letras...');
+
+    const sinIvaInput = document.querySelector('input[name="valor_sin_iva"]');
+    const exentoInput = document.querySelector('input[name="valor_exento"]');
+    const letrasInput = document.getElementById('valor_en_letras');
+
+    if (!sinIvaInput || !exentoInput || !letrasInput) {
+        console.log('Inputs no encontrados');
+        return;
     }
 
-    function calcularYConvertir() {
-        const sinIva = parseFloat(document.querySelector('input[name="valor_sin_iva"]').value) || 0;
-        const exento = parseFloat(document.querySelector('input[name="valor_exento"]').value) || 0;
-        const total = sinIva + exento;
+    const sinIva = parseFloat(sinIvaInput.value) || 0;
+    const exento = parseFloat(exentoInput.value) || 0;
+    const total = sinIva + exento;
 
-        fetch('/admin/convertir_a_letras', { 
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ valor: total })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.letras) {
-                document.getElementById('valor_en_letras').value = data.letras;
-            } else {
-                document.getElementById('valor_en_letras').value = '';
+    if (total <= 0) {
+        letrasInput.value = '';
+        return;
+    }
+
+    fetch('/admin/convertir_a_letras', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ valor: total })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log('Respuesta backend:', data);
+        if (data.letras) {
+            letrasInput.value = data.letras;
         }
     })
     .catch(err => {
         console.error(err);
-        document.getElementById('valor_en_letras').value = '';
+        letrasInput.value = '';
     });
     }
 
-    document.addEventListener("DOMContentLoaded", function() {
-        document.querySelector('input[name="valor_sin_iva"]').addEventListener("input", calcularYConvertir);
-        document.querySelector('input[name="valor_exento"]').addEventListener("input", calcularYConvertir);
+    window.addEventListener('load', function () {
+        const sinIvaInput = document.querySelector('input[name="valor_sin_iva"]');
+        const exentoInput = document.querySelector('input[name="valor_exento"]');
+
+        if (sinIvaInput) sinIvaInput.addEventListener('input', calcularYConvertir);
+        if (exentoInput) exentoInput.addEventListener('input', calcularYConvertir);
     });
-</script>
+    </script>
 <a href="/admin_dashboard" class="btn btn-secondary mt-3">
   ← Volver al Panel del Analista
 </a>
