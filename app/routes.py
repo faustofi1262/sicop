@@ -13,63 +13,14 @@ from openpyxl.styles import Border, Side
 main = Blueprint('main', __name__)
 def get_db_connection():
     return psycopg2.connect(os.getenv("DATABASE_URL"))
-@main.route('/admin/usuarios/crear', methods=['POST'])
-def crear_usuario():
-    # Solo administrador
-    if session.get('rol') != 'Administrador':
-        return "⛔ Acceso no autorizado", 403
-
-    nombre = request.form.get('nombre')
-    usuario = request.form.get('usuario')
-    correo = request.form.get('correo')
-    rol = request.form.get('rol')
-    password = request.form.get('password')
-
-    if not all([nombre, usuario, correo, rol, password]):
-        return "Faltan datos", 400
-
-    password_hash = generate_password_hash(password)
-
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("""
-        INSERT INTO usuarios (nombre, usuario, correo, contraseña, rol)
-        VALUES (%s, %s, %s, %s, %s)
-    """, (nombre, usuario, correo, password_hash, rol))
-    conn.commit()
-    conn.close()
-
-    return redirect('/admin/usuarios')
-    @main.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        usuario = request.form.get('usuario')
-        password = request.form.get('password')
-
-        conn = get_db_connection()
-        cur = conn.cursor()
-        cur.execute("""
-            SELECT id, usuario, contraseña, rol
-            FROM usuarios
-            WHERE usuario = %s
-        """, (usuario,))
-        user = cur.fetchone()
-        conn.close()
-
-        if user and check_password_hash(user[2], password):
-            session['user_id'] = user[0]
-            session['usuario'] = user[1]
-            session['rol'] = user[3]
-
-            return redirect('/admin_dashboard')
-
-        return render_template('login.html', error="Usuario o contraseña incorrectos")
-
-    return render_template('login.html')
-    
 @main.route('/')
 def index():
     return redirect('/login')
+
+
+# =========================
+# LOGIN
+# =========================
 @main.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -99,16 +50,26 @@ def login():
         return render_template('login.html', error="Usuario o contraseña incorrectos")
 
     return render_template('login.html')
+
+
+# =========================
+# LOGOUT
+# =========================
 @main.route('/logout')
 def logout():
     session.clear()
     return redirect('/login')
 
+
+# =========================
+# DASHBOARDS
+# =========================
 @main.route('/admin_dashboard')
 def admin_dashboard():
     if session.get('rol') != 'Administrador':
         return redirect('/login')
     return render_template('admin_dashboard.html', nombre=session.get('user_name'))
+
 
 @main.route('/analista_dashboard')
 def analista_dashboard():
@@ -116,6 +77,10 @@ def analista_dashboard():
         return redirect('/login')
     return render_template('analista_dashboard.html', nombre=session.get('user_name'))
 
+
+# =========================
+# GESTIÓN DE USUARIOS
+# =========================
 @main.route('/admin/usuarios', methods=['GET', 'POST'])
 def gestionar_usuarios():
     if session.get('rol') != 'Administrador':
