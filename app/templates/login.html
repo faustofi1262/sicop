@@ -26,7 +26,7 @@
             color: #003366;
             margin-bottom: 20px;
         }
-        input[type="email"],
+        input[type="usuario"],
         input[type="password"] {
             width: 100%;
             padding: 12px;
@@ -67,7 +67,7 @@
         <img src="{{ url_for('static', filename='logo.png') }}" alt="UTMACH" class="logo">
         <h2>Ingreso al sistema SICOP</h2>
         <form method="POST">
-            <input name="correo" type="email" placeholder="Correo institucional" required>
+            <input name="usuario" type="email" placeholder="Usuario" required>
             <input name="contraseña" type="password" placeholder="Contraseña" required>
             <button type="submit">Ingresar</button>
         </form>
