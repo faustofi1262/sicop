@@ -1,4 +1,5 @@
 from flask import Blueprint, session, redirect, render_template, request
+from werkzeug.security import generate_password_hash, check_password_hash
 import psycopg2
 import os
 from flask import jsonify, send_file, current_app
@@ -12,8 +13,95 @@ from openpyxl.styles import Border, Side
 main = Blueprint('main', __name__)
 def get_db_connection():
     return psycopg2.connect(os.getenv("DATABASE_URL"))
+@main.route('/admin/usuarios/crear', methods=['POST'])
+def crear_usuario():
+    # Solo administrador
+    if session.get('rol') != 'Administrador':
+        return "⛔ Acceso no autorizado", 403
+
+    nombre = request.form.get('nombre')
+    usuario = request.form.get('usuario')
+    correo = request.form.get('correo')
+    rol = request.form.get('rol')
+    password = request.form.get('password')
+
+    if not all([nombre, usuario, correo, rol, password]):
+        return "Faltan datos", 400
+
+    password_hash = generate_password_hash(password)
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        INSERT INTO usuarios (nombre, usuario, correo, contraseña, rol)
+        VALUES (%s, %s, %s, %s, %s)
+    """, (nombre, usuario, correo, password_hash, rol))
+    conn.commit()
+    conn.close()
+
+    return redirect('/admin/usuarios')
+    @main.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        usuario = request.form.get('usuario')
+        password = request.form.get('password')
+
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id, usuario, contraseña, rol
+            FROM usuarios
+            WHERE usuario = %s
+        """, (usuario,))
+        user = cur.fetchone()
+        conn.close()
+
+        if user and check_password_hash(user[2], password):
+            session['user_id'] = user[0]
+            session['usuario'] = user[1]
+            session['rol'] = user[3]
+
+            return redirect('/admin_dashboard')
+
+        return render_template('login.html', error="Usuario o contraseña incorrectos")
+
+    return render_template('login.html')
+    
 @main.route('/')
 def index():
+    return redirect('/login')
+@main.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        usuario = request.form.get('usuario')
+        password = request.form.get('password')
+
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id, usuario, contraseña, rol
+            FROM usuarios
+            WHERE usuario = %s
+        """, (usuario,))
+        user = cur.fetchone()
+        conn.close()
+
+        if user and check_password_hash(user[2], password):
+            session['user_id'] = user[0]
+            session['user_name'] = user[1]
+            session['rol'] = user[3]
+
+            if user[3] == 'Administrador':
+                return redirect('/admin_dashboard')
+            else:
+                return redirect('/analista_dashboard')
+
+        return render_template('login.html', error="Usuario o contraseña incorrectos")
+
+    return render_template('login.html')
+@main.route('/logout')
+def logout():
+    session.clear()
     return redirect('/login')
 
 @main.route('/admin_dashboard')
@@ -37,22 +125,26 @@ def gestionar_usuarios():
     cur = conn.cursor()
 
     if request.method == 'POST':
-        nombre = request.form['nombre']
-        correo = request.form['correo']
-        contraseña = request.form['contraseña']
-        rol = request.form['rol']
+        nombre = request.form.get('nombre')
+        usuario = request.form.get('usuario')
+        correo = request.form.get('correo')
+        password = request.form.get('password')
+        rol = request.form.get('rol')
+
+        password_hash = generate_password_hash(password)
 
         cur.execute("""
-            INSERT INTO usuarios (nombre, correo, contraseña, rol)
-            VALUES (%s, %s, %s, %s)
-        """, (nombre, correo, contraseña, rol))
+            INSERT INTO usuarios (nombre, usuario, correo, contraseña, rol)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (nombre, usuario, correo, password_hash, rol))
         conn.commit()
 
-    cur.execute("SELECT id, nombre, correo, rol FROM usuarios")
+    cur.execute("SELECT id, nombre, usuario, correo, rol FROM usuarios")
     usuarios = cur.fetchall()
     conn.close()
 
     return render_template('usuarios_admin.html', usuarios=usuarios)
+
 @main.route('/admin/unidades', methods=['GET', 'POST'])
 def gestionar_unidades():
     if session.get('rol') != 'Administrador':
