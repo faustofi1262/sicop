@@ -39,8 +39,8 @@ def login():
 
         if user and check_password_hash(user[2], password):
             session['user_id'] = user[0]
-            session['user_name'] = user[1]
-            session['rol'] = user[3]
+            session['user_name'] = user[6]
+            session['rol'] = user[5]
 
             if user[3] == 'Administrador':
                 return redirect('/admin_dashboard')
