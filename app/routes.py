@@ -30,19 +30,20 @@ def login():
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("""
-            SELECT id, usuario, contraseña, rol
+            SELECT id, nombre, usuario, password_hash, rol
             FROM usuarios
             WHERE usuario = %s
         """, (usuario,))
         user = cur.fetchone()
         conn.close()
 
-        if user and check_password_hash(user[6], password):
+        if user and check_password_hash(user[3], password):
             session['user_id'] = user[0]
-            session['user_name'] = user[6]
-            session['rol'] = user[5]
+            session['user_name'] = user[1]   # nombre
+            session['usuario'] = user[2]
+            session['rol'] = user[4]
 
-            if user[3] == 'Administrador':
+            if user[4] == 'Administrador':
                 return redirect('/admin_dashboard')
             else:
                 return redirect('/analista_dashboard')
