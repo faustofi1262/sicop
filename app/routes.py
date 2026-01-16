@@ -37,7 +37,7 @@ def login():
         user = cur.fetchone()
         conn.close()
 
-        if user and check_password_hash(user[2], password):
+        if user and check_password_hash(user[6], password):
             session['user_id'] = user[0]
             session['user_name'] = user[6]
             session['rol'] = user[5]
