@@ -9,9 +9,9 @@ def create_app():
     app.secret_key = os.getenv("SECRET_KEY")
 
     from .routes import main
-    from .auth import auth
+    from .auth_old import auth
 
     app.register_blueprint(main)
-    app.register_blueprint(auth)
+    app.register_blueprint(auth_old)
 
     return app

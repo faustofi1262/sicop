@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, session
 import psycopg2
 import os
 
-auth = Blueprint('auth', __name__)
+#auth = Blueprint('auth', __name__)
 
 def get_db_connection():
     return psycopg2.connect(os.getenv("DATABASE_URL"))
