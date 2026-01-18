@@ -1,25 +1,19 @@
-import os
-import psycopg2
 from werkzeug.security import generate_password_hash
-from dotenv import load_dotenv
+import psycopg2
+import os
 
-load_dotenv()  # carga DATABASE_URL desde .env
-
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-usuario = "ffigueroa"
-nueva_password = "Admin2026!"  # 👈 la que tú quieras
-
-hash_nuevo = generate_password_hash(nueva_password)
-
-conn = psycopg2.connect(DATABASE_URL)
+conn = psycopg2.connect(os.getenv("DATABASE_URL"))
 cur = conn.cursor()
-cur.execute(
-    "UPDATE usuarios SET password_hash = %s WHERE usuario = %s",
-    (hash_nuevo, usuario)
-)
+
+password_hash = generate_password_hash("123456")
+
+cur.execute("""
+UPDATE usuarios
+SET password_hash = %s
+WHERE usuario = 'ffigueroa'
+""", (password_hash,))
+
 conn.commit()
-cur.close()
 conn.close()
 
-print("✅ Contraseña actualizada para:", usuario)
+print("✅ Contraseña actualizada")

@@ -2,6 +2,7 @@ from flask import Blueprint, session, redirect, render_template, request
 from werkzeug.security import check_password_hash, generate_password_hash
 import psycopg2
 import os
+
 from flask import jsonify, send_file, current_app
 from num2words import num2words
 from decimal import Decimal
@@ -11,6 +12,7 @@ from openpyxl import load_workbook
 from openpyxl.styles import Border, Side
 
 main = Blueprint('main', __name__)
+
 def get_db_connection():
     return psycopg2.connect(os.getenv("DATABASE_URL"))
 @main.route('/')
@@ -45,17 +47,21 @@ def login():
 
             if user[4] == 'Administrador':
                 return redirect('/admin_dashboard')
-            else:
+            elif user[4] == 'Analista':
                 return redirect('/analista_dashboard')
+            elif user[4] == 'Jefe':
+                return redirect('/jefe_dashboard')
+            else:
+                return redirect('/invitado_dashboard')
 
         return render_template('login.html', error="Usuario o contraseña incorrectos")
 
     return render_template('login.html')
 
-
 # =========================
 # LOGOUT
 # =========================
+
 @main.route('/logout')
 def logout():
     session.clear()
