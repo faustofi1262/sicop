@@ -2,7 +2,7 @@ from flask import Blueprint, session, redirect, render_template, request
 from werkzeug.security import check_password_hash, generate_password_hash
 import psycopg2
 import os
-
+import bcrypt
 from flask import jsonify, send_file, current_app
 from num2words import num2words
 from decimal import Decimal
@@ -39,7 +39,8 @@ def login():
         user = cur.fetchone()
         conn.close()
 
-        if user and check_password_hash(user[3], password):
+        if usuario and bcrypt.checkpw(check_password_hash, usuario[3].encode('utf-8')):
+        #if user and check_password_hash(user[3], password):
             session['user_id'] = user[0]
             session['user_name'] = user[1]   # nombre
             session['usuario'] = user[2]
