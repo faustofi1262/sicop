@@ -12,6 +12,6 @@ def create_app():
     #from .auth_old import auth
 
     app.register_blueprint(main)
-    app.register_blueprint(auth_old)
+    #app.register_blueprint(auth_old)
 
     return app
