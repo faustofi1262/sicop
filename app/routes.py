@@ -2,6 +2,7 @@ from flask import Blueprint, session, redirect, render_template, request
 from werkzeug.security import check_password_hash, generate_password_hash
 import psycopg2
 import os
+import bcrypt
 from flask import jsonify, send_file, current_app
 from num2words import num2words
 from decimal import Decimal
@@ -11,6 +12,7 @@ from openpyxl import load_workbook
 from openpyxl.styles import Border, Side
 
 main = Blueprint('main', __name__)
+
 def get_db_connection():
     return psycopg2.connect(os.getenv("DATABASE_URL"))
 @main.route('/')
@@ -37,7 +39,8 @@ def login():
         user = cur.fetchone()
         conn.close()
 
-        if user and check_password_hash(user[3], password):
+        if usuario and bcrypt.checkpw(check_password_hash, usuario[3].encode('utf-8')):
+        #if user and check_password_hash(user[3], password):
             session['user_id'] = user[0]
             session['user_name'] = user[1]   # nombre
             session['usuario'] = user[2]
@@ -45,17 +48,21 @@ def login():
 
             if user[4] == 'Administrador':
                 return redirect('/admin_dashboard')
-            else:
+            elif user[4] == 'Analista':
                 return redirect('/analista_dashboard')
+            elif user[4] == 'Jefe':
+                return redirect('/jefe_dashboard')
+            else:
+                return redirect('/invitado_dashboard')
 
         return render_template('login.html', error="Usuario o contraseña incorrectos")
 
     return render_template('login.html')
 
-
 # =========================
 # LOGOUT
 # =========================
+
 @main.route('/logout')
 def logout():
     session.clear()
@@ -100,7 +107,7 @@ def gestionar_usuarios():
         password_hash = generate_password_hash(password)
 
         cur.execute("""
-            NSERT INTO usuarios (nombre, usuario, correo, password_hash, rol)
+            INSERT INTO usuarios (nombre, usuario, correo, contraseña, rol)
             VALUES (%s, %s, %s, %s, %s)
         """, (nombre, usuario, correo, password_hash, rol))
         conn.commit()
