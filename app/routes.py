@@ -2,7 +2,6 @@ from flask import Blueprint, session, redirect, render_template, request
 from werkzeug.security import check_password_hash, generate_password_hash
 import psycopg2
 import os
-import bcrypt
 from flask import jsonify, send_file, current_app
 from num2words import num2words
 from decimal import Decimal
