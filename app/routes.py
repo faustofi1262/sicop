@@ -100,7 +100,7 @@ def gestionar_usuarios():
         password_hash = generate_password_hash(password)
 
         cur.execute("""
-            INSERT INTO usuarios (nombre, usuario, correo, contraseña, rol)
+            NSERT INTO usuarios (nombre, usuario, correo, password_hash, rol)
             VALUES (%s, %s, %s, %s, %s)
         """, (nombre, usuario, correo, password_hash, rol))
         conn.commit()
