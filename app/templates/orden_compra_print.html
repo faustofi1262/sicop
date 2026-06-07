@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Orden de Compra</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root { --azul:#0f3b77; }
+    body { padding: 28px; font-size: 12.5px; color:#111; }
+    h1,h2,h3,h4,h5,h6 { margin:0; }
+    .hdr { display:flex; align-items:center; }
+    .hdr .titulo { flex:1; text-align:center; }
+    .marca { color:var(--azul); font-weight:700; letter-spacing:.5px; }
+    .linea { height:3px; background:var(--azul); margin:8px 0 16px; }
+    .box { border:1px solid var(--azul); border-radius:6px; padding:10px; background:#f7fbff; margin-bottom:8px; }
+    .ttl { color:var(--azul); font-weight:700; font-size:13px; margin-top:6px; margin-bottom:6px; }
+    .table-sm td, .table-sm th { padding:.35rem .5rem; vertical-align:top; }
+    .totales th, .totales td { font-size:13px; }
+    .firmas { margin-top:36px; }
+    .firmas .col { text-align:center; }
+    .firma-line { border-top:1px solid #333; margin-top:55px; padding-top:6px; font-size:12px; }
+    .small { font-size: 12px; }
+    .vspace { margin-top: 6px; }
+    @media print {
+  body::before {
+    content: "";
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 65%;
+    height: 65%;
+    transform: translate(-50%, -50%);
+    background: url("{{ url_for('static', filename='img/utmach.png') }}") center/contain no-repeat;
+    opacity: 0.06;           /* Ajusta intensidad */
+    z-index: -1;             /* Detrás del contenido */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+  </style>
+</head>
+<body>
+
+  <!-- ENCABEZADO -->
+  <div class="hdr">
+  <div style="width:110px;">
+    <img src="{{ url_for('static', filename='img/utmach.png') }}" alt="UTMACH"
+         style="max-width:100%; height:auto;">
+  </div>
+  <div class="titulo">
+    <div class="marca">ORDEN DE COMPRA – ÍNFIMA CUANTÍA</div>
+    <div class="small">No. DE ORDEN DE COMPRA: SERVICIO / BIEN /OBRA </div>
+  </div>
+  <div style="width:160px; text-align:right; font-size:12px;">
+    <div><b>No.:</b> {{ oc[1] }}</div>
+    <div><b>Fecha:</b> {{ oc[2] }}</div>
+  </div>
+</div>
+  <div class="linea"></div>
+
+  <!-- REFERENCIAS -->
+  <div class="box">
+    <div><b>Área requirente:</b> {{ oc[3] or '' }}</div>
+    <div class="vspace"><b>Certificación presupuestaria:</b> {{ oc[4] or '' }}</div>
+     <div class="vspace"><b>Objeto de la contratación</b>  {{ oc[5] or '' }}</div>
+    
+  </div>
+
+  <!-- OBJETO -->
+ <!--<div class="ttl">Objeto de la contratación</div> -->
+  
+  <!-- PROVEEDOR -->
+  <table class="table table-sm">
+    <tr>
+      <td><b>Proveedor:</b> {{ oc[6] or '' }}</td>
+      <td><b>RUC:</b> {{ oc[7] or '' }}</td>
+      <td><b>Teléfono:</b> {{ oc[8] or '' }}</td>
+    </tr>
+    <tr>
+      <td colspan="3"><b>Dirección:</b> {{ oc[9] or '' }} &nbsp; | &nbsp; <b>Correo:</b> {{ oc[10] or '' }}</td>
+    </tr>
+    <tr>
+      <td><b>Proforma N°:</b> {{ oc[11] or '' }}</td>
+      <td><b>Fecha proforma:</b> {{ oc[12] or '' }}</td>
+      <td><b>Contacto:</b> {{ oc[13] or '' }}</td>
+    </tr>
+    <tr>
+      <td colspan="3"><b>Vigencia:</b> {{ oc[14] or '' }}</td>
+    </tr>
+  </table>
+
+  <!-- DETALLE -->
+  <div class="ttl">Detalle de la orden</div>
+  <table class="table table-bordered table-sm">
+    <thead class="thead-light">
+      <tr>
+        <th style="width:60px">Item</th>
+        <th style="width:110px">CPC</th>
+        <th>Descripción</th>
+        <th style="width:110px">Unidad</th>
+        <th class="text-right" style="width:110px">Cantidad</th>
+        <th class="text-right" style="width:130px">V. Unitario</th>
+        <th class="text-right" style="width:130px">V. Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for it in items %}
+      <tr>
+        <td>{{ it[0] }}</td>
+        <td>{{ it[1] }}</td>
+        <td>{{ it[2] }}</td>
+        <td>{{ it[3] }}</td>
+        <td class="text-right">{{ '%.2f'|format(it[4] or 0) }}</td>
+        <td class="text-right">{{ '%.2f'|format(it[5] or 0) }}</td>
+        <td class="text-right">{{ '%.2f'|format(it[6] or 0) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- TOTALES -->
+  <table class="table table-sm totales">
+    <tr>
+      <th class="text-right" style="width:85%">SUBTOTAL $</th>
+      <td class="text-right" style="width:15%">{{ '%.2f'|format(oc[22] or 0) }}</td>
+    </tr>
+    <tr>
+      <th class="text-right">IVA 12% $</th>
+      <td class="text-right">{{ '%.2f'|format(oc[23] or 0) }}</td>
+    </tr>
+    <tr>
+      <th class="text-right">TOTAL $</th>
+      <td class="text-right">{{ '%.2f'|format(oc[24] or 0) }}</td>
+    </tr>
+  </table>
+
+  <!-- TOTAL EN LETRAS -->
+  <div class="box"><b>Total en letras:</b> {{ total_letras }}</div>
+
+  <!-- CONDICIONES / CLAÚSULAS -->
+  <div class="ttl">Condiciones de la contratación</div>
+  <div class="box">
+    <div><b>Forma de pago:</b> {{ oc[15] or '' }}</div>
+    <div><b>Plazo de ejecución:</b> {{ oc[16] or '' }}</div>
+    <div><b>Lugar de entrega:</b> {{ oc[17] or '' }}</div>
+    <div><b>Administrador de la orden:</b> {{ oc[18] or '' }}</div>
+    <div><b>Multas:</b> {{ oc[19] or '' }}</div>
+    <div><b>Garantía:</b> {{ oc[20] or '' }}</div>
+    <div><b>Base legal:</b> {{ oc[21] or '' }}</div>
+    {% if oc[25] %}
+    <div class="vspace"><b>Observaciones:</b> {{ oc[25] }}</div>
+    {% endif %}
+  </div>
+
+  <!-- FIRMAS -->
+  <div class="row firmas">
+    <div class="col">
+      <div class="firma-line">AUTORIDAD / ADMINISTRADOR</div>
+    </div>
+    <div class="col">
+      <div class="firma-line">CONTRATISTA</div>
+    </div>
+  </div>
+
+  <div class="text-center mt-4 no-print">
+    <button class="btn btn-primary" onclick="window.print()">📄 Imprimir</button>
+    <a class="btn btn-secondary" href="/admin/ordenes_compra">← Volver</a>
+  </div>
+</body>
+</html>
+

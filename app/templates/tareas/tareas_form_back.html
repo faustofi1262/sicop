@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }} mt-3">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<form method="POST" action="{{ url_for('main.guardar_tarea') }}">
+
+{% if tarea %}
+<input type="hidden" name="id" value="{{ tarea[0] }}">
+{% endif %}
+
+<div class="container mt-4">
+
+<h4 class="mb-3">
+{% if tarea %}✏️ Editar Tarea{% else %}➕ Nueva Tarea{% endif %}
+</h4>
+
+<!-- ================= REQUERIMIENTO ================= -->
+<div class="card mb-4">
+<div class="card-header font-weight-bold">📌 Requerimiento Vinculado</div>
+<div class="card-body">
+
+<div class="form-row">
+<div class="form-group col-md-4">
+<label>Memo Vice Administrativo</label>
+<select name="requerimiento_id" id="requerimiento_id" class="form-control">
+<option value="">-- Seleccione --</option>
+{% for r in requerimientos %}
+<option value="{{ r[0] }}" {% if tarea and tarea[14] == r[0] %}selected{% endif %}>
+{{ r[1] }}
+</option>
+{% endfor %}
+</select>
+</div>
+
+<div class="form-group col-md-4">
+<label>Unidad Requirente</label>
+<input type="text" id="unidad_solicitante" class="form-control" readonly
+value="{{ tarea[13] if tarea else '' }}">
+<input type="hidden" name="unidad_solicitante" id="unidad_solicitante_hidden"
+value="{{ tarea[13] if tarea else '' }}">
+</div>
+
+<div class="form-group col-md-4">
+<label>Funcionario Encargado</label>
+<input type="text" id="funcionario_encargado" class="form-control" readonly
+value="{{ tarea[12] if tarea else '' }}">
+<input type="hidden" name="funcionario_encargado" id="funcionario_encargado_hidden"
+value="{{ tarea[12] if tarea else '' }}">
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- ================= INFORMACIÓN ================= -->
+<div class="card mb-4">
+<div class="card-header font-weight-bold">🧾 Información del Proceso</div>
+<div class="card-body">
+
+<div class="form-row">
+<div class="form-group col-md-4">
+<label>Tipo de Proceso</label>
+<select name="tipo_proceso" class="form-control">
+{% for t in tipos_proceso %}
+<option value="{{ t[0] }}" {% if tarea and tarea[1] == t[0] %}selected{% endif %}>
+{{ t[1] }}
+</option>
+{% endfor %}
+</select>
+</div>
+
+<div class="form-group col-md-4">
+<label>Estado</label>
+<input type="text" name="estado_requerimiento" class="form-control"
+value="{{ tarea[2] if tarea else '' }}">
+</div>
+
+<div class="form-group col-md-4">
+<label>Fecha Recepción</label>
+<input type="date" name="fecha_recepcion" class="form-control"
+value="{{ tarea[5].strftime('%Y-%m-%d') if tarea and tarea[5] else '' }}">
+</div>
+</div>
+
+<div class="form-group">
+<label>Objeto</label>
+<textarea name="objeto_contratacion" class="form-control"
+rows="3">{{ tarea[3] if tarea else '' }}</textarea>
+</div>
+
+</div>
+</div>
+
+<!-- ================= BOTONES ================= -->
+<div class="text-right mb-5">
+<button type="submit" class="btn btn-primary">💾 Guardar</button>
+<a href="{{ url_for('main.tareas') }}" class="btn btn-secondary">⬅️ Volver</a>
+</div>
+
+</div>
+</form>
+
+<script>
+document.getElementById("requerimiento_id").addEventListener("change", function () {
+const id = this.value;
+if (!id) return;
+
+fetch(`/api/requerimiento/${id}`)
+.then(r => r.json())
+.then(d => {
+document.getElementById("unidad_solicitante").value = d.unidad || "";
+document.getElementById("funcionario_encargado").value = d.funcionario || "";
+document.getElementById("unidad_solicitante_hidden").value = d.unidad || "";
+document.getElementById("funcionario_encargado_hidden").value = d.funcionario || "";
+});
+});
+</script>
+
+{% endblock %}

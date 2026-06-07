@@ -1,0 +1,42 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Partida</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+    <h3 class="text-primary mb-4">✏️ Editar Partida</h3>
+    <form method="POST" class="bg-white p-4 rounded shadow-sm">
+        <div class="form-row">
+            <div class="col-md-6 mb-3">
+                <label>Nombre de la Partida:</label>
+                <input type="text" name="nombre_part" class="form-control" value="{{ partida[1] }}" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Número de Partida:</label>
+                <input type="text" name="num_part" class="form-control" value="{{ partida[2] }}" required>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="col-md-6 mb-3">
+                <label>Fuente de Financiamiento:</label>
+                <input type="text" name="fuente" class="form-control" value="{{ partida[3] }}" required>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label>Programa:</label>
+                <input type="text" name="programa" class="form-control" value="{{ partida[4] }}" required>
+            </div>
+            <div class="col-md-2 mb-3">
+                <label>Monto:</label>
+                <input type="number" name="monto" step="0.01" class="form-control" value="{{ partida[5] }}" required>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-success">💾 Guardar Cambios</button>
+        <a href="{{ request.referrer or '/admin/requerimientos' }}" class="btn btn-secondary ml-2">Cancelar</a>
+    </form>
+</div>
+</body>
+</html>

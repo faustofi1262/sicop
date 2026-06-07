@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Tipos de Proceso</title>
+    <style>
+        body { font-family: Arial; background-color: #f4f8fc; padding: 20px; }
+        h2 { color: #003366; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
+        th, td { padding: 10px; border: 1px solid #ccc; }
+        th { background-color: #003366; color: #fff; }
+        form { background: #fff; padding: 20px; margin-top: 30px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        input, button { padding: 10px; margin: 8px 0; width: 100%; }
+        button { background-color: #003366; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+        button:hover { background-color: #002244; }
+    </style>
+</head>
+<body>
+    <h2>Gestión de Tipos de Proceso</h2>
+
+    <form method="POST">
+        <label>Nombre del Proceso:</label>
+        <input type="text" name="nombre_proceso" required>
+        <label>Tipo de Régimen:</label>
+        <input type="text" name="tipo_regimen">
+        <button type="submit">Registrar Proceso</button>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Proceso</th>
+                <th>Tipo de Régimen</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in procesos %}
+                <tr>
+                    <td>{{ p[0] }}</td>
+                    <td>{{ p[1] }}</td>
+                    <td>{{ p[2] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Orden de Compra {{ oc[1] }}</title>
+  <style>
+    @page { size: A4; margin: 20mm; }
+    body { font-family: "Helvetica", Arial, sans-serif; font-size: 12px; color:#111; }
+    h1, h2, h3, h4 { margin: 0; }
+    .mt-2{margin-top:8px}.mt-3{margin-top:12px}.mt-4{margin-top:16px}
+    .mb-1{margin-bottom:4px}.mb-2{margin-bottom:8px}.mb-3{margin-bottom:12px}
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; }
+    .full { grid-column: 1 / -1; }
+    .box { border:1px solid #333; padding:8px; border-radius:4px; }
+    .label { font-weight:bold; display:inline-block; min-width:220px; }
+    .k { font-weight:bold; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { border:1px solid #333; padding:6px 8px; }
+    thead th { background:#eee; }
+    .right { text-align:right; }
+    .center { text-align:center; }
+    .small { font-size:11px; }
+    .totales td { border:none; }
+    .totales .m { min-width:120px; }
+    .seccion-title{font-weight:bold; border-bottom:2px solid #000; padding-bottom:2px; margin-top:16px; margin-bottom:6px;}
+  </style>
+</head>
+<body>
+
+  <!-- Encabezado -->
+  <div class="mb-3">
+    <h2>ÍNFIMA CUANTÍA</h2>
+    <div class="mt-2"><span class="k">No. DE ORDEN DE COMPRA:</span> {{ oc[1] }}</div>
+    <div class="mt-1"><span class="k">FECHA:</span> {{ oc[2] }}</div>
+    <div class="mt-1"><span class="k">ÁREA REQUIRENTE:</span> {{ oc[3] }}</div>
+    <div class="mt-1"><span class="k">NÚMERO DE CERTIFICACIÓN PRESUPUESTARIA:</span> {{ oc[4] }}</div>
+  </div>
+
+  <!-- Objeto -->
+  <div class="seccion-title">OBJETO DE CONTRATACIÓN</div>
+  <div class="box">{{ oc[5] }}</div>
+
+  <!-- DATOS DEL PROVEEDOR (dos columnas con renglones de ancho completo donde corresponde) -->
+  <div class="seccion-title">DATOS DEL PROVEEDOR</div>
+  <div class="grid-2 box">
+    <!-- PROVEEDOR (full) -->
+    <div class="full">
+      <span class="k">PROVEEDOR:</span> {{ oc[6] }}
+    </div>
+
+    <!-- RUC | TELÉFONO -->
+    <div><span class="k">RUC:</span> {{ oc[7] }}</div>
+    <div><span class="k">TELÉFONO:</span> {{ oc[8] }}</div>
+
+    <!-- DIRECCIÓN (full) -->
+    <div class="full">
+      <span class="k">DIRECCIÓN:</span> {{ oc[9] }}
+    </div>
+
+    <!-- CORREO (full) -->
+    <div class="full">
+      <span class="k">CORREO:</span> {{ oc[10] }}
+    </div>
+
+    <!-- PROFORMA Nro. | FECHA -->
+    <div><span class="k">PROFORMA Nro.:</span> {{ oc[11] }}</div>
+    <div><span class="k">FECHA:</span> {{ oc[12] }}</div>
+
+    <!-- CONTACTO | VIGENCIA -->
+    <div><span class="k">CONTACTO:</span> {{ oc[13] }}</div>
+    <div><span class="k">VIGENCIA:</span> {{ oc[14] }}</div>
+  </div>
+
+  <!-- DETALLE / ÍTEMS -->
+  <div class="seccion-title">DETALLE</div>
+  <table class="small">
+    <thead>
+      <tr>
+        <th class="center" style="width:60px">ITEM</th>
+        <th class="center" style="width:100px">CPC</th>
+        <th>DESCRIPCIÓN</th>
+        <th class="center" style="width:110px">UNIDAD DE MEDIDA</th>
+        <th class="right" style="width:90px">CANTIDAD</th>
+        <th class="right" style="width:110px">V. UNITARIO</th>
+        <th class="right" style="width:110px">V. TOTAL</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for it in items %}
+      <tr>
+        <td class="center">{{ it[0] }}</td>
+        <td class="center">{{ it[1] }}</td>
+        <td>{{ it[2] }}</td>
+        <td class="center">{{ it[3] }}</td>
+        <td class="right">{{ '%.2f'|format(it[4] or 0) }}</td>
+        <td class="right">{{ '%.2f'|format(it[5] or 0) }}</td>
+        <td class="right">{{ '%.2f'|format(it[6] or 0) }}</td>
+      </tr>
+      {% endfor %}
+      {% if not items %}
+      <tr><td colspan="7" class="center">— Sin ítems —</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+
+  <!-- Totales -->
+  <table class="totales" style="margin-top:8px;">
+    <tr>
+      <td class="right" style="width:100%"></td>
+      <td class="right m"><span class="k">SUBTOTAL $</span></td>
+      <td class="right m">{{ '%.2f'|format(oc[22] or 0) }}</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td class="right m"><span class="k">IVA 12% $</span></td>
+      <td class="right m">{{ '%.2f'|format(oc[23] or 0) }}</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td class="right m"><span class="k">TOTAL $</span></td>
+      <td class="right m"><b>{{ '%.2f'|format(oc[24] or 0) }}</b></td>
+    </tr>
+  </table>
+
+  <!-- Condiciones (según formato) -->
+  <div class="seccion-title">ADMINISTRADOR DE LA ORDEN</div>
+  <div class="box">{{ oc[18] or '—' }}</div>
+
+  <div class="seccion-title">FORMA DE PAGO</div>
+  <div class="box">{{ oc[15] or '—' }}</div>
+
+  <div class="seccion-title">PLAZO DE EJECUCIÓN</div>
+  <div class="box">{{ oc[16] or '—' }}</div>
+
+  <div class="seccion-title">OBLIGACIONES DEL CONTRATISTA</div>
+  <div class="box">Dar cumplimiento cabal a lo establecido en los Términos de Referencia y/o Especificaciones Técnicas.</div>
+
+  <div class="seccion-title">MULTAS</div>
+  <div class="box">{{ oc[19] or 'Se aplicará la multa (no inferior al 1x1000) por cada día de retardo.' }}</div>
+
+  <div class="seccion-title">GARANTÍA</div>
+  <div class="box">{{ oc[20] or 'De ser el caso, se rendirá la garantía técnica conforme a la LOSNCP y su Reglamento.' }}</div>
+
+  <div class="seccion-title">LUGAR DE ENTREGA</div>
+  <div class="box">{{ oc[17] or '—' }}</div>
+
+  <div class="seccion-title">BASE LEGAL</div>
+  <div class="box small">{{ oc[21] or 'Según LOSNCP y normativa aplicable.' }}</div>
+
+  <div class="seccion-title">OBSERVACIONES</div>
+  <div class="box small">{{ oc[25] or '—' }}</div>
+
+  <!-- Firmas -->
+  <div class="grid-2 mt-4">
+    <div class="center">
+      <div style="margin-top:54px;border-top:1px solid #000;padding-top:4px;">MÁXIMA AUTORIDAD O SU DELEGADO</div>
+    </div>
+    <div class="center">
+      <div style="margin-top:54px;border-top:1px solid #000;padding-top:4px;">CONTRATISTA</div>
+    </div>
+  </div>
+
+  <script>
+    // Si quieres que al abrir se lance el diálogo de impresión:
+    // window.print();
+  </script>
+</body>
+</html>

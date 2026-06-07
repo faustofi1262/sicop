@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Informe de Verificación - Catálogo Electrónico</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #fff; padding: 40px; }
+        .recuadro {
+            border: 2px solid #003366;
+            padding: 30px;
+            border-radius: 10px;
+        }
+        h4, h5 { color: #003366; text-align: center; }
+        .subtitulo { font-weight: bold; margin-top: 20px; color: #003366; }
+        .firmas div { text-align: center; margin-top: 60px; }
+        .firmas p { margin: 2px 0; }
+        .nota {
+            border: 1px dashed #555; background: #f9f9f9; padding: 15px;
+            font-size: 0.9rem; margin-top: 30px;
+        }
+        @media print {
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="recuadro">
+        <h4>UNIVERSIDAD TÉCNICA DE MACHALA</h4>
+        <h5>UNIDAD DE CONTRATACIÓN PÚBLICA</h5>
+        <hr>
+
+        <p class="text-right"><strong>Fecha:</strong> {{ fecha }}</p>
+        <p class="text-right"><strong>Código:</strong> REP-CATE-UTMACH-2025-{{ "%03d"|format(tarea_id) }}</p>
+
+        <h5 class="mt-4">INFORME DE REVISIÓN SOBRE EL USO DE CATÁLOGO ELECTRÓNICO</h5>
+
+        <p class="subtitulo">Datos Generales</p>
+        <p><strong>Unidad Requirente:</strong> {{ unidad_solicitante }}</p>
+        <p><strong>Funcionario Encargado:</strong> {{ funcionario_encargado }}</p>
+        <p><strong>Objeto de la Contratación:</strong> {{ objeto_contratacion }}</p>
+
+        <p class="subtitulo">Análisis</p>
+        <p>Según la información registrada, se verifica si el bien o servicio requerido se encuentra disponible en el Catálogo Electrónico del SERCOP.</p>
+
+        <p><strong>Resultado:</strong>
+            {% if consta_catalogo_electronico %}
+                ✅ El bien/servicio <strong>consta</strong> en el catálogo electrónico.
+            {% else %}
+                ❌ El bien/servicio <strong>NO consta</strong> en el catálogo electrónico.
+            {% endif %}
+        </p>
+
+        <div class="nota">
+            <strong>Nota:</strong> El presente informe se emite con base en la revisión documental y registros disponibles, no comprometiendo responsabilidad sobre aspectos técnicos o legales ajenos al análisis de disponibilidad en el Catálogo Electrónico del SERCOP.
+        </div>
+
+        <div class="firmas row">
+            <div class="col-md-6">
+                <p>--------------------------------------------</p>
+                <p><strong>{{ funcionario_encargado }}</strong></p>
+                <p>Elaborado por</p>
+            </div>
+            <div class="col-md-6">
+                <p>--------------------------------------------</p>
+                <p><strong>{{ nombre_jefe_compras }}</strong></p>
+                <p>Jefe de Contratación Pública</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="no-print text-center mt-4">
+        <a href="/admin/tareas" class="btn btn-secondary">⬅️ Volver</a>
+        <button onclick="window.print()" class="btn btn-primary">🖨️ Imprimir PDF</button>
+    </div>
+</body>
+</html>

@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4><b>LISTADO DE TAREAS</b></h4>
+
+    <div>
+        <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-secondary me-2">
+            <strong>⬅️ VOLVER AL PANEL</strong>
+        </a>
+
+        <a href="{{ url_for('main.tareas_nueva') }}" class="btn btn-primary">
+           <strong>➕ NUEVA TAREA</strong>
+        </a>
+    </div>
+</div>
+
+    <form method="get" class="row mb-3">
+    <div class="col-md-4">
+        <input type="text"
+               name="memo"
+               class="form-control"
+               placeholder="🔍 Buscar por Código de Proceso"
+               value="{{ request.args.get('memo','') }}">
+    </div>
+
+    <div class="col-md-4">
+        <input type="text"
+               name="unidad"
+               class="form-control"
+               placeholder="🏢 Buscar por Unidad"
+               value="{{ request.args.get('unidad','') }}">
+    </div>
+
+    <div class="col-md-4">
+        <input type="text"
+               name="funcionario"
+               class="form-control"
+               placeholder="👤 Buscar por Funcionario Asignado"
+               value="{{ request.args.get('funcionario','') }}">
+    </div>
+
+    <div class="col-md-12 mt-2">
+        <button class="btn btn-secondary btn-sm">
+            <b>🔎 FILTRAR</b>
+        </button>
+    </div>
+</form>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Código Proceso</th>
+                <th>Objeto de Contratación</th>
+                <th>Tipo Proceso</th>
+                <th>Estado</th>
+                <th>Fecha Recepción</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for t in tareas %}
+            <tr>
+                <td>{{ t[0] }}</td>
+                <td>{{ t[1] }}</td>
+                <td>{{ t[2] }}</td>
+                <td>{{ t[3] }}</td>
+                <td>{{ t[4] }}</td>
+                <td>{{ t[5] }}</td>
+                <td>
+        <a href="{{ url_for('main.tareas_editar', id=t[0]) }}"
+            class="btn btn-sm btn-warning">
+            ✏️ Editar
+        </a>
+
+        <a href="#"
+            class="btn btn-sm btn-danger">
+            <form action="{{ url_for('main.tareas_eliminar', id=t[0]) }}"
+            method="post"
+            style="display:inline;"
+            onsubmit="return confirm('¿Seguro que deseas eliminar esta tarea?');">
+
+            <button type="submit" class="btn btn-sm btn-danger">
+                🗑️ Eliminar
+            </button>
+            </form>
+          </a>
+            <a href="{{ url_for('main.informe_verificacion', id_tarea=t[0]) }}"
+                class="btn btn-sm btn-info">
+                📄 Informe Verificación
+            </a>
+            </td>
+        </tr>
+        {% else %}
+            <tr>
+                <td colspan="7" class="text-center text-muted">
+                    No existen tareas registradas
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}

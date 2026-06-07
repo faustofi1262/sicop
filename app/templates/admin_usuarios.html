@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Usuarios - SICOP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-5">
+    <h2 class="mb-4">👥 Gestión de Usuarios</h2>
+
+    <!-- 🔽 AQUÍ VA EL BOTÓN -->
+    <a href="/admin/usuarios/nuevo" class="btn btn-success mb-3">
+        ➕ Crear Usuario
+    
+    </a>
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Rol</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+    {% for u in usuarios %}
+    <tr>
+        <td>{{ u.id }}</td>
+        <td>{{ u.usuario }}</td>
+        <td>{{ u.nombre }}</td>
+        <td>{{ u.correo }}</td>
+        <td>{{ u.rol }}</td>
+        <td>
+            {% if u.id != session["user_id"] %}
+                <form method="POST"
+                      action="/admin/usuarios/eliminar/{{ u.id }}"
+                      style="display:inline;">
+                    <button type="submit"
+                            class="btn btn-danger btn-sm"
+                            onclick="return confirm('¿Seguro que deseas eliminar este usuario?');">
+                        🗑 Eliminar
+                    </button>
+                </form>
+
+                <a href="/admin/usuarios/editar/{{ u.id }}"
+                   class="btn btn-warning btn-sm">
+                    ✏️ Editar rol
+                </a>
+            {% else %}
+                <span class="text-muted">—</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+
+    </table>
+
+    <a href="/admin" class="btn btn-secondary mt-3">⬅ Volver al Panel</a>
+</div>
+
+</body>
+</html>

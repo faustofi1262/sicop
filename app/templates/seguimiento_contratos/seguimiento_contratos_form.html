@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+.form-page {
+    max-width: 1150px;
+    margin: 30px auto;
+}
+
+.form-title {
+    font-size: 34px;
+    font-weight: 700;
+    margin-bottom: 25px;
+}
+
+.card-sicop {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #d9dee7;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    margin-bottom: 22px;
+}
+
+.card-sicop-header {
+    padding: 14px 20px;
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    border-radius: 12px 12px 0 0;
+}
+
+.bg-blue { background: #0d6efd; }
+.bg-green { background: #198754; }
+.bg-gray { background: #6c757d; }
+
+.card-sicop-body {
+    padding: 22px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 28px;
+}
+
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cfd6df;
+    border-radius: 7px;
+    font-size: 15px;
+}
+
+.full-width {
+    grid-column: 1 / 3;
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 25px;
+}
+
+.btn-sicop {
+    border: none;
+    border-radius: 7px;
+    padding: 11px 22px;
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn-back {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-save {
+    background: #198754;
+    color: white;
+}
+</style>
+
+<div class="form-page">
+
+    <div class="form-title">➕ Nuevo Contrato</div>
+
+    <form method="POST" action="{{ url_for('main.seguimiento_contratos_guardar') }}">
+
+        <div class="card-sicop">
+            <div class="card-sicop-header bg-blue">
+                📋 Datos del Proceso
+            </div>
+
+            <div class="card-sicop-body">
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label>Código del Proceso</label>
+                        <input type="text" name="codigo_proceso" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tipo de Procedimiento</label>
+
+                        <select name="tipo_procedimiento"
+                                class="form-control">
+
+                            <option value="">
+                                -- Seleccione --
+                            </option>
+
+                            {% for tp in tipos_proceso %}
+                            <option value="{{ tp[1] }}">
+                                {{ tp[1] }}
+                            </option>
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Objeto de Contratación</label>
+                        <textarea name="objeto_contratacion" class="form-control" rows="3" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Unidad Requirente</label>
+
+                        <select name="unidad_requirente"
+                                class="form-control">
+
+                            <option value="">
+                                -- Seleccione --
+                            </option>
+
+                            {% for u in unidades %}
+                            <option value="{{ u[1] }}">
+                                {{ u[1] }}
+                            </option>
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select name="estado" class="form-control">
+                            <option value="EN EJECUCION">EN EJECUCIÓN</option>
+                            <option value="POR VENCER">POR VENCER</option>
+                            <option value="FINALIZADO">FINALIZADO</option>
+                            <option value="CON RETRASO">CON RETRASO</option>
+                            <option value="PENDIENTE DE CONTRATO">PENDIENTE DE CONTRATO</option>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="card-sicop">
+            <div class="card-sicop-header bg-green">
+                👤 Datos Contractuales
+            </div>
+
+            <div class="card-sicop-body">
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label>Número de Contrato</label>
+                        <input type="text" name="numero_contrato" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Monto Contractual</label>
+                        <input type="number" step="0.01" name="monto_contractual" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Proveedor</label>
+                        <input type="text" name="proveedor" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label>RUC</label>
+                        <input type="text" name="ruc" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fecha de Suscripción</label>
+                        <input type="date"
+                            name="fecha_inicio"
+                            id="fecha_inicio"
+                            class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fecha Inicio</label>
+                        <input type="date" name="fecha_inicio" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Plazo Contractual (días)</label>
+                        <input type="number"
+                            name="plazo_contractual"
+                            id="plazo_contractual"
+                            class="form-control"
+                            min="1">
+                    </div>>
+
+                    <div class="form-group">
+                        <label>Fecha Fin Estimada</label>
+                        <input type="date"
+                            name="fecha_fin_estimada"
+                            id="fecha_fin_estimada"
+                            class="form-control"
+                            readonly>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="card-sicop">
+            <div class="card-sicop-header bg-gray">
+                👨‍💼 Administrador del Contrato
+            </div>
+
+            <div class="card-sicop-body">
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label>Administrador del Contrato</label>
+                        <input type="text" name="administrador_contrato" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Correo del Administrador</label>
+                        <input type="email" name="correo_administrador" class="form-control">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Observaciones</label>
+                        <textarea name="observaciones" class="form-control" rows="3"></textarea>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <a href="{{ url_for('main.seguimiento_contratos') }}" class="btn-sicop btn-back">
+                ⬅ Volver
+            </a>
+
+            <button type="submit" class="btn-sicop btn-save">
+                💾 Guardar Contrato
+            </button>
+        </div>
+
+    </form>
+
+</div>
+<script>
+    function calcularFechaFinEstimada() {
+        const fechaInicio = document.getElementById("fecha_inicio").value;
+        const plazo = parseInt(document.getElementById("plazo_contractual").value);
+
+        if (!fechaInicio || isNaN(plazo)) {
+            document.getElementById("fecha_fin_estimada").value = "";
+            return;
+        }
+
+        const fecha = new Date(fechaInicio + "T00:00:00");
+        fecha.setDate(fecha.getDate() + plazo);
+
+        const yyyy = fecha.getFullYear();
+        const mm = String(fecha.getMonth() + 1).padStart(2, "0");
+        const dd = String(fecha.getDate()).padStart(2, "0");
+
+        document.getElementById("fecha_fin_estimada").value = `${yyyy}-${mm}-${dd}`;
+    }
+
+    document.getElementById("fecha_inicio").addEventListener("change", calcularFechaFinEstimada);
+    document.getElementById("plazo_contractual").addEventListener("input", calcularFechaFinEstimada);
+</script>
+{% endblock %}

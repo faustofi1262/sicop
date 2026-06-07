@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Usuario - SICOP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-5">
+    <h2>➕ Crear Usuario</h2>
+
+    <form method="POST">
+        <div class="form-group">
+            <label>Usuario</label>
+            <input type="text" name="usuario" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label>Nombre completo</label>
+            <input type="text" name="nombre" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label>Correo</label>
+            <input type="email" name="correo" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label>Contraseña</label>
+            <input type="password" name="password" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+            <label>Rol</label>
+            <select name="rol" class="form-control" required>
+                <option value="Administrador">Administrador</option>
+                <option value="Analista">Analista</option>
+                <option value="Usuario">Usuario</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a href="/admin/usuarios" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,31 @@
+body {
+  background-color: rgba(255, 255, 255, 0.785) !important;
+}
+body.bg-light {
+  background-color: #4f5767 !important;
+}
+
+.card {
+  border-left: 5px solid #0B5ED7;
+}
+
+.section-title {
+  color: #287af4;
+  border-bottom: 1px solid #1156e0;
+  padding-bottom: 4px;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+hr {
+  border-top: 1px solid #031943;
+}
+
+.form-control:focus {
+  border-color: #0B5ED7;
+  box-shadow: 0 0 0 0.15rem rgba(13,110,253,.25);
+}
+.form-control[readonly] {
+  background-color: #fff !important;
+  opacity: 1 !important;
+}

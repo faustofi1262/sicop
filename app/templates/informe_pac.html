@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Informe de Certificación PAC</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #fff;
+            padding: 40px;
+            font-size: 14px;
+        }
+        .marco {
+            border: 2px solid #003366;
+            padding: 30px;
+            border-radius: 10px;
+        }
+        .titulo {
+            color: #003366;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+        .firma {
+            margin-top: 60px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .imagen-pac {
+            max-width: 100%;
+            border: 1px solid #ccc;
+            margin-top: 15px;
+        }
+        .leyenda {
+            background-color: #f9f9f9;
+            border-left: 5px solid #003366;
+            padding: 15px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="marco">
+        <h4 class="titulo">Informe de Certificación PAC</h4>
+
+        <p><strong>Unidad Solicitante:</strong> {{ unidad_solicitante }}</p>
+        <p><strong>Objeto de Contratación:</strong> {{ objeto_contratacion }}</p>
+        <p><strong>Presupuesto Referencial:</strong> ${{ valor_sin_iva }}</p>
+        <p><strong>Código del Proceso:</strong> {{ codigo_proceso }}</p>
+        <p><strong>Fecha de Emisión:</strong> {{ fecha }}</p>
+
+        <div class="leyenda">
+            <p>
+                De acuerdo a lo que establece el artículo 45 del Reglamento General de la Ley Orgánica del Sistema Nacional de Contratación Pública esta unidad, una vez que ha procedido a realizar la revisión del expediente; se <strong>CONSTATA</strong> que según el objeto de contratación “<strong>{{ objeto_contratacion }}</strong>” se encuentra debidamente publicada en el Portal COMPRAS PÚBLICAS de acuerdo a lo detallado en el Plan Anual de Contratación, como se puede apreciar en la siguiente imagen:
+            </p>
+        </div>
+
+        {% if imagen_pac %}
+            <img src="{{ url_for('static', filename='imagenes_pac/' ~ imagen_pac) }}" class="imagen-pac" alt="Captura PAC">
+        {% else %}
+            <p class="text-muted">No se ha subido imagen del PAC.</p>
+        {% endif %}
+
+        <div class="firma">
+            <p>__________________________________</p>
+            <p>Responsable UCP</p>
+        </div>
+
+        <div class="text-right mt-4">
+            <a href="/informe/pac/pdf/{{ tarea_id }}" class="btn btn-outline-primary">🖨 Imprimir PDF</a>
+        </div>
+    </div>
+</body>
+</html>

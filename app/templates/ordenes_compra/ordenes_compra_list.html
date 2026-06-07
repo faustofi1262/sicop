@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4><b>Listado de Órdenes de Compra</b></h4>
+
+        <div>
+            <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-secondary">
+               <strong>⬅️ VOLVER AL PANEL</strong> 
+            </a>
+            <a href="{{ url_for('main.ordenes_compra_nueva') }}" class="btn btn-primary">
+                </strong>➕ NUEVA ORDEN DE COMPRA</strong>
+            </a>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Número OC</th>
+                <th>Fecha</th>
+                <th>Proveedor</th>
+                <th>Total</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for o in ordenes %}
+            <tr>
+                <td>{{ o[0] }}</td>
+                <td>{{ o[1] }}</td>
+                <td>{{ o[2] }}</td>
+                <td>{{ o[3] }}</td>
+                <td>${{ o[4] }}</td>
+                <td>
+                    <a href="{{ url_for('main.ordenes_compra_editar', id=o[0]) }}"
+                        class="btn btn-sm btn-warning">
+                        ✏️
+                        </a>
+                     <!-- ELIMINAR -->
+                <form method="POST"
+                    action="{{ url_for('main.ordenes_compra_eliminar', id=o[0]) }}"
+                    style="display:inline;"
+                    onsubmit="return confirm('¿Seguro que deseas eliminar esta Orden de Compra?');">
+
+                    <button type="submit" class="btn btn-sm btn-danger">
+                        🗑️
+                    </button>
+
+                </form>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6" class="text-center text-muted">
+                    No existen órdenes de compra registradas
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}

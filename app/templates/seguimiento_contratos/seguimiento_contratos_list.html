@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+<h3>📋 Seguimiento de Contratos</h3>
+
+<a href="{{ url_for('main.seguimiento_contratos_nuevo') }}"
+   class="btn btn-primary mb-3">
+   ➕ Nuevo Contrato
+</a>
+
+<table class="table table-bordered">
+
+<thead>
+<tr>
+    <th>Proceso</th>
+    <th style="width:40%">Objeto de Contratación</th>
+    <th>Contrato</th>
+    <th>Administrador</th>
+    <th class="text-center">Fecha Fin</th>
+    <th class="text-center">Estado</th>
+    <th>Acciones</th>
+   
+</tr>
+</thead>
+
+<tbody>
+
+{% for c in contratos %}
+<tr>
+    <td>{{ c[1] }}</td> <!-- Proceso -->
+    <td>{{ c[2] }}</td> <!-- Objeto -->
+    <td>{{ c[3] }}</td> <!-- Contrato -->
+    <td>{{ c[4] }}</td> <!-- Administrador -->
+    <td class="text-center">{{ c[5] }}</td>
+    <td class="text-center">{{ c[6] }}</td>
+    <td class="text-center">
+    <td class="text-center">
+        <a href="{{ url_for('main.seguimiento_contratos_detalle', contrato_id=c[0]) }}"
+        class="btn btn-sm btn-info">
+            📋 Seguimiento
+        </a>
+    </td>
+    </td>
+</tr>
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+{% endblock %}

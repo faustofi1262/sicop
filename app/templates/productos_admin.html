@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Productos</title>
+    <style>
+        body { font-family: Arial; background-color: #f4f8fc; padding: 20px; }
+        h2 { color: #003366; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
+        th, td { padding: 10px; border: 1px solid #ccc; text-align: center; }
+        th { background-color: #003366; color: #fff; }
+        form { background: #fff; padding: 20px; margin-top: 30px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        input, button { padding: 10px; margin: 8px 0; width: 100%; }
+        button { background-color: #003366; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+        button:hover { background-color: #002244; }
+    </style>
+</head>
+<body>
+    <h2>Gestión de Productos</h2>
+
+    <form method="POST">
+        <label>Descripción:</label>
+        <input type="text" name="descripcion" required>
+        <label>Unidad:</label>
+        <input type="text" name="unidad" required>
+        <label>Cantidad:</label>
+        <input type="number" name="cantidad" required min="1">
+        <label>Valor Unitario:</label>
+        <input type="number" step="0.01" name="valor_uni" required min="0">
+        <button type="submit">Registrar Producto</button>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Descripción</th>
+                <th>Unidad</th>
+                <th>Cantidad</th>
+                <th>Valor Unitario</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in productos %}
+                <tr>
+                    <td>{{ p[0] }}</td>
+                    <td>{{ p[1] }}</td>
+                    <td>{{ p[2] }}</td>
+                    <td>{{ p[3] }}</td>
+                    <td>${{ '%.2f'|format(p[4]) }}</td>
+                    <td><strong>${{ '%.2f'|format(p[5]) }}</strong></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ingreso al Sistema SICOP</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #003366, #0059b3);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .login-card {
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .login-card h3 {
+            text-align: center;
+            color: #003366;
+            margin-bottom: 25px;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background-color: #003366;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #002244;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <h3>Ingreso al Sistema SICOP</h3>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="/login" autocomplete="off">
+        <div class="form-group">
+            <label>Usuario </label>
+            <input type="text" name="usuario" class="form-control" required autocomplete="off">
+        </div>
+
+        <div class="form-group">
+            <label>Contraseña</label>
+            <input type="password" name="password" class="form-control" required autocomplete="new-password">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">
+            Ingresar
+        </button>
+    </form>
+</div>
+
+</body>
+</html>
+

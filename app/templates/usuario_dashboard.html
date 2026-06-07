@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Usuario - SICOP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-5">
+    <div class="card p-4 shadow">
+        <h2 class="text-center mb-3">👤 Panel del Usuario</h2>
+        <p class="text-center">Bienvenido, {{ nombre }}</p>
+
+        <div class="mt-4">
+            <a href="#" class="btn btn-info btn-block">📄 Consultar Información</a>
+            <a href="#" class="btn btn-secondary btn-block">📊 Ver Reportes</a>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="/logout" class="btn btn-outline-danger">🔓 Cerrar sesión</a>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
