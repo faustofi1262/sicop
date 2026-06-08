@@ -2,150 +2,461 @@
 
 {% block content %}
 
-<style>
-.detalle-page {
-    max-width: 1200px;
-    margin: 30px auto;
-}
+<div class="container mt-4">
 
-.card-sicop {
-    background: #fff;
-    border: 1px solid #d9dee7;
-    border-radius: 12px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-    margin-bottom: 22px;
-}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h3 class="mb-1">📁 Expediente del Contrato</h3>
+            <p class="text-muted mb-0">Detalle, seguimientos y gestión documental del contrato</p>
+        </div>
 
-.card-header-sicop {
-    padding: 14px 20px;
-    background: #0d6efd;
-    color: white;
-    font-weight: 700;
-    border-radius: 12px 12px 0 0;
-}
-
-.card-body-sicop {
-    padding: 20px;
-}
-
-.info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px 25px;
-}
-
-.label {
-    font-weight: 700;
-}
-
-.acciones {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-}
-
-.btn-sicop {
-    text-decoration: none;
-    padding: 10px 16px;
-    border-radius: 7px;
-    color: white;
-}
-
-.btn-back { background: #6c757d; }
-.btn-new { background: #198754; }
-
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-}
-
-.table th,
-.table td {
-    border: 1px solid #d9dee7;
-    padding: 10px;
-    vertical-align: top;
-}
-
-.table th {
-    background: #f1f3f5;
-}
-</style>
-
-<div class="detalle-page">
-
-    <h2>📋 Seguimientos del Contrato</h2>
-
-    <div class="acciones">
-        <a href="{{ url_for('main.seguimiento_contratos') }}" class="btn-sicop btn-back">
+        <a href="{{ url_for('main.seguimiento_contratos') }}" class="btn btn-secondary">
             ⬅ Volver
-        </a>
-
-        <a href="{{ url_for('main.seguimiento_nuevo', contrato_id=contrato[0]) }}"
-        class="btn-sicop btn-new">
-            ➕ Nuevo Seguimiento
         </a>
     </div>
 
-    <div class="card-sicop">
-        <div class="card-header-sicop">
-            Información del Contrato
+    <!-- CARD PRINCIPAL -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <strong>{{ contrato[1] }}</strong> — {{ contrato[3] }}
         </div>
 
-        <div class="card-body-sicop">
-            <div class="info-grid">
-                <div><span class="label">Proceso:</span> {{ contrato[1] }}</div>
-                <div><span class="label">Contrato:</span> {{ contrato[3] }}</div>
-                <div><span class="label">Objeto:</span> {{ contrato[2] }}</div>
-                <div><span class="label">Administrador:</span> {{ contrato[4] }}</div>
-                <div><span class="label">Fecha Fin:</span> {{ contrato[5] }}</div>
-                <div><span class="label">Estado:</span> {{ contrato[6] }}</div>
+        <div class="card-body">
+
+            <div class="row mb-3">
+                <div class="col-md-8">
+                    <h5 class="text-primary">Objeto contractual</h5>
+                    <p class="border rounded p-3 bg-light">
+                        {{ contrato[2] }}
+                    </p>
+                </div>
+
+                <div class="col-md-4">
+                    <h5 class="text-primary">Estado</h5>
+                    <span class="badge 
+                        {% if contrato[15] == 'Vigente' %} bg-success
+                        {% elif contrato[15] == 'Por vencer' %} bg-warning text-dark
+                        {% elif contrato[15] == 'Finalizado' %} bg-secondary
+                        {% else %} bg-info
+                        {% endif %}
+                        fs-6">
+                        {{ contrato[15] }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                    <div class="info-box">
+                        <label>Código del proceso</label>
+                        <div>{{ contrato[1] }}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="info-box">
+                        <label>Número de contrato</label>
+                        <div>{{ contrato[3] }}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="info-box">
+                        <label>Tipo de procedimiento</label>
+                        <div>{{ contrato[14] }}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="info-box">
+                        <label>Proveedor</label>
+                        <div>{{ contrato[4] }}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="info-box">
+                        <label>RUC</label>
+                        <div>{{ contrato[5] }}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="info-box">
+                        <label>Monto contractual</label>
+                        <div>$ {{ contrato[12] }}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="info-box">
+                        <label>Unidad requirente</label>
+                        <div>{{ contrato[13] }}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="info-box">
+                        <label>Administrador del contrato</label>
+                        <div>{{ contrato[6] }}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="info-box">
+                        <label>Correo administrador</label>
+                        <div>{{ contrato[7] }}</div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FECHAS -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-dark text-white">
+            📅 Fechas y plazo contractual
+        </div>
+
+        <div class="card-body">
+            <div class="row g-3">
+
+                <div class="col-md-3">
+                    <div class="info-box">
+                        <label>Fecha suscripción</label>
+                        <div>{{ contrato[8] }}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="info-box">
+                        <label>Fecha inicio</label>
+                        <div>{{ contrato[9] }}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="info-box">
+                        <label>Fecha fin estimada</label>
+                        <div>{{ contrato[10] }}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="info-box">
+                        <label>Plazo contractual</label>
+                        <div>{{ contrato[11] }} días</div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
 
-    <div class="card-sicop">
-        <div class="card-header-sicop">
-            Historial de Seguimientos
+    <!-- ACCIONES -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+            <strong>Acciones del expediente</strong>
         </div>
 
-        <div class="card-body-sicop">
+        <div class="card-body d-flex flex-wrap gap-2">
+             
+            <a href="{{ url_for('main.memorando_nuevo', contrato_id=contrato[0]) }}" class="btn btn-outline-primary">
+                📄 Registrar memorando
+            </a>
+                      
+            <a href="{{ url_for('main.seguimiento_nuevo', contrato_id=contrato[0]) }}" class="btn btn-primary">
+                ➕ Registrar seguimiento
+            </a>
+         
+            <a href="{{ url_for('main.comunicacion_nueva', contrato_id=contrato[0]) }}"
+            class="btn btn-outline-success">
+            📧 Registrar correo / reunión
+            </a>
+            <a href="{{ url_for('main.informe_nuevo', contrato_id=contrato[0]) }}"
+            class="btn btn-outline-warning">
+            📑 Registrar informe
+            </a>
+            <a href="{{ url_for('main.expediente_contrato',
+                                contrato_id=contrato[0]) }}"
+            class="btn btn-outline-dark">
+                📚 Ver expediente electrónico
+            </a>
 
-            <table class="table">
-                <thead>
+        </div>
+    </div>
+
+    <!-- OBSERVACIONES -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+            <strong>Observaciones generales</strong>
+        </div>
+
+        <div class="card-body">
+            <p class="mb-0">
+                {{ contrato[16] if contrato[16] else 'Sin observaciones registradas.' }}
+            </p>
+        </div>
+    </div>
+    <!-- MEMORANDOS -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+        📄 Memorandos registrados
+    </div>
+
+    <div class="card-body">
+
+        {% if memorandos %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light">
                     <tr>
                         <th>Fecha</th>
-                        <th>Tipo de Gestión</th>
+                        <th>N° Memorando</th>
+                        <th>Asunto</th>
                         <th>Descripción</th>
-                        <th>Compromiso</th>
-                        <th>Fecha Compromiso</th>
-                        <th>Estado</th>
+                        <th>PDF</th>
                     </tr>
                 </thead>
 
                 <tbody>
-                    {% for s in seguimientos %}
+                    {% for m in memorandos %}
                     <tr>
-                        <td>{{ s[1] }}</td>
-                        <td>{{ s[2] }}</td>
-                        <td>{{ s[3] }}</td>
-                        <td>{{ s[4] }}</td>
-                        <td>{{ s[5] }}</td>
-                        <td>{{ s[6] }}</td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="6" class="text-center">
-                            No existen seguimientos registrados para este contrato.
+                        <td>{{ m[2] }}</td>
+                        <td>{{ m[1] }}</td>
+                        <td>{{ m[3] }}</td>
+                        <td>{{ m[4] }}</td>
+                        <td>
+                            {% if m[5] %}
+                            <a href="{{ url_for('static', filename='uploads/memorandos/' ~ m[5]) }}"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-danger">
+                                👁 Ver PDF
+                            </a>
+                            {% else %}
+                            <span class="text-muted">Sin PDF</span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+        {% else %}
+            <div class="alert alert-warning mb-0">
+                No existen memorandos registrados para este contrato.
+            </div>
+        {% endif %}
+
+    </div>
+    <!-- COMUNICACIONES -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-success text-white">
+        📧 Comunicaciones registradas
+    </div>
+
+    <div class="card-body">
+
+        {% if comunicaciones %}
+        <div class="table-responsive">
+
+            <table class="table table-bordered table-hover">
+
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Asunto</th>
+                        <th>Participantes</th>
+                        <th>PDF</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for c in comunicaciones %}
+                    <tr>
+
+                        <td>{{ c[2] }}</td>
+
+                        <td>{{ c[1] }}</td>
+
+                        <td>{{ c[3] }}</td>
+
+                        <td>{{ c[4] }}</td>
+
+                        <td>
+
+                            {% if c[6] %}
+
+                            <a href="{{ url_for('static', filename='uploads/comunicaciones/' ~ c[6]) }}"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-success">
+
+                                👁 Ver PDF
+
+                            </a>
+
+                            {% else %}
+
+                            <span class="text-muted">
+                                Sin PDF
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="alert alert-warning mb-0">
+            No existen comunicaciones registradas para este contrato.
+        </div>
+
+        {% endif %}
+
+    </div>
+</div>
+<!-- INFORMES -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-warning text-dark">
+        📑 Informes registrados
+    </div>
+
+    <div class="card-body">
+
+        {% if informes %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Número</th>
+                        <th>Asunto</th>
+                        <th>PDF</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for i in informes %}
+                    <tr>
+                        <td>{{ i[3] }}</td>
+                        <td>{{ i[1] }}</td>
+                        <td>{{ i[2] }}</td>
+                        <td>{{ i[4] }}</td>
+                        <td>
+                            {% if i[6] %}
+                            <a href="{{ url_for('static', filename='uploads/informes/' ~ i[6]) }}"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-warning">
+                                👁 Ver PDF
+                            </a>
+                            {% else %}
+                            <span class="text-muted">Sin PDF</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-warning mb-0">
+            No existen informes registrados para este contrato.
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+</div>
+    <!-- HISTORIAL -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            📌 Historial de seguimientos
+        </div>
+
+        <div class="card-body">
+
+            {% if seguimientos %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Tipo gestión</th>
+                            <th>Descripción</th>
+                            <th>Compromiso</th>
+                            <th>Fecha compromiso</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for s in seguimientos %}
+                        <tr>
+                            <td>{{ s[1] }}</td>
+                            <td>{{ s[2] }}</td>
+                            <td>{{ s[3] }}</td>
+                            <td>{{ s[4] }}</td>
+                            <td>{{ s[5] }}</td>
+                            <td>
+                                <span class="badge bg-info">
+                                    {{ s[6] }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+                <div class="alert alert-warning mb-0">
+                    No existen seguimientos registrados para este contrato.
+                </div>
+            {% endif %}
 
         </div>
     </div>
 
 </div>
+
+<style>
+    .info-box {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 12px;
+        min-height: 72px;
+    }
+
+    .info-box label {
+        display: block;
+        font-size: 12px;
+        color: #6c757d;
+        font-weight: 600;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+    }
+
+    .info-box div {
+        font-size: 15px;
+        font-weight: 500;
+        color: #212529;
+    }
+</style>
 
 {% endblock %}

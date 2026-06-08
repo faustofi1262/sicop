@@ -3,7 +3,7 @@ import psycopg2
 import os
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
-from datetime import datetime
+from datetime import datetime, date
 from flask import render_template, abort
 from num2words import num2words
 from decimal import Decimal, ROUND_HALF_UP
@@ -1517,7 +1517,7 @@ def ordenes_compra_editar(id):
         productos=productos
     )
 # =========================
-# LISTAR SEGUIMIENTO CONTRATOS
+# LISTAR SEGUIMIENTO CONTRATOS CON ALERTAS
 # =========================
 @main.route("/seguimiento_contratos")
 @login_required()
@@ -1539,7 +1539,55 @@ def seguimiento_contratos():
         ORDER BY id DESC
     """)
 
-    contratos = cur.fetchall()
+    contratos_db = cur.fetchall()
+
+    contratos = []
+
+    hoy = date.today()
+
+    for c in contratos_db:
+
+        dias_restantes = None
+        alerta = "Sin fecha"
+        color_alerta = "secondary"
+
+        fecha_fin = c[5]
+
+        if fecha_fin:
+            dias_restantes = (fecha_fin - hoy).days
+
+            if dias_restantes < 0:
+                alerta = f"Vencido hace {abs(dias_restantes)} días"
+                color_alerta = "danger"
+
+            elif dias_restantes <= 5:
+                alerta = f"Vence en {dias_restantes} días"
+                color_alerta = "danger"
+
+            elif dias_restantes <= 15:
+                alerta = f"Vence en {dias_restantes} días"
+                color_alerta = "warning"
+
+            elif dias_restantes <= 30:
+                alerta = f"Vence en {dias_restantes} días"
+                color_alerta = "info"
+
+            else:
+                alerta = f"Vence en {dias_restantes} días"
+                color_alerta = "success"
+
+        contratos.append({
+            "id": c[0],
+            "codigo_proceso": c[1],
+            "objeto_contratacion": c[2],
+            "numero_contrato": c[3],
+            "administrador_contrato": c[4],
+            "fecha_fin_estimada": c[5],
+            "estado": c[6],
+            "dias_restantes": dias_restantes,
+            "alerta": alerta,
+            "color_alerta": color_alerta
+        })
 
     cur.close()
     conn.close()
@@ -1548,6 +1596,120 @@ def seguimiento_contratos():
         "seguimiento_contratos/seguimiento_contratos_list.html",
         contratos=contratos
     )
+# =========================
+# DASHBOARD SEGUIMIENTO CONTRACTUAL
+# =========================
+@main.route("/seguimiento_contratos/dashboard")
+@login_required()
+def seguimiento_contratos_dashboard():
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            id,
+            codigo_proceso,
+            objeto_contratacion,
+            numero_contrato,
+            administrador_contrato,
+            fecha_fin_estimada,
+            estado
+        FROM seguimiento_contratos
+        ORDER BY fecha_fin_estimada ASC
+    """)
+
+    contratos_db = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    hoy = date.today()
+
+    total_contratos = len(contratos_db)
+    activos = 0
+    por_vencer_30 = 0
+    por_vencer_15 = 0
+    por_vencer_5 = 0
+    vencidos = 0
+    finalizados = 0
+
+    contratos_alerta = []
+
+    for c in contratos_db:
+
+        estado = (c[6] or "").upper()
+        fecha_fin = c[5]
+
+        dias_restantes = None
+        alerta = "Sin fecha"
+        color_alerta = "secondary"
+
+        if estado == "FINALIZADO":
+            finalizados += 1
+        else:
+            activos += 1
+
+        if fecha_fin:
+
+            dias_restantes = (fecha_fin - hoy).days
+
+            if dias_restantes < 0 and estado != "FINALIZADO":
+                vencidos += 1
+                alerta = f"Vencido hace {abs(dias_restantes)} días"
+                color_alerta = "danger"
+
+            elif dias_restantes <= 5 and estado != "FINALIZADO":
+                por_vencer_5 += 1
+                por_vencer_15 += 1
+                por_vencer_30 += 1
+                alerta = f"Vence en {dias_restantes} días"
+                color_alerta = "danger"
+
+            elif dias_restantes <= 15 and estado != "FINALIZADO":
+                por_vencer_15 += 1
+                por_vencer_30 += 1
+                alerta = f"Vence en {dias_restantes} días"
+                color_alerta = "warning"
+
+            elif dias_restantes <= 30 and estado != "FINALIZADO":
+                por_vencer_30 += 1
+                alerta = f"Vence en {dias_restantes} días"
+                color_alerta = "info"
+
+            else:
+                alerta = f"Vence en {dias_restantes} días"
+                color_alerta = "success"
+
+        if estado != "FINALIZADO" and (
+            dias_restantes is not None and dias_restantes <= 30
+        ):
+            contratos_alerta.append({
+                "id": c[0],
+                "codigo_proceso": c[1],
+                "objeto_contratacion": c[2],
+                "numero_contrato": c[3],
+                "administrador_contrato": c[4],
+                "fecha_fin_estimada": c[5],
+                "estado": c[6],
+                "dias_restantes": dias_restantes,
+                "alerta": alerta,
+                "color_alerta": color_alerta
+            })
+
+    return render_template(
+        "seguimiento_contratos/dashboard_contratos.html",
+        total_contratos=total_contratos,
+        activos=activos,
+        por_vencer_30=por_vencer_30,
+        por_vencer_15=por_vencer_15,
+        por_vencer_5=por_vencer_5,
+        vencidos=vencidos,
+        finalizados=finalizados,
+        contratos_alerta=contratos_alerta
+    )
+
+
 # =========================
 # NUEVO CONTRATO
 # =========================
@@ -1670,7 +1832,7 @@ def seguimiento_contratos_guardar():
         cur.close()
         conn.close()
 # =========================
-# VER SEGUIMIENTOS DE CONTRATO
+# DETALLE PROFESIONAL DEL CONTRATO
 # =========================
 @main.route("/seguimiento_contratos/<int:contrato_id>/seguimientos")
 @login_required()
@@ -1681,18 +1843,27 @@ def seguimiento_contratos_detalle(contrato_id):
 
     cur.execute("""
         SELECT
-            id,
-            codigo_proceso,
-            objeto_contratacion,
-            numero_contrato,
-            administrador_contrato,
-            fecha_fin_estimada,
-            estado
-        FROM seguimiento_contratos
-        WHERE id = %s
+            sc.id,
+            sc.codigo_proceso,
+            sc.objeto_contratacion,
+            sc.numero_contrato,
+            sc.proveedor,
+            sc.ruc,
+            sc.administrador_contrato,
+            sc.correo_administrador,
+            sc.fecha_suscripcion,
+            sc.fecha_inicio,
+            sc.fecha_fin_estimada,
+            sc.plazo_contractual,
+            sc.monto_contractual,
+            sc.unidad_requirente,
+            sc.tipo_procedimiento,
+            sc.estado,
+            sc.observaciones
+        FROM seguimiento_contratos sc
+        WHERE sc.id = %s
     """, (contrato_id,))
     contrato = cur.fetchone()
-
     cur.execute("""
         SELECT
             id,
@@ -1708,13 +1879,68 @@ def seguimiento_contratos_detalle(contrato_id):
     """, (contrato_id,))
     seguimientos = cur.fetchall()
 
+    cur.execute("""
+        SELECT
+            id,
+            numero_memorando,
+            fecha_memorando,
+            asunto,
+            descripcion,
+            archivo_pdf,
+            fecha_registro
+        FROM contrato_memorandos
+        WHERE contrato_id = %s
+        ORDER BY fecha_memorando DESC, id DESC
+    """, (contrato_id,))
+
+    memorandos = cur.fetchall()
+
+    cur.execute("""
+        SELECT
+            id,
+            tipo_comunicacion,
+            fecha_comunicacion,
+            asunto,
+            participantes,
+            descripcion,
+            archivo_pdf
+        FROM contrato_comunicaciones
+        WHERE contrato_id = %s
+        ORDER BY fecha_comunicacion DESC, id DESC
+    """, (contrato_id,))
+
+    comunicaciones = cur.fetchall()
+
+
+    cur.execute("""
+        SELECT
+            id,
+            tipo_informe,
+            numero_informe,
+            fecha_informe,
+            asunto,
+            descripcion,
+            archivo_pdf
+        FROM contrato_informes
+        WHERE contrato_id = %s
+        ORDER BY fecha_informe DESC, id DESC
+    """, (contrato_id,))
+
+    informes = cur.fetchall()
+
     cur.close()
     conn.close()
 
+    if not contrato:
+        abort(404)
+   
     return render_template(
         "seguimiento_contratos/seguimiento_contratos_detalle.html",
         contrato=contrato,
-        seguimientos=seguimientos
+        seguimientos=seguimientos,
+        memorandos=memorandos,
+        comunicaciones=comunicaciones,
+        informes=informes
     )
 # =========================
 # NUEVO SEGUIMIENTO
@@ -1727,6 +1953,206 @@ def seguimiento_nuevo(contrato_id):
         "seguimiento_contratos/seguimiento_nuevo.html",
         contrato_id=contrato_id
     )
+# =========================
+# NUEVO MEMORANDO
+# =========================
+@main.route("/seguimiento_contratos/<int:contrato_id>/memorando/nuevo")
+@login_required()
+def memorando_nuevo(contrato_id):
+
+    return render_template(
+        "seguimiento_contratos/memorando_form.html",
+        contrato_id=contrato_id
+    )
+# =========================
+# NUEVA COMUNICACIÓN
+# =========================
+@main.route("/seguimiento_contratos/<int:contrato_id>/comunicacion/nueva")
+@login_required()
+def comunicacion_nueva(contrato_id):
+
+    return render_template(
+        "seguimiento_contratos/comunicacion_form.html",
+        contrato_id=contrato_id
+    )
+# =========================
+# NUEVO INFORME
+# =========================
+@main.route("/seguimiento_contratos/<int:contrato_id>/informe/nuevo")
+@login_required()
+def informe_nuevo(contrato_id):
+
+    return render_template(
+        "seguimiento_contratos/informe_form.html",
+        contrato_id=contrato_id
+    )
+
+
+# =========================
+# GUARDAR INFORME
+# =========================
+@main.route("/seguimiento_contratos/<int:contrato_id>/informe/guardar", methods=["POST"])
+@login_required()
+def informe_guardar(contrato_id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        archivo_pdf = None
+
+        if "archivo_pdf" in request.files:
+            archivo = request.files["archivo_pdf"]
+
+            if archivo.filename:
+                from werkzeug.utils import secure_filename
+
+                carpeta = os.path.join(
+                    "app",
+                    "static",
+                    "uploads",
+                    "informes"
+                )
+
+                os.makedirs(carpeta, exist_ok=True)
+
+                nombre_archivo = secure_filename(archivo.filename)
+
+                archivo.save(
+                    os.path.join(carpeta, nombre_archivo)
+                )
+
+                archivo_pdf = nombre_archivo
+
+        cur.execute("""
+            INSERT INTO contrato_informes (
+                contrato_id,
+                tipo_informe,
+                numero_informe,
+                fecha_informe,
+                asunto,
+                descripcion,
+                archivo_pdf
+            )
+            VALUES (%s,%s,%s,%s,%s,%s,%s)
+        """, (
+            contrato_id,
+            request.form.get("tipo_informe"),
+            request.form.get("numero_informe"),
+            request.form.get("fecha_informe"),
+            request.form.get("asunto"),
+            request.form.get("descripcion"),
+            archivo_pdf
+        ))
+
+        conn.commit()
+        flash("✅ Informe registrado correctamente", "success")
+
+        return redirect(
+            url_for(
+                "main.seguimiento_contratos_detalle",
+                contrato_id=contrato_id
+            )
+        )
+
+    except Exception as e:
+        conn.rollback()
+        flash(f"❌ Error al guardar informe: {e}", "danger")
+        return redirect(request.referrer)
+
+    finally:
+        cur.close()
+        conn.close()
+# =========================
+# GUARDAR MEMORANDO
+# =========================
+@main.route("/seguimiento_contratos/<int:contrato_id>/memorando/guardar", methods=["POST"])
+@login_required()
+def memorando_guardar(contrato_id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+
+        archivo_pdf = None
+
+        if "archivo_pdf" in request.files:
+            archivo = request.files["archivo_pdf"]
+
+            if archivo.filename:
+                from werkzeug.utils import secure_filename
+
+                carpeta = os.path.join(
+                    "app",
+                    "static",
+                    "uploads",
+                    "memorandos"
+                )
+
+                os.makedirs(carpeta, exist_ok=True)
+
+                nombre_archivo = secure_filename(
+                    archivo.filename
+                )
+
+                ruta_archivo = os.path.join(
+                    carpeta,
+                    nombre_archivo
+                )
+
+                archivo.save(ruta_archivo)
+
+                archivo_pdf = nombre_archivo
+
+        cur.execute("""
+            INSERT INTO contrato_memorandos (
+                contrato_id,
+                numero_memorando,
+                fecha_memorando,
+                asunto,
+                descripcion,
+                archivo_pdf
+            )
+            VALUES (%s,%s,%s,%s,%s,%s)
+        """, (
+            contrato_id,
+            request.form.get("numero_memorando"),
+            request.form.get("fecha_memorando"),
+            request.form.get("asunto"),
+            request.form.get("descripcion"),
+            archivo_pdf
+        ))
+
+        conn.commit()
+
+        flash(
+            "✅ Memorando registrado correctamente",
+            "success"
+        )
+
+        return redirect(
+            url_for(
+                "main.seguimiento_contratos_detalle",
+                contrato_id=contrato_id
+            )
+        )
+
+    except Exception as e:
+
+        conn.rollback()
+
+        flash(
+            f"❌ Error: {e}",
+            "danger"
+        )
+
+        return redirect(request.referrer)
+
+    finally:
+
+        cur.close()
+        conn.close()
 # =========================
 # GUARDAR SEGUIMIENTO
 # =========================
@@ -1774,7 +2200,102 @@ def seguimiento_guardar(contrato_id):
     finally:
         cur.close()
         conn.close()
-        
+
+# =========================
+# GUARDAR COMUNICACIÓN
+# =========================
+@main.route(
+    "/seguimiento_contratos/<int:contrato_id>/comunicacion/guardar",
+    methods=["POST"]
+)
+@login_required()
+def comunicacion_guardar(contrato_id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+
+        archivo_pdf = None
+
+        if "archivo_pdf" in request.files:
+
+            archivo = request.files["archivo_pdf"]
+
+            if archivo.filename:
+
+                from werkzeug.utils import secure_filename
+
+                carpeta = os.path.join(
+                    "app",
+                    "static",
+                    "uploads",
+                    "comunicaciones"
+                )
+
+                os.makedirs(carpeta, exist_ok=True)
+
+                nombre_archivo = secure_filename(
+                    archivo.filename
+                )
+
+                archivo.save(
+                    os.path.join(carpeta, nombre_archivo)
+                )
+
+                archivo_pdf = nombre_archivo
+
+        cur.execute("""
+            INSERT INTO contrato_comunicaciones (
+                contrato_id,
+                tipo_comunicacion,
+                fecha_comunicacion,
+                asunto,
+                participantes,
+                descripcion,
+                archivo_pdf
+            )
+            VALUES (%s,%s,%s,%s,%s,%s,%s)
+        """, (
+
+            contrato_id,
+            request.form.get("tipo_comunicacion"),
+            request.form.get("fecha_comunicacion"),
+            request.form.get("asunto"),
+            request.form.get("participantes"),
+            request.form.get("descripcion"),
+            archivo_pdf
+
+        ))
+
+        conn.commit()
+
+        flash(
+            "✅ Comunicación registrada correctamente",
+            "success"
+        )
+
+        return redirect(
+            url_for(
+                "main.seguimiento_contratos_detalle",
+                contrato_id=contrato_id
+            )
+        )
+
+    except Exception as e:
+
+        conn.rollback()
+
+        flash(f"❌ Error: {e}", "danger")
+
+        return redirect(request.referrer)
+
+    finally:
+
+        cur.close()
+        conn.close()
+
+
 # ================================
 # INFORME DE VERIFICACIÓN (AUTOMÁTICO)
 # ================================
@@ -1852,3 +2373,68 @@ def informe_verificacion(id_tarea):
 def logout():
     session.clear()
     return redirect(url_for("main.login_form"))
+# =========================
+# EXPEDIENTE ELECTRÓNICO
+# =========================
+@main.route("/seguimiento_contratos/<int:contrato_id>/expediente")
+@login_required()
+def expediente_contrato(contrato_id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    # CONTRATO
+    cur.execute("""
+        SELECT *
+        FROM seguimiento_contratos
+        WHERE id = %s
+    """, (contrato_id,))
+    contrato = cur.fetchone()
+    
+    # MEMORANDOS
+    cur.execute("""
+        SELECT *
+        FROM contrato_memorandos
+        WHERE contrato_id = %s
+        ORDER BY fecha_memorando DESC
+    """, (contrato_id,))
+    memorandos = cur.fetchall()
+   
+    # COMUNICACIONES
+    cur.execute("""
+        SELECT *
+        FROM contrato_comunicaciones
+        WHERE contrato_id = %s
+        ORDER BY fecha_comunicacion DESC
+    """, (contrato_id,))
+    comunicaciones = cur.fetchall()
+
+    # INFORMES
+    cur.execute("""
+        SELECT *
+        FROM contrato_informes
+        WHERE contrato_id = %s
+        ORDER BY fecha_informe DESC
+    """, (contrato_id,))
+    informes = cur.fetchall()
+
+    # SEGUIMIENTOS
+    cur.execute("""
+        SELECT *
+        FROM seguimiento_contrato_detalle
+        WHERE contrato_id = %s
+        ORDER BY fecha_seguimiento DESC
+    """, (contrato_id,))
+    seguimientos = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template(
+        "seguimiento_contratos/expediente_contrato.html",
+        contrato=contrato,
+        memorandos=memorandos,
+        comunicaciones=comunicaciones,
+        informes=informes,
+        seguimientos=seguimientos
+    )

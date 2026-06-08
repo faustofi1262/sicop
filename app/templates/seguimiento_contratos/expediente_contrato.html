@@ -1,0 +1,328 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3>📚 Expediente Electrónico del Contrato</h3>
+            <p class="text-muted">
+                Resumen documental y seguimiento integral del contrato
+            </p>
+        </div>
+
+        <a href="{{ url_for('main.seguimiento_contratos_detalle', contrato_id=contrato[0]) }}"
+           class="btn btn-secondary">
+            ⬅ Volver
+        </a>
+    </div>
+
+    <!-- DATOS GENERALES -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-dark text-white">
+            Datos Generales del Contrato
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-6">
+
+                    <p><strong>Código del proceso:</strong><br>
+                    {{ contrato[1] }}</p>
+
+                    <p><strong>Objeto:</strong><br>
+                    {{ contrato[2] }}</p>
+
+                    <p><strong>Proveedor:</strong><br>
+                    {{ contrato[3] }}</p>
+
+                    <p><strong>RUC:</strong><br>
+                    {{ contrato[4] }}</p>
+
+                    <p><strong>Número de contrato:</strong><br>
+                    {{ contrato[5] }}</p>
+
+                    <p><strong>Tipo de procedimiento:</strong><br>
+                    {{ contrato[17] }}</p>
+
+                    <p><strong>Unidad requirente:</strong><br>
+                    {{ contrato[13] }}</p>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <p><strong>Administrador:</strong><br>
+                    {{ contrato[11] }}</p>
+
+                    <p><strong>Correo administrador:</strong><br>
+                    {{ contrato[12] }}</p>
+
+                    <p><strong>Fecha suscripción:</strong><br>
+                    {{ contrato[6] if contrato[6] else 'No registrada' }}</p>
+
+                    <p><strong>Fecha inicio:</strong><br>
+                    {{ contrato[7] }}</p>
+
+                    <p><strong>Plazo contractual:</strong><br>
+                    {{ contrato[8] }} días</p>
+
+                    <p><strong>Fecha fin estimada:</strong><br>
+                    {{ contrato[9] }}</p>
+
+                    <p><strong>Monto contractual:</strong><br>
+                    $ {{ contrato[10] }}</p>
+
+                    <p><strong>Estado:</strong><br>
+
+                        {% if contrato[14] == 'EN EJECUCION' %}
+                            <span class="badge bg-success">
+                                {{ contrato[14] }}
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary">
+                                {{ contrato[14] }}
+                            </span>
+                        {% endif %}
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- INDICADORES -->
+
+    <div class="row mb-4">
+
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h6>📄 Memorandos</h6>
+                    <h2>{{ memorandos|length }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h6>📧 Comunicaciones</h6>
+                    <h2>{{ comunicaciones|length }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h6>📑 Informes</h6>
+                    <h2>{{ informes|length }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h6>📌 Seguimientos</h6>
+                    <h2>{{ seguimientos|length }}</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MEMORANDOS -->
+
+    <div class="card shadow-sm mb-4">
+
+    <div class="card-header bg-primary text-white">
+    📄 Memorandos
+    </div>
+    <div class="card-body">
+            {% if comunicaciones %}
+            <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Asunto</th>
+                        <th>Participantes</th>
+                        <th>PDF</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for c in comunicaciones %}
+                    <tr>
+                        <td>{{ c[2] }}</td>
+                        <td>{{ c[1] }}</td>
+                        <td>{{ c[3] }}</td>
+                        <td>{{ c[4] }}</td>
+                        <td class="text-center">
+                            {% if c[6] %}
+                            <a href="{{ url_for('static', filename='uploads/comunicaciones/' ~ c[6]) }}"
+                            target="_blank"
+                            class="btn btn-sm btn-success">
+                                📄 Ver PDF
+                            </a>
+                            {% else %}
+                            <span class="text-muted">Sin PDF</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+
+            {% else %}
+            <div class="alert alert-warning">
+                No existen comunicaciones registradas.
+            </div>
+            {% endif %}
+
+            </div>
+        </div>
+    </div>
+    <!-- COMUNICACIONES -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-success text-white">
+            📧 Comunicaciones
+        </div>
+
+        <div class="card-body">
+
+            {% if comunicaciones %}
+
+                {% for c in comunicaciones %}
+
+                    <p>
+                        <strong>{{ c[2] }}</strong>
+                    </p>
+
+                    <p>{{ c[4] }}</p>
+
+                    <hr>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="alert alert-warning">
+                    No existen comunicaciones registradas.
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    <!-- INFORMES -->
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+
+            {% if informes %}
+
+            <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Número</th>
+                        <th>Asunto</th>
+                        <th>PDF</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for i in informes %}
+                    <tr>
+                        <td>{{ i[4] }}</td>
+                        <td>{{ i[2] }}</td>
+                        <td>{{ i[3] }}</td>
+                        <td>{{ i[5] }}</td>
+                        <td class="text-center">
+                            {% if i[7] %}
+                            <a href="{{ url_for('static', filename='uploads/informes/' ~ i[7]) }}"
+                            target="_blank"
+                            class="btn btn-sm btn-warning">
+                                📄 Ver PDF
+                            </a>
+                            {% else %}
+                            <span class="text-muted">Sin PDF</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+
+            {% else %}
+            <div class="alert alert-warning">
+                No existen informes registrados.
+            </div>
+            {% endif %}
+
+            </div>
+        </div>
+    <!-- SEGUIMIENTOS -->
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+        {% if seguimientos %}
+        <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Fecha</th>
+                    <th>Tipo gestión</th>
+                    <th>Descripción</th>
+                    <th>Compromiso</th>
+                    <th>Fecha compromiso</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for s in seguimientos %}
+                <tr>
+                    <td>{{ s[2] }}</td>
+                    <td>{{ s[3] }}</td>
+                    <td>{{ s[4] }}</td>
+                    <td>{{ s[5] }}</td>
+                    <td>{{ s[6] }}</td>
+                    <td>
+                        <span class="badge bg-info">
+                            {{ s[7] }}
+                        </span>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        {% else %}
+        <div class="alert alert-warning">
+            No existen seguimientos registrados.
+        </div>
+        {% endif %}
+        </div>
+    </div>
+
+{% endblock %}

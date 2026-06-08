@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h3>📄 Registrar Memorando</h3>
+            <p class="text-muted mb-0">Adjuntar memorando al expediente del contrato</p>
+        </div>
+
+        <a href="{{ url_for('main.seguimiento_contratos_detalle', contrato_id=contrato_id) }}" class="btn btn-secondary">
+            ⬅ Volver
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            Datos del memorando
+        </div>
+
+        <div class="card-body">
+
+            <form method="POST"
+                  action="{{ url_for('main.memorando_guardar', contrato_id=contrato_id) }}"
+                  enctype="multipart/form-data">
+
+                <div class="row g-3">
+
+                    <div class="col-md-4">
+                        <label class="form-label">Número de memorando</label>
+                        <input type="text" name="numero_memorando" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Fecha del memorando</label>
+                        <input type="date" name="fecha_memorando" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">PDF del memorando</label>
+                        <input type="file" name="archivo_pdf" class="form-control" accept="application/pdf">
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Asunto</label>
+                        <input type="text" name="asunto" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Descripción / observación</label>
+                        <textarea name="descripcion" class="form-control" rows="5"></textarea>
+                    </div>
+
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        💾 Guardar memorando
+                    </button>
+
+                    <a href="{{ url_for('main.seguimiento_contratos_detalle', contrato_id=contrato_id) }}" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

@@ -115,7 +115,6 @@
                                 class="form-control">
 
                             <option value="Correo">Correo</option>
-                            <option value="Memorando">Memorando</option>
                             <option value="Llamada">Llamada</option>
                             <option value="Reunión">Reunión</option>
                             <option value="Solicitud de Información">Solicitud de Información</option>
@@ -125,24 +124,7 @@
                         </select>
 
                     </div>
-
-                    <div class="form-group full-width" id="grupo_memorando" style="display:none;">
-                        <label>Número de Memorando</label>
-                        <input type="text"
-                            name="numero_memorando"
-                            id="numero_memorando"
-                            class="form-control"
-                            placeholder="Ej: UTMACH-UCP-2026-00123-M">
-                    </div>
-
-                    <div class="form-group full-width" id="grupo_archivo" style="display:none;">
-                        <label>Adjuntar Memorando (PDF)</label>
-                        <input type="file"
-                            name="archivo_memorando"
-                            accept=".pdf"
-                            class="form-control">
-                    </div>
-
+                                        
                     <div class="form-group">
                         <label>Fecha Compromiso / Fecha límite</label>
                         <input type="date"
@@ -190,34 +172,5 @@
     </form>
 
 </div>
-<script>
-
-document.addEventListener("DOMContentLoaded", function() {
-
-    const tipo = document.getElementById("tipo_gestion");
-    const grupoMemorando = document.getElementById("grupo_memorando");
-    const grupoArchivo = document.getElementById("grupo_archivo");
-
-    function verificarTipo() {
-
-    if (tipo.value === "Memorando") {
-
-        grupoMemorando.style.display = "block";
-        grupoArchivo.style.display = "block";
-
-    } else {
-
-        grupoMemorando.style.display = "none";
-        grupoArchivo.style.display = "none";
-
-    }
-}
-verificarTipo();
-
-tipo.addEventListener("change", verificarTipo);
-
-});
-
-</script>
 
 {% endblock %}

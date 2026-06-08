@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h3>📑 Registrar informe</h3>
+            <p class="text-muted mb-0">Adjuntar informes técnicos, de avance, finales o actas al expediente contractual</p>
+        </div>
+
+        <a href="{{ url_for('main.seguimiento_contratos_detalle', contrato_id=contrato_id) }}" class="btn btn-secondary">
+            ⬅ Volver
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-warning text-dark">
+            Datos del informe
+        </div>
+
+        <div class="card-body">
+
+            <form method="POST"
+                  action="{{ url_for('main.informe_guardar', contrato_id=contrato_id) }}"
+                  enctype="multipart/form-data">
+
+                <div class="row g-3">
+
+                    <div class="col-md-4">
+                        <label class="form-label">Tipo de informe</label>
+                        <select name="tipo_informe" class="form-control" required>
+                            <option value="Informe de avance">Informe de avance</option>
+                            <option value="Informe técnico">Informe técnico</option>
+                            <option value="Informe para pago">Informe para pago</option>
+                            <option value="Informe final">Informe final</option>
+                            <option value="Acta entrega recepción provisional">Acta entrega recepción provisional</option>
+                            <option value="Acta entrega recepción definitiva">Acta entrega recepción definitiva</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Número de informe / acta</label>
+                        <input type="text" name="numero_informe" class="form-control">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Fecha del informe</label>
+                        <input type="date" name="fecha_informe" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Asunto</label>
+                        <input type="text" name="asunto" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Descripción / resumen</label>
+                        <textarea name="descripcion" class="form-control" rows="5"></textarea>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">PDF del informe / acta</label>
+                        <input type="file" name="archivo_pdf" class="form-control" accept="application/pdf">
+                    </div>
+
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-warning">
+                        💾 Guardar informe
+                    </button>
+
+                    <a href="{{ url_for('main.seguimiento_contratos_detalle', contrato_id=contrato_id) }}" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

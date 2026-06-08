@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h3>📧 Registrar correo / reunión</h3>
+            <p class="text-muted mb-0">Registrar evidencia de comunicación dentro del expediente contractual</p>
+        </div>
+
+        <a href="{{ url_for('main.seguimiento_contratos_detalle', contrato_id=contrato_id) }}" class="btn btn-secondary">
+            ⬅ Volver
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+            Datos de la comunicación
+        </div>
+
+        <div class="card-body">
+
+            <form method="POST"
+                  action="{{ url_for('main.comunicacion_guardar', contrato_id=contrato_id) }}"
+                  enctype="multipart/form-data">
+
+                <div class="row g-3">
+
+                    <div class="col-md-4">
+                        <label class="form-label">Tipo de comunicación</label>
+                        <select name="tipo_comunicacion" class="form-control" required>
+                            <option value="Correo">Correo</option>
+                            <option value="Reunión">Reunión</option>
+                            <option value="Llamada">Llamada</option>
+                            <option value="Acta de reunión">Acta de reunión</option>
+                            <option value="Notificación">Notificación</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Fecha</label>
+                        <input type="date" name="fecha_comunicacion" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">PDF / evidencia</label>
+                        <input type="file" name="archivo_pdf" class="form-control" accept="application/pdf">
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Asunto</label>
+                        <input type="text" name="asunto" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Participantes / destinatarios</label>
+                        <input type="text" name="participantes" class="form-control"
+                               placeholder="Ej: administrador del contrato, proveedor, unidad requirente">
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Descripción / resumen</label>
+                        <textarea name="descripcion" class="form-control" rows="5"
+                                  placeholder="Describa brevemente la comunicación, reunión o evidencia registrada."></textarea>
+                    </div>
+
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-success">
+                        💾 Guardar comunicación
+                    </button>
+
+                    <a href="{{ url_for('main.seguimiento_contratos_detalle', contrato_id=contrato_id) }}" class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

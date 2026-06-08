@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3>📊 Dashboard de Seguimiento Contractual</h3>
+            <p class="text-muted mb-0">Control ejecutivo de contratos, vencimientos y alertas</p>
+        </div>
+
+        <a href="{{ url_for('main.seguimiento_contratos') }}" class="btn btn-secondary">
+            ⬅ Volver
+        </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-primary">
+                <div class="card-body text-center">
+                    <h6>Total contratos</h6>
+                    <h2 class="text-primary">{{ total_contratos }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-success">
+                <div class="card-body text-center">
+                    <h6>Activos</h6>
+                    <h2 class="text-success">{{ activos }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-warning">
+                <div class="card-body text-center">
+                    <h6>Por vencer ≤ 30 días</h6>
+                    <h2 class="text-warning">{{ por_vencer_30 }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-danger">
+                <div class="card-body text-center">
+                    <h6>Vencidos</h6>
+                    <h2 class="text-danger">{{ vencidos }}</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6>Vencen ≤ 15 días</h6>
+                    <h2>{{ por_vencer_15 }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6>Vencen ≤ 5 días</h6>
+                    <h2>{{ por_vencer_5 }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6>Finalizados</h6>
+                    <h2>{{ finalizados }}</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-danger text-white">
+            🚨 Contratos próximos a vencer o vencidos
+        </div>
+
+        <div class="card-body">
+
+            {% if contratos_alerta %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>Proceso</th>
+                            <th>Contrato</th>
+                            <th>Objeto</th>
+                            <th>Administrador</th>
+                            <th>Fecha fin</th>
+                            <th>Alerta</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for c in contratos_alerta %}
+                        <tr>
+                            <td>{{ c.codigo_proceso }}</td>
+                            <td>{{ c.numero_contrato }}</td>
+                            <td>{{ c.objeto_contratacion }}</td>
+                            <td>{{ c.administrador_contrato }}</td>
+                            <td>{{ c.fecha_fin_estimada }}</td>
+                            <td>
+                                <span class="badge bg-{{ c.color_alerta }} p-2">
+                                    {{ c.alerta }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('main.seguimiento_contratos_detalle', contrato_id=c.id) }}"
+                                   class="btn btn-sm btn-info">
+                                    📁 Ver expediente
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-success mb-0">
+                No existen contratos próximos a vencer en los próximos 30 días.
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
