@@ -90,9 +90,17 @@
 
 <div class="form-page">
 
-    <div class="form-title">➕ Nuevo Contrato</div>
+    <div class="form-title">
+        {% if contrato %}
+            ✏️ Editar Contrato
+        {% else %}
+            ➕ Nuevo Contrato
+        {% endif %}
+    </div>
 
     <form method="POST" action="{{ url_for('main.seguimiento_contratos_guardar') }}">
+
+        <input type="hidden" name="id" value="{{ contrato.id if contrato else '' }}">
 
         <div class="card-sicop">
             <div class="card-sicop-header bg-blue">
@@ -104,62 +112,59 @@
 
                     <div class="form-group">
                         <label>Código del Proceso</label>
-                        <input type="text" name="codigo_proceso" class="form-control" required>
+                        <input type="text"
+                               name="codigo_proceso"
+                               class="form-control"
+                               required
+                               value="{{ contrato.codigo_proceso if contrato else '' }}">
                     </div>
 
                     <div class="form-group">
                         <label>Tipo de Procedimiento</label>
 
-                        <select name="tipo_procedimiento"
-                                class="form-control">
-
-                            <option value="">
-                                -- Seleccione --
-                            </option>
+                        <select name="tipo_procedimiento" class="form-control">
+                            <option value="">-- Seleccione --</option>
 
                             {% for tp in tipos_proceso %}
-                            <option value="{{ tp[1] }}">
-                                {{ tp[1] }}
-                            </option>
+                                <option value="{{ tp.nombre_proceso }}"
+                                    {% if contrato and contrato.tipo_procedimiento == tp.nombre_proceso %}selected{% endif %}>
+                                    {{ tp.nombre_proceso }}
+                                </option>
                             {% endfor %}
-
                         </select>
-
                     </div>
 
                     <div class="form-group full-width">
                         <label>Objeto de Contratación</label>
-                        <textarea name="objeto_contratacion" class="form-control" rows="3" required></textarea>
+                        <textarea name="objeto_contratacion"
+                                  class="form-control"
+                                  rows="3"
+                                  required>{{ contrato.objeto_contratacion if contrato else '' }}</textarea>
                     </div>
 
                     <div class="form-group">
                         <label>Unidad Requirente</label>
 
-                        <select name="unidad_requirente"
-                                class="form-control">
-
-                            <option value="">
-                                -- Seleccione --
-                            </option>
+                        <select name="unidad_requirente" class="form-control">
+                            <option value="">-- Seleccione --</option>
 
                             {% for u in unidades %}
-                            <option value="{{ u[1] }}">
-                                {{ u[1] }}
-                            </option>
+                                <option value="{{ u.nombre_unidad }}"
+                                    {% if contrato and contrato.unidad_requirente == u.nombre_unidad %}selected{% endif %}>
+                                    {{ u.nombre_unidad }}
+                                </option>
                             {% endfor %}
-
                         </select>
-
                     </div>
 
                     <div class="form-group">
                         <label>Estado</label>
                         <select name="estado" class="form-control">
-                            <option value="EN EJECUCION">EN EJECUCIÓN</option>
-                            <option value="POR VENCER">POR VENCER</option>
-                            <option value="FINALIZADO">FINALIZADO</option>
-                            <option value="CON RETRASO">CON RETRASO</option>
-                            <option value="PENDIENTE DE CONTRATO">PENDIENTE DE CONTRATO</option>
+                            <option value="EN EJECUCION" {% if contrato and contrato.estado == 'EN EJECUCION' %}selected{% endif %}>EN EJECUCIÓN</option>
+                            <option value="POR VENCER" {% if contrato and contrato.estado == 'POR VENCER' %}selected{% endif %}>POR VENCER</option>
+                            <option value="FINALIZADO" {% if contrato and contrato.estado == 'FINALIZADO' %}selected{% endif %}>FINALIZADO</option>
+                            <option value="CON RETRASO" {% if contrato and contrato.estado == 'CON RETRASO' %}selected{% endif %}>CON RETRASO</option>
+                            <option value="PENDIENTE DE CONTRATO" {% if contrato and contrato.estado == 'PENDIENTE DE CONTRATO' %}selected{% endif %}>PENDIENTE DE CONTRATO</option>
                         </select>
                     </div>
 
@@ -177,53 +182,73 @@
 
                     <div class="form-group">
                         <label>Número de Contrato</label>
-                        <input type="text" name="numero_contrato" class="form-control">
+                        <input type="text"
+                               name="numero_contrato"
+                               class="form-control"
+                               value="{{ contrato.numero_contrato if contrato else '' }}">
                     </div>
 
                     <div class="form-group">
                         <label>Monto Contractual</label>
-                        <input type="number" step="0.01" name="monto_contractual" class="form-control">
+                        <input type="number"
+                               step="0.01"
+                               name="monto_contractual"
+                               class="form-control"
+                               value="{{ contrato.monto_contractual if contrato else '' }}">
                     </div>
 
                     <div class="form-group">
                         <label>Proveedor</label>
-                        <input type="text" name="proveedor" class="form-control">
+                        <input type="text"
+                               name="proveedor"
+                               class="form-control"
+                               value="{{ contrato.proveedor if contrato else '' }}">
                     </div>
 
                     <div class="form-group">
                         <label>RUC</label>
-                        <input type="text" name="ruc" class="form-control">
+                        <input type="text"
+                               name="ruc"
+                               class="form-control"
+                               value="{{ contrato.ruc if contrato else '' }}">
                     </div>
 
                     <div class="form-group">
                         <label>Fecha de Suscripción</label>
                         <input type="date"
-                            name="fecha_inicio"
-                            id="fecha_inicio"
-                            class="form-control">
+                               name="fecha_suscripcion"
+                               id="fecha_suscripcion"
+                               class="form-control"
+                               value="{{ contrato.fecha_suscripcion if contrato else '' }}">
                     </div>
 
                     <div class="form-group">
                         <label>Fecha Inicio</label>
-                        <input type="date" name="fecha_inicio" class="form-control">
+                        <input type="date"
+                               name="fecha_inicio"
+                               id="fecha_inicio"
+                               class="form-control"
+                               value="{{ contrato.fecha_inicio if contrato else '' }}">
                     </div>
 
                     <div class="form-group">
                         <label>Plazo Contractual (días)</label>
                         <input type="number"
-                            name="plazo_contractual"
-                            id="plazo_contractual"
-                            class="form-control"
-                            min="1">
-                    </div>>
+                               name="plazo_contractual"
+                               id="plazo_contractual"
+                               class="form-control"
+                               min="1"
+                               value="{{ contrato.plazo_contractual if contrato else '' }}">
+                    </div>
 
                     <div class="form-group">
                         <label>Fecha Fin Estimada</label>
                         <input type="date"
-                            name="fecha_fin_estimada"
-                            id="fecha_fin_estimada"
-                            class="form-control"
-                            readonly>
+                               name="fecha_fin_estimada"
+                               id="fecha_fin_estimada"
+                               class="form-control"
+                               readonly
+                               value="{{ contrato.fecha_fin_estimada if contrato else '' }}">
                     </div>
 
                 </div>
@@ -240,17 +265,25 @@
 
                     <div class="form-group">
                         <label>Administrador del Contrato</label>
-                        <input type="text" name="administrador_contrato" class="form-control">
+                        <input type="text"
+                               name="administrador_contrato"
+                               class="form-control"
+                               value="{{ contrato.administrador_contrato if contrato else '' }}">
                     </div>
 
                     <div class="form-group">
                         <label>Correo del Administrador</label>
-                        <input type="email" name="correo_administrador" class="form-control">
+                        <input type="email"
+                               name="correo_administrador"
+                               class="form-control"
+                               value="{{ contrato.correo_administrador if contrato else '' }}">
                     </div>
 
                     <div class="form-group full-width">
                         <label>Observaciones</label>
-                        <textarea name="observaciones" class="form-control" rows="3"></textarea>
+                        <textarea name="observaciones"
+                                  class="form-control"
+                                  rows="3">{{ contrato.observaciones if contrato else '' }}</textarea>
                     </div>
 
                 </div>
@@ -270,13 +303,18 @@
     </form>
 
 </div>
+
 <script>
     function calcularFechaFinEstimada() {
-        const fechaInicio = document.getElementById("fecha_inicio").value;
-        const plazo = parseInt(document.getElementById("plazo_contractual").value);
+        const fechaInicioInput = document.getElementById("fecha_inicio");
+        const plazoInput = document.getElementById("plazo_contractual");
+        const fechaFinInput = document.getElementById("fecha_fin_estimada");
+
+        const fechaInicio = fechaInicioInput.value;
+        const plazo = parseInt(plazoInput.value);
 
         if (!fechaInicio || isNaN(plazo)) {
-            document.getElementById("fecha_fin_estimada").value = "";
+            fechaFinInput.value = "";
             return;
         }
 
@@ -287,10 +325,11 @@
         const mm = String(fecha.getMonth() + 1).padStart(2, "0");
         const dd = String(fecha.getDate()).padStart(2, "0");
 
-        document.getElementById("fecha_fin_estimada").value = `${yyyy}-${mm}-${dd}`;
+        fechaFinInput.value = `${yyyy}-${mm}-${dd}`;
     }
 
     document.getElementById("fecha_inicio").addEventListener("change", calcularFechaFinEstimada);
     document.getElementById("plazo_contractual").addEventListener("input", calcularFechaFinEstimada);
 </script>
+
 {% endblock %}

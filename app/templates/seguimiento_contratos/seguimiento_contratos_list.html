@@ -64,6 +64,10 @@
 
             📋 Seguimiento
         </a>
+         <a href="{{ url_for('main.seguimiento_contratos_editar', contrato_id=c.id) }}"
+        class="btn btn-warning btn-sm">
+            ✏️ Editar
+        </a>
     </td>
 </tr>
 {% endfor %}

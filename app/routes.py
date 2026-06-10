@@ -9,6 +9,7 @@ from num2words import num2words
 from decimal import Decimal, ROUND_HALF_UP
 from psycopg2.extras import RealDictCursor
 from flask import jsonify
+from psycopg2.extras import RealDictCursor
 
 def valor_en_letras_con_decimales(valor):
     valor = Decimal(valor).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
@@ -1745,90 +1746,114 @@ def seguimiento_contratos_nuevo():
         unidades=unidades
     )
 
-# =========================
-# GUARDAR CONTRATO
-# =========================
 @main.route("/seguimiento_contratos/guardar", methods=["POST"])
 @login_required()
 def seguimiento_contratos_guardar():
+
+    contrato_id = request.form.get("id")
 
     conn = get_connection()
     cur = conn.cursor()
 
     try:
+        if contrato_id:
+            cur.execute("""
+                UPDATE seguimiento_contratos
+                SET
+                    codigo_proceso = %s,
+                    objeto_contratacion = %s,
+                    numero_contrato = %s,
+                    proveedor = %s,
+                    ruc = %s,
+                    administrador_contrato = %s,
+                    correo_administrador = %s,
+                    fecha_suscripcion = %s,
+                    fecha_inicio = %s,
+                    fecha_fin_estimada = %s,
+                    plazo_contractual = %s,
+                    monto_contractual = %s,
+                    unidad_requirente = %s,
+                    tipo_procedimiento = %s,
+                    estado = %s,
+                    observaciones = %s
+                WHERE id = %s
+            """, (
+                request.form.get("codigo_proceso"),
+                request.form.get("objeto_contratacion"),
+                request.form.get("numero_contrato"),
+                request.form.get("proveedor"),
+                request.form.get("ruc"),
+                request.form.get("administrador_contrato"),
+                request.form.get("correo_administrador"),
+                request.form.get("fecha_suscripcion") or None,
+                request.form.get("fecha_inicio") or None,
+                request.form.get("fecha_fin_estimada") or None,
+                request.form.get("plazo_contractual") or None,
+                request.form.get("monto_contractual") or 0,
+                request.form.get("unidad_requirente"),
+                request.form.get("tipo_procedimiento"),
+                request.form.get("estado"),
+                request.form.get("observaciones"),
+                contrato_id
+            ))
 
-        cur.execute("""
-            INSERT INTO seguimiento_contratos (
-                codigo_proceso,
-                objeto_contratacion,
-                numero_contrato,
-                proveedor,
-                ruc,
-                administrador_contrato,
-                correo_administrador,
-                fecha_suscripcion,
-                fecha_inicio,
-                fecha_fin_estimada,
-                plazo_contractual,
-                monto_contractual,
-                unidad_requirente,
-                tipo_procedimiento,
-                estado,
-                observaciones
-            )
-            VALUES (
-                %s,%s,%s,%s,%s,%s,%s,%s,
-                %s,%s,%s,%s,%s,%s,%s,%s
-            )
-        """, (
+            flash("✅ Contrato actualizado correctamente", "success")
 
-            request.form.get("codigo_proceso"),
-            request.form.get("objeto_contratacion"),
-            request.form.get("numero_contrato"),
-            request.form.get("proveedor"),
-            request.form.get("ruc"),
-            request.form.get("administrador_contrato"),
-            request.form.get("correo_administrador"),
+        else:
+            cur.execute("""
+                INSERT INTO seguimiento_contratos (
+                    codigo_proceso,
+                    objeto_contratacion,
+                    numero_contrato,
+                    proveedor,
+                    ruc,
+                    administrador_contrato,
+                    correo_administrador,
+                    fecha_suscripcion,
+                    fecha_inicio,
+                    fecha_fin_estimada,
+                    plazo_contractual,
+                    monto_contractual,
+                    unidad_requirente,
+                    tipo_procedimiento,
+                    estado,
+                    observaciones
+                )
+                VALUES (
+                    %s,%s,%s,%s,%s,%s,%s,%s,
+                    %s,%s,%s,%s,%s,%s,%s,%s
+                )
+            """, (
+                request.form.get("codigo_proceso"),
+                request.form.get("objeto_contratacion"),
+                request.form.get("numero_contrato"),
+                request.form.get("proveedor"),
+                request.form.get("ruc"),
+                request.form.get("administrador_contrato"),
+                request.form.get("correo_administrador"),
+                request.form.get("fecha_suscripcion") or None,
+                request.form.get("fecha_inicio") or None,
+                request.form.get("fecha_fin_estimada") or None,
+                request.form.get("plazo_contractual") or None,
+                request.form.get("monto_contractual") or 0,
+                request.form.get("unidad_requirente"),
+                request.form.get("tipo_procedimiento"),
+                request.form.get("estado"),
+                request.form.get("observaciones")
+            ))
 
-            request.form.get("fecha_suscripcion") or None,
-            request.form.get("fecha_inicio") or None,
-            request.form.get("fecha_fin_estimada") or None,
-
-            request.form.get("plazo_contractual"),
-            request.form.get("monto_contractual") or 0,
-
-            request.form.get("unidad_requirente"),
-            request.form.get("tipo_procedimiento"),
-
-            request.form.get("estado"),
-            request.form.get("observaciones")
-
-        ))
+            flash("✅ Contrato registrado correctamente", "success")
 
         conn.commit()
 
-        flash(
-            "✅ Contrato registrado correctamente",
-            "success"
-        )
-
-        return redirect(
-            url_for("main.seguimiento_contratos")
-        )
+        return redirect(url_for("main.seguimiento_contratos"))
 
     except Exception as e:
-
         conn.rollback()
-
-        flash(
-            f"❌ Error al guardar contrato: {e}",
-            "danger"
-        )
-
+        flash(f"❌ Error al guardar contrato: {e}", "danger")
         return redirect(request.referrer)
 
     finally:
-
         cur.close()
         conn.close()
 # =========================
@@ -1953,6 +1978,46 @@ def seguimiento_nuevo(contrato_id):
         "seguimiento_contratos/seguimiento_nuevo.html",
         contrato_id=contrato_id
     )
+# =========================
+# EDITAR SEGUIMIENTO CONTRATO
+# =========================
+@main.route("/seguimiento_contratos/editar/<int:contrato_id>")
+@login_required()
+def seguimiento_contratos_editar(contrato_id):
+    conn = get_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    cur.execute("""
+        SELECT *
+        FROM seguimiento_contratos
+        WHERE id = %s
+    """, (contrato_id,))
+    contrato = cur.fetchone()
+
+    cur.execute("""
+        SELECT id, nombre_unidad
+        FROM unidades
+        ORDER BY nombre_unidad
+    """)
+    unidades = cur.fetchall()
+
+    cur.execute("""
+        SELECT id, nombre_proceso
+        FROM tipo_procesos
+        ORDER BY nombre_proceso
+    """)
+    tipos_proceso = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template(
+        "seguimiento_contratos/seguimiento_contratos_form.html",
+        contrato=contrato,
+        unidades=unidades,
+        tipos_proceso=tipos_proceso
+    )
+
 # =========================
 # NUEVO MEMORANDO
 # =========================
