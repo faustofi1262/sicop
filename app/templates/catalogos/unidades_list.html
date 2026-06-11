@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>🏢 Unidades Requirentes</h2>
+        <a href="/admin" class="btn btn-secondary">
+            ⬅ Volver al panel
+        </a>
+        <a href="{{ url_for('main.unidades_nueva') }}"
+           class="btn btn-primary">
+            ➕ Nueva Unidad
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <table class="table table-bordered table-hover">
+
+                <thead class="table-dark">
+                    <tr>
+                        <th width="80">ID</th>
+                        <th>Unidad</th>
+                        <th width="180">Acciones</th>
+
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for u in unidades %}
+                    <tr>
+                        <td>{{ u[0] }}</td>
+                        <td>{{ u[1] }}</td>
+
+                        <td>
+                            <a href="{{ url_for('main.unidades_editar', id=u[0]) }}"
+                            class="btn btn-warning btn-sm">
+                                ✏️ Editar
+                            </a>
+
+                            <a href="{{ url_for('main.unidades_eliminar', id=u[0]) }}"
+                            class="btn btn-danger btn-sm"
+                            onclick="return confirm('¿Eliminar unidad?')">
+                                🗑 Eliminar
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

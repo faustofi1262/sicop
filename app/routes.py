@@ -2480,3 +2480,150 @@ def expediente_contrato(contrato_id):
         informes=informes,
         seguimientos=seguimientos
     )
+# =========================
+# LISTAR UNIDADES
+# =========================
+@main.route("/unidades")
+@login_required()
+def unidades_listar():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT id, nombre_unidad
+        FROM unidades
+        ORDER BY nombre_unidad
+    """)
+    unidades = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template("catalogos/unidades_list.html", unidades=unidades)
+
+
+# =========================
+# NUEVA UNIDAD
+# =========================
+@main.route("/unidades/nueva")
+@login_required()
+def unidades_nueva():
+    return render_template("catalogos/unidades_form.html", unidad=None)
+
+
+# =========================
+# GUARDAR UNIDAD
+# =========================
+@main.route("/unidades/guardar", methods=["POST"])
+@login_required()
+def unidades_guardar():
+    nombre_unidad = request.form.get("nombre_unidad")
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute("""
+            INSERT INTO unidades (nombre_unidad)
+            VALUES (%s)
+        """, (nombre_unidad,))
+
+        conn.commit()
+        flash("✅ Unidad registrada correctamente", "success")
+
+    except Exception as e:
+        conn.rollback()
+        flash(f"❌ Error al guardar unidad: {e}", "danger")
+
+    finally:
+        cur.close()
+        conn.close()
+
+    return redirect(url_for("main.unidades_listar"))
+# =========================
+# EDITAR UNIDAD
+# =========================
+@main.route("/unidades/editar/<int:id>")
+@login_required()
+def unidades_editar(id):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT id, nombre_unidad
+        FROM unidades
+        WHERE id = %s
+    """, (id,))
+    unidad = cur.fetchone()
+
+    cur.close()
+    conn.close()
+
+    if not unidad:
+        abort(404)
+
+    return render_template(
+        "catalogos/unidades_form.html",
+        unidad=unidad
+    )
+
+
+# =========================
+# ACTUALIZAR UNIDAD
+# =========================
+@main.route("/unidades/actualizar/<int:id>", methods=["POST"])
+@login_required()
+def unidades_actualizar(id):
+    nombre_unidad = request.form.get("nombre_unidad")
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute("""
+            UPDATE unidades
+            SET nombre_unidad = %s
+            WHERE id = %s
+        """, (nombre_unidad, id))
+
+        conn.commit()
+        flash("✅ Unidad actualizada correctamente", "success")
+
+    except Exception as e:
+        conn.rollback()
+        flash(f"❌ Error al actualizar unidad: {e}", "danger")
+
+    finally:
+        cur.close()
+        conn.close()
+
+    return redirect(url_for("main.unidades_listar"))
+
+
+# =========================
+# ELIMINAR UNIDAD
+# =========================
+@main.route("/unidades/eliminar/<int:id>")
+@login_required()
+def unidades_eliminar(id):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute("""
+            DELETE FROM unidades
+            WHERE id = %s
+        """, (id,))
+
+        conn.commit()
+        flash("✅ Unidad eliminada correctamente", "success")
+
+    except Exception as e:
+        conn.rollback()
+        flash(f"❌ No se pudo eliminar la unidad: {e}", "danger")
+
+    finally:
+        cur.close()
+        conn.close()
+
+    return redirect(url_for("main.unidades_listar"))

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="card shadow-sm">
+
+        <div class="card-header bg-primary text-white">
+            🏢 Nueva Unidad Requirente
+        </div>
+
+        <div class="card-body">
+
+            <form method="POST"
+                  action="{{ url_for('main.unidades_guardar') }}">
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Nombre de la Unidad
+                    </label>
+
+                    <input type="text"
+                           name="nombre_unidad"
+                           class="form-control"
+                           required>
+                </div>
+
+                <button type="submit"
+                        class="btn btn-success">
+                    💾 Guardar
+                </button>
+
+                <a href="{{ url_for('main.unidades_listar') }}"
+                   class="btn btn-secondary">
+                    Cancelar
+                </a>
+                <a href="/unidades" class="btn btn-secondary">
+                    ⬅ Volver
+                </a>
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
