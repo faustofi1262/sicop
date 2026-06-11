@@ -9,7 +9,8 @@ from num2words import num2words
 from decimal import Decimal, ROUND_HALF_UP
 from psycopg2.extras import RealDictCursor
 from flask import jsonify
-from psycopg2.extras import RealDictCursor
+from io import BytesIO
+from flask import send_file
 
 def valor_en_letras_con_decimales(valor):
     valor = Decimal(valor).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
@@ -1719,7 +1720,7 @@ def seguimiento_contratos_dashboard():
 def seguimiento_contratos_nuevo():
 
     conn = get_connection()
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
 
     # Tipos de proceso
     cur.execute("""
@@ -2139,36 +2140,18 @@ def memorando_guardar(contrato_id):
     cur = conn.cursor()
 
     try:
+        archivo_binario = None
+        archivo_nombre = None
+        archivo_tipo = None
 
-        archivo_pdf = None
+        archivo = request.files.get("archivo_pdf")
 
-        if "archivo_pdf" in request.files:
-            archivo = request.files["archivo_pdf"]
+        if archivo and archivo.filename:
+            from werkzeug.utils import secure_filename
 
-            if archivo.filename:
-                from werkzeug.utils import secure_filename
-
-                carpeta = os.path.join(
-                    "app",
-                    "static",
-                    "uploads",
-                    "memorandos"
-                )
-
-                os.makedirs(carpeta, exist_ok=True)
-
-                nombre_archivo = secure_filename(
-                    archivo.filename
-                )
-
-                ruta_archivo = os.path.join(
-                    carpeta,
-                    nombre_archivo
-                )
-
-                archivo.save(ruta_archivo)
-
-                archivo_pdf = nombre_archivo
+            archivo_nombre = secure_filename(archivo.filename)
+            archivo_tipo = archivo.content_type
+            archivo_binario = archivo.read()
 
         cur.execute("""
             INSERT INTO contrato_memorandos (
@@ -2177,45 +2160,39 @@ def memorando_guardar(contrato_id):
                 fecha_memorando,
                 asunto,
                 descripcion,
-                archivo_pdf
+                archivo_pdf,
+                archivo_binario,
+                archivo_nombre,
+                archivo_tipo
             )
-            VALUES (%s,%s,%s,%s,%s,%s)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
         """, (
             contrato_id,
             request.form.get("numero_memorando"),
             request.form.get("fecha_memorando"),
             request.form.get("asunto"),
             request.form.get("descripcion"),
-            archivo_pdf
+            archivo_nombre,
+            archivo_binario,
+            archivo_nombre,
+            archivo_tipo
         ))
 
         conn.commit()
 
-        flash(
-            "✅ Memorando registrado correctamente",
-            "success"
-        )
+        flash("✅ Memorando registrado correctamente", "success")
 
-        return redirect(
-            url_for(
-                "main.seguimiento_contratos_detalle",
-                contrato_id=contrato_id
-            )
-        )
+        return redirect(url_for(
+            "main.seguimiento_contratos_detalle",
+            contrato_id=contrato_id
+        ))
 
     except Exception as e:
-
         conn.rollback()
-
-        flash(
-            f"❌ Error: {e}",
-            "danger"
-        )
-
+        flash(f"❌ Error: {e}", "danger")
         return redirect(request.referrer)
 
     finally:
-
         cur.close()
         conn.close()
 # =========================
