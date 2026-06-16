@@ -93,9 +93,9 @@
   <div class="card-body">
     <label>Objeto de Contratación</label>
     <textarea name="objeto"
-              class="form-control"
-              rows="2"
-              >{{ orden.objeto if orden else '' }}</textarea>
+          id="objeto"
+          class="form-control"
+          rows="2">{{ orden.objeto if orden else '' }}</textarea>
   </div>
 </div>
 
@@ -224,6 +224,25 @@
                value="{{ orden.lugar_entrega if orden else '' }}"
                required>
       </div>
+          <div class="row mt-3">
+
+        <div class="col-md-6">
+            <label>Máxima Autoridad o Delegado</label>
+            <input type="text"
+                  name="maxima_autoridad"
+                  class="form-control"
+                  value="{{ orden.maxima_autoridad if orden else '' }}">
+        </div>
+
+        <div class="col-md-6">
+            <label>Cargo Máxima Autoridad</label>
+            <input type="text"
+                  name="cargo_maxima_autoridad"
+                  class="form-control"
+                  value="{{ orden.cargo_maxima_autoridad if orden else '' }}">
+        </div>
+
+    </div>
     </div>
   </div>
 </div>

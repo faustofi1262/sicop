@@ -4,3 +4,4 @@ python-dotenv
 Werkzeug
 gunicorn
 num2words
+reportlab

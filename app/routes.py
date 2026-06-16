@@ -11,6 +11,9 @@ from psycopg2.extras import RealDictCursor
 from flask import jsonify
 from io import BytesIO
 from flask import send_file
+from flask import send_file
+from io import BytesIO
+from app.services.pdf_orden_compra import generar_pdf_orden_compra
 
 def valor_en_letras_con_decimales(valor):
     valor = Decimal(valor).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
@@ -1210,6 +1213,51 @@ def ordenes_compra():
         ordenes=ordenes
     )
 # =========================
+# PDF ORDEN DE COMPRA
+# =========================
+@main.route("/ordenes_compra/pdf/<int:id>")
+@login_required()
+def orden_compra_pdf(id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT *
+        FROM ordenes_compra
+        WHERE id = %s
+    """, (id,))
+    orden = cur.fetchone()
+
+    cur.execute("""
+        SELECT
+            id,
+            descripcion,
+            unidad,
+            cantidad,
+            valor_uni,
+            cantidad * valor_uni AS valor_total
+        FROM productos
+        WHERE orden_compra_id = %s
+        ORDER BY id
+    """, (id,))
+    productos = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    if not orden:
+        abort(404)
+
+    buffer = generar_pdf_orden_compra(orden, productos)
+
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name=f"orden_compra_{id}.pdf",
+        mimetype="application/pdf"
+    )
+# =========================
 # NUEVA ORDEN DE COMPRA
 # =========================
 @main.route("/ordenes_compra/nueva")
@@ -1291,6 +1339,8 @@ def ordenes_compra_guardar():
                     proforma_num=%s, proforma_fecha=%s, contacto=%s, vigencia=%s,
                     forma_pago=%s, plazo_ejecucion=%s, lugar_entrega=%s,
                     administrador_orden=%s,
+                    maxima_autoridad=%s,
+                    cargo_maxima_autoridad=%s,
                     subtotal=%s, iva=%s, total=%s,
                     observaciones=%s, tarea_id=%s
                 WHERE id=%s
@@ -1313,6 +1363,8 @@ def ordenes_compra_guardar():
                 request.form["plazo_ejecucion"],
                 request.form["lugar_entrega"],
                 request.form["administrador_orden"],
+                request.form.get("maxima_autoridad"),
+                request.form.get("cargo_maxima_autoridad"),
                 request.form.get("subtotal", 0),
                 request.form.get("iva", 0),
                 request.form.get("total", 0),
@@ -1333,6 +1385,8 @@ def ordenes_compra_guardar():
                     proforma_num, proforma_fecha, contacto, vigencia,
                     forma_pago, plazo_ejecucion, lugar_entrega,
                     administrador_orden,
+                    maxima_autoridad,
+                    cargo_maxima_autoridad,
                     subtotal, iva, total,
                     observaciones, tarea_id
                 )
@@ -1342,6 +1396,8 @@ def ordenes_compra_guardar():
                     %s,%s,%s,%s,
                     %s,%s,%s,
                     %s,
+                    %s,
+                    %s,    
                     %s,%s,%s,
                     %s,%s
                 )
@@ -1365,6 +1421,8 @@ def ordenes_compra_guardar():
                 request.form["plazo_ejecucion"],
                 request.form["lugar_entrega"],
                 request.form["administrador_orden"],
+                request.form.get("maxima_autoridad"),
+                request.form.get("cargo_maxima_autoridad"),
                 request.form.get("subtotal", 0),
                 request.form.get("iva", 0),
                 request.form.get("total", 0),
@@ -1382,26 +1440,41 @@ def ordenes_compra_guardar():
         cantidades = request.form.getlist("cantidad[]")
         valores = request.form.getlist("valor_unitario[]")
 
+        cpcs = request.form.getlist("cpc[]")
+
         for i in range(len(descripciones)):
+
             if not descripciones[i].strip():
                 continue
 
+            cantidad = cantidades[i] if i < len(cantidades) else 0
+            valor = valores[i] if i < len(valores) else 0
+            unidad = unidades[i] if i < len(unidades) else None
+            cpc = cpcs[i] if i < len(cpcs) else None
+
+          
             cur.execute("""
-                INSERT INTO productos (
-                    descripcion, unidad, cantidad, valor_uni, orden_compra_id
+               INSERT INTO productos (
+                    descripcion,
+                    unidad,
+                    cantidad,
+                    valor_uni,
+                    orden_compra_id,
+                    cpc
                 )
-                VALUES (%s,%s,%s,%s,%s)
+                VALUES (%s,%s,%s,%s,%s,%s)                
             """, (
                 descripciones[i],
-                unidades[i] if i < len(unidades) else None,
-                cantidades[i] if i < len(cantidades) else 0,
-                valores[i] if i < len(valores) else 0,
-                orden_compra_id
+                unidad,
+                cantidad,
+                valor,                
+                orden_compra_id,
+                cpc
             ))
 
         conn.commit()
         flash("✅ Orden de Compra guardada correctamente", "success")
-        return redirect(url_for("main.ordenes_compra_list"))
+        return redirect(url_for("main.ordenes_compra"))
 
     except Exception as e:
         conn.rollback()

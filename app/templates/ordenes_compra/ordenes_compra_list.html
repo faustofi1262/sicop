@@ -39,8 +39,12 @@
                     <a href="{{ url_for('main.ordenes_compra_editar', id=o[0]) }}"
                         class="btn btn-sm btn-warning">
                         ✏️
-                        </a>
+                    </a>
                      <!-- ELIMINAR -->
+                    <a href="{{ url_for('main.orden_compra_pdf', id=o[0]) }}"
+                       class="btn btn-danger btn-sm">
+                       📄 PDF
+                    </a>
                 <form method="POST"
                     action="{{ url_for('main.ordenes_compra_eliminar', id=o[0]) }}"
                     style="display:inline;"
