@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="card shadow-sm">
+
+        <div class="card-header bg-primary text-white">
+            {% if tipo %}
+                ✏️ Editar Tipo de Proceso
+            {% else %}
+                📋 Nuevo Tipo de Proceso
+            {% endif %}
+        </div>
+
+        <div class="card-body">
+
+            <form method="POST"
+                  action="{% if tipo %}{{ url_for('main.tipo_procesos_actualizar', id=tipo[0]) }}{% else %}{{ url_for('main.tipo_procesos_guardar') }}{% endif %}">
+
+                <div class="mb-3">
+                    <label class="form-label">Nombre del Tipo de Proceso</label>
+
+                    <input type="text"
+                           name="nombre_proceso"
+                           class="form-control"
+                           required
+                           value="{{ tipo[1] if tipo else '' }}">
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="/admin" class="btn btn-secondary">
+                        ⬅ Volver al Panel
+                    </a>
+
+                    <button type="submit" class="btn btn-success">
+                        💾 Guardar
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

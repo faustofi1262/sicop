@@ -2627,3 +2627,205 @@ def unidades_eliminar(id):
         conn.close()
 
     return redirect(url_for("main.unidades_listar"))
+# =========================
+# LISTAR TIPOS DE PROCESO
+# =========================
+@main.route("/tipo_procesos")
+@login_required()
+def tipo_procesos_listar():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT id, nombre_proceso
+        FROM tipo_procesos
+        ORDER BY nombre_proceso
+    """)
+
+    tipos = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template(
+        "catalogos/tipo_procesos_list.html",
+        tipos=tipos
+    )
+
+
+# =========================
+# NUEVO TIPO DE PROCESO
+# =========================
+@main.route("/tipo_procesos/nuevo")
+@login_required()
+def tipo_procesos_nuevo():
+    return render_template(
+        "catalogos/tipo_procesos_form.html",
+        tipo=None
+    )
+
+
+# =========================
+# GUARDAR TIPO DE PROCESO
+# =========================
+@main.route("/tipo_procesos/guardar", methods=["POST"])
+@login_required()
+def tipo_procesos_guardar():
+
+    nombre_proceso = request.form.get("nombre_proceso")
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+
+        cur.execute("""
+            INSERT INTO tipo_procesos (
+                nombre_proceso
+            )
+            VALUES (%s)
+        """, (nombre_proceso,))
+
+        conn.commit()
+
+        flash(
+            "✅ Tipo de proceso registrado correctamente",
+            "success"
+        )
+
+    except Exception as e:
+
+        conn.rollback()
+
+        flash(
+            f"❌ Error: {e}",
+            "danger"
+        )
+
+    finally:
+
+        cur.close()
+        conn.close()
+
+    return redirect(
+        url_for("main.tipo_procesos_listar")
+    )
+
+
+# =========================
+# EDITAR TIPO DE PROCESO
+# =========================
+@main.route("/tipo_procesos/editar/<int:id>")
+@login_required()
+def tipo_procesos_editar(id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT id, nombre_proceso
+        FROM tipo_procesos
+        WHERE id = %s
+    """, (id,))
+
+    tipo = cur.fetchone()
+
+    cur.close()
+    conn.close()
+
+    return render_template(
+        "catalogos/tipo_procesos_form.html",
+        tipo=tipo
+    )
+
+
+# =========================
+# ACTUALIZAR TIPO DE PROCESO
+# =========================
+@main.route("/tipo_procesos/actualizar/<int:id>", methods=["POST"])
+@login_required()
+def tipo_procesos_actualizar(id):
+
+    nombre_proceso = request.form.get("nombre_proceso")
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+
+        cur.execute("""
+            UPDATE tipo_procesos
+            SET nombre_proceso = %s
+            WHERE id = %s
+        """, (
+            nombre_proceso,
+            id
+        ))
+
+        conn.commit()
+
+        flash(
+            "✅ Tipo de proceso actualizado correctamente",
+            "success"
+        )
+
+    except Exception as e:
+
+        conn.rollback()
+
+        flash(
+            f"❌ Error: {e}",
+            "danger"
+        )
+
+    finally:
+
+        cur.close()
+        conn.close()
+
+    return redirect(
+        url_for("main.tipo_procesos_listar")
+    )
+
+
+# =========================
+# ELIMINAR TIPO DE PROCESO
+# =========================
+@main.route("/tipo_procesos/eliminar/<int:id>")
+@login_required()
+def tipo_procesos_eliminar(id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+
+        cur.execute("""
+            DELETE FROM tipo_procesos
+            WHERE id = %s
+        """, (id,))
+
+        conn.commit()
+
+        flash(
+            "✅ Tipo de proceso eliminado correctamente",
+            "success"
+        )
+
+    except Exception as e:
+
+        conn.rollback()
+
+        flash(
+            f"❌ Error: {e}",
+            "danger"
+        )
+
+    finally:
+
+        cur.close()
+        conn.close()
+
+    return redirect(
+        url_for("main.tipo_procesos_listar")
+    )

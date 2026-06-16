@@ -7,13 +7,17 @@
     <div class="card shadow-sm">
 
         <div class="card-header bg-primary text-white">
-            🏢 Nueva Unidad Requirente
+            {% if unidad %}
+                ✏️ Editar Unidad Requirente
+            {% else %}
+                🏢 Nueva Unidad Requirente
+            {% endif %}
         </div>
 
         <div class="card-body">
 
             <form method="POST"
-                  action="{{ url_for('main.unidades_guardar') }}">
+                  action="{% if unidad %}{{ url_for('main.unidades_actualizar', id=unidad[0]) }}{% else %}{{ url_for('main.unidades_guardar') }}{% endif %}">
 
                 <div class="mb-3">
                     <label class="form-label">
@@ -23,21 +27,23 @@
                     <input type="text"
                            name="nombre_unidad"
                            class="form-control"
-                           required>
+                           required
+                           value="{{ unidad[1] if unidad else '' }}">
                 </div>
 
-                <button type="submit"
-                        class="btn btn-success">
-                    💾 Guardar
-                </button>
+                <div class="d-flex justify-content-between">
 
-                <a href="{{ url_for('main.unidades_listar') }}"
-                   class="btn btn-secondary">
-                    Cancelar
-                </a>
-                <a href="/unidades" class="btn btn-secondary">
-                    ⬅ Volver
-                </a>
+    <a href="{{ url_for('main.unidades_listar') }}"
+       class="btn btn-secondary">
+        ⬅ Volver
+    </a>
+
+    <button type="submit" class="btn btn-success">
+        💾 Guardar
+    </button>
+
+</div>
+
             </form>
 
         </div>
