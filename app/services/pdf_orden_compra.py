@@ -1,4 +1,7 @@
 from io import BytesIO
+from typing_extensions import Buffer
+from annotated_types import doc
+from pymupdf import Story
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -6,7 +9,10 @@ from reportlab.lib.units import cm
 from reportlab.platypus import (
     SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 )
-
+import os
+from reportlab.platypus import Image
+from reportlab.pdfgen import canvas
+from datetime import datetime
 
 def P(texto, style):
     return Paragraph(str(texto or ""), style)
@@ -108,8 +114,33 @@ def generar_pdf_orden_compra(orden, productos):
     iva = subtotal * 0.12
     total = subtotal + iva
 
-    story.append(P("ÍNFIMA CUANTÍA", title))
+    logo_path = os.path.join("app", "static", "logo.png")
 
+    if os.path.exists(logo_path):
+        logo = Image(logo_path, width=2*cm, height=2*cm)
+    else:
+        logo = ""
+
+    encabezado_inst = Table([
+        [
+            logo,
+            P(
+                "UNIVERSIDAD TÉCNICA DE MACHALA<br/>"
+                "DIRECCIÓN ADMINISTRATIVA<br/><br/>"
+                "ORDEN DE COMPRA<br/>"
+                "ÍNFIMA CUANTÍA",
+                title
+            )
+        ]
+    ], colWidths=[3*cm, 15*cm])
+
+    encabezado_inst.setStyle(TableStyle([
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("ALIGN", (0, 0), (0, 0), "CENTER"),
+    ]))
+
+    story.append(encabezado_inst)
+    story.append(Spacer(1, 0.3*cm))
     encabezado = Table([
         [
             P("No. DE ORDEN DE COMPRA: SERVICIO / BIEN / OBRA", bold_center),
@@ -182,10 +213,12 @@ def generar_pdf_orden_compra(orden, productos):
         cantidad = p[3]
         valor_uni = p[4]
         valor_total = p[5]
+        cpc = p[6] 
 
         items.append([
             P(contador, normal_center),
-            P("", normal_center),
+            P(cpc, normal_center),
+            #P("", normal_center),
             P(descripcion, normal),
             P(unidad, normal_center),
             P(cantidad, normal_center),
@@ -201,7 +234,7 @@ def generar_pdf_orden_compra(orden, productos):
 
     tabla_items = Table(
         items,
-        colWidths=[1.2*cm, 1.5*cm, 5.5*cm, 2.2*cm, 1.8*cm, 2.8*cm, 3.0*cm],
+        colWidths=[1*cm, 1.8*cm, 6.4*cm, 2*cm, 2*cm, 2.4*cm, 2.4*cm],
         repeatRows=1
     )
 
@@ -381,7 +414,19 @@ def generar_pdf_orden_compra(orden, productos):
 
     story.append(firmas)
 
-    doc.build(story)
+    def pie_pagina(canvas, doc):
+        canvas.saveState()
+        canvas.setFont("Times-Roman", 7)
+        canvas.drawString(1.2 * cm, 0.8 * cm, "Universidad Técnica de Machala - Sistema SICOP")
+        canvas.drawRightString(19.8 * cm, 0.8 * cm, f"Página {doc.page}")
+        canvas.drawCentredString(10.5 * cm, 0.8 * cm, f"Generado: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
+        canvas.restoreState()
+
+    doc.build(
+        story,
+        onFirstPage=pie_pagina,
+        onLaterPages=pie_pagina
+    )
 
     buffer.seek(0)
     return buffer

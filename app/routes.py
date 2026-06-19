@@ -1236,7 +1236,8 @@ def orden_compra_pdf(id):
             unidad,
             cantidad,
             valor_uni,
-            cantidad * valor_uni AS valor_total
+            cantidad * valor_uni AS valor_total,
+            cpc
         FROM productos
         WHERE orden_compra_id = %s
         ORDER BY id
