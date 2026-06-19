@@ -1,5 +1,4 @@
 from io import BytesIO
-from annotated_types import doc
 from pymupdf import Story
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
