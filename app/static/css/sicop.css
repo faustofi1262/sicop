@@ -29,3 +29,12 @@ hr {
   background-color: #fff !important;
   opacity: 1 !important;
 }
+body{
+
+background-image:url('/static/edificio.jpg');
+
+background-size:cover;
+
+background-attachment:fixed;
+
+}

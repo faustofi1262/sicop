@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-fluid vh-100">
+
+    <div class="row justify-content-center align-items-center h-100">
+
+        <div class="col-md-8">
+
+            <div class="card shadow-lg p-4">        
+            <img src="{{ url_for('static',
+                    filename='logo.png') }}"
+                    width="150"
+                    class="mb-2">
+
+            <h1 class="fw-bold">
+                SICOP
+            </h1>
+
+            <h3 class="text-primary">
+                Sistema Integral de Compras Públicas
+            </h3>
+
+            <hr>
+
+            <h5>
+                Universidad Técnica de Machala
+            </h5>
+            <p class="text-muted">
+                Gestión de requerimientos,
+                órdenes de compra,
+                seguimiento contractual,
+                comunicaciones,
+                informes y expedientes.
+
+            </p>
+            <br>
+
+            <a href="{{ url_for('main.login_form') }}"
+            class="btn btn-primary btn-lg rounded-pill px-5">
+            🔐 Ingresar al Sistema
+            </a>
+            </div>
+         </div>
+   
+    </div>
+   
+</div>
+<hr>
+<footer class="text-center mt-1">
+
+<hr>
+
+<small class="text-muted">
+
+Unidad de Compras Públicas<br>
+
+SICOP v1.0 • 2026
+
+</small>
+
+</footer>
+
+{% endblock %}

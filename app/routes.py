@@ -56,6 +56,11 @@ def login_required(role=None):
     return decorator
 
 @main.route("/", methods=["GET"])
+def inicio():
+    return render_template("inicio.html")
+
+
+@main.route("/login", methods=["GET"])
 def login_form():
     return render_template("login.html")
 
