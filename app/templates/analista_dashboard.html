@@ -34,7 +34,9 @@
         <p class="text-center">Bienvenido, {{ nombre }}</p>
 
         <a href="/requerimientos/nuevo" class="btn btn-primary btn-block">📋 Ingresar Requerimientos</a>
-        <a href="/admin/tareas" class="btn btn-success btn-block">🛠️ Ingresar Tareas</a>
+        <a href="{{ url_for('main.tareas') }}" class="btn btn-success btn-block">
+            🛠️ Ingresar Tareas
+        </a>
         <a href="/seguimiento_contratos" class="btn btn-info btn-block">
             📋 Seguimiento de Contratos
         </a>

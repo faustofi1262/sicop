@@ -120,7 +120,7 @@
 
     <div class="text-center btn-imprimir">
         <button onclick="window.print()" class="btn btn-primary">📄 Imprimir PDF</button>
-        <a href="/admin/tareas" class="btn btn-secondary ml-2">🔙 Regresar a Tareas</a>
+        <a href="{{ url_for('main.tareas') }}" class="btn btn-secondary ml-2">🔙 Regresar a Tareas</a>
         <a href="/informe/verificacion/{{ request.view_args['id_tarea'] }}/pdf" class="btn btn-success ml-2">⬇ Descargar PDF</a>
     </div>
 
