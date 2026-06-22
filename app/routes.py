@@ -1007,7 +1007,7 @@ def guardar_tarea():
             request.form.get("funcionario_encargado"),
             nombre_jefe,
             request.form.get("unidad_solicitante"),
-            request.form.get("requerimiento_id"),
+            request.form.get("requerimiento_id") or None,
 
             presenta_estudio_previo,
             presenta_terminos_referencia,
