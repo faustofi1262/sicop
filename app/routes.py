@@ -288,7 +288,7 @@ def listar_requerimientos():
                u.nombre_unidad,
                r.monto_req
         FROM requerimientos r
-        JOIN unidades u ON u.id = r.unid_requirente
+        LEFT JOIN unidades u ON u.id = r.unid_requirente
         ORDER BY r.id DESC
     """)
 
