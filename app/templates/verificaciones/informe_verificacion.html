@@ -108,11 +108,11 @@
     </tr>
     <tr>
         <td><strong>Monto Total sin IVA:</strong></td>
-        <td>$ {{ valor_sin_iva }}</td>
+        <td>$ {{ "%.2f"|format(valor_sin_iva|float) }}</td>
     </tr>
     <tr>
         <td><strong>Monto Exento:</strong></td>
-        <td>$ {{ valor_exento }}</td>
+        <td>$ {{ "%.2f"|format(valor_exento|float) }}</td>
     </tr>
     <tr>
         <td><strong>Valor en Letras:</strong></td>
