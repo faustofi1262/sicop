@@ -808,7 +808,7 @@ def tareas_editar(id):
         consta_poa,                     -- 25
         consta_pac,                     -- 26
         presenta_errores,               -- 27
-        cumple_normativa                -- 28
+        cumple_normativa,                -- 28
           -- 🔹 NUEVOS CAMPOS
         presenta_planos,                -- 29
         presenta_apus,                  -- 30
@@ -2435,7 +2435,10 @@ def informe_verificacion(id_tarea):
         WHERE t.id = %s
     """, (id_tarea,))   
     tarea = cur.fetchone()
-
+    print("===================")
+    print("ID:", tarea["id"])
+    print("POA:", tarea["consta_poa"])
+    print("===================")
     conn.close()
 
     if not tarea:
