@@ -2463,7 +2463,7 @@ def informe_verificacion(id_tarea):
             valor_exento=tarea['valor_exento'],
             valor_en_letras=tarea['valor_en_letras'],
 
-            base_legal="LOSNCP y su Reglamento General",
+            base_legal=tarea['base_legal'],
             observaciones="La documentación cumple con los requisitos formales.",
             nombre_jefe_compras=tarea['nombre_jefe_compras'],
              # 🔹 VERIFICACIÓN DOCUMENTAL
