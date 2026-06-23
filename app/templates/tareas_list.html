@@ -17,13 +17,15 @@
     </div>
 </div>
 
-    <form method="get" class="row mb-3">
+    <form method="GET"
+      action="{{ url_for('main.tareas') }}"
+      class="row mb-3">
     <div class="col-md-4">
         <input type="text"
-               name="memo"
-               class="form-control"
-               placeholder="🔍 Buscar por Código de Proceso"
-               value="{{ request.args.get('memo','') }}">
+            name="codigo"
+            class="form-control"
+            placeholder="🔍 Buscar por Código de Proceso"
+            value="{{ codigo }}">
     </div>
 
     <div class="col-md-4">
@@ -31,22 +33,24 @@
                name="unidad"
                class="form-control"
                placeholder="🏢 Buscar por Unidad"
-               value="{{ request.args.get('unidad','') }}">
+               value="{{ unidad }}">
     </div>
 
     <div class="col-md-4">
-        <input type="text"
-               name="funcionario"
-               class="form-control"
-               placeholder="👤 Buscar por Funcionario Asignado"
-               value="{{ request.args.get('funcionario','') }}">
-    </div>
+    <input type="text"
+            name="funcionario"
+            class="form-control"
+            placeholder="👤 Buscar por Funcionario Asignado"
+            value="{{ funcionario }}">
+        </div>
 
-    <div class="col-md-12 mt-2">
-        <button class="btn btn-secondary btn-sm">
-            <b>🔎 FILTRAR</b>
-        </button>
-    </div>
+        <div class="col-md-12 mt-2">
+
+            <button type="submit" class="btn btn-secondary btn-sm">
+                <b>🔎 FILTRAR</b>
+            </button>
+
+        </div>
 </form>
 
     <table class="table table-bordered table-hover">

@@ -1120,28 +1120,56 @@ def guardar_tarea():
 @main.route("/tareas")
 @login_required()
 def tareas():
+    codigo = request.args.get("codigo", "").strip()
+    unidad = request.args.get("unidad", "").strip()
+    funcionario = request.args.get("funcionario", "").strip()
+
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("""
-    SELECT 
-        t.id,
-        t.codigo_proceso,
-        t.objeto_contratacion,
-        tp.nombre_proceso,
-        t.estado_requerimiento,
-        t.fecha_recepcion
-    FROM tareas t
-    LEFT JOIN tipo_procesos tp
-        ON t.tipo_proceso = tp.id::TEXT
-    ORDER BY t.id DESC
-""")
+    sql = """
+        SELECT 
+            t.id,
+            t.codigo_proceso,
+            t.objeto_contratacion,
+            tp.nombre_proceso,
+            t.estado_requerimiento,
+            t.fecha_recepcion
+        FROM tareas t
+        LEFT JOIN tipo_procesos tp
+            ON t.tipo_proceso = tp.id::TEXT
+        WHERE 1=1
+    """
 
+    params = []
 
+    if codigo:
+        sql += " AND t.codigo_proceso ILIKE %s"
+        params.append(f"%{codigo}%")
+
+    if unidad:
+        sql += " AND t.unidad_solicitante ILIKE %s"
+        params.append(f"%{unidad}%")
+
+    if funcionario:
+        sql += " AND t.funcionario_encargado ILIKE %s"
+        params.append(f"%{funcionario}%")
+
+    sql += " ORDER BY t.id DESC"
+
+    cur.execute(sql, params)
     tareas = cur.fetchall()
+
+    cur.close()
     conn.close()
 
-    return render_template("tareas_list.html", tareas=tareas)
+    return render_template(
+        "tareas_list.html",
+        tareas=tareas,
+        codigo=codigo,
+        unidad=unidad,
+        funcionario=funcionario
+    )
 
 # =================
 # ELIMINAR  TAREAS
