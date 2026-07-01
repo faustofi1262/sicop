@@ -108,7 +108,7 @@ def generar_pdf_orden_compra(orden, productos):
         except:
             pass
 
-    iva = subtotal * 0.12
+    iva = subtotal * 0.15
     total = subtotal + iva
 
     logo_path = os.path.join("app", "static", "logo.png")
@@ -226,7 +226,7 @@ def generar_pdf_orden_compra(orden, productos):
 
   
     items.append(["", "", "", "", "", P("SUBTOTAL", bold), P("$ " + money(subtotal), normal)])
-    items.append(["", "", "", "", "", P("IVA 12%", bold), P("$ " + money(iva), normal)])
+    items.append(["", "", "", "", "", P("IVA 15%", bold), P("$ " + money(iva), normal)])
     items.append(["", "", "", "", "", P("TOTAL", bold), P("$ " + money(total), normal)])
 
     tabla_items = Table(
