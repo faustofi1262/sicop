@@ -416,7 +416,7 @@ def generar_pdf_orden_compra(orden, productos):
         canvas.setFont("Times-Roman", 7)
         canvas.drawString(1.2 * cm, 0.8 * cm, "Universidad Técnica de Machala - Sistema SICOP")
         canvas.drawRightString(19.8 * cm, 0.8 * cm, f"Página {doc.page}")
-        canvas.drawCentredString(10.5 * cm, 0.8 * cm, f"Generado: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
+        #canvas.drawCentredString(10.5 * cm, 0.8 * cm, f"Generado: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
         canvas.restoreState()
 
     doc.build(
