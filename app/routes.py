@@ -2939,3 +2939,152 @@ def tipo_procesos_eliminar(id):
     return redirect(
         url_for("main.tipo_procesos_listar")
     )
+# ===============================
+# SEGUIMIENTO DE TAREAS
+# ===============================
+@main.route("/seguimiento_tareas")
+@login_required()
+def seguimiento_tareas():
+    estado = request.args.get("estado", "").strip()
+    unidad = request.args.get("unidad", "").strip()
+    funcionario = request.args.get("funcionario", "").strip()
+    codigo = request.args.get("codigo", "").strip()
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    sql = """
+        SELECT
+            id,
+            codigo_proceso,
+            objeto_contratacion,
+            unidad_solicitante,
+            funcionario_encargado,
+            estado_requerimiento,
+            fecha_recepcion,
+            CURRENT_DATE - fecha_recepcion AS dias_tramite
+        FROM tareas
+        WHERE 1=1
+    """
+
+    params = []
+
+    if estado:
+        sql += " AND estado_requerimiento ILIKE %s"
+        params.append(f"%{estado}%")
+
+    if unidad:
+        sql += " AND unidad_solicitante ILIKE %s"
+        params.append(f"%{unidad}%")
+
+    if funcionario:
+        sql += " AND funcionario_encargado ILIKE %s"
+        params.append(f"%{funcionario}%")
+
+    if codigo:
+        sql += " AND codigo_proceso ILIKE %s"
+        params.append(f"%{codigo}%")
+
+    sql += " ORDER BY fecha_recepcion DESC NULLS LAST, id DESC"
+
+    cur.execute(sql, params)
+    tareas = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template(
+        "seguimiento_tareas/seguimiento_tareas.html",
+        tareas=tareas,
+        estado=estado,
+        unidad=unidad,
+        funcionario=funcionario,
+        codigo=codigo
+    )
+# ===============================
+# GUARDAR SEGUIMIENTO DE TAREA
+# ===============================
+@main.route("/seguimiento_tareas/guardar", methods=["POST"])
+@login_required()
+def seguimiento_tareas_guardar():
+    tarea_id = request.form.get("tarea_id")
+    estado = request.form.get("estado")
+    observacion = request.form.get("observacion")
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO seguimiento_tareas (
+            tarea_id,
+            estado,
+            observacion,
+            usuario_id
+        )
+        VALUES (%s, %s, %s, %s)
+    """, (
+        tarea_id,
+        estado,
+        observacion,
+        session.get("user_id")
+    ))
+
+    cur.execute("""
+        UPDATE tareas
+        SET estado_requerimiento = %s
+        WHERE id = %s
+    """, (
+        estado,
+        tarea_id
+    ))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    flash("✅ Seguimiento registrado correctamente", "success")
+    return redirect(url_for("main.seguimiento_tareas"))
+# ===============================
+# HISTORIAL SEGUIMIENTO DE TAREA
+# ===============================
+@main.route("/seguimiento_tareas/historial/<int:tarea_id>")
+@login_required()
+def seguimiento_tareas_historial(tarea_id):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            id,
+            codigo_proceso,
+            objeto_contratacion,
+            unidad_solicitante,
+            funcionario_encargado,
+            estado_requerimiento
+        FROM tareas
+        WHERE id = %s
+    """, (tarea_id,))
+    tarea = cur.fetchone()
+
+    cur.execute("""
+        SELECT
+            s.fecha,
+            s.estado,
+            s.observacion,
+            u.nombre
+        FROM seguimiento_tareas s
+        LEFT JOIN usuarios u
+            ON s.usuario_id = u.id
+        WHERE s.tarea_id = %s
+        ORDER BY s.fecha DESC
+    """, (tarea_id,))
+    seguimientos = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template(
+        "seguimiento_tareas/historial.html",
+        tarea=tarea,
+        seguimientos=seguimientos
+    )

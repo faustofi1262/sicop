@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4><b>📌 SEGUIMIENTO DE TAREAS</b></h4>
+
+        <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-secondary">
+            ⬅️ Volver al Panel
+        </a>
+    </div>
+
+    <form method="GET" action="{{ url_for('main.seguimiento_tareas') }}" class="row mb-3">
+
+        <div class="col-md-3">
+            <input type="text" name="codigo" class="form-control"
+                   placeholder="Código proceso"
+                   value="{{ codigo }}">
+        </div>
+
+        <div class="col-md-3">
+            <input type="text" name="estado" class="form-control"
+                   placeholder="Estado"
+                   value="{{ estado }}">
+        </div>
+
+        <div class="col-md-3">
+            <input type="text" name="unidad" class="form-control"
+                   placeholder="Unidad"
+                   value="{{ unidad }}">
+        </div>
+
+        <div class="col-md-3">
+            <input type="text" name="funcionario" class="form-control"
+                   placeholder="Funcionario"
+                   value="{{ funcionario }}">
+        </div>
+
+        <div class="col-md-12 mt-2">
+            <button type="submit" class="btn btn-primary btn-sm">
+                🔎 Filtrar
+            </button>
+
+            <a href="{{ url_for('main.seguimiento_tareas') }}" class="btn btn-light btn-sm">
+                Limpiar
+            </a>
+        </div>
+
+    </form>
+
+    <table class="table table-bordered table-hover table-sm">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Código</th>
+                <th>Objeto</th>
+                <th>Unidad</th>
+                <th>Funcionario</th>
+                <th>Estado</th>
+                <th>Fecha Recepción</th>
+                <th>Días</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for t in tareas %}
+            <tr>
+                <td>{{ t[0] }}</td>
+                <td>{{ t[1] }}</td>
+                <td>{{ t[2] }}</td>
+                <td>{{ t[3] }}</td>
+                <td>{{ t[4] }}</td>
+                <td><b>{{ t[5] }}</b></td>
+                <td>{{ t[6] }}</td>
+                <td>{{ t[7] if t[7] is not none else '' }}</td>
+                <td>
+                <a href="{{ url_for('main.tareas_editar', id=t[0]) }}"
+                class="btn btn-warning btn-sm mb-1">
+                    ✏️ Editar
+                </a>
+
+                <br>
+
+                <button type="button"
+                        class="btn btn-info btn-sm"
+                        data-toggle="modal"
+                        data-target="#modalSeguimiento"
+                        onclick="abrirSeguimiento('{{ t[0] }}', '{{ t[1] }}')">
+                    📌 Seguimiento
+                </button>
+                <a href="{{ url_for('main.seguimiento_tareas_historial', tarea_id=t[0]) }}"
+                class="btn btn-dark btn-sm mt-1">
+                    📜 Historial
+                </a>
+            </td>
+            </tr> 
+        {% else %}
+            <tr>
+                <td colspan="9" class="text-center text-muted">
+                    No existen tareas para mostrar
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+<!-- ========================= -->
+<!-- MODAL SEGUIMIENTO -->
+<!-- ========================= -->
+
+<div class="modal fade" id="modalSeguimiento" tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <form method="POST"
+              action="{{ url_for('main.seguimiento_tareas_guardar') }}">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        📌 Registrar Seguimiento
+                    </h5>
+
+                    <button type="button"
+                            class="close"
+                            data-dismiss="modal">
+                        &times;
+                    </button>
+                </div>
+
+                <div class="modal-body">
+
+                   <input type="hidden"
+                        id="tarea_id_modal"
+                        name="tarea_id">
+
+                    <div class="form-group">
+
+                        <label>Código</label>
+
+                        <input
+                            type="text"
+                            id="codigo_modal"
+                            class="form-control"
+                            readonly>
+
+                    </div>
+
+                <div class="form-group">
+
+                        <label>Estado</label>
+
+                        <select
+                            class="form-control"
+                            name="estado"
+                            required>
+
+                            <option>RECIBIDA</option>
+                            <option>EN REVISIÓN</option>
+                            <option>OBSERVADA</option>
+                            <option>CORREGIDA</option>
+                            <option>SOLICITUD DE CERTIFICACIÓN</option>
+                            <option>CON CERTIFICACION</option>
+                            <option>ELABORANDO ORDEN DE COMPRA</option>
+                            <option>ORDEN DE COMPRA ENVIADA</option>
+                            <option>ELABORANDO PLIEGO</option>
+                            <option>PUBLICADA</option>
+                            <option>ADJUDICADA</option>
+                            <option>FINALIZADA</option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>Observación</label>
+
+                        <textarea
+                            class="form-control"
+                            rows="4"
+                            name="observacion"></textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button class="btn btn-success">
+                        💾 Guardar
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+<script>
+function abrirSeguimiento(id, codigo) {
+    document.getElementById("tarea_id_modal").value = id;
+    document.getElementById("codigo_modal").value = codigo;
+}
+</script>
+{% endblock %}

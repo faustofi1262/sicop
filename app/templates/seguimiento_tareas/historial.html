@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4><b>📜 Historial de Seguimiento</b></h4>
+
+        <a href="{{ url_for('main.seguimiento_tareas') }}" class="btn btn-secondary">
+            ⬅️ Volver
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            Datos de la tarea
+        </div>
+
+        <div class="card-body">
+            <p><b>Código:</b> {{ tarea[1] }}</p>
+            <p><b>Objeto:</b> {{ tarea[2] }}</p>
+            <p><b>Unidad:</b> {{ tarea[3] }}</p>
+            <p><b>Funcionario:</b> {{ tarea[4] }}</p>
+            <p><b>Estado actual:</b> {{ tarea[5] }}</p>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-hover table-sm">
+        <thead class="thead-dark">
+            <tr>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th>Observación</th>
+                <th>Usuario</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for s in seguimientos %}
+            <tr>
+                <td>{{ s[0] }}</td>
+                <td><b>{{ s[1] }}</b></td>
+                <td>{{ s[2] }}</td>
+                <td>{{ s[3] }}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4" class="text-center text-muted">
+                    No existen seguimientos registrados para esta tarea.
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock %}
