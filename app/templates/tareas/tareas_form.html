@@ -109,17 +109,17 @@
 
             {% set estado_actual = tarea[2] if tarea else '' %}
 
-            <option value="RECIBIDA" {% if estado_actual == 'RECIBIDA' %}selected{% endif %}>RECIBIDA</option>
             <option value="EN REVISIÓN" {% if estado_actual == 'EN REVISIÓN' %}selected{% endif %}>EN REVISIÓN</option>
             <option value="OBSERVADA" {% if estado_actual == 'OBSERVADA' %}selected{% endif %}>OBSERVADA</option>
-            <option value="CORREGIDA" {% if estado_actual == 'CORREGIDA' %}selected{% endif %}>CORREGIDA</option>
+            <option value="ENVIADO AUTORIZAR" {% if estado_actual == 'ENVIADO AUTORIZAR' %}selected{% endif %}>ENVIADO AUTORIZAR</option>
             <option value="SOLICITUD DE CERTIFICACIÓN" {% if estado_actual == 'SOLICITUD DE CERTIFICACIÓN' %}selected{% endif %}>SOLICITUD DE CERTIFICACIÓN</option>
             <option value="CERTIFICADA" {% if estado_actual == 'CERTIFICADA' %}selected{% endif %}>CERTIFICADA</option>
-            <option value="ELABORANDO ORDEN DE COMPRA" {% if estado_actual == 'ELABORANDO ORDEN DE COMPRA' %}selected{% endif %}>ELABORANDO ORDEN DE COMPRA</option>
             <option value="ORDEN DE COMPRA ENVIADA" {% if estado_actual == 'ORDEN DE COMPRA ENVIADA' %}selected{% endif %}>ORDEN DE COMPRA ENVIADA</option>
             <option value="ELABORANDO PLIEGO" {% if estado_actual == 'ELABORANDO PLIEGO' %}selected{% endif %}>ELABORANDO PLIEGO</option>
             <option value="PUBLICADA" {% if estado_actual == 'PUBLICADA' %}selected{% endif %}>PUBLICADA</option>
             <option value="ADJUDICADA" {% if estado_actual == 'ADJUDICADA' %}selected{% endif %}>ADJUDICADA</option>
+            <option value="DESIERTA" {% if estado_actual == 'DESIERTA' %}selected{% endif %}>DESIERTA|</option>
+            <option value="REAPERTURA" {% if estado_actual == 'REAPERTURA' %}selected{% endif %}>REAPERTURA</option>
             <option value="CONTRATO SUSCRITO" {% if estado_actual == 'CONTRATO SUSCRITO' %}selected{% endif %}>CONTRATO SUSCRITO</option>
             <option value="EN EJECUCIÓN" {% if estado_actual == 'EN EJECUCIÓN' %}selected{% endif %}>EN EJECUCIÓN</option>
             <option value="FINALIZADA" {% if estado_actual == 'FINALIZADA' %}selected{% endif %}>FINALIZADA</option>
