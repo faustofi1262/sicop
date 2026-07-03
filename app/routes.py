@@ -3088,3 +3088,153 @@ def seguimiento_tareas_historial(tarea_id):
         tarea=tarea,
         seguimientos=seguimientos
     )
+@main.route("/seguimiento_tareas/dashboard")
+@login_required()
+def seguimiento_tareas_dashboard():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            COUNT(*) AS total,
+
+            COUNT(*) FILTER (
+                WHERE estado_requerimiento NOT ILIKE '%FINALIZADA%'
+                AND estado_requerimiento NOT ILIKE '%ANULADA%'
+            ) AS en_tramite,
+
+            COUNT(*) FILTER (
+                WHERE estado_requerimiento ILIKE '%FINALIZADA%'
+            ) AS finalizadas,
+
+            COUNT(*) FILTER (
+                WHERE fecha_recepcion IS NOT NULL
+                AND CURRENT_DATE - fecha_recepcion > 10
+                AND estado_requerimiento NOT ILIKE '%FINALIZADA%'
+                AND estado_requerimiento NOT ILIKE '%ANULADA%'
+            ) AS atrasadas,
+
+            COUNT(*) FILTER (
+                WHERE estado_requerimiento ILIKE '%CERTIFICACIÓN%'
+                OR estado_requerimiento ILIKE '%CERTIFICACION%'
+            ) AS certificacion,
+
+            COUNT(*) FILTER (
+                WHERE estado_requerimiento ILIKE '%ORDEN DE COMPRA%'
+            ) AS orden_compra,
+
+            COUNT(*) FILTER (
+                WHERE estado_requerimiento ILIKE '%PLIEGO%'
+            ) AS pliegos,
+
+            COUNT(*) FILTER (
+                WHERE estado_requerimiento ILIKE '%ADJUDICADA%'
+            ) AS adjudicadas,
+
+            COUNT(*) FILTER (
+                WHERE estado_requerimiento ILIKE '%OBSERVADA%'
+            ) AS observadas,
+
+            COUNT(*) FILTER (
+                WHERE estado_requerimiento ILIKE '%ANULADA%'
+            ) AS anuladas
+        FROM tareas
+    """)
+    stats = cur.fetchone()
+
+    cur.execute("""
+        SELECT
+            id,
+            codigo_proceso,
+            objeto_contratacion,
+            estado_requerimiento,
+            fecha_recepcion,
+            CURRENT_DATE - fecha_recepcion AS dias
+        FROM tareas
+        WHERE fecha_recepcion IS NOT NULL
+          AND CURRENT_DATE - fecha_recepcion > 10
+          AND estado_requerimiento NOT ILIKE '%FINALIZADA%'
+          AND estado_requerimiento NOT ILIKE '%ANULADA%'
+        ORDER BY dias DESC
+        LIMIT 10
+    """)
+    alertas = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template(
+        "seguimiento_tareas/dashboard.html",
+        stats=stats,
+        alertas=alertas
+    )
+# ===============================
+# DASHBOARD EJECUTIVO SICOP
+# ===============================
+@main.route("/dashboard_ejecutivo")
+@login_required()
+def dashboard_ejecutivo():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    # Indicadores generales
+    cur.execute("""
+        SELECT
+            COUNT(*) AS total,
+            ROUND(AVG(CURRENT_DATE - fecha_recepcion), 2) AS promedio_dias,
+            COUNT(*) FILTER (WHERE CURRENT_DATE - fecha_recepcion > 5) AS atrasadas_5,
+            COUNT(*) FILTER (WHERE CURRENT_DATE - fecha_recepcion > 10) AS atrasadas_10,
+            COUNT(*) FILTER (WHERE CURRENT_DATE - fecha_recepcion > 15) AS atrasadas_15,
+            COUNT(*) FILTER (WHERE CURRENT_DATE - fecha_recepcion > 30) AS atrasadas_30,
+            COALESCE(SUM(valor_sin_iva + valor_exento), 0) AS monto_total    
+
+        FROM tareas
+        WHERE fecha_recepcion IS NOT NULL
+    """)
+    resumen = cur.fetchone()
+
+    # Por estado
+    cur.execute("""
+        SELECT
+            COALESCE(estado_requerimiento, 'SIN ESTADO') AS estado,
+            COUNT(*) AS total
+        FROM tareas
+        GROUP BY estado
+        ORDER BY total DESC
+    """)
+    por_estado = cur.fetchall()
+
+    # Por analista
+    cur.execute("""
+        SELECT
+            COALESCE(funcionario_encargado, 'SIN FUNCIONARIO') AS funcionario,
+            COUNT(*) AS total
+        FROM tareas
+        GROUP BY funcionario
+        ORDER BY total DESC
+        LIMIT 10
+    """)
+    por_funcionario = cur.fetchall()
+
+    # Por unidad
+    cur.execute("""
+        SELECT
+            COALESCE(unidad_solicitante, 'SIN UNIDAD') AS unidad,
+            COUNT(*) AS total
+        FROM tareas
+        GROUP BY unidad
+        ORDER BY total DESC
+        LIMIT 10
+    """)
+    por_unidad = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template(
+        "dashboard_ejecutivo.html",
+        resumen=resumen,
+        por_estado=por_estado,
+        por_funcionario=por_funcionario,
+        por_unidad=por_unidad
+    )

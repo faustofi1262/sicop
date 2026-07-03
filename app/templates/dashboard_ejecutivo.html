@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container-fluid mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><b>📊 Dashboard Ejecutivo SICOP</b></h2>
+
+        <a href="{{ url_for('main.user_dashboard') }}" class="btn btn-secondary">
+            ⬅ Volver
+        </a>
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-2 mb-3">
+            <div class="card shadow border-primary">
+                <div class="card-body text-center">
+                    <h6>Total Tareas</h6>
+                    <h1 class="text-primary">{{ resumen[0] }}</h1>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card shadow border-success">
+                <div class="card-body text-center">
+                    <h6>💰 Monto Procesado</h6>
+                    <h1 class="text-success">
+                        $ {{ "{:,.2f}".format(resumen[6]) }}
+                    </h1>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 mb-3">
+            <div class="card shadow border-info">
+                <div class="card-body text-center">
+                    <h6>Promedio Días</h6>
+                    <h1 class="text-info">{{ resumen[1] or 0 }}</h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2 mb-3">
+            <div class="card shadow border-warning">
+                <div class="card-body text-center">
+                    <h6>+5 días</h6>
+                    <h1 class="text-warning">{{ resumen[2] }}</h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2 mb-3">
+            <div class="card shadow border-danger">
+                <div class="card-body text-center">
+                    <h6>+10 días</h6>
+                    <h1 class="text-danger">{{ resumen[3] }}</h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2 mb-3">
+            <div class="card shadow border-danger">
+                <div class="card-body text-center">
+                    <h6>+15 días</h6>
+                    <h1 class="text-danger">{{ resumen[4] }}</h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2 mb-3">
+            <div class="card shadow border-dark">
+                <div class="card-body text-center">
+                    <h6>+30 días</h6>
+                    <h1>{{ resumen[5] }}</h1>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-4 mb-3">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white">
+                    📌 Tareas por Estado
+                </div>
+                <div class="card-body">
+                    {% for e in por_estado %}
+                        <p><b>{{ e[0] }}</b>: {{ e[1] }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white">
+                    👩‍💼 Tareas por Analista
+                </div>
+                <div class="card-body">
+                    {% for f in por_funcionario %}
+                        <p><b>{{ f[0] }}</b>: {{ f[1] }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card shadow">
+                <div class="card-header bg-dark text-white">
+                    🏢 Tareas por Unidad
+                </div>
+                <div class="card-body">
+                    {% for u in por_unidad %}
+                        <p><b>{{ u[0] }}</b>: {{ u[1] }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+</div>
+
+{% endblock %}
