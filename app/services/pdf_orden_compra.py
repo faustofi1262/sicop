@@ -239,8 +239,8 @@ def generar_pdf_orden_compra(orden, productos):
         ("GRID", (0, 0), (-1, -1), 0.6, colors.black),
         ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("SPAN", (0, -3), (4, -3)),
-        ("SPAN", (0, -2), (4, -2)),
+        #("SPAN", (0, -3), (4, -3)),
+        #("SPAN", (0, -2), (4, -2)),
         ("SPAN", (0, -1), (4, -1)),
     ]))
     story.append(tabla_items)
