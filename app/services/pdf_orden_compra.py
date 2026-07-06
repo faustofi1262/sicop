@@ -226,8 +226,8 @@ def generar_pdf_orden_compra(orden, productos):
 
   
     items.append(["", "", "", "", "", P("SUBTOTAL", bold), P("$ " + money(subtotal), normal)])
-    items.append(["", "", "", "", "", P("IVA 15%", bold), P("$ " + money(iva), normal)])
-    items.append(["", "", "", "", "", P("TOTAL", bold), P("$ " + money(total), normal)])
+    #items.append(["", "", "", "", "", P("IVA 15%", bold), P("$ " + money(iva), normal)])
+    #items.append(["", "", "", "", "", P("TOTAL", bold), P("$ " + money(total), normal)])
 
     tabla_items = Table(
         items,
