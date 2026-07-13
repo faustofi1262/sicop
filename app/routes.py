@@ -1601,33 +1601,36 @@ def api_tarea(id):
 @main.route("/ordenes_compra/editar/<int:id>")
 @login_required()
 def ordenes_compra_editar(id):
-        conn = get_connection()
-        cur = conn.cursor(cursor_factory=RealDictCursor)
-
-        cur.execute("SELECT * FROM ordenes_compra WHERE id=%s", (id,))
-        orden = cur.fetchone()
+    conn = get_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
 
     # Cabecera
-        cur.execute("""
+    cur.execute("""
         SELECT *
         FROM ordenes_compra
         WHERE id = %s
     """, (id,))
-        orden = cur.fetchone()
+    orden = cur.fetchone()
 
     # Productos
-        cur.execute("""
-        SELECT id, descripcion, unidad, cantidad, valor_uni
+    cur.execute("""
+        SELECT
+            id,
+            descripcion,
+            unidad,
+            cantidad,
+            valor_uni,
+            cpc
         FROM productos
         WHERE orden_compra_id = %s
         ORDER BY id
     """, (id,))
-        productos = cur.fetchall()
+    productos = cur.fetchall()
 
-        cur.close()
-        conn.close()
+    cur.close()
+    conn.close()
 
-        return render_template(
+    return render_template(
         "ordenes_compra/ordenes_compra_form.html",
         orden=orden,
         productos=productos
