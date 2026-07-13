@@ -231,7 +231,7 @@ def generar_pdf_orden_compra(orden, productos):
 
     tabla_items = Table(
         items,
-        colWidths=[1*cm, 1.9*cm, 6.4*cm, 2*cm, 2*cm, 2.4*cm, 2.4*cm],
+        colWidths=[1*cm, 2*cm, 6.4*cm, 2*cm, 2*cm, 2.4*cm, 2.4*cm],
         repeatRows=1
     )
 
