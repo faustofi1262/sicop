@@ -15,6 +15,13 @@ from flask import send_file
 from io import BytesIO
 from app.services.pdf_orden_compra import generar_pdf_orden_compra
 
+from flask import request, send_file
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+
+
 def valor_en_letras_con_decimales(valor):
     valor = Decimal(valor).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
     entero = int(valor)
@@ -3237,4 +3244,92 @@ def dashboard_ejecutivo():
         por_estado=por_estado,
         por_funcionario=por_funcionario,
         por_unidad=por_unidad
+    )
+# ===============================
+# REPORTES
+# ===============================
+@main.route("/reportes")
+@login_required()
+def reportes():
+    return render_template("reportes/reportes.html")
+
+@main.route("/reporte/procesos_periodo/pdf")
+@login_required()
+def reporte_procesos_periodo_pdf():
+
+    fecha_desde = request.args.get("fecha_desde")
+    fecha_hasta = request.args.get("fecha_hasta")
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            codigo_proceso,
+            objeto_contratacion,
+            monto_contractual,
+            estado
+        FROM seguimiento_contratos
+        WHERE fecha_registro::date BETWEEN %s AND %s
+        ORDER BY fecha_registro DESC
+    """, (fecha_desde, fecha_hasta))
+
+    procesos = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    buffer = BytesIO()
+
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=landscape(A4)
+    )
+
+    elementos = []
+    styles = getSampleStyleSheet()
+
+    elementos.append(
+        Paragraph(
+            f"Reporte de Procesos del {fecha_desde} al {fecha_hasta}",
+            styles["Title"]
+        )
+    )
+
+    data = [[
+        "Código Proceso",
+        "Objeto Contratación",
+        "Monto",
+        "Estado"
+    ]]
+
+    for proceso in procesos:
+        data.append([
+            Paragraph(str(proceso[0]), styles["Normal"]),
+            Paragraph(str(proceso[1]), styles["Normal"]),
+            Paragraph(f"${proceso[2]:,.2f}", styles["Normal"]),
+            Paragraph(str(proceso[3]), styles["Normal"])
+        ])
+
+    tabla = Table(data, colWidths=[110, 520, 90, 90])
+
+    tabla.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+    ]))
+
+    elementos.append(tabla)
+
+    doc.build(elementos)
+
+    buffer.seek(0)
+
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name="reporte_procesos.pdf",
+        mimetype="application/pdf"
     )

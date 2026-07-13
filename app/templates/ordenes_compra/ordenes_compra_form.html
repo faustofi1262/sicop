@@ -272,16 +272,18 @@
       {% for item in productos %}
       <tr>
           <td>{{ loop.index }}</td>
+
           <!-- CPC -->
           <td>
-              <input type="text" name="cpc[]" class="form-control"
-                    value="{{ item.cpc }}">
+              <input type="text"
+                    name="cpc[]"
+                    class="form-control"
+                    value="{{ item.cpc or '' }}">
           </td>
 
           <!-- DESCRIPCIÓN -->
           <td>
-              <input type="text" name="descripcion[]" class="form-control"
-                    value="{{ item.descripcion }}">
+              <textarea name="descripcion[]" class="form-control" rows="4">{{ item.descripcion }}</textarea>
           </td>
 
           <!-- UNIDAD -->
@@ -446,7 +448,11 @@ function agregarFila() {
     </td>
 
     <td>
-      <input type="text" name="descripcion[]" class="form-control form-control-sm" required>
+      <textarea
+          name="descripcion[]"
+          class="form-control form-control-sm"
+          rows="3"
+          required></textarea>
     </td>
 
     <td>

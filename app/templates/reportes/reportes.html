@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3><b>📊 Módulo de Reportes</b></h3>
+
+        <a href="{{ url_for('main.user_dashboard') }}" class="btn btn-secondary">
+            ⬅ Volver
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white">
+            📋 Reporte de procesos por período
+        </div>
+
+        <div class="card-body">
+
+            <form method="GET" action="{{ url_for('main.reporte_procesos_periodo_pdf') }}" target="_blank">
+
+                <div class="row">
+
+                    <div class="col-md-4">
+                        <label>Fecha inicio</label>
+                        <input type="date" name="fecha_desde" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>Fecha fin</label>
+                        <input type="date" name="fecha_hasta" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-danger btn-block">
+                            📄 Generar PDF
+                        </button>
+                    </div>
+
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
