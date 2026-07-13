@@ -362,15 +362,57 @@ def generar_pdf_orden_compra(orden, productos):
         [
             P("BASE LEGAL", bold),
             P(
-                "El artículo 52.1 de la Ley Orgánica del Sistema Nacional de Contratación Pública prevé "
-                "la contratación bajo el procedimiento de ínfima cuantía, conforme los casos y condiciones "
-                "establecidos en dicha norma. El artículo 71 de la LOSNCP regula la imposición de multas "
-                "por retardo en la ejecución de las obligaciones contractuales.",
+                "El artículo 50 de la Ley Orgánica del Sistema Nacional de Contratación Pública prevé "
+                "Se podrá contratar bajo esta modalidad las contrataciones para la adquisición de bienes"
+                 "o prestación de servicios, incluidos los de "
+                "consultoría, o contrataciones de obra cuya cuantía sea igual o inferior a diez mil dólares de"
+                "los Estados Unidos de América (USD $10.000); siempre que no consten en el Catálogo "
+                "Electrónico. "
+                "El Reglamento de la presente Ley establecerá el procedimiento aplicable, incluyendo el "
+                "aviso público que se deberá realizar; así como, las excepciones a las que podrán acogerse "
+                "las entidades contratantes para realizar contrataciones por ínfima cuantía durante el "
+                "Estas contrataciones no podrán emplearse como medio de evasión de los procedimientos "
+                "precontractuales, o como una contratación constante y recurrente durante el ejercicio "
+                "fiscal o para subdividir contratos, lo cual será verificado y regulado por el SERCOP "
+                "con la finalidad de detectar subdivisión de contratos o cualquier evasión o "
+                "incumplimiento de los fines de esta modalidad, " 
+                "en cuyo caso será puesto en conocimiento de la Contraloría "
+                "General del Estado para que inicie las acciones pertinentes. "
+                "Las contrataciones del régimen especial también podrán ser gestionadas bajo el"
+                "procedimiento de ínfima cuantía, siempre que el presupuesto referencial "
+                "no supere el umbral de este procedimiento. "
+                "Art. 375.- Multas durante la ejecución contractual.- (Reformado por la Dis. Décima Primera de la "
+                "Fe de erratas, R.O. 155-7S, 30-X-2025) De conformidad con el artículo 82 numeral 4, de la Ley "
+                "Orgánica del Sistema nacional de Contratación Pública, todo contrato contendrá una cláusula "
+                "relacionada con las multas que la entidad contratante podrá imponer al contratista por "
+                "incumplimiento contractual."
+                "La multa tendrá como finalidad que las entidades contratantes, en ejercicio de su facultad de "
+                "coerción para la correcta ejecución del contrato, sin terminar el mismo, impulsen al contratista a "
+                "corregir su conducta y cumplir con sus obligaciones, a efectos de que el interés público se vea "
+                "beneficiado por medio de la ejecución del objeto contractual. "
+                "En los casos de retrasos injustificados respecto del cumplimiento del objeto contractual, la entidad "
+                "contratante establecerá, por cada día de retardo en la ejecución de las obligaciones contractuales "
+                "por parte del contratista, una multa del 1 x 1.000 de la valoración de la obligación incumplida, "
+                "conforme lo determinen los pliegos. "
+                "En caso de ser obligaciones que no pueden cuantificarse, para obtener el valor de multa se podrá "
+                "aplicar el valor del 1 x 1.000 del monto del contrato, el cual en ningún caso superará los quinientos "
+                "dólares diarios (USD 500). "
+                "En el caso de obras, las multas se calcularán de conformidad con el retraso injustificado imputable " 
+                "a la planilla que corresponda. "
+                "Adicionalmente, las entidades contratantes podrán establecer en el pliego del procedimiento, "
+                "cualquier conducta que amerite ser sancionada con multa, la cual podrá ser fijada en un "
+                "porcentaje del valor de la obligación incumplida o un valor específico que deberá ser debidamente "
+                "proporcional a la gravedad que ocasione el incumplimiento, y que observe la proporcionalidad "
+                "descrita en este artículo."
+                "En virtud de los artículos 1551 y 1553 del Código Civil, corresponde la imposición y cobro de "
+                "multas por el mero retardo del contratista. "
+                "Las multas pueden ser objeto de compensación de valores entre la entidad contratante y el "
+                "contratista, previo acuerdo mutuo entre las partes, en los montos que sean recíprocamente "
+                "deudoras. ",
                 normal
             )
         ],
-    ]
-
+]
     tabla_bloques = Table(bloques, colWidths=[5.2 * cm, 12.8 * cm])
     tabla_bloques.setStyle(TableStyle([
         ("GRID", (0, 0), (-1, -1), 0.6, colors.black),
