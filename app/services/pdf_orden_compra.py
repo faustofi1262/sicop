@@ -326,7 +326,7 @@ def generar_pdf_orden_compra(orden, productos):
             P("RECEPCIÓN:", bold),
             P(
                 "La recepción de los bienes adquiridos/servicios contratados/obras ejecutadas se realizará "
-                "conforme lo dispuesto en el artículo 321 del Reglamento General a la Ley Orgánica "
+                "conforme lo dispuesto en el artículo 364 del Reglamento General a la Ley Orgánica "
                 "del Sistema Nacional de Contratación Pública.",
                 normal
             )
