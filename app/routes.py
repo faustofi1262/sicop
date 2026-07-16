@@ -165,6 +165,26 @@ def gestionar_usuarios():
         })
 
     return render_template("admin_usuarios.html", usuarios=usuarios)
+
+# ==========================
+# PANEL PRINCIPAL SEGÚN ROL
+# ==========================
+@main.route("/panel")
+@login_required()
+def panel_principal():
+
+    rol = session.get("rol", "").strip().lower()
+
+    if rol == "administrador":
+        return redirect(url_for("main.admin_dashboard"))
+
+    elif rol == "analista":
+        return redirect(url_for("main.analista_dashboard"))
+
+    elif rol == "usuario":
+        return redirect(url_for("main.user_dashboard"))
+
+    return redirect(url_for("auth.login"))
 #===================
 # CREAR USUARIO
 #===================
