@@ -2,55 +2,384 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Panel del Analista</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Panel del Analista - SICOP</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            background-color: #093663;
+            margin: 0;
+            min-height: 100vh;
+            background: #f1f5f9;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #1f2937;
         }
-        .dashboard {
-            max-width: 800px;
-            margin: 60px auto;
-            padding: 30px;
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 260px;
+            height: 100vh;
+            padding: 25px 18px;
+            background: linear-gradient(180deg, #0b2f4f, #123f67);
+            color: white;
+            overflow-y: auto;
         }
-        h2 {
-            color: #003366;
+
+        .sidebar-brand {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 28px;
         }
-        .btn-block {
+
+        .sidebar-brand h2 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .sidebar-brand p {
+            margin: 5px 0 0;
+            color: #cbd5e1;
+            font-size: 13px;
+        }
+
+        .sidebar-user {
+            padding: 14px;
+            margin-bottom: 22px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .sidebar-user strong {
             display: block;
+            font-size: 16px;
+        }
+
+        .sidebar-user span {
+            color: #dbeafe;
+            font-size: 13px;
+        }
+
+        .sidebar-section {
+            margin-top: 22px;
+            margin-bottom: 8px;
+            padding-left: 8px;
+            color: #93c5fd;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             width: 100%;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
+            padding: 11px 13px;
+            color: #f8fafc;
+            text-decoration: none;
+            border-radius: 9px;
+            transition: 0.2s ease;
+        }
+
+        .sidebar-link:hover {
+            color: white;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.14);
+            transform: translateX(3px);
+        }
+
+        .sidebar-link.logout {
+            margin-top: 22px;
+            background: rgba(220, 53, 69, 0.18);
+        }
+
+        .main-content {
+            margin-left: 260px;
+            padding: 32px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 28px;
+            padding: 24px 28px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(15, 23, 42, 0.07);
+        }
+
+        .topbar h1 {
+            margin: 0;
+            color: #0f3557;
+            font-size: 30px;
+            font-weight: 700;
+        }
+
+        .topbar p {
+            margin: 6px 0 0;
+            color: #64748b;
+        }
+
+        .badge-analista {
+            padding: 10px 16px;
+            background: #dcfce7;
+            color: #166534;
+            border-radius: 999px;
+            font-weight: 700;
+        }
+
+        .section-title {
+            margin: 28px 0 16px;
+            color: #334155;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .module-card {
+            height: 100%;
+            padding: 22px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+            transition: 0.2s ease;
+        }
+
+        .module-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
+        }
+
+        .module-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            background: #eaf4ff;
+            border-radius: 12px;
+            font-size: 24px;
+        }
+
+        .module-card h5 {
+            margin-bottom: 8px;
+            color: #0f3557;
+            font-weight: 700;
+        }
+
+        .module-card p {
+            min-height: 48px;
+            margin-bottom: 18px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .module-card .btn {
+            width: 100%;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 991px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
 </head>
+
 <body>
-    <div class="dashboard">
-        <h2>🎯 Panel del Analista</h2>
-        <p class="text-center">Bienvenido, {{ nombre }}</p>
 
-        <a href="/requerimientos/nuevo" class="btn btn-primary btn-block">📋 Ingresar Requerimientos</a>
-        <a href="{{ url_for('main.tareas') }}" class="btn btn-success btn-block">
-            🛠️ Ingresar Tareas
-        </a>
-        <a href="{{ url_for('main.seguimiento_tareas') }}"
-        class="btn btn-primary btn-lg btn-block mb-3">
-            📌 SEGUIMIENTO DE TAREAS
-        </a>
-        <a href="/seguimiento_contratos" class="btn btn-info btn-block">
-            📋 Seguimiento de Contratos
-        </a>
-        <a href="{{ url_for('main.ordenes_compra') }}" class="btn btn-warning btn-block">🧾 Ingresar Orden de Compra</a>
-        <a href="#" class="btn btn-info btn-block">📄 Crear Pliegos</a>
-        <a href="#" class="btn btn-secondary btn-block">📊 Reportes</a>
+    <aside class="sidebar">
 
-        <div class="text-center mt-4">
-            <a href="/logout" class="btn btn-outline-danger">🔓 Cerrar sesión</a>
+        <div class="sidebar-brand">
+            <h2>SICOP</h2>
+            <p>Sistema de Control de Procesos</p>
         </div>
-    </div>
+
+        <div class="sidebar-user">
+            <strong>{{ nombre }}</strong>
+            <span>Analista</span>
+        </div>
+
+        <div class="sidebar-section">Procesos</div>
+
+        <a href="/requerimientos/nuevo" class="sidebar-link">
+            <span>📄</span>
+            <span>Nuevo requerimiento</span>
+        </a>
+
+        <a href="{{ url_for('main.tareas') }}" class="sidebar-link">
+            <span>🛠</span>
+            <span>Tareas</span>
+        </a>
+
+        <a href="{{ url_for('main.seguimiento_tareas') }}" class="sidebar-link">
+            <span>📌</span>
+            <span>Seguimiento de tareas</span>
+        </a>
+
+        <a href="{{ url_for('main.ordenes_compra') }}" class="sidebar-link">
+            <span>🧾</span>
+            <span>Órdenes de compra</span>
+        </a>
+
+        <div class="sidebar-section">Contratos y reportes</div>
+
+        <a href="{{ url_for('main.seguimiento_contratos') }}" class="sidebar-link">
+            <span>📑</span>
+            <span>Seguimiento de contratos</span>
+        </a>
+
+        <a href="{{ url_for('main.reportes') }}" class="sidebar-link">
+            <span>📊</span>
+            <span>Reportes</span>
+        </a>
+
+        <a href="#" class="sidebar-link">
+            <span>📘</span>
+            <span>Crear pliegos</span>
+        </a>
+
+        <a href="/logout" class="sidebar-link logout">
+            <span>🔓</span>
+            <span>Cerrar sesión</span>
+        </a>
+
+    </aside>
+
+    <main class="main-content">
+
+        <div class="topbar">
+            <div>
+                <h1>Panel del Analista</h1>
+                <p>Bienvenido, {{ nombre }}. Gestiona tus procesos y actividades en SICOP.</p>
+            </div>
+
+            <div class="badge-analista">
+                Analista
+            </div>
+        </div>
+
+        <h3 class="section-title">Gestión de procesos</h3>
+
+        <div class="row">
+
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="module-card">
+                    <div class="module-icon">📄</div>
+                    <h5>Requerimientos</h5>
+                    <p>Registra nuevos requerimientos institucionales.</p>
+                    <a href="/requerimientos/nuevo" class="btn btn-primary">
+                        Ingresar
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="module-card">
+                    <div class="module-icon">🛠</div>
+                    <h5>Tareas</h5>
+                    <p>Registra y administra tareas asociadas a los procesos.</p>
+                    <a href="{{ url_for('main.tareas') }}" class="btn btn-success">
+                        Ingresar
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="module-card">
+                    <div class="module-icon">📌</div>
+                    <h5>Seguimiento de tareas</h5>
+                    <p>Consulta el avance y estado de las tareas registradas.</p>
+                    <a href="{{ url_for('main.seguimiento_tareas') }}" class="btn btn-primary">
+                        Consultar
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="module-card">
+                    <div class="module-icon">🧾</div>
+                    <h5>Órdenes de compra</h5>
+                    <p>Crea, edita y consulta órdenes de compra.</p>
+                    <a href="{{ url_for('main.ordenes_compra') }}" class="btn btn-warning">
+                        Ingresar
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="module-card">
+                    <div class="module-icon">📑</div>
+                    <h5>Seguimiento de contratos</h5>
+                    <p>Consulta contratos, fechas, estados y documentación.</p>
+                    <a href="{{ url_for('main.seguimiento_contratos') }}" class="btn btn-dark">
+                        Ingresar
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="module-card">
+                    <div class="module-icon">📊</div>
+                    <h5>Reportes</h5>
+                    <p>Genera reportes y consulta información consolidada.</p>
+                    <a href="{{ url_for('main.reportes') }}" class="btn btn-info">
+                        Abrir reportes
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <h3 class="section-title">Herramientas adicionales</h3>
+
+        <div class="row">
+
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="module-card">
+                    <div class="module-icon">📘</div>
+                    <h5>Crear pliegos</h5>
+                    <p>Módulo reservado para la elaboración de pliegos.</p>
+                    <a href="#" class="btn btn-outline-secondary">
+                        Próximamente
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
 </body>
 </html>

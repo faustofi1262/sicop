@@ -35,7 +35,11 @@
 
 <div class="container mt-5">
     <div class="card shadow border-0">
-
+     <div class="mt-4">
+        <a href="{{ url_for('main.panel_principal') }}" class="btn btn-secondary">
+            ⬅ Volver al panel
+        </a>
+    </div>
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
         <h5 class="font-weight-bold">📋 LISTA DE REQUERIMIENTOS INGRESADOS</h5>
 
@@ -120,11 +124,7 @@
         </div>
     </div>
 
-    <div class="mt-4">
-        <a href="{{ url_for('main.panel_principal') }}" class="btn btn-secondary">
-            ⬅ Volver al panel
-        </a>
-    </div>
+   
 
 </div>
 <script>

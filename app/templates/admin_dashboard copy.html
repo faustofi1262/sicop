@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Administrador - SICOP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f8fc;
+        }
+        .dashboard {
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 30px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #003366;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .btn-block {
+            display: block;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <h1><b>Panel de Administración - SICOP</b></h1>
+        <p class="text-center">Bienvenido, {{ nombre }}</p>
+        
+        <p>Acceso completo a todas las funciones del sistema.</p>
+        <a href="/admin/usuarios" class="btn btn-outline-primary btn-block"> <strong>🔐 Gestión de Usuarios</strong></a>
+        <a href="/requerimientos" class="btn btn-primary btn-block">
+        <strong>📄 Ingresar Requerimientos</strong></a>
+        <a href="{{ url_for('main.tareas') }}"
+            class="btn btn-success w-100 mb-2 d-flex align-items-center justify-content-center">
+             <strong>🛠 Ingresar Tareas</strong>
+        <a href="{{ url_for('main.seguimiento_tareas') }}"
+        class="btn btn-primary btn-lg btn-block mb-3">
+            📌 SEGUIMIENTO DE TAREAS
+        </a>
+        <a href="{{ url_for('main.ordenes_compra') }}"
+            class="btn btn-warning btn-block">
+            <strong>🧾 Ingresar Orden de Compra</strong>
+        </a>
+        <a href="{{ url_for('main.tipo_procesos_listar') }}"
+         class="btn btn-lg btn-block btn-dark">
+            📋 Ingresar Tipo de proceso
+        </a>
+        <a href="/admin/tipo_regimen"class="btn btn-primary btn-lg w-100 mb-2"style="background-color:#D35400; border:none;">Ingresar Tipo de Regimen</a>
+        <a href="#" class="btn btn-info btn-block">📄 Crear Pliegos</a>
+        <a href="{{ url_for('main.seguimiento_contratos') }}"
+        class="btn btn-lg btn-block btn-dark">
+        📋 Seguimiento de Contratos
+        </a>
+        <a href="{{ url_for('main.unidades_listar') }}"
+        class="btn btn-info btn-lg w-100 mb-2">
+        🏢 Unidades Requirentes
+        </a>
+        <a href="#" class="btn btn-secondary btn-block">📊 Reportes</a>
+        <div class="text-center mt-4">
+        <a href="/logout" class="btn btn-outline-danger"> <strong>🔓 Cerrar sesión</strong></a>
+        </form>
+    </div>
+</body>
+</html>
