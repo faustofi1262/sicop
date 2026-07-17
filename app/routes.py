@@ -19,7 +19,7 @@ from flask import request, send_file
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 
 def valor_en_letras_con_decimales(valor):
@@ -3268,13 +3268,69 @@ def dashboard_ejecutivo():
         por_funcionario=por_funcionario,
         por_unidad=por_unidad
     )
+# =========================================
+# DASHBOARD DE REQUERIMIENTOS POR UNIDAD
+# =========================================
+@main.route("/dashboard_requerimientos")
+@login_required()
+def dashboard_requerimientos():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    # Totales generales
+    cur.execute("""
+        SELECT
+            COUNT(*) AS total_requerimientos,
+            COALESCE(SUM(monto_req), 0) AS monto_total
+        FROM requerimientos
+    """)
+    resumen = cur.fetchone()
+
+    # Cantidad y monto por unidad requirente
+    cur.execute("""
+        SELECT
+            COALESCE(u.nombre_unidad, 'SIN UNIDAD') AS unidad,
+            COUNT(r.id) AS cantidad_requerimientos,
+            COALESCE(SUM(r.monto_req), 0) AS monto_total
+        FROM requerimientos r
+        LEFT JOIN unidades u
+            ON u.id = r.unid_requirente
+        GROUP BY u.id, u.nombre_unidad
+        ORDER BY cantidad_requerimientos DESC, unidad ASC
+    """)
+    por_unidad = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template(
+        "dashboard_requerimientos.html",
+        resumen=resumen,
+        por_unidad=por_unidad
+    )
 # ===============================
 # REPORTES
 # ===============================
 @main.route("/reportes")
 @login_required()
 def reportes():
-    return render_template("reportes/reportes.html")
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT id, nombre_unidad
+        FROM unidades
+        ORDER BY nombre_unidad
+    """)
+    unidades = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template(
+        "reportes/reportes.html",
+        unidades=unidades
+    )
 
 @main.route("/reporte/procesos_periodo/pdf")
 @login_required()
@@ -3354,5 +3410,163 @@ def reporte_procesos_periodo_pdf():
         buffer,
         as_attachment=True,
         download_name="reporte_procesos.pdf",
+        mimetype="application/pdf"
+    )
+@main.route("/reporte/procesos_ingresados/pdf")
+@login_required()
+def reporte_procesos_ingresados_pdf():
+
+    fecha_desde = request.args.get("fecha_desde")
+    fecha_hasta = request.args.get("fecha_hasta")
+    unidad_id = request.args.get("unidad_id")
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    consulta = """
+        SELECT
+            r.memo_vice_ad,
+            r.descripcion,
+            u.nombre_unidad,
+            r.fecha_recep_req,
+            r.monto_req
+        FROM requerimientos r
+        LEFT JOIN unidades u
+            ON u.id = r.unid_requirente
+        WHERE r.fecha_recep_req BETWEEN %s AND %s
+    """
+
+    parametros = [fecha_desde, fecha_hasta]
+
+    if unidad_id:
+        consulta += """
+            AND r.unid_requirente = %s
+        """
+        parametros.append(unidad_id)
+
+    consulta += """
+        ORDER BY r.fecha_recep_req ASC
+    """
+
+    cur.execute(consulta, parametros)
+    procesos = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    buffer = BytesIO()
+
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=landscape(A4),
+        rightMargin=25,
+        leftMargin=25,
+        topMargin=25,
+        bottomMargin=25
+    )
+
+    styles = getSampleStyleSheet()
+
+    estilo_titulo = ParagraphStyle(
+        "TituloProcesosIngresados",
+        parent=styles["Title"],
+        fontName="Helvetica-Bold",
+        fontSize=14,
+        leading=17,
+        alignment=1,
+        spaceAfter=10
+    )
+
+    estilo_celda = ParagraphStyle(
+        "CeldaProcesosIngresados",
+        parent=styles["Normal"],
+        fontName="Helvetica",
+        fontSize=8,
+        leading=10
+    )
+
+    elementos = []
+
+    elementos.append(
+        Paragraph(
+            "PROCESOS INGRESADOS A LA UNIDAD DE COMPRAS PÚBLICAS",
+            estilo_titulo
+        )
+    )
+
+    elementos.append(
+        Paragraph(
+            f"Período: {fecha_desde} al {fecha_hasta}",
+            styles["Normal"]
+        )
+    )
+
+    elementos.append(Spacer(1, 12))
+
+    data = [[
+        "#",
+        "Oficio Vicerrectorado",
+        "Descripción",
+        "Unidad requirente",
+        "Fecha de recepción",
+        "Monto total"
+    ]]
+
+    total_general = 0
+
+    for i, proceso in enumerate(procesos, start=1):
+        monto = float(proceso[4] or 0)
+        total_general += monto
+
+        data.append([
+            Paragraph(str(i), estilo_celda),
+            Paragraph(str(proceso[0] or ""), estilo_celda),
+            Paragraph(str(proceso[1] or ""), estilo_celda),
+            Paragraph(str(proceso[2] or ""), estilo_celda),
+            Paragraph(
+                proceso[3].strftime("%d/%m/%Y") if proceso[3] else "",
+                estilo_celda
+            ),
+            Paragraph(f"${monto:,.2f}", estilo_celda)
+        ])
+
+    data.append([
+        "",
+        "",
+        "",
+        "",
+        Paragraph("<b>TOTAL GENERAL</b>", estilo_celda),
+        Paragraph(f"<b>${total_general:,.2f}</b>", estilo_celda)
+    ])
+
+    tabla = Table(
+        data,
+        colWidths=[30, 135, 255, 160, 90, 90],
+        repeatRows=1
+    )
+
+    tabla.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0b2f4f")),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("ALIGN", (0, 0), (-1, 0), "CENTER"),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("ALIGN", (4, 1), (4, -1), "RIGHT"),
+        ("BACKGROUND", (0, -1), (-1, -1), colors.HexColor("#eaf2f8")),
+        ("TOPPADDING", (0, 0), (-1, -1), 5),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+        ("LEFTPADDING", (0, 0), (-1, -1), 5),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 5),
+    ]))
+
+    elementos.append(tabla)
+    doc.build(elementos)
+
+    buffer.seek(0)
+
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name="procesos_ingresados_compras_publicas.pdf",
         mimetype="application/pdf"
     )
