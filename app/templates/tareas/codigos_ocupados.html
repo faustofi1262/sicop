@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1">
+                🔎 Códigos de procesos ocupados
+            </h3>
+
+            <p class="text-muted mb-0">
+                Consulta los códigos ya registrados en el módulo de tareas.
+            </p>
+        </div>
+
+        <a href="{{ url_for('main.tareas') }}"
+           class="btn btn-secondary">
+            ⬅ Volver a tareas
+        </a>
+    </div>
+
+    <div class="card shadow">
+
+        <div class="card-header bg-dark text-white">
+            Procesos registrados
+        </div>
+
+        <div class="card-body">
+
+            <div class="row mb-3">
+
+                <div class="col-md-8">
+                    <input
+                        type="text"
+                        id="buscarCodigo"
+                        class="form-control"
+                        placeholder="Buscar por código, objeto, analista, tipo o estado..."
+                    >
+                </div>
+
+                <div class="col-md-4 d-flex align-items-center">
+                    <span class="badge badge-primary p-2">
+                        Total: {{ codigos|length }}
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="table-responsive">
+
+                <table
+                    class="table table-bordered table-hover"
+                    id="tablaCodigos"
+                >
+
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Código proceso</th>
+                            <th>Objeto contratación</th>
+                            <th>Analista</th>
+                            <th>Tipo proceso</th>
+                            <th>Estado</th>
+                            <th>Fecha recepción</th>
+                            <th class="text-right">Monto total</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for fila in codigos %}
+
+                        <tr>
+                            <td>{{ loop.index }}</td>
+
+                            <td>
+                                <strong>{{ fila[0] }}</strong>
+                            </td>
+
+                            <td>{{ fila[1] or '' }}</td>
+
+                            <td>{{ fila[2] or '' }}</td>
+
+                            <td>{{ fila[3] or '' }}</td>
+
+                            <td>{{ fila[4] or '' }}</td>
+
+                            <td>
+                                {% if fila[5] %}
+                                    {{ fila[5].strftime('%d/%m/%Y') }}
+                                {% endif %}
+                            </td>
+
+                            <td class="text-right">
+                                ${{ "{:,.2f}".format(fila[6] or 0) }}
+                            </td>
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">
+                                No existen códigos registrados.
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+document
+    .getElementById("buscarCodigo")
+    .addEventListener("keyup", function () {
+
+        const texto = this.value.toLowerCase();
+
+        const filas = document.querySelectorAll(
+            "#tablaCodigos tbody tr"
+        );
+
+        filas.forEach(function (fila) {
+            const contenido = fila.textContent.toLowerCase();
+
+            fila.style.display =
+                contenido.includes(texto) ? "" : "none";
+        });
+
+    });
+</script>
+
+{% endblock %}

@@ -3570,3 +3570,36 @@ def reporte_procesos_ingresados_pdf():
         download_name="procesos_ingresados_compras_publicas.pdf",
         mimetype="application/pdf"
     )
+# ==================================
+# CÓDIGOS DE PROCESO OCUPADOS
+# ==================================
+@main.route("/tareas/codigos_ocupados")
+@login_required()
+def tareas_codigos_ocupados():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            codigo_proceso,
+            objeto_contratacion,
+            funcionario_encargado,
+            tipo_proceso,
+            estado_requerimiento,
+            fecha_recepcion,
+            COALESCE(valor_sin_iva, 0) + COALESCE(valor_exento, 0) AS monto_total
+        FROM tareas
+        WHERE codigo_proceso IS NOT NULL
+          AND TRIM(codigo_proceso) <> ''
+        ORDER BY codigo_proceso ASC
+    """)
+
+    codigos = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template(
+        "tareas/codigos_ocupados.html",
+        codigos=codigos
+    )
