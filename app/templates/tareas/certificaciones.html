@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1">
+                📄 Certificaciones del proceso
+            </h3>
+
+            <p class="text-muted mb-0">
+                Registre las certificaciones PAC, Catálogo Electrónico y CPC restringido.
+            </p>
+        </div>
+
+        <a href="{{ url_for('main.tareas') }}"
+           class="btn btn-secondary">
+            ⬅ Volver a tareas
+        </a>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-dark text-white">
+            Información del proceso
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+
+                <div class="col-md-4 mb-3">
+                    <strong>Código del proceso</strong>
+                    <div>{{ tarea.codigo_proceso or '' }}</div>
+                </div>
+
+                <div class="col-md-8 mb-3">
+                    <strong>Objeto de contratación</strong>
+                    <div>{{ tarea.objeto_contratacion or '' }}</div>
+                </div>
+
+                <div class="col-md-6">
+                    <strong>Funcionario encargado</strong>
+                    <div>{{ tarea.funcionario_encargado or '' }}</div>
+                </div>
+
+                <div class="col-md-6">
+                    <strong>Fecha de recepción</strong>
+                    <div>
+                        {% if tarea.fecha_recepcion %}
+                            {{ tarea.fecha_recepcion.strftime('%d/%m/%Y') }}
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            Nueva certificación
+        </div>
+
+        <div class="card-body">
+
+            <form
+                method="POST"
+                action="{{ url_for('main.tarea_certificacion_guardar', tarea_id=tarea.id) }}"
+                enctype="multipart/form-data"
+            >
+
+                <div class="row">
+
+                    <div class="col-md-4 mb-3">
+                        <label>Tipo de certificación</label>
+
+                        <select
+                            name="tipo_certificacion"
+                            class="form-control"
+                            required
+                        >
+                            <option value="">Seleccione...</option>
+                            <option value="PAC">Certificación PAC</option>
+                            <option value="CATE">Certificación Catálogo Electrónico</option>
+                            <option value="CPC_RESTRINGIDO">Certificación CPC restringido</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 mb-3">
+                        <label>Fecha de certificación</label>
+
+                        <input
+                            type="date"
+                            name="fecha_certificacion"
+                            class="form-control"
+                            required
+                        >
+                    </div>
+
+                    <div class="col-md-5 mb-3">
+                        <label>Captura de respaldo</label>
+
+                        <input
+                            type="file"
+                            name="imagenes"
+                            class="form-control"
+                            accept=".png,.jpg,.jpeg,image/png,image/jpeg"
+                            multiple
+                            required
+                        >
+
+                        <small class="text-muted">
+                            Puede seleccionar una o varias capturas. Formatos permitidos: JPG, JPEG o PNG.
+                        </small>
+                    </div>
+
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    💾 Guardar certificación
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+
+    <div class="card shadow mt-4">
+        <div class="card-header bg-dark text-white">
+            Certificaciones registradas
+        </div>
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+
+                    <thead class="thead-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Tipo</th>
+                            <th>Fecha</th>
+                            <th>Archivo</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for certificacion in certificaciones %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+
+                            <td>
+                                {% if certificacion.tipo_certificacion == "PAC" %}
+                                    Certificación PAC
+                                {% elif certificacion.tipo_certificacion == "CATE" %}
+                                    Certificación Catálogo Electrónico
+                                {% elif certificacion.tipo_certificacion == "CPC_RESTRINGIDO" %}
+                                    Certificación CPC restringido
+                                {% else %}
+                                    {{ certificacion.tipo_certificacion }}
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if certificacion.fecha_certificacion %}
+                                    {{ certificacion.fecha_certificacion.strftime('%d/%m/%Y') }}
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {{ certificacion.nombre_archivo or '' }}
+                            </td>
+
+                            <td>
+                                <span class="badge badge-success">
+                                    Guardada
+                                </span>
+                            </td>
+                                                     
+                            <td>
+                            {% if certificacion.tipo_certificacion=="CATE" %}
+
+                                <a href="{{ url_for('main.certificacion_cate_pdf',
+                                                    certificacion_id=certificacion.id) }}"
+                                target="_blank"
+                                class="btn btn-danger btn-sm">
+
+                                    📄 PDF
+
+                                </a>
+
+                            {% endif %}
+
+                            </td>
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">
+                                No existen certificaciones registradas para esta tarea.
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

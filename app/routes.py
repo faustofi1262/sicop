@@ -14,7 +14,7 @@ from flask import send_file
 from flask import send_file
 from io import BytesIO
 from app.services.pdf_orden_compra import generar_pdf_orden_compra
-
+from app.services.pdf_certificaciones import generar_pdf_cate
 from flask import request, send_file
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
@@ -3470,8 +3470,8 @@ def reporte_procesos_ingresados_pdf():
         "TituloProcesosIngresados",
         parent=styles["Title"],
         fontName="Helvetica-Bold",
-        fontSize=14,
-        leading=17,
+        fontSize=12,
+        leading=15,
         alignment=1,
         spaceAfter=10
     )
@@ -3603,3 +3603,216 @@ def tareas_codigos_ocupados():
         "tareas/codigos_ocupados.html",
         codigos=codigos
     )
+# ==========================================
+# CERTIFICACIONES DE UNA TAREA
+# ==========================================
+@main.route("/tareas/<int:tarea_id>/certificaciones")
+@login_required()
+def tarea_certificaciones(tarea_id):
+    conn = get_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    # Datos de la tarea
+    cur.execute("""
+        SELECT
+            id,
+            codigo_proceso,
+            objeto_contratacion,
+            funcionario_encargado,
+            fecha_recepcion
+        FROM tareas
+        WHERE id = %s
+    """, (tarea_id,))
+
+    tarea = cur.fetchone()
+
+    if not tarea:
+        cur.close()
+        conn.close()
+        flash("❌ La tarea indicada no existe.", "danger")
+        return redirect(url_for("main.tareas"))
+
+    # Certificaciones guardadas
+    cur.execute("""
+        SELECT
+            id,
+            tipo_certificacion,
+            fecha_certificacion,
+            nombre_archivo,
+            tipo_mime,
+            fecha_registro
+        FROM certificaciones_tareas
+        WHERE tarea_id = %s
+        ORDER BY fecha_registro DESC
+    """, (tarea_id,))
+
+    certificaciones = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template(
+        "tareas/certificaciones.html",
+        tarea=tarea,
+        certificaciones=certificaciones
+    )
+# ==========================================
+# GUARDAR CERTIFICACIÓN
+# ==========================================
+@main.route("/tareas/<int:tarea_id>/certificaciones/guardar", methods=["POST"])
+@login_required()
+def tarea_certificacion_guardar(tarea_id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+
+        tipo = request.form.get("tipo_certificacion")
+        fecha = request.form.get("fecha_certificacion")
+        archivos = request.files.getlist("imagenes")
+
+        if not tipo:
+            flash("Debe seleccionar el tipo de certificación.", "danger")
+            return redirect(
+                url_for("main.tarea_certificaciones", tarea_id=tarea_id)
+            )
+
+        archivos_validos = [
+            archivo for archivo in archivos
+            if archivo and archivo.filename
+        ]
+
+        if not archivos_validos:
+            flash("Debe seleccionar al menos una imagen.", "danger")
+            return redirect(
+                url_for("main.tarea_certificaciones", tarea_id=tarea_id)
+            )
+
+        cur.execute("""
+            INSERT INTO certificaciones_tareas (
+                tarea_id,
+                tipo_certificacion,
+                fecha_certificacion,
+                usuario_id
+            )
+            VALUES (%s, %s, %s, %s)
+            RETURNING id
+        """, (
+            tarea_id,
+            tipo,
+            fecha,
+            session.get("user_id")
+        ))
+
+        certificacion_id = cur.fetchone()[0]
+
+        for archivo in archivos_validos:
+
+            tipo_mime = archivo.mimetype or ""
+
+            if tipo_mime not in ("image/png", "image/jpeg"):
+                raise ValueError(
+                    f"El archivo {archivo.filename} no es una imagen JPG o PNG válida."
+                )
+
+            imagen_bytes = archivo.read()
+
+            cur.execute("""
+                INSERT INTO certificaciones_imagenes (
+                    certificacion_id,
+                    nombre_archivo,
+                    tipo_mime,
+                    imagen
+                )
+                VALUES (%s, %s, %s, %s)
+            """, (
+                certificacion_id,
+                archivo.filename,
+                tipo_mime,
+                psycopg2.Binary(imagen_bytes)
+            ))
+
+        conn.commit()
+
+        flash("✅ Certificación guardada correctamente.", "success")
+
+    except Exception as e:
+
+        conn.rollback()
+        print(e)
+
+        flash(f"❌ Error: {e}", "danger")
+
+    finally:
+
+        cur.close()
+        conn.close()
+
+    return redirect(
+        url_for(
+            "main.tarea_certificaciones",
+            tarea_id=tarea_id
+        )
+    )
+# ==========================================
+# PDF CERTIFICACIÓN CATE
+# ==========================================
+@main.route("/certificaciones/<int:certificacion_id>/cate/pdf")
+@login_required()
+def certificacion_cate_pdf(certificacion_id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    # Datos generales de la certificación y de la tarea
+    cur.execute("""
+        SELECT
+            c.id,
+            c.fecha_certificacion,
+            t.codigo_proceso,
+            t.objeto_contratacion,
+            COALESCE(tp.nombre_proceso, t.tipo_proceso) AS tipo_proceso,
+            t.funcionario_encargado,
+            t.nombre_jefe_compras,
+            t.consta_catalogo_electronico
+
+        FROM certificaciones_tareas c
+
+        JOIN tareas t
+            ON t.id = c.tarea_id
+
+        LEFT JOIN tipo_procesos tp
+            ON tp.id::text = TRIM(t.tipo_proceso)
+
+        WHERE c.id = %s
+          AND c.tipo_certificacion = 'CATE'
+    """, (certificacion_id,))
+
+    datos = cur.fetchone()
+
+    # Todas las capturas asociadas a la certificación
+    cur.execute("""
+        SELECT
+            id,
+            nombre_archivo,
+            tipo_mime,
+            imagen
+        FROM certificaciones_imagenes
+        WHERE certificacion_id = %s
+        ORDER BY id ASC
+    """, (certificacion_id,))
+
+    capturas = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    if not datos:
+        flash(
+            "❌ No se encontró la Certificación de Catálogo Electrónico.",
+            "danger"
+        )
+        return redirect(url_for("main.tareas"))
+
+    return generar_pdf_cate(datos, capturas)

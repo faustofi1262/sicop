@@ -28,7 +28,53 @@
         </div>
 
         <div class="card-body">
+            <div class="card border-success mb-4 shadow-sm">
 
+    <div class="card-header bg-success text-white">
+        ✅ Consultar disponibilidad de código de proceso
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+
+            <div class="col-md-8">
+                <input
+                    type="text"
+                    id="codigoBuscar"
+                    class="form-control form-control-lg"
+                    placeholder="Ejemplo: SIE-UTMACH-2026-001">
+            </div>
+
+            <div class="col-md-2">
+                <button
+                    type="button"
+                    class="btn btn-success btn-lg btn-block"
+                    onclick="verificarCodigo()">
+                    🔎 Verificar
+                </button>
+            </div>
+
+            <div class="col-md-2">
+                <button
+                    type="button"
+                    class="btn btn-secondary btn-lg btn-block"
+                    onclick="limpiarConsulta()">
+                    Limpiar
+                </button>
+            </div>
+
+        </div>
+
+        <div
+            id="resultadoCodigo"
+            class="mt-4"
+            style="display:none;">
+        </div>
+
+    </div>
+
+</div>
             <div class="row mb-3">
 
                 <div class="col-md-8">
@@ -140,5 +186,87 @@ document
 
     });
 </script>
+<script>
 
+function verificarCodigo(){
+
+    let codigo =
+        document
+        .getElementById("codigoBuscar")
+        .value
+        .trim()
+        .toUpperCase();
+
+    let filas =
+        document.querySelectorAll("#tablaCodigos tbody tr");
+
+    let encontrado = false;
+
+    filas.forEach(function(fila){
+
+        let columnas = fila.querySelectorAll("td");
+
+        if(columnas.length==0)
+            return;
+
+        let codigoTabla =
+            columnas[1].innerText.trim().toUpperCase();
+
+        if(codigoTabla==codigo){
+
+            encontrado = true;
+
+            document.getElementById("resultadoCodigo").style.display="block";
+
+            document.getElementById("resultadoCodigo").innerHTML=`
+                <div class="alert alert-danger">
+
+                    <h5>❌ ESTE CÓDIGO YA ESTÁ OCUPADO</h5>
+
+                    <hr>
+
+                    <b>Código:</b> ${columnas[1].innerText}<br>
+
+                    <b>Objeto:</b><br>
+                    ${columnas[2].innerText}<br><br>
+
+                    <b>Analista:</b>
+                    ${columnas[3].innerText}<br>
+
+                    <b>Estado:</b>
+                    ${columnas[5].innerText}
+
+                </div>
+            `;
+        }
+
+    });
+
+    if(!encontrado){
+
+        document.getElementById("resultadoCodigo").style.display="block";
+
+        document.getElementById("resultadoCodigo").innerHTML=`
+            <div class="alert alert-success">
+
+                <h4>✅ CÓDIGO DISPONIBLE</h4>
+
+                Puede utilizar este código para crear una nueva tarea.
+
+            </div>
+        `;
+
+    }
+
+}
+
+function limpiarConsulta(){
+
+    document.getElementById("codigoBuscar").value="";
+
+    document.getElementById("resultadoCodigo").style.display="none";
+
+}
+
+</script>
 {% endblock %}

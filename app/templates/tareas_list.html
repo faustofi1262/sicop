@@ -99,6 +99,10 @@
                 class="btn btn-sm btn-info">
                 📄 Informe Verificación
             </a>
+            <a href="{{ url_for('main.tarea_certificaciones', tarea_id=t[0]) }}"
+            class="btn btn-sm btn-success">
+                📑 Certificaciones
+            </a>
             </td>
         </tr>
         {% else %}
