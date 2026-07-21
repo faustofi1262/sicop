@@ -180,22 +180,34 @@
                                     Guardada
                                 </span>
                             </td>
-                                                     
-                            <td>
-                            {% if certificacion.tipo_certificacion=="CATE" %}
+                                <td>
 
-                                <a href="{{ url_for('main.certificacion_cate_pdf',
-                                                    certificacion_id=certificacion.id) }}"
+                            {% if certificacion.tipo_certificacion == "CATE" %}
+
+                                <a href="{{ url_for(
+                                    'main.certificacion_cate_pdf',
+                                    certificacion_id=certificacion.id
+                                ) }}"
                                 target="_blank"
                                 class="btn btn-danger btn-sm">
-
                                     📄 PDF
+                                </a>
 
+                            {% elif certificacion.tipo_certificacion == "PAC" %}
+
+                                <a href="{{ url_for(
+                                    'main.certificacion_pac_pdf',
+                                    certificacion_id=certificacion.id
+                                ) }}"
+                                target="_blank"
+                                class="btn btn-danger btn-sm">
+                                    📄 PDF
                                 </a>
 
                             {% endif %}
 
-                            </td>
+                        </td>                         
+                            
                         </tr>
 
                         {% else %}
