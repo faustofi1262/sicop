@@ -15,8 +15,7 @@
             </p>
         </div>
 
-        <a href="{{ url_for('main.tareas') }}"
-           class="btn btn-secondary">
+        <a href="{{ url_for('main.tareas') }}" class="btn btn-secondary">
             ⬅ Volver a tareas
         </a>
     </div>
@@ -48,7 +47,7 @@
                     <strong>Fecha de recepción</strong>
                     <div>
                         {% if tarea.fecha_recepcion %}
-                            {{ tarea.fecha_recepcion.strftime('%d/%m/%Y') }}
+                        {{ tarea.fecha_recepcion.strftime('%d/%m/%Y') }}
                         {% endif %}
                     </div>
                 </div>
@@ -64,22 +63,15 @@
 
         <div class="card-body">
 
-            <form
-                method="POST"
-                action="{{ url_for('main.tarea_certificacion_guardar', tarea_id=tarea.id) }}"
-                enctype="multipart/form-data"
-            >
+            <form method="POST" action="{{ url_for('main.tarea_certificacion_guardar', tarea_id=tarea.id) }}"
+                enctype="multipart/form-data">
 
                 <div class="row">
 
                     <div class="col-md-4 mb-3">
                         <label>Tipo de certificación</label>
 
-                        <select
-                            name="tipo_certificacion"
-                            class="form-control"
-                            required
-                        >
+                        <select name="tipo_certificacion" class="form-control" required>
                             <option value="">Seleccione...</option>
                             <option value="PAC">Certificación PAC</option>
                             <option value="CATE">Certificación Catálogo Electrónico</option>
@@ -90,25 +82,14 @@
                     <div class="col-md-3 mb-3">
                         <label>Fecha de certificación</label>
 
-                        <input
-                            type="date"
-                            name="fecha_certificacion"
-                            class="form-control"
-                            required
-                        >
+                        <input type="date" name="fecha_certificacion" class="form-control" required>
                     </div>
 
                     <div class="col-md-5 mb-3">
                         <label>Captura de respaldo</label>
 
-                        <input
-                            type="file"
-                            name="imagenes"
-                            class="form-control"
-                            accept=".png,.jpg,.jpeg,image/png,image/jpeg"
-                            multiple
-                            required
-                        >
+                        <input type="file" name="imagenes" class="form-control"
+                            accept=".png,.jpg,.jpeg,image/png,image/jpeg" multiple required>
 
                         <small class="text-muted">
                             Puede seleccionar una o varias capturas. Formatos permitidos: JPG, JPEG o PNG.
@@ -155,19 +136,19 @@
 
                             <td>
                                 {% if certificacion.tipo_certificacion == "PAC" %}
-                                    Certificación PAC
+                                Certificación PAC
                                 {% elif certificacion.tipo_certificacion == "CATE" %}
-                                    Certificación Catálogo Electrónico
+                                Certificación Catálogo Electrónico
                                 {% elif certificacion.tipo_certificacion == "CPC_RESTRINGIDO" %}
-                                    Certificación CPC restringido
+                                Certificación CPC restringido
                                 {% else %}
-                                    {{ certificacion.tipo_certificacion }}
+                                {{ certificacion.tipo_certificacion }}
                                 {% endif %}
                             </td>
 
                             <td>
                                 {% if certificacion.fecha_certificacion %}
-                                    {{ certificacion.fecha_certificacion.strftime('%d/%m/%Y') }}
+                                {{ certificacion.fecha_certificacion.strftime('%d/%m/%Y') }}
                                 {% endif %}
                             </td>
 
@@ -180,34 +161,42 @@
                                     Guardada
                                 </span>
                             </td>
-                                <td>
+                            <td>
 
-                            {% if certificacion.tipo_certificacion == "CATE" %}
+                                {% if certificacion.tipo_certificacion == "CATE" %}
 
                                 <a href="{{ url_for(
-                                    'main.certificacion_cate_pdf',
-                                    certificacion_id=certificacion.id
-                                ) }}"
-                                target="_blank"
-                                class="btn btn-danger btn-sm">
+                                        'main.certificacion_cate_pdf',
+                                        certificacion_id=certificacion.id
+                                    ) }}" target="_blank" class="btn btn-danger btn-sm">
                                     📄 PDF
                                 </a>
 
-                            {% elif certificacion.tipo_certificacion == "PAC" %}
+                                {% elif certificacion.tipo_certificacion == "PAC" %}
 
                                 <a href="{{ url_for(
-                                    'main.certificacion_pac_pdf',
-                                    certificacion_id=certificacion.id
-                                ) }}"
-                                target="_blank"
-                                class="btn btn-danger btn-sm">
+                                        'main.certificacion_pac_pdf',
+                                        certificacion_id=certificacion.id
+                                    ) }}" target="_blank" class="btn btn-danger btn-sm">
                                     📄 PDF
                                 </a>
 
-                            {% endif %}
+                                {% endif %}
 
-                        </td>                         
-                            
+                                <form action="{{ url_for(
+                                        'main.certificacion_eliminar',
+                                        certificacion_id=certificacion.id
+                                    ) }}" method="post" style="display:inline;"
+                                    onsubmit="return confirm('¿Está seguro de eliminar esta certificación y todas sus capturas?');">
+
+                                    <button type="submit" class="btn btn-secondary btn-sm">
+                                        🗑 Eliminar
+                                    </button>
+
+                                </form>
+
+                            </td>
+
                         </tr>
 
                         {% else %}

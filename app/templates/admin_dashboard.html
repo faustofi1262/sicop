@@ -264,7 +264,11 @@
             <span>🛠</span>
             <span>Tareas</span>
         </a>
-
+        <a href="{{ url_for('main.trazabilidad_procesos') }}"
+        class="sidebar-link">
+            <span>🎯</span>
+            <span>Trazabilidad</span>
+        </a>
         <a href="{{ url_for('main.seguimiento_tareas') }}" class="sidebar-link">
             <span>📌</span>
             <span>Seguimiento de tareas</span>
@@ -337,7 +341,23 @@
                     </a>
                 </div>
             </div>
+            <div class="col-lg-4 col-md-6 mb-4">
+    <div class="module-card">
+        <div class="module-icon">🎯</div>
 
+        <h5>Trazabilidad</h5>
+
+        <p>
+            Consulte en segundos el estado completo de cualquier proceso de contratación.
+        </p>
+
+        <a href="{{ url_for('main.trazabilidad_procesos') }}"
+           class="btn btn-info">
+            Consultar
+        </a>
+
+    </div>
+</div>
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="module-card">
                     <div class="module-icon">📌</div>

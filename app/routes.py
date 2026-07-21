@@ -23,7 +23,16 @@ from reportlab.lib.pagesizes import A4, landscape
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    flash,
+    session,
+    jsonify
+)
 
 def valor_en_letras_con_decimales(valor):
     valor = Decimal(valor).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
@@ -3759,6 +3768,76 @@ def tarea_certificacion_guardar(tarea_id):
         )
     )
 # ==========================================
+# ELIMINAR CERTIFICACIÓN
+# ==========================================
+@main.route(
+    "/certificaciones/<int:certificacion_id>/eliminar",
+    methods=["POST"]
+)
+@login_required()
+def certificacion_eliminar(certificacion_id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        # Primero obtenemos la tarea para poder regresar
+        cur.execute("""
+            SELECT tarea_id
+            FROM certificaciones_tareas
+            WHERE id = %s
+        """, (certificacion_id,))
+
+        fila = cur.fetchone()
+
+        if not fila:
+            flash("❌ La certificación no existe.", "danger")
+            return redirect(url_for("main.tareas"))
+
+        tarea_id = fila[0]
+
+        # Las capturas se eliminan automáticamente por ON DELETE CASCADE,
+        # pero lo dejamos explícito para mayor claridad.
+        cur.execute("""
+            DELETE FROM certificaciones_imagenes
+            WHERE certificacion_id = %s
+        """, (certificacion_id,))
+
+        cur.execute("""
+            DELETE FROM certificaciones_tareas
+            WHERE id = %s
+        """, (certificacion_id,))
+
+        conn.commit()
+
+        flash("✅ Certificación eliminada correctamente.", "success")
+
+    except Exception as e:
+        conn.rollback()
+        print("ERROR AL ELIMINAR CERTIFICACIÓN:", e)
+
+        flash(
+            f"❌ No fue posible eliminar la certificación: {e}",
+            "danger"
+        )
+
+        tarea_id = None
+
+    finally:
+        cur.close()
+        conn.close()
+
+    if tarea_id:
+        return redirect(
+            url_for(
+                "main.tarea_certificaciones",
+                tarea_id=tarea_id
+            )
+        )
+
+    return redirect(url_for("main.tareas"))
+
+# ==========================================
 # PDF CERTIFICACIÓN CATE
 # ==========================================
 @main.route("/certificaciones/<int:certificacion_id>/cate/pdf")
@@ -3878,3 +3957,170 @@ def certificacion_pac_pdf(certificacion_id):
         return redirect(url_for("main.tareas"))
 
     return generar_pdf_pac(datos, capturas)
+# ==========================================
+# TRAZABILIDAD INTEGRAL DE PROCESOS
+# ==========================================
+@main.route("/trazabilidad")
+@login_required()
+def trazabilidad_procesos():
+    return render_template(
+        "trazabilidad/trazabilidad.html"
+    )
+# ==========================================
+# API - BÚSQUEDA DINÁMICA DE TRAZABILIDAD
+# ==========================================
+@main.route("/api/trazabilidad/procesos")
+@login_required()
+def api_trazabilidad_procesos():
+
+    texto = request.args.get("q", "").strip()
+
+    if len(texto) < 2:
+        return jsonify({
+            "procesos": []
+        })
+
+    patron = f"%{texto}%"
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            t.id,
+            t.codigo_proceso,
+            t.objeto_contratacion,
+            t.estado_requerimiento,
+            t.funcionario_encargado,
+            t.fecha_recepcion,
+
+            COALESCE(t.valor_sin_iva, 0)
+            + COALESCE(t.valor_exento, 0) AS monto_total,
+
+            COALESCE(u.nombre_unidad, '') AS unidad,
+
+            oc.numero_oc,
+
+            sc.numero_contrato,
+            sc.administrador_contrato,
+            sc.proveedor,
+            sc.estado AS estado_contrato,
+                
+            EXISTS (
+                SELECT 1
+                FROM certificaciones_tareas ct
+                WHERE ct.tarea_id = t.id
+                AND ct.tipo_certificacion = 'PAC'
+            ) AS tiene_pac,
+
+            EXISTS (
+                SELECT 1
+                FROM certificaciones_tareas ct
+                WHERE ct.tarea_id = t.id
+                AND ct.tipo_certificacion = 'CATE'
+            ) AS tiene_cate
+        FROM tareas t
+
+        LEFT JOIN requerimientos r
+            ON r.id = t.requerimiento_id
+
+        LEFT JOIN unidades u
+            ON u.id = r.unid_requirente
+
+        LEFT JOIN LATERAL (
+            SELECT
+                o.numero_oc
+            FROM ordenes_compra o
+            WHERE o.tarea_id = t.id
+            ORDER BY o.id DESC
+            LIMIT 1
+        ) oc ON TRUE
+
+        LEFT JOIN LATERAL (
+            SELECT
+                c.numero_contrato,
+                c.administrador_contrato,
+                c.proveedor,
+                c.estado
+            FROM seguimiento_contratos c
+            WHERE UPPER(TRIM(c.codigo_proceso))
+                = UPPER(TRIM(t.codigo_proceso))
+            ORDER BY c.id DESC
+            LIMIT 1
+        ) sc ON TRUE
+
+        WHERE
+            t.codigo_proceso ILIKE %s
+            OR t.objeto_contratacion ILIKE %s
+            OR t.funcionario_encargado ILIKE %s
+            OR u.nombre_unidad ILIKE %s
+            OR oc.numero_oc ILIKE %s
+            OR sc.numero_contrato ILIKE %s
+            OR sc.administrador_contrato ILIKE %s
+            OR sc.proveedor ILIKE %s
+
+        ORDER BY t.fecha_recepcion DESC NULLS LAST
+        LIMIT 30
+    """, (
+        patron,
+        patron,
+        patron,
+        patron,
+        patron,
+        patron,
+        patron,
+        patron
+    ))
+
+    filas = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    procesos = []
+
+    for fila in filas:
+
+        fecha_recepcion = fila[5]
+
+        monto = float(fila[6] or 0)
+
+        numero_orden = fila[8]
+        numero_contrato = fila[9]
+        administrador = fila[10]
+        proveedor = fila[11]
+        estado_contrato = fila[12]
+        tiene_pac = bool(fila[13])
+        tiene_cate = bool(fila[14])
+
+        procesos.append({
+            "id": fila[0],
+            "codigo_proceso": fila[1] or "",
+            "objeto": fila[2] or "",
+            "estado": fila[3] or "SIN ESTADO",
+            "analista": fila[4] or "",
+            "fecha_recepcion": (
+                fecha_recepcion.strftime("%d/%m/%Y")
+                if fecha_recepcion
+                else ""
+            ),
+            "monto": monto,
+            "monto_formateado": f"${monto:,.2f}",
+            "unidad": fila[7] or "",
+
+            "tiene_orden": bool(numero_orden),
+            "numero_orden": numero_orden or "",
+
+            "tiene_contrato": bool(numero_contrato),
+            "numero_contrato": numero_contrato or "",
+
+            "administrador": administrador or "",
+            "proveedor": proveedor or "",
+            "estado_contrato": estado_contrato or "",
+            "tiene_pac": tiene_pac,
+            "tiene_cate": tiene_cate
+        })
+
+    return jsonify({
+        "procesos": procesos
+    })
