@@ -217,6 +217,9 @@
 
 <body>
 
+    <!-- =========================
+         MENÚ LATERAL
+    ========================== -->
     <aside class="sidebar">
 
         <div class="sidebar-brand">
@@ -240,10 +243,12 @@
             <span>🛠</span>
             <span>Tareas</span>
         </a>
+
         <a href="{{ url_for('main.trazabilidad_procesos') }}" class="sidebar-link">
             <span>🎯</span>
             <span>Trazabilidad</span>
         </a>
+
         <a href="{{ url_for('main.seguimiento_tareas') }}" class="sidebar-link">
             <span>📌</span>
             <span>Seguimiento de tareas</span>
@@ -254,7 +259,9 @@
             <span>Órdenes de compra</span>
         </a>
 
-        <div class="sidebar-section">Contratos y reportes</div>
+        <div class="sidebar-section">
+            Contratos y reportes
+        </div>
 
         <a href="{{ url_for('main.seguimiento_contratos') }}" class="sidebar-link">
             <span>📑</span>
@@ -278,129 +285,252 @@
 
     </aside>
 
+
+    <!-- =========================
+         CONTENIDO PRINCIPAL
+    ========================== -->
     <main class="main-content">
 
         <div class="topbar">
+
             <div>
                 <h1>Panel del Analista</h1>
-                <p>Bienvenido, {{ nombre }}. Gestiona tus procesos y actividades en SICOP.</p>
+
+                <p>
+                    Bienvenido, {{ nombre }}.
+                    Gestiona tus procesos y actividades en SICOP.
+                </p>
             </div>
 
             <div class="badge-analista">
                 Analista
             </div>
+
         </div>
 
-        <h3 class="section-title">Gestión de procesos</h3>
+
+        <!-- =========================
+             GESTIÓN DE PROCESOS
+        ========================== -->
+
+        <h3 class="section-title">
+            Gestión de procesos
+        </h3>
 
         <div class="row">
 
+            <!-- REQUERIMIENTOS -->
             <div class="col-lg-4 col-md-6 mb-4">
+
                 <div class="module-card">
-                    <div class="module-icon">📄</div>
+
+                    <div class="module-icon">
+                        📄
+                    </div>
+
                     <h5>Requerimientos</h5>
-                    <p>Registra nuevos requerimientos institucionales.</p>
-                    <a href="/requerimientos/nuevo" class="btn btn-primary">
+
+                    <p>
+                        Registra nuevos requerimientos institucionales.
+                    </p>
+
+                    <a href="/requerimientos/nuevo"
+                       class="btn btn-primary">
                         Ingresar
                     </a>
+
                 </div>
+
             </div>
 
+
+            <!-- TAREAS -->
             <div class="col-lg-4 col-md-6 mb-4">
+
                 <div class="module-card">
-                    <div class="module-icon">🛠</div>
+
+                    <div class="module-icon">
+                        🛠
+                    </div>
+
                     <h5>Tareas</h5>
-                    <p>Registra y administra tareas asociadas a los procesos.</p>
-                    <a href="{{ url_for('main.tareas') }}" class="btn btn-success">
+
+                    <p>
+                        Registra y administra tareas asociadas a los procesos.
+                    </p>
+
+                    <a href="{{ url_for('main.tareas') }}"
+                       class="btn btn-success">
                         Ingresar
                     </a>
+
                 </div>
+
             </div>
+
+
+            <!-- TRAZABILIDAD -->
             <div class="col-lg-4 col-md-6 mb-4">
-    <div class="module-card">
-        <div class="module-icon">🎯</div>
 
-        <h5>Trazabilidad</h5>
-
-        <p>
-            Consulte en segundos el estado completo de cualquier proceso de contratación.
-        </p>
-
-        <a href="{{ url_for('main.trazabilidad_procesos') }}"
-           class="btn btn-info">
-            Consultar
-        </a>
-
-    </div>
-</div>
-
-            <div class="col-lg-4 col-md-6 mb-4">
                 <div class="module-card">
-                    <div class="module-icon">📌</div>
+
+                    <div class="module-icon">
+                        🎯
+                    </div>
+
+                    <h5>Trazabilidad</h5>
+
+                    <p>
+                        Consulte en segundos el estado completo de cualquier proceso de contratación.
+                    </p>
+
+                    <a href="{{ url_for('main.trazabilidad_procesos') }}"
+                       class="btn btn-info">
+                        Consultar
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- SEGUIMIENTO DE TAREAS -->
+            <div class="col-lg-4 col-md-6 mb-4">
+
+                <div class="module-card">
+
+                    <div class="module-icon">
+                        📌
+                    </div>
+
                     <h5>Seguimiento de tareas</h5>
-                    ...
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="module-card">
-                            <div class="module-icon">📌</div>
-                            <h5>Seguimiento de tareas</h5>
-                            <p>Consulta el avance y estado de las tareas registradas.</p>
-                            <a href="{{ url_for('main.seguimiento_tareas') }}" class="btn btn-primary">
-                                Consultar
-                            </a>
-                        </div>
-                    </div>
 
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="module-card">
-                            <div class="module-icon">🧾</div>
-                            <h5>Órdenes de compra</h5>
-                            <p>Crea, edita y consulta órdenes de compra.</p>
-                            <a href="{{ url_for('main.ordenes_compra') }}" class="btn btn-warning">
-                                Ingresar
-                            </a>
-                        </div>
-                    </div>
+                    <p>
+                        Consulta el avance y estado de las tareas registradas.
+                    </p>
 
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="module-card">
-                            <div class="module-icon">📑</div>
-                            <h5>Seguimiento de contratos</h5>
-                            <p>Consulta contratos, fechas, estados y documentación.</p>
-                            <a href="{{ url_for('main.seguimiento_contratos') }}" class="btn btn-dark">
-                                Ingresar
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="module-card">
-                            <div class="module-icon">📊</div>
-                            <h5>Reportes</h5>
-                            <p>Genera reportes y consulta información consolidada.</p>
-                            <a href="{{ url_for('main.reportes') }}" class="btn btn-info">
-                                Abrir reportes
-                            </a>
-                        </div>
-                    </div>
+                    <a href="{{ url_for('main.seguimiento_tareas') }}"
+                       class="btn btn-primary">
+                        Consultar
+                    </a>
 
                 </div>
 
-                <h3 class="section-title">Herramientas adicionales</h3>
+            </div>
 
-                <div class="row">
 
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="module-card">
-                            <div class="module-icon">📘</div>
-                            <h5>Crear pliegos</h5>
-                            <p>Módulo reservado para la elaboración de pliegos.</p>
-                            <a href="#" class="btn btn-outline-secondary">
-                                Próximamente
-                            </a>
-                        </div>
+            <!-- ÓRDENES DE COMPRA -->
+            <div class="col-lg-4 col-md-6 mb-4">
+
+                <div class="module-card">
+
+                    <div class="module-icon">
+                        🧾
                     </div>
 
+                    <h5>Órdenes de compra</h5>
+
+                    <p>
+                        Crea, edita y consulta órdenes de compra.
+                    </p>
+
+                    <a href="{{ url_for('main.ordenes_compra') }}"
+                       class="btn btn-warning">
+                        Ingresar
+                    </a>
+
                 </div>
+
+            </div>
+
+
+            <!-- SEGUIMIENTO DE CONTRATOS -->
+            <div class="col-lg-4 col-md-6 mb-4">
+
+                <div class="module-card">
+
+                    <div class="module-icon">
+                        📑
+                    </div>
+
+                    <h5>Seguimiento de contratos</h5>
+
+                    <p>
+                        Consulta contratos, fechas, estados y documentación.
+                    </p>
+
+                    <a href="{{ url_for('main.seguimiento_contratos') }}"
+                       class="btn btn-dark">
+                        Ingresar
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- REPORTES -->
+            <div class="col-lg-4 col-md-6 mb-4">
+
+                <div class="module-card">
+
+                    <div class="module-icon">
+                        📊
+                    </div>
+
+                    <h5>Reportes</h5>
+
+                    <p>
+                        Genera reportes y consulta información consolidada.
+                    </p>
+
+                    <a href="{{ url_for('main.reportes') }}"
+                       class="btn btn-info">
+                        Abrir reportes
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             HERRAMIENTAS ADICIONALES
+        ========================== -->
+
+        <h3 class="section-title">
+            Herramientas adicionales
+        </h3>
+
+        <div class="row">
+
+            <!-- CREAR PLIEGOS -->
+            <div class="col-lg-4 col-md-6 mb-4">
+
+                <div class="module-card">
+
+                    <div class="module-icon">
+                        📘
+                    </div>
+
+                    <h5>Crear pliegos</h5>
+
+                    <p>
+                        Módulo reservado para la elaboración de pliegos.
+                    </p>
+
+                    <a href="#"
+                       class="btn btn-outline-secondary">
+                        Próximamente
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
 
     </main>
 
