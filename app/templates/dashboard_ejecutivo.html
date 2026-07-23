@@ -3,10 +3,84 @@
 
 <div class="container-fluid mt-4">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><b>📊 Dashboard Ejecutivo SICOP</b></h2>
+    <div class="text-center mb-4">
+        <h2 class="font-weight-bold mb-1">
+            📊 Dashboard Ejecutivo SICOP
+        </h2>
 
-        <a href="{{ url_for('main.user_dashboard') }}" class="btn btn-secondary">
+        <p class="text-muted mb-0">
+           <b> Indicadores y seguimiento de los procesos de contratación</b> 
+        </p>
+    </div>
+
+        <form method="GET"
+              action="{{ url_for('main.dashboard_ejecutivo') }}">
+
+            <div class="row align-items-end">
+
+                <div class="col-md-3 mb-2">
+                    <label><strong>Fecha desde</strong></label>
+
+                    <input type="date"
+                           name="fecha_inicio"
+                           class="form-control"
+                           value="{{ fecha_inicio or '' }}">
+                </div>
+
+                <div class="col-md-3 mb-2">
+                    <label><strong>Fecha hasta</strong></label>
+
+                    <input type="date"
+                           name="fecha_fin"
+                           class="form-control"
+                           value="{{ fecha_fin or '' }}">
+                </div>
+                <div class="col-md-3 mb-2">
+    <label>
+        <strong>Unidad</strong>
+    </label>
+
+    <select
+        name="unidad"
+        class="form-control">
+
+        <option value="">
+            Todas las unidades
+        </option>
+
+        {% for u in unidades_filtro %}
+            <option
+                value="{{ u }}"
+                {% if unidad == u %}selected{% endif %}
+            >
+                {{ u }}
+            </option>
+        {% endfor %}
+
+    </select>
+</div>
+                <div class="col-md-3 mb-2">
+                    <button type="submit"
+                            class="btn btn-primary btn-block">
+                        🔎 Aplicar filtro
+                    </button>
+                </div>
+
+                <div class="col-md-3 mb-2">
+                    <a href="{{ url_for('main.dashboard_ejecutivo') }}"
+                       class="btn btn-secondary btn-block">
+                        ↻ Limpiar
+                    </a>
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+        <a href="{{ url_for('main.volver_panel') }}"
+        class="btn btn-secondary">
             ⬅ Volver
         </a>
     </div>
@@ -26,7 +100,7 @@
                 <div class="card-body text-center">
                     <h6>💰 Monto Procesado</h6>
                     <h1 class="text-success">
-                        $ {{ "{:,.2f}".format(resumen[6]) }}
+                        $ {{ "{:,.2f}".format(resumen[4] or 0) }}
                     </h1>
                 </div>
             </div>
@@ -40,41 +114,38 @@
             </div>
         </div>
 
-        <div class="col-md-2 mb-3">
-            <div class="card shadow border-warning">
-                <div class="card-body text-center">
-                    <h6>+5 días</h6>
-                    <h1 class="text-warning">{{ resumen[2] }}</h1>
-                </div>
-            </div>
-        </div>
+        <div class="col-md-3 mb-3">
+    <div class="card shadow-sm border-success h-100">
+        <div class="card-body text-center">
 
-        <div class="col-md-2 mb-3">
-            <div class="card shadow border-danger">
-                <div class="card-body text-center">
-                    <h6>+10 días</h6>
-                    <h1 class="text-danger">{{ resumen[3] }}</h1>
-                </div>
+            <div class="mb-2">
+                🧾 Con Orden de Compra
             </div>
-        </div>
 
-        <div class="col-md-2 mb-3">
-            <div class="card shadow border-danger">
-                <div class="card-body text-center">
-                    <h6>+15 días</h6>
-                    <h1 class="text-danger">{{ resumen[4] }}</h1>
-                </div>
-            </div>
-        </div>
+            <h2 class="text-success mb-0">
+                {{ resumen[2] }}
+            </h2>
 
-        <div class="col-md-2 mb-3">
-            <div class="card shadow border-dark">
-                <div class="card-body text-center">
-                    <h6>+30 días</h6>
-                    <h1>{{ resumen[5] }}</h1>
-                </div>
-            </div>
         </div>
+    </div>
+</div>
+<div class="col-md-3 mb-3">
+    <div class="card shadow-sm border-primary h-100">
+        <div class="card-body text-center">
+
+            <div class="mb-2">
+                📑 Con Contrato
+            </div>
+
+            <h2 class="text-primary mb-0">
+                {{ resumen[3] }}
+            </h2>
+
+        </div>
+    </div>
+</div>
+        
+        
 
     </div>
 

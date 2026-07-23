@@ -14,25 +14,13 @@ from flask import send_file
 from flask import send_file
 from io import BytesIO
 from app.services.pdf_orden_compra import generar_pdf_orden_compra
-from app.services.pdf_certificaciones import (
-    generar_pdf_cate,
-    generar_pdf_pac
-)
+from app.services.pdf_certificaciones import (generar_pdf_cate, generar_pdf_pac)
 from flask import request, send_file
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from flask import (
-    Blueprint,
-    render_template,
-    request,
-    redirect,
-    url_for,
-    flash,
-    session,
-    jsonify
-)
+from flask import (Blueprint, render_template, request, redirect, url_for, flash, session, jsonify)
 
 def valor_en_letras_con_decimales(valor):
     valor = Decimal(valor).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
@@ -3052,6 +3040,9 @@ def seguimiento_tareas_guardar():
     tarea_id = request.form.get("tarea_id")
     estado = request.form.get("estado")
     observacion = request.form.get("observacion")
+    numero_certificacion = request.form.get("numero_certificacion")
+    fecha_certificacion = request.form.get("fecha_certificacion")
+
 
     conn = get_connection()
     cur = conn.cursor()
@@ -3071,14 +3062,32 @@ def seguimiento_tareas_guardar():
         session.get("user_id")
     ))
 
-    cur.execute("""
-        UPDATE tareas
-        SET estado_requerimiento = %s
-        WHERE id = %s
-    """, (
-        estado,
-        tarea_id
-    ))
+    if estado == "CON CERTIFICACION":
+
+        cur.execute("""
+            UPDATE tareas
+            SET
+                estado_requerimiento = %s,
+                numero_certificacion = %s,
+                fecha_certificacion = %s
+            WHERE id = %s
+        """, (
+            estado,
+            numero_certificacion,
+            fecha_certificacion,
+            tarea_id
+        ))
+
+    else:
+
+        cur.execute("""
+            UPDATE tareas
+            SET estado_requerimiento = %s
+            WHERE id = %s
+        """, (
+            estado,
+            tarea_id
+        ))
 
     conn.commit()
     cur.close()
@@ -3210,65 +3219,188 @@ def seguimiento_tareas_dashboard():
         stats=stats,
         alertas=alertas
     )
-# ===============================
+ # ===============================
 # DASHBOARD EJECUTIVO SICOP
 # ===============================
 @main.route("/dashboard_ejecutivo")
 @login_required()
 def dashboard_ejecutivo():
+
+    unidad = request.args.get("unidad")
+    fecha_inicio = request.args.get("fecha_inicio")
+    fecha_fin = request.args.get("fecha_fin")
+
     conn = get_connection()
     cur = conn.cursor()
 
-    # Indicadores generales
-    cur.execute("""
+    # ==========================================
+    # FILTRO GENERAL POR FECHAS
+    # ==========================================
+    condiciones = [
+        "fecha_recepcion IS NOT NULL"
+    ]
+
+    parametros = []
+    
+    if unidad:
+        condiciones.append("unidad_solicitante = %s")
+        parametros.append(unidad)
+
+    if fecha_inicio:
+        condiciones.append("fecha_recepcion >= %s")
+        parametros.append(fecha_inicio)
+
+    if fecha_fin:
+        condiciones.append("fecha_recepcion <= %s")
+        parametros.append(fecha_fin)
+
+    where_sql = " WHERE " + " AND ".join(condiciones)
+
+    # ==========================================
+    # INDICADORES GENERALES
+    # ==========================================
+    sql_resumen = f"""
         SELECT
             COUNT(*) AS total,
-            ROUND(AVG(CURRENT_DATE - fecha_recepcion), 2) AS promedio_dias,
-            COUNT(*) FILTER (WHERE CURRENT_DATE - fecha_recepcion > 5) AS atrasadas_5,
-            COUNT(*) FILTER (WHERE CURRENT_DATE - fecha_recepcion > 10) AS atrasadas_10,
-            COUNT(*) FILTER (WHERE CURRENT_DATE - fecha_recepcion > 15) AS atrasadas_15,
-            COUNT(*) FILTER (WHERE CURRENT_DATE - fecha_recepcion > 30) AS atrasadas_30,
-            COALESCE(SUM(valor_sin_iva + valor_exento), 0) AS monto_total    
+
+            ROUND(
+                AVG(CURRENT_DATE - fecha_recepcion),
+                2
+            ) AS promedio_dias,
+          
+            COUNT(*) FILTER (
+                WHERE EXISTS (
+                    SELECT 1
+                    FROM ordenes_compra oc
+                    WHERE oc.tarea_id = tareas.id
+                )
+            ) AS con_orden_compra,
+
+            COUNT(*) FILTER (
+                WHERE EXISTS (
+                    SELECT 1
+                    FROM seguimiento_contratos sc
+                    WHERE UPPER(TRIM(sc.codigo_proceso))
+                        = UPPER(TRIM(tareas.codigo_proceso))
+                )
+            ) AS con_contrato,
+
+            COALESCE(
+                SUM(
+                    COALESCE(valor_sin_iva, 0)
+                    +
+                    COALESCE(valor_exento, 0)
+                ),
+                0
+            ) AS monto_total
 
         FROM tareas
-        WHERE fecha_recepcion IS NOT NULL
-    """)
+
+        {where_sql}
+    """
+
+    cur.execute(
+        sql_resumen,
+        parametros
+    )
+
     resumen = cur.fetchone()
 
-    # Por estado
-    cur.execute("""
+    # ==========================================
+    # TAREAS POR ESTADO
+    # ==========================================
+    sql_estado = f"""
         SELECT
-            COALESCE(estado_requerimiento, 'SIN ESTADO') AS estado,
+            COALESCE(
+                estado_requerimiento,
+                'SIN ESTADO'
+            ) AS estado,
+
             COUNT(*) AS total
+
         FROM tareas
-        GROUP BY estado
+
+        {where_sql}
+
+        GROUP BY estado_requerimiento
         ORDER BY total DESC
-    """)
+    """
+
+    cur.execute(
+        sql_estado,
+        parametros
+    )
+
     por_estado = cur.fetchall()
 
-    # Por analista
-    cur.execute("""
+    # ==========================================
+    # TAREAS POR ANALISTA
+    # ==========================================
+    sql_funcionario = f"""
         SELECT
-            COALESCE(funcionario_encargado, 'SIN FUNCIONARIO') AS funcionario,
+            COALESCE(
+                funcionario_encargado,
+                'SIN FUNCIONARIO'
+            ) AS funcionario,
+
             COUNT(*) AS total
+
         FROM tareas
-        GROUP BY funcionario
+
+        {where_sql}
+
+        GROUP BY funcionario_encargado
         ORDER BY total DESC
         LIMIT 10
-    """)
+    """
+
+    cur.execute(
+        sql_funcionario,
+        parametros
+    )
+
     por_funcionario = cur.fetchall()
 
-    # Por unidad
-    cur.execute("""
+    # ==========================================
+    # TAREAS POR UNIDAD
+    # ==========================================
+    sql_unidad = f"""
         SELECT
-            COALESCE(unidad_solicitante, 'SIN UNIDAD') AS unidad,
+            COALESCE(
+                unidad_solicitante,
+                'SIN UNIDAD'
+            ) AS unidad,
+
             COUNT(*) AS total
+
         FROM tareas
-        GROUP BY unidad
+
+        {where_sql}
+
+        GROUP BY unidad_solicitante
         ORDER BY total DESC
         LIMIT 10
-    """)
+    """
+
+    cur.execute(
+        sql_unidad,
+        parametros
+    )
+
     por_unidad = cur.fetchall()
+
+    cur.execute("""
+        SELECT DISTINCT unidad_solicitante
+        FROM tareas
+        WHERE unidad_solicitante IS NOT NULL
+        AND TRIM(unidad_solicitante) <> ''
+        ORDER BY unidad_solicitante
+    """)
+
+    unidades_filtro = [
+        fila[0]
+        for fila in cur.fetchall()
+    ]
 
     cur.close()
     conn.close()
@@ -3278,7 +3410,11 @@ def dashboard_ejecutivo():
         resumen=resumen,
         por_estado=por_estado,
         por_funcionario=por_funcionario,
-        por_unidad=por_unidad
+        por_unidad=por_unidad,
+        fecha_inicio=fecha_inicio,
+        fecha_fin=fecha_fin,
+        unidad=unidad,
+        unidades_filtro=unidades_filtro
     )
 # =========================================
 # DASHBOARD DE REQUERIMIENTOS POR UNIDAD
@@ -3286,6 +3422,7 @@ def dashboard_ejecutivo():
 @main.route("/dashboard_requerimientos")
 @login_required()
 def dashboard_requerimientos():
+
     conn = get_connection()
     cur = conn.cursor()
 
@@ -3296,20 +3433,38 @@ def dashboard_requerimientos():
             COALESCE(SUM(monto_req), 0) AS monto_total
         FROM requerimientos
     """)
+
     resumen = cur.fetchone()
 
     # Cantidad y monto por unidad requirente
     cur.execute("""
         SELECT
-            COALESCE(u.nombre_unidad, 'SIN UNIDAD') AS unidad,
+            COALESCE(
+                u.nombre_unidad,
+                'SIN UNIDAD'
+            ) AS unidad,
+
             COUNT(r.id) AS cantidad_requerimientos,
-            COALESCE(SUM(r.monto_req), 0) AS monto_total
+
+            COALESCE(
+                SUM(r.monto_req),
+                0
+            ) AS monto_total
+
         FROM requerimientos r
+
         LEFT JOIN unidades u
             ON u.id = r.unid_requirente
-        GROUP BY u.id, u.nombre_unidad
-        ORDER BY cantidad_requerimientos DESC, unidad ASC
+
+        GROUP BY
+            u.id,
+            u.nombre_unidad
+
+        ORDER BY
+            cantidad_requerimientos DESC,
+            unidad ASC
     """)
+
     por_unidad = cur.fetchall()
 
     cur.close()
@@ -3320,6 +3475,7 @@ def dashboard_requerimientos():
         resumen=resumen,
         por_unidad=por_unidad
     )
+
 # ===============================
 # REPORTES
 # ===============================
@@ -4000,10 +4156,18 @@ def api_trazabilidad_procesos():
             COALESCE(u.nombre_unidad, '') AS unidad,
 
             oc.numero_oc,
+            oc.fecha AS fecha_orden,
+            oc.administrador_orden,
+            oc.proveedor AS proveedor_orden,
+            oc.ruc AS ruc_orden,
+            oc.total AS total_orden,
 
             sc.numero_contrato,
+            sc.fecha_suscripcion,
             sc.administrador_contrato,
-            sc.proveedor,
+            sc.proveedor AS proveedor_contrato,
+            sc.ruc AS ruc_contrato,
+            sc.monto_contractual,
             sc.estado AS estado_contrato,
                 
             EXISTS (
@@ -4029,7 +4193,12 @@ def api_trazabilidad_procesos():
 
         LEFT JOIN LATERAL (
             SELECT
-                o.numero_oc
+                o.numero_oc,
+                o.fecha,
+                o.administrador_orden,
+                o.proveedor,
+                o.ruc,
+                o.total
             FROM ordenes_compra o
             WHERE o.tarea_id = t.id
             ORDER BY o.id DESC
@@ -4039,8 +4208,11 @@ def api_trazabilidad_procesos():
         LEFT JOIN LATERAL (
             SELECT
                 c.numero_contrato,
+                c.fecha_suscripcion,
                 c.administrador_contrato,
                 c.proveedor,
+                c.ruc,
+                c.monto_contractual,
                 c.estado
             FROM seguimiento_contratos c
             WHERE UPPER(TRIM(c.codigo_proceso))
@@ -4086,12 +4258,64 @@ def api_trazabilidad_procesos():
         monto = float(fila[6] or 0)
 
         numero_orden = fila[8]
-        numero_contrato = fila[9]
-        administrador = fila[10]
-        proveedor = fila[11]
-        estado_contrato = fila[12]
-        tiene_pac = bool(fila[13])
-        tiene_cate = bool(fila[14])
+        fecha_orden = fila[9]
+        administrador_orden = fila[10]
+        proveedor_orden = fila[11]
+        ruc_orden = fila[12]
+        total_orden = fila[13]
+
+        numero_contrato = fila[14]
+        fecha_suscripcion = fila[15]
+        administrador_contrato = fila[16]
+        proveedor_contrato = fila[17]
+        ruc_contrato = fila[18]
+        monto_contractual = fila[19]
+        estado_contrato = fila[20]
+
+        tiene_pac = bool(fila[21])
+        tiene_cate = bool(fila[22])
+
+        # ==========================================
+        # PRIORIDAD DE DATOS:
+        # 1. CONTRATO
+        # 2. ORDEN DE COMPRA
+        # ==========================================
+
+        administrador = (
+            administrador_contrato
+            or administrador_orden
+            or ""
+        )
+
+        proveedor = (
+            proveedor_contrato
+            or proveedor_orden
+            or ""
+        )
+
+        ruc = (
+            ruc_contrato
+            or ruc_orden
+            or ""
+        )
+
+        fecha_documento = (
+            fecha_suscripcion
+            or fecha_orden
+        )
+
+        if numero_contrato:
+            tipo_documento = "CONTRATO"
+            numero_documento = numero_contrato
+
+        elif numero_orden:
+            tipo_documento = "ORDEN DE COMPRA"
+            numero_documento = numero_orden
+
+        else:
+            tipo_documento = ""
+            numero_documento = ""
+
 
         procesos.append({
             "id": fila[0],
@@ -4114,9 +4338,33 @@ def api_trazabilidad_procesos():
             "tiene_contrato": bool(numero_contrato),
             "numero_contrato": numero_contrato or "",
 
-            "administrador": administrador or "",
-            "proveedor": proveedor or "",
+           "administrador": administrador,
+            "proveedor": proveedor,
+            "ruc": ruc,
+
             "estado_contrato": estado_contrato or "",
+
+            "tipo_documento": tipo_documento,
+            "numero_documento": numero_documento,
+
+            "fecha_documento": (
+                fecha_documento.strftime("%d/%m/%Y")
+                if fecha_documento
+                else ""
+            ),
+
+            "fecha_orden": (
+                fecha_orden.strftime("%d/%m/%Y")
+                if fecha_orden
+                else ""
+            ),
+
+            "fecha_contrato": (
+                fecha_suscripcion.strftime("%d/%m/%Y")
+                if fecha_suscripcion
+                else ""
+            ),
+
             "tiene_pac": tiene_pac,
             "tiene_cate": tiene_cate
         })
@@ -4124,3 +4372,19 @@ def api_trazabilidad_procesos():
     return jsonify({
         "procesos": procesos
     })
+# ===============================
+# VOLVER AL PANEL SEGÚN ROL
+# ===============================
+@main.route("/volver_panel")
+@login_required()
+def volver_panel():
+
+    rol = session.get("rol", "").strip().lower()
+
+    if rol == "administrador":
+        return redirect(url_for("main.admin_dashboard"))
+
+    elif rol == "analista":
+        return redirect(url_for("main.analista_dashboard"))
+
+    return redirect(url_for("main.user_dashboard"))

@@ -234,41 +234,60 @@
                                 </div>
 
                                 <div class="col-lg-3 col-md-6 mb-3">
-                                    <div class="p-3 rounded text-center h-100 ${proceso.tiene_orden
-                                ? "bg-success text-white"
-                                : "bg-light text-muted border"
-                            }">
+                                    <div class="p-3 rounded text-center h-100 ${
+                                        proceso.tiene_orden
+                                            ? "bg-success text-white"
+                                            : "bg-light text-muted border"
+                                    }">
                                         <div style="font-size:25px;">🧾</div>
+
                                         <strong>ORDEN DE COMPRA</strong>
+
                                         <div>
                                             ${proceso.tiene_orden ? "REGISTRADA" : "NO REGISTRADA"}
                                         </div>
 
-                                        ${proceso.numero_orden
-                                ? `<small>${proceso.numero_orden}</small>`
-                                : ""
-                            }
+                                        ${
+                                            proceso.numero_orden
+                                                ? `<div><small>${proceso.numero_orden}</small></div>`
+                                                : ""
+                                        }
+
+                                        ${
+                                            proceso.fecha_orden
+                                                ? `<div class="mt-1"><small>Fecha: ${proceso.fecha_orden}</small></div>`
+                                                : ""
+                                        }
                                     </div>
                                 </div>
-
                                 <div class="col-lg-3 col-md-6 mb-3">
-                                    <div class="p-3 rounded text-center h-100 ${proceso.tiene_contrato
-                                ? "bg-success text-white"
-                                : "bg-light text-muted border"
-                            }">
+                                    <div class="p-3 rounded text-center h-100 ${
+                                        proceso.tiene_contrato
+                                            ? "bg-success text-white"
+                                            : "bg-light text-muted border"
+                                    }">
                                         <div style="font-size:25px;">📑</div>
+
                                         <strong>CONTRATO</strong>
+
                                         <div>
                                             ${proceso.tiene_contrato ? "REGISTRADO" : "NO REGISTRADO"}
                                         </div>
 
-                                        ${proceso.numero_contrato
-                                ? `<small>${proceso.numero_contrato}</small>`
-                                : ""
-                            }
+                                        ${
+                                            proceso.numero_contrato
+                                                ? `<div><small>${proceso.numero_contrato}</small></div>`
+                                                : ""
+                                        }
+
+                                        ${
+                                            proceso.fecha_contrato
+                                                ? `<div class="mt-1"><small>Fecha de suscripción: ${proceso.fecha_contrato}</small></div>`
+                                                : ""
+                                        }
                                     </div>
                                 </div>
-
+                                
                                 <div class="col-lg-4 col-md-6 mb-3">
                                     <div class="p-3 rounded text-center h-100 ${proceso.administrador
                                 ? "bg-info text-white"
@@ -293,18 +312,39 @@
                                             ${proceso.proveedor || "NO REGISTRADO"}
                                         </div>
                                     </div>
-                                </div>
+                            </div>
 
-                                <div class="col-lg-4 col-md-6 mb-3">
-                                    <div class="p-3 rounded text-center h-100 ${proceso.estado_contrato
-                                ? "bg-warning"
-                                : "bg-light text-muted border"
-                            }">
+                               <div class="col-lg-4 col-md-6 mb-3">
+                                    <div class="p-3 rounded text-center h-100 ${
+                                        proceso.estado_contrato
+                                            ? "bg-warning"
+                                            : proceso.tiene_orden
+                                                ? "bg-info text-white"
+                                                : "bg-light text-muted border"
+                                    }">
+
                                         <div style="font-size:25px;">📌</div>
-                                        <strong>ESTADO CONTRACTUAL</strong>
+
+                                        <strong>
+                                            ${
+                                                proceso.tiene_contrato
+                                                    ? "ESTADO CONTRACTUAL"
+                                                    : proceso.tiene_orden
+                                                        ? "ESTADO DE EJECUCIÓN"
+                                                        : "ESTADO"
+                                            }
+                                        </strong>
+
                                         <div>
-                                            ${proceso.estado_contrato || "SIN CONTRATO"}
+                                            ${
+                                                proceso.estado_contrato
+                                                    ? proceso.estado_contrato
+                                                    : proceso.tiene_orden
+                                                        ? "ORDEN DE COMPRA REGISTRADA"
+                                                        : "SIN FORMALIZACIÓN"
+                                            }
                                         </div>
+
                                     </div>
                                 </div>
 

@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Panel Administrador - SICOP</title>
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
         * {
@@ -264,8 +262,7 @@
             <span>🛠</span>
             <span>Tareas</span>
         </a>
-        <a href="{{ url_for('main.trazabilidad_procesos') }}"
-        class="sidebar-link">
+        <a href="{{ url_for('main.trazabilidad_procesos') }}" class="sidebar-link">
             <span>🎯</span>
             <span>Trazabilidad</span>
         </a>
@@ -342,22 +339,21 @@
                 </div>
             </div>
             <div class="col-lg-4 col-md-6 mb-4">
-    <div class="module-card">
-        <div class="module-icon">🎯</div>
+                <div class="module-card">
+                    <div class="module-icon">🎯</div>
 
-        <h5>Trazabilidad</h5>
+                    <h5>Trazabilidad</h5>
 
-        <p>
-            Consulte en segundos el estado completo de cualquier proceso de contratación.
-        </p>
+                    <p>
+                        Consulte en segundos el estado completo de cualquier proceso de contratación.
+                    </p>
 
-        <a href="{{ url_for('main.trazabilidad_procesos') }}"
-           class="btn btn-info">
-            Consultar
-        </a>
+                    <a href="{{ url_for('main.trazabilidad_procesos') }}" class="btn btn-info">
+                        Consultar
+                    </a>
 
-    </div>
-</div>
+                </div>
+            </div>
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="module-card">
                     <div class="module-icon">📌</div>
@@ -403,7 +399,7 @@
             </div>
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="module-card">
-                   <div class="module-icon">🚀</div>
+                    <div class="module-icon">🚀</div>
 
                     <h5>Dashboard Ejecutivo</h5>
 
@@ -411,31 +407,78 @@
                         Consulta indicadores, estadísticas, tiempos de atención y carga de trabajo del SICOP.
                     </p>
 
-                    <a href="{{ url_for('main.dashboard_ejecutivo') }}"
-                    class="btn btn-primary">
+                    <a href="{{ url_for('main.dashboard_ejecutivo') }}" class="btn btn-primary">
                         Ver Dashboard
                     </a>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6 mb-4">
-            <div class="module-card">
-                <div class="module-icon">📊</div>
+                <div class="module-card">
+                    <div class="module-icon">📊</div>
 
-                <h5>Dashboard de Requerimientos</h5>
+                    <h5>Dashboard de Requerimientos</h5>
 
-                <p>
-                    Consulta cuántos requerimientos ingresó cada unidad y el monto acumulado.
-                </p>
+                    <p>
+                        Consulta cuántos requerimientos ingresó cada unidad y el monto acumulado.
+                    </p>
 
-                <a href="{{ url_for('main.dashboard_requerimientos') }}"
-                class="btn btn-success">
-                    Ver Dashboard
-                </a>
+                    <a href="{{ url_for('main.dashboard_requerimientos') }}" class="btn btn-success">
+                        Ver Dashboard
+                    </a>
+                </div>
             </div>
-        </div>
 
 
         </div>
+<h3 class="section-title">Herramientas adicionales</h3>
+
+<div class="row">
+
+    <!-- CREAR PLIEGOS -->
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="module-card">
+
+            <div class="module-icon">📘</div>
+
+            <h5>Crear pliegos</h5>
+
+            <p>
+                Módulo reservado para la elaboración de pliegos.
+            </p>
+
+            <a href="#"
+               class="btn btn-outline-secondary">
+                Próximamente
+            </a>
+
+        </div>
+    </div>
+
+
+    <!-- SINACOP IA -->
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="module-card">
+
+            <div class="module-icon">🧠</div>
+
+            <h5>SINACOP IA</h5>
+
+            <p>
+                Analiza documentos de contratación pública
+                mediante inteligencia artificial.
+            </p>
+
+            <a href="https://sinacop-ia.onrender.com"
+               target="_blank"
+               rel="noopener noreferrer"
+               class="btn btn-primary">
+                🤖 Abrir SINACOP IA
+            </a>
+
+        </div>
+    </div>
+
+</div>
 
         <h3 class="section-title">Configuración del sistema</h3>
 
@@ -490,4 +533,5 @@
     </main>
 
 </body>
+
 </html>

@@ -83,11 +83,13 @@
 
                 <br>
 
-                <button type="button"
-                        class="btn btn-info btn-sm"
-                        data-toggle="modal"
-                        data-target="#modalSeguimiento"
-                        onclick="abrirSeguimiento('{{ t[0] }}', '{{ t[1] }}')">
+                <button
+                    type="button"
+                    class="btn btn-info"
+                    data-toggle="modal"
+                    data-target="#modalSeguimiento"
+                    data-id="{{ t[0] }}"
+                    data-codigo="{{ t[1] }}">
                     📌 Seguimiento
                 </button>
                 <a href="{{ url_for('main.seguimiento_tareas_historial', tarea_id=t[0]) }}"
@@ -140,15 +142,16 @@
 
                     <div class="form-group">
 
-                        <label>Código</label>
+                    <label>Código</label>
 
-                        <input
-                            type="text"
-                            id="codigo_modal"
-                            class="form-control"
-                            readonly>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="codigoSeguimiento"
+                        name="codigo"
+                        readonly>
 
-                    </div>
+                </div>
 
                 <div class="form-group">
 
@@ -157,6 +160,7 @@
                         <select
                             class="form-control"
                             name="estado"
+                            id="estadoSeguimiento"
                             required>
 
                             <option>RECIBIDA</option>
@@ -174,7 +178,30 @@
                             <option>FINALIZADA</option>
 
                         </select>
+                        <div id="datosCertificacion" style="display:none;">
 
+                            <div class="form-group">
+                                <label>Número de certificación</label>
+
+                                <input
+                                    type="text"
+                                    name="numero_certificacion"
+                                    id="numeroCertificacion"
+                                    class="form-control"
+                                    placeholder="Ingrese el número de certificación">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Fecha de certificación</label>
+
+                                <input
+                                    type="date"
+                                    name="fecha_certificacion"
+                                    id="fechaCertificacion"
+                                    class="form-control">
+                            </div>
+
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -206,9 +233,61 @@
 
 </div>
 <script>
-function abrirSeguimiento(id, codigo) {
-    document.getElementById("tarea_id_modal").value = id;
-    document.getElementById("codigo_modal").value = codigo;
-}
+document.addEventListener("DOMContentLoaded", function () {
+
+    // ==========================================
+    // CARGAR ID Y CÓDIGO EN EL MODAL
+    // ==========================================
+    const botonesSeguimiento = document.querySelectorAll(
+        '[data-target="#modalSeguimiento"]'
+    );
+
+    botonesSeguimiento.forEach(function (boton) {
+
+        boton.addEventListener("click", function () {
+
+            const tareaId = this.getAttribute("data-id");
+            const codigo = this.getAttribute("data-codigo");
+
+            document.getElementById("tarea_id_modal").value = tareaId || "";
+            document.getElementById("codigoSeguimiento").value = codigo || "";
+
+        });
+
+    });
+
+
+    // ==========================================
+    // CAMPOS DE CERTIFICACIÓN
+    // ==========================================
+    const estado = document.getElementById("estadoSeguimiento");
+    const datosCertificacion = document.getElementById("datosCertificacion");
+    const numeroCertificacion = document.getElementById("numeroCertificacion");
+    const fechaCertificacion = document.getElementById("fechaCertificacion");
+
+    function mostrarDatosCertificacion() {
+
+        if (estado.value === "CON CERTIFICACION") {
+
+            datosCertificacion.style.display = "block";
+
+            numeroCertificacion.required = true;
+            fechaCertificacion.required = true;
+
+        } else {
+
+            datosCertificacion.style.display = "none";
+
+            numeroCertificacion.required = false;
+            fechaCertificacion.required = false;
+
+        }
+    }
+
+    estado.addEventListener("change", mostrarDatosCertificacion);
+
+    mostrarDatosCertificacion();
+
+});
 </script>
 {% endblock %}
