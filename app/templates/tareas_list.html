@@ -77,33 +77,45 @@
                 <td>{{ t[3] }}</td>
                 <td>{{ t[4] }}</td>
                 <td>{{ t[5] }}</td>
-                <td>
-        <a href="{{ url_for('main.tareas_editar', id=t[0]) }}"
-            class="btn btn-sm btn-warning">
-            ✏️ Editar
-        </a>
+        <td>
 
-        <a href="#"
-            class="btn btn-sm btn-danger">
+            <a href="{{ url_for('main.tareas_editar', id=t[0]) }}"
+            class="btn btn-sm btn-warning mb-1">
+                ✏️ Editar
+            </a>
+
             <form action="{{ url_for('main.tareas_eliminar', id=t[0]) }}"
-            method="post"
-            style="display:inline;"
-            onsubmit="return confirm('¿Seguro que deseas eliminar esta tarea?');">
+                method="post"
+                style="display:inline;"
+                onsubmit="return confirm('¿Seguro que deseas eliminar esta tarea?');">
 
-            <button type="submit" class="btn btn-sm btn-danger">
-                🗑️ Eliminar
-            </button>
+                <button type="submit"
+                        class="btn btn-sm btn-danger mb-1">
+                    🗑️ Eliminar
+                </button>
             </form>
-          </a>
+
             <a href="{{ url_for('main.informe_verificacion', id_tarea=t[0]) }}"
-                class="btn btn-sm btn-info">
+            class="btn btn-sm btn-info mb-1">
                 📄 Informe Verificación
             </a>
+
             <a href="{{ url_for('main.tarea_certificaciones', tarea_id=t[0]) }}"
-            class="btn btn-sm btn-success">
+            class="btn btn-sm btn-success mb-1">
                 📑 Certificaciones
             </a>
-            </td>
+
+            <button type="button"
+                    class="btn btn-sm btn-dark mb-1 btn-detalle-tarea"
+                    data-toggle="modal"
+                    data-target="#modalDetalleTarea"
+                    data-id="{{ t[0] }}">
+                👁 Ver detalle
+            </button>
+
+        </td>
+
+                
         </tr>
         {% else %}
             <tr>
@@ -116,4 +128,306 @@
     </table>
 
 </div>
+<!-- ==========================================
+     MODAL DETALLE DE TAREA
+=========================================== -->
+<div class="modal fade"
+     id="modalDetalleTarea"
+     tabindex="-1">
+
+    <div class="modal-dialog modal-lg">
+
+        <div class="modal-content">
+
+            <div class="modal-header bg-dark text-white">
+
+                <h5 class="modal-title">
+                    👁 Detalle del proceso
+                </h5>
+
+                <button type="button"
+                        class="close text-white"
+                        data-dismiss="modal">
+                    &times;
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div id="detalleTareaCargando"
+                     class="text-center py-4">
+
+                    <div class="spinner-border text-primary"></div>
+
+                    <div class="mt-2">
+                        Cargando información...
+                    </div>
+
+                </div>
+
+
+                <div id="detalleTareaContenido"
+                     style="display:none;">
+
+                    <div class="row">
+
+                        <div class="col-md-4 mb-3">
+                            <strong>Código</strong>
+                            <div id="detalleCodigo"></div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <strong>Estado</strong>
+                            <div id="detalleEstado"></div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <strong>Analista</strong>
+                            <div id="detalleAnalista"></div>
+                        </div>
+
+                        <div class="col-md-12 mb-3">
+                            <strong>Objeto de contratación</strong>
+                            <div id="detalleObjeto"></div>
+                        </div>
+
+                        <div class="col-md-12 mb-3">
+                            <strong>Unidad requirente</strong>
+                            <div id="detalleUnidad"></div>
+                        </div>
+
+                    </div>
+
+                    <hr>
+
+                    <h5 class="mb-3">
+                        💰 Partidas presupuestarias
+                    </h5>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-bordered table-sm">
+
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Partida</th>
+                                    <th>Nombre</th>
+                                    <th>Programa</th>
+                                    <th>Fuente</th>
+                                    <th class="text-right">Monto</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="detallePartidas"></tbody>
+
+                            <tfoot>
+                                <tr>
+                                    <th colspan="4"
+                                        class="text-right">
+                                        TOTAL
+                                    </th>
+
+                                    <th id="detalleTotal"
+                                        class="text-right">
+                                        $0.00
+                                    </th>
+                                </tr>
+                            </tfoot>
+
+                        </table>
+
+                    </div>
+
+                    <div id="mensajeSinPartidas"
+                        class="alert alert-warning"
+                        style="display:none;">
+
+                        <div class="mb-2">
+                            ⚠️ Este proceso no tiene partidas presupuestarias registradas.
+                        </div>
+
+                        <a id="btnAgregarPartidas"
+                        href="#"
+                        class="btn btn-primary btn-sm">
+                            ➕ Agregar partidas
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal">
+                    Cerrar
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const botonesDetalle =
+        document.querySelectorAll(".btn-detalle-tarea");
+
+    botonesDetalle.forEach(function (boton) {
+
+        boton.addEventListener("click", async function () {
+
+            const tareaId =
+                this.getAttribute("data-id");
+
+            const cargando =
+                document.getElementById("detalleTareaCargando");
+
+            const contenido =
+                document.getElementById("detalleTareaContenido");
+
+            const tbody =
+                document.getElementById("detallePartidas");
+
+            const mensajeSinPartidas =
+                document.getElementById("mensajeSinPartidas");
+
+            cargando.style.display = "block";
+            contenido.style.display = "none";
+
+            tbody.innerHTML = "";
+            mensajeSinPartidas.style.display = "none";
+
+            try {
+
+                const respuesta = await fetch(
+                    `/api/tareas/${tareaId}/detalle`
+                );
+
+                const data = await respuesta.json();
+
+                if (!respuesta.ok || !data.ok) {
+                    throw new Error(
+                        data.mensaje || "No fue posible cargar el proceso."
+                    );
+                }
+
+
+                // ==============================
+                // DATOS GENERALES
+                // ==============================
+                document.getElementById(
+                    "detalleCodigo"
+                ).textContent =
+                    data.tarea.codigo || "SIN CÓDIGO";
+
+                document.getElementById(
+                    "detalleEstado"
+                ).textContent =
+                    data.tarea.estado || "SIN ESTADO";
+
+                document.getElementById(
+                    "detalleObjeto"
+                ).textContent =
+                    data.tarea.objeto || "";
+
+                document.getElementById(
+                    "detalleUnidad"
+                ).textContent =
+                    data.tarea.unidad || "";
+
+                document.getElementById(
+                    "detalleAnalista"
+                ).textContent =
+                    data.tarea.analista || "";
+
+
+                // ==============================
+                // PARTIDAS
+                // ==============================
+               if (data.partidas.length === 0) {
+
+                    mensajeSinPartidas.style.display = "block";
+
+                    const btnAgregarPartidas =
+                        document.getElementById("btnAgregarPartidas");
+
+                    btnAgregarPartidas.href =
+                        `/requerimientos/${data.tarea.requerimiento_id}/partidas`;
+
+                }
+
+                    data.partidas.forEach(function (partida) {
+
+                        const fila =
+                            document.createElement("tr");
+
+                        fila.innerHTML = `
+                            <td>${partida.numero}</td>
+
+                            <td>${partida.nombre}</td>
+
+                            <td>${partida.programa}</td>
+
+                            <td>${partida.fuente}</td>
+
+                            <td class="text-right">
+                                $ ${Number(
+                                    partida.monto || 0
+                                ).toLocaleString(
+                                    "en-US",
+                                    {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    }
+                                )}
+                            </td>
+                        `;
+
+                        tbody.appendChild(fila);
+
+                    });
+
+                
+                document.getElementById(
+                    "detalleTotal"
+                ).textContent =
+                    "$ " +
+                    Number(
+                        data.total_partidas || 0
+                    ).toLocaleString(
+                        "en-US",
+                        {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    );
+
+
+                cargando.style.display = "none";
+                contenido.style.display = "block";
+
+            } catch (error) {
+
+                cargando.innerHTML = `
+                    <div class="alert alert-danger">
+                        ❌ ${error.message}
+                    </div>
+               `;
+
+            }
+
+        });
+
+    });
+
+});
+</script>
 {% endblock %}

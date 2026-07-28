@@ -287,10 +287,28 @@
             <span>📊</span>
             <span>Reportes</span>
         </a>
+        <a href="{{ url_for('main.dashboard_ejecutivo') }}" class="sidebar-link">
+            <span>🚀</span>
+            <span>Dashboard Ejecutivo</span>
+        </a>
+
+        <a href="{{ url_for('main.dashboard_requerimientos') }}" class="sidebar-link">
+            <span>📊</span>
+            <span>Dashboard de Requerimientos</span>
+        </a>
+
+        <div class="sidebar-section">Herramientas</div>
 
         <a href="#" class="sidebar-link">
             <span>📘</span>
             <span>Crear pliegos</span>
+        </a>
+
+        <a href="https://sinacop-ia.onrender.com"
+        target="_blank"
+        class="sidebar-link">
+            <span>🧠</span>
+            <span>SINACOP IA</span>
         </a>
 
         <a href="/logout" class="sidebar-link logout">
@@ -338,6 +356,18 @@
                     </a>
                 </div>
             </div>
+             <div class="col-lg-4 col-md-6 mb-4">
+                <div class="module-card">
+                    <div class="module-icon">🧾</div>
+                    <h5>Órdenes de compra</h5>
+                    <p>Crea, edita y consulta órdenes de compra.</p>
+                    <a href="{{ url_for('main.ordenes_compra') }}" class="btn btn-warning">
+                        Ingresar
+                    </a>
+                </div>
+            </div>
+                        
+            
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="module-card">
                     <div class="module-icon">🎯</div>
@@ -354,6 +384,10 @@
 
                 </div>
             </div>
+<<<<<<< HEAD
+=======
+           
+>>>>>>> 1e8893b (Modulo ASIGNAR PARTIDAS)
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="module-card">
                     <div class="module-icon">📌</div>
@@ -364,18 +398,7 @@
                     </a>
                 </div>
             </div>
-
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="module-card">
-                    <div class="module-icon">🧾</div>
-                    <h5>Órdenes de compra</h5>
-                    <p>Crea, edita y consulta órdenes de compra.</p>
-                    <a href="{{ url_for('main.ordenes_compra') }}" class="btn btn-warning">
-                        Ingresar
-                    </a>
-                </div>
-            </div>
-
+            
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="module-card">
                     <div class="module-icon">📑</div>

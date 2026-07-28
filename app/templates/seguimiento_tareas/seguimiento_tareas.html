@@ -14,27 +14,20 @@
     <form method="GET" action="{{ url_for('main.seguimiento_tareas') }}" class="row mb-3">
 
         <div class="col-md-3">
-            <input type="text" name="codigo" class="form-control"
-                   placeholder="Código proceso"
-                   value="{{ codigo }}">
+            <input type="text" name="codigo" class="form-control" placeholder="Código proceso" value="{{ codigo }}">
         </div>
 
         <div class="col-md-3">
-            <input type="text" name="estado" class="form-control"
-                   placeholder="Estado"
-                   value="{{ estado }}">
+            <input type="text" name="estado" class="form-control" placeholder="Estado" value="{{ estado }}">
         </div>
 
         <div class="col-md-3">
-            <input type="text" name="unidad" class="form-control"
-                   placeholder="Unidad"
-                   value="{{ unidad }}">
+            <input type="text" name="unidad" class="form-control" placeholder="Unidad" value="{{ unidad }}">
         </div>
 
         <div class="col-md-3">
-            <input type="text" name="funcionario" class="form-control"
-                   placeholder="Funcionario"
-                   value="{{ funcionario }}">
+            <input type="text" name="funcionario" class="form-control" placeholder="Funcionario"
+                value="{{ funcionario }}">
         </div>
 
         <div class="col-md-12 mt-2">
@@ -65,7 +58,7 @@
         </thead>
 
         <tbody>
-        {% for t in tareas %}
+            {% for t in tareas %}
             <tr>
                 <td>{{ t[0] }}</td>
                 <td>{{ t[1] }}</td>
@@ -76,13 +69,13 @@
                 <td>{{ t[6] }}</td>
                 <td>{{ t[7] if t[7] is not none else '' }}</td>
                 <td>
-                <a href="{{ url_for('main.tareas_editar', id=t[0]) }}"
-                class="btn btn-warning btn-sm mb-1">
-                    ✏️ Editar
-                </a>
+                    <a href="{{ url_for('main.tareas_editar', id=t[0]) }}" class="btn btn-warning btn-sm mb-1">
+                        ✏️ Editar
+                    </a>
 
-                <br>
+                    <br>
 
+<<<<<<< HEAD
                 <button
                     type="button"
                     class="btn btn-info"
@@ -99,12 +92,31 @@
             </td>
             </tr> 
         {% else %}
+=======
+                    <button
+                        type="button"
+                        class="btn btn-info"
+                        data-toggle="modal"
+                        data-target="#modalSeguimiento"
+                        data-id="{{ t[0] }}"
+                        data-codigo="{{ t[1] }}"
+                        data-tipo="{{ t[8] }}">
+                        📌 Seguimiento
+                    </button>
+                    <a href="{{ url_for('main.seguimiento_tareas_historial', tarea_id=t[0]) }}"
+                        class="btn btn-dark btn-sm mt-1">
+                        📜 Historial
+                    </a>
+                </td>
+            </tr>
+            {% else %}
+>>>>>>> 1e8893b (Modulo ASIGNAR PARTIDAS)
             <tr>
                 <td colspan="9" class="text-center text-muted">
                     No existen tareas para mostrar
                 </td>
             </tr>
-        {% endfor %}
+            {% endfor %}
         </tbody>
     </table>
 
@@ -115,10 +127,9 @@
 
 <div class="modal fade" id="modalSeguimiento" tabindex="-1">
 
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg modal-seguimiento-ancho"> 
 
-        <form method="POST"
-              action="{{ url_for('main.seguimiento_tareas_guardar') }}">
+        <form method="POST" action="{{ url_for('main.seguimiento_tareas_guardar') }}">
 
             <div class="modal-content">
 
@@ -127,41 +138,45 @@
                         📌 Registrar Seguimiento
                     </h5>
 
-                    <button type="button"
-                            class="close"
-                            data-dismiss="modal">
+                    <button type="button" class="close" data-dismiss="modal">
                         &times;
                     </button>
                 </div>
 
                 <div class="modal-body">
 
-                   <input type="hidden"
-                        id="tarea_id_modal"
-                        name="tarea_id">
+                    <input type="hidden" id="tarea_id_modal" name="tarea_id">
 
                     <div class="form-group">
 
                     <label>Código</label>
 
+<<<<<<< HEAD
                     <input
                         type="text"
                         class="form-control"
                         id="codigoSeguimiento"
                         name="codigo"
                         readonly>
+=======
+                        <input type="text" class="form-control" id="codigoSeguimiento" name="codigo" readonly>
+>>>>>>> 1e8893b (Modulo ASIGNAR PARTIDAS)
 
                 </div>
 
-                <div class="form-group">
+                    <div class="form-group">
 
                         <label>Estado</label>
 
+<<<<<<< HEAD
                         <select
                             class="form-control"
                             name="estado"
                             id="estadoSeguimiento"
                             required>
+=======
+                        <select class="form-control" name="estado" id="estadoSeguimiento" required>
+>>>>>>> 1e8893b (Modulo ASIGNAR PARTIDAS)
 
                             <option>RECIBIDA</option>
                             <option>EN REVISIÓN</option>
@@ -179,6 +194,64 @@
 
                         </select>
                         <div id="datosCertificacion" style="display:none;">
+<<<<<<< HEAD
+=======
+
+                            <div class="form-group">
+                                <label>Número de certificación</label>
+
+                                <input type="text" name="numero_certificacion" id="numeroCertificacion"
+                                    class="form-control" placeholder="Ingrese el número de certificación">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Fecha de certificación</label>
+
+                                <input type="date" name="fecha_certificacion" id="fechaCertificacion"
+                                    class="form-control">
+                            </div>
+
+                        </div>
+                    </div>
+
+                                        <!-- ===================================== -->
+                    <!-- DETALLE DE ADJUDICACIÓN POR PARTIDA -->
+                    <!-- ===================================== -->
+
+                    <div id="bloqueAdjudicacion" style="display:none;">
+
+                        <hr>
+
+                        <h6 class="font-weight-bold mb-3">
+                            💰 Detalle de adjudicación por partida
+                        </h6>
+
+                        <div class="table-responsive">
+
+                            <table class="table table-bordered table-sm">
+
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Partida</th>
+                                        <th>Programa</th>
+                                        <th>Fuente</th>
+                                        <th>Presupuesto</th>
+                                        <th>Valor adjudicado</th>
+
+                                        <th id="thOrdenCompra" style="display:none;">
+                                            Orden de compra
+                                        </th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="tablaPartidasAdjudicacion">
+                                    <!-- Las partidas se cargarán automáticamente -->
+                                </tbody>
+
+                            </table>
+
+                        </div>
+>>>>>>> 1e8893b (Modulo ASIGNAR PARTIDAS)
 
                             <div class="form-group">
                                 <label>Número de certificación</label>
@@ -205,13 +278,9 @@
                     </div>
 
                     <div class="form-group">
-
                         <label>Observación</label>
 
-                        <textarea
-                            class="form-control"
-                            rows="4"
-                            name="observacion"></textarea>
+                        <textarea class="form-control" rows="4" name="observacion"></textarea>
 
                     </div>
 
@@ -232,8 +301,32 @@
     </div>
 
 </div>
+<style>
+    .modal-seguimiento-ancho {
+        max-width: 900px;
+    }
+</style>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+<<<<<<< HEAD
+=======
+    let tipoProcesoActual = "";
+    let codigoProcesoActual = "";
+
+    // ==========================================
+    // REFERENCIAS DEL MODAL
+    // ==========================================
+    const estado = document.getElementById("estadoSeguimiento");
+
+    const datosCertificacion = document.getElementById("datosCertificacion");
+    const numeroCertificacion = document.getElementById("numeroCertificacion");
+    const fechaCertificacion = document.getElementById("fechaCertificacion");
+
+    const bloqueAdjudicacion = document.getElementById("bloqueAdjudicacion");
+    const tablaPartidas = document.getElementById("tablaPartidasAdjudicacion");
+    const thOrdenCompra = document.getElementById("thOrdenCompra");
+
+>>>>>>> 1e8893b (Modulo ASIGNAR PARTIDAS)
 
     // ==========================================
     // CARGAR ID Y CÓDIGO EN EL MODAL
@@ -248,16 +341,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const tareaId = this.getAttribute("data-id");
             const codigo = this.getAttribute("data-codigo");
+<<<<<<< HEAD
+=======
+            const tipoProceso = this.getAttribute("data-tipo");
+>>>>>>> 1e8893b (Modulo ASIGNAR PARTIDAS)
 
             document.getElementById("tarea_id_modal").value = tareaId || "";
             document.getElementById("codigoSeguimiento").value = codigo || "";
 
+<<<<<<< HEAD
+=======
+            tipoProcesoActual = tipoProceso || "";
+            codigoProcesoActual = codigo || "";
+
+            actualizarBloques();
+
+>>>>>>> 1e8893b (Modulo ASIGNAR PARTIDAS)
         });
 
     });
 
 
     // ==========================================
+<<<<<<< HEAD
     // CAMPOS DE CERTIFICACIÓN
     // ==========================================
     const estado = document.getElementById("estadoSeguimiento");
@@ -265,6 +371,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const numeroCertificacion = document.getElementById("numeroCertificacion");
     const fechaCertificacion = document.getElementById("fechaCertificacion");
 
+=======
+    // MOSTRAR / OCULTAR CERTIFICACIÓN
+    // ==========================================
+>>>>>>> 1e8893b (Modulo ASIGNAR PARTIDAS)
     function mostrarDatosCertificacion() {
 
         if (estado.value === "CON CERTIFICACION") {
@@ -284,10 +394,447 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+<<<<<<< HEAD
     estado.addEventListener("change", mostrarDatosCertificacion);
 
     mostrarDatosCertificacion();
+=======
+
+    // ==========================================
+    // CARGAR PARTIDAS DE LA TAREA
+    // ==========================================
+    async function cargarPartidas(tareaId, mostrarOrdenCompra = false) {
+
+        tablaPartidas.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center text-muted">
+                    Cargando partidas...
+                </td>
+            </tr>
+        `;
+
+        try {
+
+            const respuesta = await fetch(
+                `/api/tarea/${tareaId}/partidas`
+            );
+
+            if (!respuesta.ok) {
+                throw new Error("No fue posible cargar las partidas.");
+            }
+
+            const partidas = await respuesta.json();
+
+            tablaPartidas.innerHTML = "";
+
+            const codigoNormalizado = (codigoProcesoActual || "")
+                .toUpperCase()
+                .trim();
+
+            const esCatalogo =
+                codigoNormalizado.startsWith("CATE-");
+
+            thOrdenCompra.style.display =
+                mostrarOrdenCompra ? "" : "none";
+
+            if (partidas.length === 0) {
+
+                tablaPartidas.innerHTML = `
+                    <tr>
+                        <td colspan="6"
+                            class="text-center text-muted">
+                            Esta tarea no tiene partidas presupuestarias registradas.
+                        </td>
+                    </tr>
+                `;
+
+                return;
+            }
+
+            partidas.forEach(function (partida) {
+
+                const fila = document.createElement("tr");
+
+                let bloqueOrdenCompra = "";
+
+            // ==========================================
+            // CATÁLOGO: VARIAS ÓRDENES POR PARTIDA
+            // ==========================================
+            if (mostrarOrdenCompra && esCatalogo) {
+
+                bloqueOrdenCompra = `
+                    <div
+                        class="ordenes-catalogo"
+                        data-partida-id="${partida.id}">
+
+                        <div class="orden-catalogo mb-2">
+
+                            <input
+                                type="text"
+                                name="orden_catalogo_numero_${partida.id}[]"
+                                class="form-control form-control-sm mb-1"
+                                placeholder="N.º orden">
+
+                            <input
+                                type="number"
+                                name="orden_catalogo_monto_${partida.id}[]"
+                                class="form-control form-control-sm monto-orden-catalogo"
+                                step="0.01"
+                                min="0"
+                                placeholder="Monto orden">
+
+                        </div>
+
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-primary btn-agregar-orden"
+                            data-partida-id="${partida.id}">
+                            ➕ Agregar orden
+                        </button>
+
+                    </div>
+                `;
+
+            }
+
+            // ==========================================
+            // ÍNFIMA: UNA SOLA ORDEN
+            // ==========================================
+            else if (mostrarOrdenCompra) {
+
+                bloqueOrdenCompra = `
+                    <input
+                        type="text"
+                        name="numero_orden_compra[]"
+                        class="form-control form-control-sm"
+                        placeholder="N.º orden">
+                `;
+
+            }
+
+            fila.innerHTML = `
+                <td>
+                    ${partida.numero || ""}
+
+                    <input
+                        type="hidden"
+                        name="partida_id[]"
+                        value="${partida.id}">
+                </td>
+
+                <td>
+                    ${partida.programa || ""}
+                </td>
+
+                <td>
+                    ${partida.fuente || ""}
+                </td>
+
+                <td>
+                    $ ${Number(partida.monto || 0).toLocaleString(
+                        "en-US",
+                        {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }
+                    )}
+                </td>
+
+                <td>
+                    <input
+                        type="number"
+                        name="monto_adjudicado[]"
+                        id="montoAdjudicado_${partida.id}"
+                        class="form-control form-control-sm"
+                        step="0.01"
+                        min="0"
+                        placeholder="0.00"
+                        ${esCatalogo ? "readonly" : ""}>
+                </td>
+
+                <td style="${mostrarOrdenCompra ? "" : "display:none;"}">
+                    ${bloqueOrdenCompra}
+                </td>
+            `;
+
+            tablaPartidas.appendChild(fila);
+
+        });
+
+
+        // ==========================================
+        // CATÁLOGO - EVENTOS PARA AGREGAR ÓRDENES
+        // ==========================================
+        if (esCatalogo && mostrarOrdenCompra) {
+
+            const botonesAgregar = document.querySelectorAll(
+                ".btn-agregar-orden"
+            );
+
+            botonesAgregar.forEach(function (boton) {
+
+                boton.addEventListener("click", function () {
+
+                    const partidaId =
+                        this.getAttribute("data-partida-id");
+
+                    const contenedor = document.querySelector(
+                        `.ordenes-catalogo[data-partida-id="${partidaId}"]`
+                    );
+
+                    const nuevaOrden = document.createElement("div");
+
+                    nuevaOrden.className =
+                        "orden-catalogo mb-2 border-top pt-2";
+
+                    nuevaOrden.innerHTML = `
+
+                        <input
+                            type="text"
+                            name="orden_catalogo_numero_${partidaId}[]"
+                            class="form-control form-control-sm mb-1"
+                            placeholder="N.º orden">
+
+                        <input
+                            type="number"
+                            name="orden_catalogo_monto_${partidaId}[]"
+                            class="form-control form-control-sm monto-orden-catalogo"
+                            step="0.01"
+                            min="0"
+                            placeholder="Monto orden">
+
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-danger btn-eliminar-orden mt-1">
+                            🗑 Quitar
+                        </button>
+                    `;
+
+                    contenedor.insertBefore(
+                        nuevaOrden,
+                        this
+                    );
+
+                    const botonEliminar =
+                        nuevaOrden.querySelector(
+                            ".btn-eliminar-orden"
+                        );
+
+                    botonEliminar.addEventListener(
+                        "click",
+                        function () {
+
+                            nuevaOrden.remove();
+
+                            actualizarTotalCatalogo(
+                                partidaId
+                            );
+                        }
+                    );
+
+                    const inputMonto =
+                        nuevaOrden.querySelector(
+                            ".monto-orden-catalogo"
+                        );
+
+                    inputMonto.addEventListener(
+                        "input",
+                        function () {
+
+                            actualizarTotalCatalogo(
+                                partidaId
+                            );
+                        }
+                    );
+
+                });
+
+            });
+
+
+            // Escuchar el primer monto de cada partida
+            const montosIniciales =
+                document.querySelectorAll(
+                    ".monto-orden-catalogo"
+                );
+
+            montosIniciales.forEach(function (input) {
+
+                input.addEventListener("input", function () {
+
+                    const contenedor =
+                        this.closest(".ordenes-catalogo");
+
+                    const partidaId =
+                        contenedor.getAttribute(
+                            "data-partida-id"
+                        );
+
+                    actualizarTotalCatalogo(
+                        partidaId
+                    );
+
+                });
+
+            });
+
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+        tablaPartidas.innerHTML = `
+            <tr>
+                <td colspan="6"
+                    class="text-center text-danger">
+                    Error al cargar las partidas.
+                </td>
+            </tr>
+        `;
+    }
+}
+// ==========================================
+// CALCULAR TOTAL ADJUDICADO EN CATÁLOGO
+// ==========================================
+function actualizarTotalCatalogo(partidaId) {
+
+    const contenedor = document.querySelector(
+        `.ordenes-catalogo[data-partida-id="${partidaId}"]`
+    );
+
+    if (!contenedor) {
+        return;
+    }
+
+    const inputs = contenedor.querySelectorAll(
+        ".monto-orden-catalogo"
+    );
+
+    let total = 0;
+
+    inputs.forEach(function (input) {
+
+        total += parseFloat(
+            input.value || 0
+        );
+
+    });
+
+    const campoTotal = document.getElementById(
+        `montoAdjudicado_${partidaId}`
+    );
+
+    if (campoTotal) {
+        campoTotal.value = total.toFixed(2);
+    }
+}
+    // ==========================================
+    // MOSTRAR DATOS DE ADJUDICACIÓN
+    // ==========================================
+    function mostrarDatosAdjudicacion() {
+
+        const tareaId = document.getElementById(
+            "tarea_id_modal"
+        ).value;
+
+        const tipoNormalizado = (tipoProcesoActual || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toUpperCase()
+            .trim();
+
+        const codigoNormalizado = (codigoProcesoActual || "")
+            .toUpperCase()
+            .trim();
+    // ==========================================
+    // IDENTIFICAR ÍNFIMA CUANTÍA
+    // ==========================================
+    const esInfima =
+        tipoNormalizado.includes("INFIMA") ||
+        codigoNormalizado.startsWith("IC-");
+
+
+    // ==========================================
+    // IDENTIFICAR CATÁLOGO ELECTRÓNICO
+    // ==========================================
+    const esCatalogo =
+        tipoNormalizado.includes("CATALOGO") ||
+        codigoNormalizado.startsWith("CATE-");
+
+
+    const usaOrdenCompra =
+        esInfima || esCatalogo;
+
+
+    // ==========================================
+    // ÍNFIMA CUANTÍA / CATÁLOGO
+    // ==========================================
+    if (
+        usaOrdenCompra &&
+        estado.value === "ORDEN DE COMPRA ENVIADA" &&
+        tareaId
+    ) {
+
+        bloqueAdjudicacion.style.display = "block";
+
+        cargarPartidas(
+            tareaId,
+            true
+        );
+
+        return;
+    }
+
+
+    // ==========================================
+    // SUBASTA / LICITACIÓN / OTROS
+    // ==========================================
+    if (
+        !usaOrdenCompra &&
+        estado.value === "ADJUDICADA" &&
+        tareaId
+    ) {
+
+        bloqueAdjudicacion.style.display = "block";
+
+        cargarPartidas(
+            tareaId,
+            false
+        );
+
+        return;
+    }
+
+
+    // ==========================================
+    // OTROS ESTADOS
+    // ==========================================
+    bloqueAdjudicacion.style.display = "none";
+    tablaPartidas.innerHTML = "";
+}
+
+
+    // ==========================================
+    // ACTUALIZAR TODO SEGÚN ESTADO
+    // ==========================================
+    function actualizarBloques() {
+
+        mostrarDatosCertificacion();
+        mostrarDatosAdjudicacion();
+
+    }
+
+
+    estado.addEventListener(
+        "change",
+        actualizarBloques
+    );
+
+    actualizarBloques();
+>>>>>>> 1e8893b (Modulo ASIGNAR PARTIDAS)
 
 });
 </script>
+
 {% endblock %}

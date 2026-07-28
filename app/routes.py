@@ -1244,6 +1244,96 @@ def api_requerimiento(requerimiento_id):
         }
 
     return {}
+
+# ==========================================
+# API - DETALLE DE TAREA Y PARTIDAS
+# ==========================================
+@main.route("/api/tareas/<int:tarea_id>/detalle")
+@login_required()
+def api_tarea_detalle(tarea_id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+
+        cur.execute("""
+            SELECT
+                t.id,
+                t.codigo_proceso,
+                t.objeto_contratacion,
+                t.estado_requerimiento,
+                t.unidad_solicitante,
+                t.funcionario_encargado,
+                t.requerimiento_id
+            FROM tareas t
+            WHERE t.id = %s
+        """, (tarea_id,))
+
+        tarea = cur.fetchone()
+
+        if not tarea:
+            return jsonify({
+                "ok": False,
+                "mensaje": "La tarea no existe."
+            }), 404
+
+        requerimiento_id = tarea[6]
+
+        cur.execute("""
+            SELECT
+                id,
+                nombre_part,
+                num_part,
+                programa,
+                fuente,
+                monto
+            FROM partidas
+            WHERE requerimiento_id = %s
+            ORDER BY id
+        """, (requerimiento_id,))
+
+        filas_partidas = cur.fetchall()
+
+        partidas = []
+        total_partidas = 0
+
+        for p in filas_partidas:
+
+            monto = float(p[5] or 0)
+
+            total_partidas += monto
+
+            partidas.append({
+                "id": p[0],
+                "nombre": p[1] or "",
+                "numero": p[2] or "",
+                "programa": p[3] or "",
+                "fuente": p[4] or "",
+                "monto": monto
+            })
+
+        return jsonify({
+            "ok": True,
+
+            "tarea": {
+                "id": tarea[0],
+                "codigo": tarea[1] or "",
+                "objeto": tarea[2] or "",
+                "estado": tarea[3] or "",
+                "unidad": tarea[4] or "",
+                "analista": tarea[5] or "",
+                "requerimiento_id": tarea[6]
+            },
+
+            "partidas": partidas,
+            "total_partidas": total_partidas
+        })
+
+    finally:
+
+        cur.close()
+        conn.close()
 # =========================
 # LISTADO ORDENES DE COMPRA
 # =========================
@@ -2984,7 +3074,7 @@ def seguimiento_tareas():
     cur = conn.cursor()
 
     sql = """
-        SELECT
+         SELECT
             id,
             codigo_proceso,
             objeto_contratacion,
@@ -2992,7 +3082,8 @@ def seguimiento_tareas():
             funcionario_encargado,
             estado_requerimiento,
             fecha_recepcion,
-            CURRENT_DATE - fecha_recepcion AS dias_tramite
+            CURRENT_DATE - fecha_recepcion AS dias_tramite,
+            tipo_proceso
         FROM tareas
         WHERE 1=1
     """
@@ -3031,12 +3122,56 @@ def seguimiento_tareas():
         funcionario=funcionario,
         codigo=codigo
     )
+# ==========================================
+# API - PARTIDAS PRESUPUESTARIAS DE UNA TAREA
+# ==========================================
+@main.route("/api/tarea/<int:tarea_id>/partidas")
+@login_required()
+def api_tarea_partidas(tarea_id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            p.id,
+            p.nombre_part,
+            p.num_part,
+            p.programa,
+            p.fuente,
+            p.monto
+        FROM tareas t
+        INNER JOIN partidas p
+            ON p.requerimiento_id = t.requerimiento_id
+        WHERE t.id = %s
+        ORDER BY p.id
+    """, (tarea_id,))
+
+    filas = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    partidas = []
+
+    for p in filas:
+        partidas.append({
+            "id": p[0],
+            "nombre": p[1],
+            "numero": p[2],
+            "programa": p[3],
+            "fuente": p[4],
+            "monto": float(p[5] or 0)
+        })
+
+    return jsonify(partidas)
 # ===============================
 # GUARDAR SEGUIMIENTO DE TAREA
 # ===============================
 @main.route("/seguimiento_tareas/guardar", methods=["POST"])
 @login_required()
 def seguimiento_tareas_guardar():
+
     tarea_id = request.form.get("tarea_id")
     estado = request.form.get("estado")
     observacion = request.form.get("observacion")
@@ -3044,57 +3179,336 @@ def seguimiento_tareas_guardar():
     fecha_certificacion = request.form.get("fecha_certificacion")
 
 
+    numero_certificacion = request.form.get("numero_certificacion")
+    fecha_certificacion = request.form.get("fecha_certificacion")
+
+    # Partidas mostradas en el formulario de adjudicación
+    partida_ids = request.form.getlist("partida_id[]")
+    montos_adjudicados = request.form.getlist("monto_adjudicado[]")
+
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("""
-        INSERT INTO seguimiento_tareas (
+    try:
+
+        # ==========================================
+        # 1. CONSULTAR DATOS DE LA TAREA
+        # ==========================================
+        cur.execute("""
+            SELECT
+                codigo_proceso,
+                tipo_proceso
+            FROM tareas
+            WHERE id = %s
+        """, (tarea_id,))
+
+        tarea = cur.fetchone()
+
+        if not tarea:
+            raise ValueError("No se encontró la tarea.")
+
+        codigo_proceso = tarea[0] or ""
+        tipo_proceso = tarea[1] or ""
+
+        codigo_normalizado = codigo_proceso.upper().strip()
+
+        es_catalogo = codigo_normalizado.startswith("CATE-")
+        es_infima = codigo_normalizado.startswith("IC-")
+
+
+        # ==========================================
+        # 2. GUARDAR HISTORIAL DEL SEGUIMIENTO
+        # ==========================================
+        cur.execute("""
+            INSERT INTO seguimiento_tareas (
+                tarea_id,
+                estado,
+                observacion,
+                usuario_id
+            )
+            VALUES (%s, %s, %s, %s)
+        """, (
             tarea_id,
             estado,
             observacion,
-            usuario_id
+            session.get("user_id")
+        ))
+
+
+        # ==========================================
+        # 3. ACTUALIZAR ESTADO DE LA TAREA
+        # ==========================================
+        if estado == "CON CERTIFICACION":
+
+            cur.execute("""
+                UPDATE tareas
+                SET
+                    estado_requerimiento = %s,
+                    numero_certificacion = %s,
+                    fecha_certificacion = %s
+                WHERE id = %s
+            """, (
+                estado,
+                numero_certificacion,
+                fecha_certificacion,
+                tarea_id
+            ))
+
+        else:
+
+            cur.execute("""
+                UPDATE tareas
+                SET estado_requerimiento = %s
+                WHERE id = %s
+            """, (
+                estado,
+                tarea_id
+            ))
+
+
+        # ==========================================
+        # 4. DETERMINAR SI DEBE GUARDAR ADJUDICACIÓN
+        # ==========================================
+        guardar_adjudicacion = False
+        tipo_formalizacion = None
+
+        # Catálogo e Ínfima:
+        # guardamos cuando ya existe Orden de Compra
+        if (
+            (es_catalogo or es_infima)
+            and estado == "ORDEN DE COMPRA ENVIADA"
+        ):
+            guardar_adjudicacion = True
+
+            if es_catalogo:
+                tipo_formalizacion = "CATALOGO_ELECTRONICO"
+            else:
+                tipo_formalizacion = "ORDEN_COMPRA"
+
+        # Subasta, Licitación y demás:
+        # guardamos cuando se adjudica
+        elif (
+            not es_catalogo
+            and not es_infima
+            and estado == "ADJUDICADA"
+        ):
+            guardar_adjudicacion = True
+            tipo_formalizacion = "ADJUDICACION"
+
+
+        # ==========================================
+        # 5. GUARDAR CABECERA Y PARTIDAS
+        # ==========================================
+        if guardar_adjudicacion and partida_ids:
+
+            # Buscar si ya existe una adjudicación
+            # para evitar duplicarla si se corrige el registro.
+            cur.execute("""
+                SELECT id
+                FROM adjudicaciones
+                WHERE tarea_id = %s
+                ORDER BY id DESC
+                LIMIT 1
+            """, (tarea_id,))
+
+            adjudicacion_existente = cur.fetchone()
+
+            if adjudicacion_existente:
+
+                adjudicacion_id = adjudicacion_existente[0]
+
+                cur.execute("""
+                    UPDATE adjudicaciones
+                    SET
+                        tipo_formalizacion = %s,
+                        usuario_id = %s
+                    WHERE id = %s
+                """, (
+                    tipo_formalizacion,
+                    session.get("user_id"),
+                    adjudicacion_id
+                ))
+
+                # Borramos el detalle anterior para volver
+                # a registrar la información corregida.
+                cur.execute("""
+                    DELETE FROM adjudicacion_partidas
+                    WHERE adjudicacion_id = %s
+                """, (adjudicacion_id,))
+
+            else:
+
+                cur.execute("""
+                    INSERT INTO adjudicaciones (
+                        tarea_id,
+                        tipo_formalizacion,
+                        usuario_id
+                    )
+                    VALUES (%s, %s, %s)
+                    RETURNING id
+                """, (
+                    tarea_id,
+                    tipo_formalizacion,
+                    session.get("user_id")
+                ))
+
+                adjudicacion_id = cur.fetchone()[0]
+
+
+            # ==========================================
+            # 6. GUARDAR CADA PARTIDA
+            # ==========================================
+            for indice, partida_id in enumerate(partida_ids):
+
+                monto_adjudicado = 0
+
+                if indice < len(montos_adjudicados):
+                    try:
+                        monto_adjudicado = float(
+                            montos_adjudicados[indice] or 0
+                        )
+                    except (ValueError, TypeError):
+                        monto_adjudicado = 0
+
+
+                # ======================================
+                # ÍNFIMA CUANTÍA
+                # Una sola orden por partida
+                # ======================================
+                numero_orden = None
+
+                if es_infima:
+
+                    ordenes_infima = request.form.getlist(
+                        "numero_orden_compra[]"
+                    )
+
+                    if indice < len(ordenes_infima):
+                        numero_orden = (
+                            ordenes_infima[indice].strip()
+                            or None
+                        )
+
+
+                cur.execute("""
+                    INSERT INTO adjudicacion_partidas (
+                        adjudicacion_id,
+                        partida_id,
+                        monto_adjudicado,
+                        numero_orden_compra
+                    )
+                    VALUES (%s, %s, %s, %s)
+                    RETURNING id
+                """, (
+                    adjudicacion_id,
+                    partida_id,
+                    monto_adjudicado,
+                    numero_orden
+                ))
+
+                adjudicacion_partida_id = cur.fetchone()[0]
+
+
+                # ======================================
+                # CATÁLOGO ELECTRÓNICO
+                # Varias órdenes por una misma partida
+                # ======================================
+                if es_catalogo:
+
+                    numeros_orden = request.form.getlist(
+                        f"orden_catalogo_numero_{partida_id}[]"
+                    )
+
+                    montos_orden = request.form.getlist(
+                        f"orden_catalogo_monto_{partida_id}[]"
+                    )
+
+                    for pos, numero in enumerate(numeros_orden):
+
+                        numero = (numero or "").strip()
+
+                        if not numero:
+                            continue
+
+                        monto_orden = 0
+
+                        if pos < len(montos_orden):
+                            try:
+                                monto_orden = float(
+                                    montos_orden[pos] or 0
+                                )
+                            except (ValueError, TypeError):
+                                monto_orden = 0
+
+                        cur.execute("""
+                            INSERT INTO adjudicacion_ordenes (
+                                adjudicacion_partida_id,
+                                numero_orden_compra,
+                                monto_orden
+                            )
+                            VALUES (%s, %s, %s)
+                        """, (
+                            adjudicacion_partida_id,
+                            numero,
+                            monto_orden
+                        ))
+
+
+        conn.commit()
+
+        flash(
+            "✅ Seguimiento registrado correctamente",
+            "success"
         )
-        VALUES (%s, %s, %s, %s)
-    """, (
-        tarea_id,
-        estado,
-        observacion,
-        session.get("user_id")
-    ))
 
-    if estado == "CON CERTIFICACION":
+        if estado == "CON CERTIFICACION":
 
-        cur.execute("""
-            UPDATE tareas
-            SET
-                estado_requerimiento = %s,
-                numero_certificacion = %s,
-                fecha_certificacion = %s
-            WHERE id = %s
-        """, (
-            estado,
-            numero_certificacion,
-            fecha_certificacion,
-            tarea_id
-        ))
+            cur.execute("""
+                UPDATE tareas
+                SET
+                    estado_requerimiento = %s,
+                    numero_certificacion = %s,
+                    fecha_certificacion = %s
+                WHERE id = %s
+            """, (
+                estado,
+                numero_certificacion,
+                fecha_certificacion,
+                tarea_id
+            ))
 
-    else:
+        else:
 
-        cur.execute("""
-            UPDATE tareas
-            SET estado_requerimiento = %s
-            WHERE id = %s
-        """, (
-            estado,
-            tarea_id
-        ))
+            cur.execute("""
+                UPDATE tareas
+                SET estado_requerimiento = %s
+                WHERE id = %s
+            """, (
+                estado,
+                tarea_id
+            ))
 
-    conn.commit()
-    cur.close()
-    conn.close()
 
-    flash("✅ Seguimiento registrado correctamente", "success")
-    return redirect(url_for("main.seguimiento_tareas"))
+    except Exception as e:
+    
+        conn.rollback()
+
+        print("ERROR GUARDANDO SEGUIMIENTO:", e)
+
+        flash(
+            f"❌ Error al registrar seguimiento: {e}",
+            "danger"
+        )
+
+    finally:
+
+        cur.close()
+        conn.close()
+
+    return redirect(
+        url_for("main.seguimiento_tareas")
+    )
+
 # ===============================
 # HISTORIAL SEGUIMIENTO DE TAREA
 # ===============================
