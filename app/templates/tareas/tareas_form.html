@@ -226,6 +226,10 @@
                 {% if tarea and tarea.tipo_compra == 'SERVICIO' %}selected{% endif %}>
                 Servicio
             </option>
+             <option value="SEGUROS"
+                {% if tarea and tarea.tipo_compra == 'SEGUROS' %}selected{% endif %}>
+                Seguros
+            </option>
             <option value="OBRA"
                 {% if tarea and tarea.tipo_compra == 'OBRA' %}selected{% endif %}>
                 Obra

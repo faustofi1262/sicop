@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1">📢 Nueva publicación de necesidad</h3>
+            <p class="text-muted mb-0">
+                Registre la publicación y los productos asociados.
+            </p>
+        </div>
+
+        <a href="{{ url_for('main.publicaciones_necesidad') }}"
+           class="btn btn-secondary">
+            ⬅ Volver
+        </a>
+    </div>
+
+    <form method="POST"
+          action="{{ url_for('main.guardar_publicacion_necesidad') }}"
+          id="formPublicacion">
+
+        <div class="card shadow-sm mb-4">
+
+            <div class="card-header bg-dark text-white">
+                Datos de la publicación
+            </div>
+
+            <div class="card-body">
+
+                <div class="row">
+
+                    <div class="col-md-4 mb-3">
+                        <label>N.º solicitud</label>
+                        <input type="text"
+                               name="numero_solicitud"
+                               class="form-control">
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Fecha de publicación</label>
+                        <input type="date"
+                               name="fecha_publicacion"
+                               class="form-control"
+                               required>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Fecha límite</label>
+                        <input type="date"
+                               name="fecha_limite"
+                               class="form-control">
+                    </div>
+
+                    <div class="col-md-12 mb-3">
+                        <label>Objeto de compra</label>
+                        <textarea name="objeto_compra"
+                                  class="form-control"
+                                  rows="3"
+                                  required></textarea>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Encargado</label>
+                        <input type="text"
+                               name="encargado"
+                               class="form-control">
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Correo</label>
+                        <input type="email"
+                               name="correo"
+                               class="form-control">
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Tipo de publicación</label>
+                        <input type="text"
+                               name="tipo_publicacion"
+                               class="form-control">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label>Unidad requirente</label>
+
+                        <select name="unidad_requirente"
+                                class="form-control">
+
+                            <option value="">
+                                Seleccione...
+                            </option>
+
+                            {% for u in unidades %}
+                                <option value="{{ u[1] }}">
+                                    {{ u[1] }}
+                                </option>
+                            {% endfor %}
+
+                        </select>
+                    </div>
+
+                    
+                    <div class="col-md-4 mb-3">
+                        <label>N.º de publicación</label>
+
+                        <select name="numero_publicacion"
+                                class="form-control">
+
+                            <option value="1">Primera publicación</option>
+                            <option value="2">Segunda publicación</option>
+                            <option value="3">Tercera publicación</option>
+                            <option value="4">Cuarta publicación</option>
+
+                        </select>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Estado</label>
+
+                        <select name="estado"
+                                class="form-control">
+
+                            <option value="PUBLICADA">PUBLICADA</option>
+                            <option value="FINALIZADA">FINALIZADA</option>
+                            <option value="ANULADA">ANULADA</option>
+
+                        </select>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label>Código de proceso</label>
+                        <input type="text"
+                               name="codigo_proceso"
+                               class="form-control">
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+
+                        <label class="d-block">
+                            Notificado
+                        </label>
+
+                        <div class="form-check mt-2">
+                            <input type="checkbox"
+                                   name="notificado"
+                                   class="form-check-input"
+                                   id="notificado">
+
+                            <label class="form-check-label"
+                                   for="notificado">
+                                Sí
+                            </label>
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+
+                        <label class="d-block">
+                            OC subida
+                        </label>
+
+                        <div class="form-check mt-2">
+                            <input type="checkbox"
+                                   name="oc_subida"
+                                   class="form-check-input"
+                                   id="ocSubida">
+
+                            <label class="form-check-label"
+                                   for="ocSubida">
+                                Sí
+                            </label>
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-12 mb-3">
+                        <label>Observaciones</label>
+                        <textarea name="observaciones"
+                                  class="form-control"
+                                  rows="3"></textarea>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==========================================
+             ITEMS DE LA PUBLICACIÓN
+        =========================================== -->
+
+        <div class="card shadow-sm mb-4">
+
+            <div class="card-header d-flex justify-content-between align-items-center">
+
+                <span>
+                    📦 Productos / ítems publicados
+                </span>
+
+                <button type="button"
+                        class="btn btn-sm btn-primary"
+                        id="btnAgregarItem">
+                    ➕ Agregar ítem
+                </button>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-sm">
+
+                        <thead class="thead-light">
+                            <tr>
+                                <th>CPC</th>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                                <th>Unidad</th>
+                                <th>Forma de pago</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="tablaItems">
+
+                            <tr class="fila-item">
+
+                                <td>
+                                    <input type="text"
+                                           name="item_cpc[]"
+                                           class="form-control form-control-sm">
+                                </td>
+
+                                <td>
+                                    <textarea name="item_descripcion[]"
+                                              class="form-control form-control-sm"
+                                              rows="2"
+                                              required></textarea>
+                                </td>
+
+                                <td>
+                                    <input type="number"
+                                           name="item_cantidad[]"
+                                           class="form-control form-control-sm"
+                                           step="0.01"
+                                           min="0">
+                                </td>
+
+                                <td>
+                                    <input type="text"
+                                           name="item_unidad[]"
+                                           class="form-control form-control-sm">
+                                </td>
+
+                                <td>
+                                    <input type="text"
+                                           name="item_forma_pago[]"
+                                           class="form-control form-control-sm">
+                                </td>
+
+                                <td class="text-center">
+                                    <button type="button"
+                                            class="btn btn-sm btn-danger btnQuitarItem">
+                                        🗑
+                                    </button>
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <button type="submit"
+                class="btn btn-success btn-lg btn-block">
+            💾 Guardar publicación
+        </button>
+
+    </form>
+
+</div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const tablaItems =
+        document.getElementById("tablaItems");
+
+    const btnAgregarItem =
+        document.getElementById("btnAgregarItem");
+
+    function activarBotonesQuitar() {
+
+        document.querySelectorAll(
+            ".btnQuitarItem"
+        ).forEach(function (boton) {
+
+            boton.onclick = function () {
+
+                const filas =
+                    tablaItems.querySelectorAll(".fila-item");
+
+                if (filas.length > 1) {
+                    this.closest(".fila-item").remove();
+                }
+
+            };
+
+        });
+
+    }
+
+    btnAgregarItem.addEventListener(
+        "click",
+        function () {
+
+            const fila =
+                tablaItems.querySelector(".fila-item");
+
+            const clon =
+                fila.cloneNode(true);
+
+            clon.querySelectorAll(
+                "input, textarea"
+            ).forEach(function (campo) {
+                campo.value = "";
+            });
+
+            tablaItems.appendChild(clon);
+
+            activarBotonesQuitar();
+
+        }
+    );
+
+    activarBotonesQuitar();
+
+});
+</script>
+
+{% endblock %}

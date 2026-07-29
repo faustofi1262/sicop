@@ -1,0 +1,467 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container-fluid mt-4 px-4">
+
+    <!-- =====================================
+         ENCABEZADO
+    ====================================== -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h3 class="mb-1">
+                📢 Detalle de la publicación
+            </h3>
+
+            <p class="text-muted mb-0">
+                Información de la publicación, productos y proformas recibidas.
+            </p>
+        </div>
+
+        <a href="{{ url_for('main.publicaciones_necesidad') }}"
+           class="btn btn-secondary">
+            ⬅ Volver
+        </a>
+
+    </div>
+
+
+    <!-- =====================================
+         DATOS GENERALES
+    ====================================== -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-dark text-white">
+            Datos de la publicación
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-3 mb-3">
+                    <strong>N.º solicitud</strong>
+                    <div>
+                        {{ publicacion[1] or '—' }}
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <strong>Código publicación</strong>
+                    <div>
+                        {{ publicacion[9] or 'SIN CÓDIGO' }}
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <strong>N.º publicación</strong>
+                    <div>
+                        {{ publicacion[10] or 1 }}
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <strong>Estado</strong>
+                    <div>
+                        <span class="badge badge-primary">
+                            {{ publicacion[13] or 'SIN ESTADO' }}
+                        </span>
+                    </div>
+                </div>
+
+
+                <div class="col-md-12 mb-3">
+                    <strong>Objeto de compra</strong>
+                    <div>
+                        {{ publicacion[2] }}
+                    </div>
+                </div>
+
+
+                <div class="col-md-4 mb-3">
+                    <strong>Unidad requirente</strong>
+                    <div>
+                        {{ publicacion[8] or '—' }}
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <strong>Encargado</strong>
+                    <div>
+                        {{ publicacion[5] or '—' }}
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <strong>Correo</strong>
+                    <div>
+                        {{ publicacion[6] or '—' }}
+                    </div>
+                </div>
+
+
+                <div class="col-md-3 mb-3">
+                    <strong>Fecha publicación</strong>
+                    <div>
+                        {% if publicacion[3] %}
+                            {{ publicacion[3].strftime('%d/%m/%Y') }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <strong>Fecha límite</strong>
+                    <div>
+                        {% if publicacion[4] %}
+                            {{ publicacion[4].strftime('%d/%m/%Y') }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <strong>Tipo publicación</strong>
+                    <div>
+                        {{ publicacion[7] or '—' }}
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <strong>Notificado</strong>
+                    <div>
+                        {% if publicacion[11] %}
+                            ✅ Sí
+                        {% else %}
+                            ❌ No
+                        {% endif %}
+                    </div>
+                </div>
+
+
+                <div class="col-md-3 mb-3">
+                    <strong>OC subida</strong>
+                    <div>
+                        {% if publicacion[12] %}
+                            ✅ Sí
+                        {% else %}
+                            ❌ No
+                        {% endif %}
+                    </div>
+                </div>
+
+
+                <div class="col-md-9 mb-3">
+                    <strong>Observaciones</strong>
+                    <div>
+                        {{ publicacion[14] or '—' }}
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================
+         PRODUCTOS
+    ====================================== -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header">
+            📦 Productos publicados
+        </div>
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-hover">
+
+                    <thead class="thead-light">
+                        <tr>
+                            <th>CPC</th>
+                            <th>Descripción</th>
+                            <th>Cantidad</th>
+                            <th>Unidad</th>
+                            <th>Forma de pago</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                    {% for i in items %}
+
+                        <tr>
+                            <td>
+                                {{ i[1] or '' }}
+                            </td>
+
+                            <td>
+                                {{ i[2] or '' }}
+                            </td>
+
+                            <td>
+                                {{ i[3] or '' }}
+                            </td>
+
+                            <td>
+                                {{ i[4] or '' }}
+                            </td>
+
+                            <td>
+                                {{ i[5] or '' }}
+                            </td>
+                        </tr>
+
+                    {% else %}
+
+                        <tr>
+                            <td colspan="5"
+                                class="text-center text-muted">
+                                No existen productos registrados.
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================
+         PROFORMAS
+    ====================================== -->
+    <div class="card shadow-sm mb-4" id="proformas">
+
+        <div class="card-header d-flex justify-content-between align-items-center">
+
+            <span>
+                💵 Proformas recibidas
+            </span>
+
+            <button type="button"
+                    class="btn btn-success btn-sm"
+                    data-toggle="modal"
+                    data-target="#modalNuevaProforma">
+                ➕ Agregar proforma
+            </button>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="mb-3">
+
+                <strong>Total de proformas recibidas:</strong>
+
+                <span class="badge badge-primary"
+                      style="font-size:16px;">
+                    {{ proformas|length }}
+                </span>
+
+            </div>
+
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-hover">
+
+                    <thead class="thead-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Proveedor</th>
+                            <th>RUC</th>
+                            <th>Fecha recepción</th>
+                            <th>Monto</th>
+                            <th>Observaciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                    {% for p in proformas %}
+
+                        <tr>
+
+                            <td>
+                                {{ loop.index }}
+                            </td>
+
+                            <td>
+                                {{ p[1] }}
+                            </td>
+
+                            <td>
+                                {{ p[2] or '' }}
+                            </td>
+
+                            <td>
+                                {% if p[3] %}
+                                    {{ p[3].strftime('%d/%m/%Y') }}
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if p[4] is not none %}
+                                    $ {{ "{:,.2f}".format(p[4]) }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {{ p[5] or '' }}
+                            </td>
+
+                        </tr>
+
+                    {% else %}
+
+                        <tr>
+                            <td colspan="6"
+                                class="text-center text-muted">
+                                No existen proformas registradas.
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==========================================
+     MODAL NUEVA PROFORMA
+=========================================== -->
+
+<div class="modal fade"
+     id="modalNuevaProforma"
+     tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <form method="POST"
+            action="{{ url_for(
+                'main.guardar_proforma_publicacion',
+                publicacion_id=publicacion[0]
+            ) }}">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+                        ➕ Registrar proforma
+                    </h5>
+
+                    <button type="button"
+                            class="close"
+                            data-dismiss="modal">
+                        &times;
+                    </button>
+
+                </div>
+
+
+                <div class="modal-body">
+
+                    <div class="form-group">
+
+                        <label>Proveedor</label>
+
+                        <input type="text"
+                               name="proveedor"
+                               class="form-control"
+                               required>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>RUC</label>
+
+                        <input type="text"
+                               name="ruc"
+                               class="form-control">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Fecha de recepción</label>
+
+                        <input type="date"
+                               name="fecha_recepcion"
+                               class="form-control">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Monto de la proforma</label>
+
+                        <input type="number"
+                               name="monto_proforma"
+                               class="form-control"
+                               step="0.01"
+                               min="0"
+                               placeholder="0.00">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Observaciones</label>
+
+                        <textarea name="observaciones"
+                                  class="form-control"
+                                  rows="3"></textarea>
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button type="submit"
+                            class="btn btn-success">
+                        💾 Guardar proforma
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container-fluid mt-4 px-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h3 class="mb-1">
+                📢 Publicaciones de necesidad y recepción de proformas
+            </h3>
+
+            <p class="text-muted mb-0">
+                Consulte las publicaciones realizadas y las proformas recibidas.
+            </p>
+        </div>
+
+        <div>
+            <a href="{{ url_for('main.panel_principal') }}"
+               class="btn btn-secondary mr-2">
+                ⬅ Volver
+            </a>
+
+            <a href="{{ url_for('main.publicacion_necesidad_nueva') }}"
+            class="btn btn-primary">
+                ➕ Nueva publicación
+            </a>
+        </div>
+
+    </div>
+
+
+    <div class="card shadow-sm">
+
+        <div class="card-header bg-dark text-white">
+            Publicaciones registradas
+        </div>
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-hover"
+                        style="width:100%; min-width:1400px;">
+
+                    <thead class="thead-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Código publicación</th>
+                            <th>Objeto</th>
+                            <th>Unidad</th>
+                            <th>Fecha publicación</th>
+                            <th>Fecha límite</th>
+                            <th>N.º publicación</th>
+                            <th>Proformas</th>
+                            <th>Estado</th>
+                            <th style="min-width: 270px;">Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                    {% for p in publicaciones %}
+
+                        <tr>
+
+                            <td>
+                                {{ loop.index }}
+                            </td>
+
+                            <td>
+                                <strong>
+                                    {{ p[1] or 'SIN CÓDIGO' }}
+                                </strong>
+                            </td>
+
+                            <td>
+                                {{ p[2] or '' }}
+                            </td>
+
+                            <td>
+                                {{ p[3] or '' }}
+                            </td>
+
+                            <td>
+                                {% if p[4] %}
+                                    {{ p[4].strftime('%d/%m/%Y') }}
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if p[5] %}
+                                    {{ p[5].strftime('%d/%m/%Y') }}
+                                {% endif %}
+                            </td>
+
+                            <td class="text-center">
+                                {{ p[6] or 1 }}
+                            </td>
+
+                            <td class="text-center">
+
+                                {% if p[8] > 0 %}
+
+                                    <span class="badge badge-success"
+                                          style="font-size: 14px;">
+                                        {{ p[8] }}
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge badge-danger"
+                                          style="font-size: 14px;">
+                                        0
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+
+                                {% if p[7] == 'PUBLICADA' %}
+
+                                    <span class="badge badge-primary">
+                                        PUBLICADA
+                                    </span>
+
+                                {% elif p[7] == 'FINALIZADA' %}
+
+                                    <span class="badge badge-success">
+                                        FINALIZADA
+                                    </span>
+
+                                {% elif p[7] == 'ANULADA' %}
+
+                                    <span class="badge badge-danger">
+                                        ANULADA
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge badge-secondary">
+                                        {{ p[7] or 'SIN ESTADO' }}
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td style="white-space: nowrap; min-width: 270px;">
+
+                                <a href="{{ url_for('main.publicacion_necesidad_detalle', publicacion_id=p[0]) }}"
+                                class="btn btn-sm btn-info mr-1 mb-1">
+                                    👁 Ver
+                                </a>
+
+                                <a href="#"
+                                class="btn btn-sm btn-warning mr-1 mb-1">
+                                    ✏️ Editar
+                                </a>
+
+                                <a href="{{ url_for('main.publicacion_necesidad_detalle', publicacion_id=p[0]) }}#proformas"
+                                class="btn btn-sm btn-success mb-1">
+                                    ➕ Proformas
+                                </a>
+
+                            </td>
+                            
+
+                        </tr>
+
+                    {% else %}
+
+                        <tr>
+                            <td colspan="10"
+                                class="text-center text-muted">
+                                No existen publicaciones registradas.
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

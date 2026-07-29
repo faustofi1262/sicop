@@ -4802,3 +4802,407 @@ def volver_panel():
         return redirect(url_for("main.analista_dashboard"))
 
     return redirect(url_for("main.user_dashboard"))
+# ==========================================
+# PUBLICACIONES DE NECESIDAD
+# ==========================================
+@main.route("/publicaciones_necesidad")
+@login_required()
+def publicaciones_necesidad():
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            p.id,
+            p.codigo_publicacion,
+            p.objeto_compra,
+            p.unidad_requirente,
+            p.fecha_publicacion,
+            p.fecha_limite,
+            p.numero_publicacion,
+            p.estado,
+            COUNT(pr.id) AS total_proformas
+        FROM publicaciones_necesidad p
+        LEFT JOIN proformas_publicacion pr
+            ON pr.publicacion_id = p.id
+        GROUP BY
+            p.id,
+            p.codigo_publicacion,
+            p.objeto_compra,
+            p.unidad_requirente,
+            p.fecha_publicacion,
+            p.fecha_limite,
+            p.numero_publicacion,
+            p.estado
+        ORDER BY
+            p.fecha_publicacion DESC,
+            p.id DESC
+    """)
+
+    publicaciones = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template(
+        "publicaciones/publicaciones_list.html",
+        publicaciones=publicaciones
+    )
+# ==========================================
+# NUEVA PUBLICACIÓN DE NECESIDAD
+# ==========================================
+@main.route("/publicaciones_necesidad/nueva")
+@login_required()
+def publicacion_necesidad_nueva():
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    # Unidades institucionales
+    cur.execute("""
+        SELECT id, nombre_unidad
+        FROM unidades
+        ORDER BY nombre_unidad
+    """)
+    unidades = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template(
+        "publicaciones/publicacion_form.html",
+        unidades=unidades,
+    )
+# ==========================================
+# GUARDAR PUBLICACIÓN DE NECESIDAD
+# ==========================================
+@main.route("/publicaciones_necesidad/guardar", methods=["POST"])
+@login_required()
+def guardar_publicacion_necesidad():
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+
+        # ==========================================
+        # DATOS DE LA PUBLICACIÓN
+        # ==========================================
+        numero_solicitud = request.form.get("numero_solicitud")
+        objeto_compra = request.form.get("objeto_compra")
+        fecha_publicacion = request.form.get("fecha_publicacion")
+        fecha_limite = request.form.get("fecha_limite") or None
+
+        encargado = request.form.get("encargado")
+        correo = request.form.get("correo")
+        tipo_publicacion = request.form.get("tipo_publicacion")
+        unidad_requirente = request.form.get("unidad_requirente")
+
+        codigo_publicacion = request.form.get("codigo_publicacion")
+        numero_publicacion = request.form.get("numero_publicacion") or 1
+
+        estado = request.form.get("estado")
+        observaciones = request.form.get("observaciones")
+
+        notificado = request.form.get("notificado") == "on"
+        oc_subida = request.form.get("oc_subida") == "on"
+
+
+        # ==========================================
+        # GUARDAR CABECERA DE LA PUBLICACIÓN
+        # ==========================================
+        cur.execute("""
+            INSERT INTO publicaciones_necesidad (
+                numero_solicitud,
+                objeto_compra,
+                fecha_publicacion,
+                fecha_limite,
+                encargado,
+                correo,
+                tipo_publicacion,
+                unidad_requirente,
+                codigo_publicacion,
+                numero_publicacion,
+                notificado,
+                oc_subida,
+                estado,
+                observaciones,
+                usuario_id
+            )
+            VALUES (
+                %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s
+            )
+            RETURNING id
+        """, (
+            numero_solicitud,
+            objeto_compra,
+            fecha_publicacion,
+            fecha_limite,
+            encargado,
+            correo,
+            tipo_publicacion,
+            unidad_requirente,
+            codigo_publicacion,
+            numero_publicacion,
+            notificado,
+            oc_subida,
+            estado,
+            observaciones,
+            session.get("user_id")
+        ))
+
+        publicacion_id = cur.fetchone()[0]
+
+
+        # ==========================================
+        # OBTENER ITEMS DEL FORMULARIO
+        # ==========================================
+        cpcs = request.form.getlist("item_cpc[]")
+        descripciones = request.form.getlist("item_descripcion[]")
+        cantidades = request.form.getlist("item_cantidad[]")
+        unidades_items = request.form.getlist("item_unidad[]")
+        formas_pago = request.form.getlist("item_forma_pago[]")
+
+
+        # ==========================================
+        # GUARDAR ITEMS DE LA PUBLICACIÓN
+        # ==========================================
+        for i, descripcion in enumerate(descripciones):
+
+            # No guardar filas completamente vacías
+            if not descripcion.strip():
+                continue
+
+            cpc = cpcs[i] if i < len(cpcs) else None
+            cantidad = cantidades[i] if i < len(cantidades) else None
+            unidad_item = (
+                unidades_items[i]
+                if i < len(unidades_items)
+                else None
+            )
+            forma_pago = (
+                formas_pago[i]
+                if i < len(formas_pago)
+                else None
+            )
+
+            # Evitar error NUMERIC cuando cantidad venga vacía
+            cantidad = cantidad or None
+
+            cur.execute("""
+                INSERT INTO publicacion_items (
+                    publicacion_id,
+                    cpc,
+                    descripcion_producto,
+                    cantidad,
+                    unidad,
+                    forma_pago
+                )
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (
+                publicacion_id,
+                cpc,
+                descripcion,
+                cantidad,
+                unidad_item,
+                forma_pago
+            ))
+
+
+        # ==========================================
+        # CONFIRMAR TODO
+        # ==========================================
+        conn.commit()
+
+        flash(
+            "✅ Publicación registrada correctamente.",
+            "success"
+        )
+
+
+    except Exception as e:
+
+        conn.rollback()
+
+        print("ERROR GUARDANDO PUBLICACIÓN:", e)
+
+        flash(
+            f"❌ Error al registrar la publicación: {e}",
+            "danger"
+        )
+
+
+    finally:
+
+        cur.close()
+        conn.close()
+
+
+    return redirect(
+        url_for("main.publicaciones_necesidad")
+    )
+# ==========================================
+# VER DETALLE DE PUBLICACIÓN
+# ==========================================
+@main.route("/publicaciones_necesidad/<int:publicacion_id>")
+@login_required()
+def publicacion_necesidad_detalle(publicacion_id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    # ==========================================
+    # CABECERA
+    # ==========================================
+    cur.execute("""
+        SELECT
+            id,
+            numero_solicitud,
+            objeto_compra,
+            fecha_publicacion,
+            fecha_limite,
+            encargado,
+            correo,
+            tipo_publicacion,
+            unidad_requirente,
+            codigo_publicacion,
+            numero_publicacion,
+            notificado,
+            oc_subida,
+            estado,
+            observaciones
+        FROM publicaciones_necesidad
+        WHERE id = %s
+    """, (publicacion_id,))
+
+    publicacion = cur.fetchone()
+
+    if not publicacion:
+        cur.close()
+        conn.close()
+
+        flash("❌ La publicación no existe.", "danger")
+
+        return redirect(
+            url_for("main.publicaciones_necesidad")
+        )
+
+    # ==========================================
+    # PRODUCTOS / ITEMS
+    # ==========================================
+    cur.execute("""
+        SELECT
+            id,
+            cpc,
+            descripcion_producto,
+            cantidad,
+            unidad,
+            forma_pago
+        FROM publicacion_items
+        WHERE publicacion_id = %s
+        ORDER BY id
+    """, (publicacion_id,))
+
+    items = cur.fetchall()
+
+    # ==========================================
+    # PROFORMAS
+    # ==========================================
+    cur.execute("""
+        SELECT
+            id,
+            proveedor,
+            ruc,
+            fecha_recepcion,
+            monto_proforma,
+            observaciones
+        FROM proformas_publicacion
+        WHERE publicacion_id = %s
+        ORDER BY fecha_recepcion DESC NULLS LAST, id DESC
+    """, (publicacion_id,))
+
+    proformas = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template(
+        "publicaciones/publicacion_detalle.html",
+        publicacion=publicacion,
+        items=items,
+        proformas=proformas
+    )
+# ==========================================
+# GUARDAR PROFORMA DE PUBLICACIÓN
+# ==========================================
+@main.route(
+    "/publicaciones_necesidad/<int:publicacion_id>/proformas/guardar",
+    methods=["POST"]
+)
+@login_required()
+def guardar_proforma_publicacion(publicacion_id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+
+        proveedor = request.form.get("proveedor")
+        ruc = request.form.get("ruc")
+        fecha_recepcion = request.form.get("fecha_recepcion") or None
+        monto_proforma = request.form.get("monto_proforma") or None
+        observaciones = request.form.get("observaciones")
+
+        cur.execute("""
+            INSERT INTO proformas_publicacion (
+                publicacion_id,
+                proveedor,
+                ruc,
+                fecha_recepcion,
+                monto_proforma,
+                observaciones,
+                usuario_id
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (
+            publicacion_id,
+            proveedor,
+            ruc,
+            fecha_recepcion,
+            monto_proforma,
+            observaciones,
+            session.get("user_id")
+        ))
+
+        conn.commit()
+
+        flash(
+            "✅ Proforma registrada correctamente.",
+            "success"
+        )
+
+    except Exception as e:
+
+        conn.rollback()
+
+        print("ERROR GUARDANDO PROFORMA:", e)
+
+        flash(
+            f"❌ Error al registrar la proforma: {e}",
+            "danger"
+        )
+
+    finally:
+
+        cur.close()
+        conn.close()
+
+    return redirect(
+        url_for(
+            "main.publicacion_necesidad_detalle",
+            publicacion_id=publicacion_id
+        )
+    )
