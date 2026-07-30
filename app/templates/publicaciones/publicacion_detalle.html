@@ -280,12 +280,15 @@
 
                     <thead class="thead-light">
                         <tr>
-                            <th>#</th>
-                            <th>Proveedor</th>
-                            <th>RUC</th>
-                            <th>Fecha recepción</th>
-                            <th>Monto</th>
-                            <th>Observaciones</th>
+                            <tr>
+                                <th>#</th>
+                                <th>Proveedor</th>
+                                <th>RUC</th>
+                                <th>Fecha recepción</th>
+                                <th>Monto</th>
+                                <th>Observaciones</th>
+                                <th style="min-width: 150px;">Acciones</th>
+                            </tr>
                         </tr>
                     </thead>
 
@@ -324,13 +327,43 @@
                             <td>
                                 {{ p[5] or '' }}
                             </td>
+                            <td style="white-space: nowrap;">
 
+                                <button type="button"
+                                        class="btn btn-warning btn-sm btn-editar-proforma"
+                                        data-toggle="modal"
+                                        data-target="#modalEditarProforma"
+                                        data-id="{{ p[0] }}"
+                                        data-proveedor="{{ p[1] or '' }}"
+                                        data-ruc="{{ p[2] or '' }}"
+                                        data-fecha="{{ p[3].strftime('%Y-%m-%d') if p[3] else '' }}"
+                                        data-monto="{{ p[4] if p[4] is not none else '' }}"
+                                        data-observaciones="{{ p[5] or '' }}">
+                                    ✏️
+                                </button>
+
+                                <form method="POST"
+                                    action="{{ url_for(
+                                        'main.eliminar_proforma_publicacion',
+                                        proforma_id=p[0]
+                                    ) }}"
+                                    style="display:inline;"
+                                    onsubmit="return confirm('¿Está seguro de eliminar esta proforma?');">
+
+                                    <button type="submit"
+                                            class="btn btn-danger btn-sm">
+                                        🗑
+                                    </button>
+
+                                </form>
+
+                            </td>
                         </tr>
 
                     {% else %}
 
                         <tr>
-                            <td colspan="6"
+                            <td colspan="7"
                                 class="text-center text-muted">
                                 No existen proformas registradas.
                             </td>
@@ -463,5 +496,146 @@
     </div>
 
 </div>
+<!-- ==========================================
+     MODAL EDITAR PROFORMA
+=========================================== -->
 
+<div class="modal fade"
+     id="modalEditarProforma"
+     tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <form method="POST"
+              id="formEditarProforma">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        ✏️ Editar proforma
+                    </h5>
+
+                    <button type="button"
+                            class="close"
+                            data-dismiss="modal">
+                        &times;
+                    </button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        <label>Proveedor</label>
+
+                        <input type="text"
+                               name="proveedor"
+                               id="editarProveedor"
+                               class="form-control"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>RUC</label>
+
+                        <input type="text"
+                               name="ruc"
+                               id="editarRuc"
+                               class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fecha de recepción</label>
+
+                        <input type="date"
+                               name="fecha_recepcion"
+                               id="editarFecha"
+                               class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Monto de la proforma</label>
+
+                        <input type="number"
+                               name="monto_proforma"
+                               id="editarMonto"
+                               class="form-control"
+                               step="0.01"
+                               min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Observaciones</label>
+
+                        <textarea name="observaciones"
+                                  id="editarObservaciones"
+                                  class="form-control"
+                                  rows="3"></textarea>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit"
+                            class="btn btn-warning">
+                        💾 Guardar cambios
+                    </button>
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const botonesEditar =
+        document.querySelectorAll(".btn-editar-proforma");
+
+    botonesEditar.forEach(function (boton) {
+
+        boton.addEventListener("click", function () {
+
+            const id = this.getAttribute("data-id");
+            const proveedor = this.getAttribute("data-proveedor");
+            const ruc = this.getAttribute("data-ruc");
+            const fecha = this.getAttribute("data-fecha");
+            const monto = this.getAttribute("data-monto");
+            const observaciones =
+                this.getAttribute("data-observaciones");
+
+            document.getElementById(
+                "editarProveedor"
+            ).value = proveedor || "";
+
+            document.getElementById(
+                "editarRuc"
+            ).value = ruc || "";
+
+            document.getElementById(
+                "editarFecha"
+            ).value = fecha || "";
+
+            document.getElementById(
+                "editarMonto"
+            ).value = monto || "";
+
+            document.getElementById(
+                "editarObservaciones"
+            ).value = observaciones || "";
+
+            document.getElementById(
+                "formEditarProforma"
+            ).action =
+                `/proformas_publicacion/${id}/editar`;
+
+        });
+
+    });
+
+});
+</script>
 {% endblock %}

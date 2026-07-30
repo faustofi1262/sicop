@@ -16,6 +16,12 @@
         </div>
 
         <div>
+            <a href="{{ url_for('main.consulta_publicaciones_necesidad') }}"
+            class="btn btn-info mr-2">
+
+                🔎 Verificar publicación
+
+            </a>
             <a href="{{ url_for('main.panel_principal') }}"
                class="btn btn-secondary mr-2">
                 ⬅ Volver
@@ -155,7 +161,10 @@
                                     👁 Ver
                                 </a>
 
-                                <a href="#"
+                                <a href="{{ url_for(
+                                    'main.editar_publicacion_necesidad',
+                                    publicacion_id=p[0]
+                                ) }}"
                                 class="btn btn-sm btn-warning mr-1 mb-1">
                                     ✏️ Editar
                                 </a>

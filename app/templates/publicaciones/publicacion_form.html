@@ -5,7 +5,13 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h3 class="mb-1">📢 Nueva publicación de necesidad</h3>
+            <h3 class="mb-1">
+                {% if publicacion %}
+                    ✏️ Editar publicación de necesidad
+                {% else %}
+                    📢 Nueva publicación de necesidad
+                {% endif %}
+            </h3>
             <p class="text-muted mb-0">
                 Registre la publicación y los productos asociados.
             </p>
@@ -18,8 +24,12 @@
     </div>
 
     <form method="POST"
-          action="{{ url_for('main.guardar_publicacion_necesidad') }}"
-          id="formPublicacion">
+            action="{% if publicacion %}
+                        {{ url_for('main.actualizar_publicacion_necesidad', publicacion_id=publicacion[0]) }}
+                    {% else %}
+                        {{ url_for('main.guardar_publicacion_necesidad') }}
+                    {% endif %}"
+            id="formPublicacion">
 
         <div class="card shadow-sm mb-4">
 
@@ -34,38 +44,42 @@
                     <div class="col-md-4 mb-3">
                         <label>N.º solicitud</label>
                         <input type="text"
-                               name="numero_solicitud"
-                               class="form-control">
+                            name="numero_solicitud"
+                            class="form-control"
+                            value="{{ publicacion[1] if publicacion else '' }}">
                     </div>
 
                     <div class="col-md-4 mb-3">
                         <label>Fecha de publicación</label>
                         <input type="date"
-                               name="fecha_publicacion"
-                               class="form-control"
-                               required>
+                                name="fecha_publicacion"
+                                class="form-control"
+                                value="{{ publicacion[3].strftime('%Y-%m-%d') if publicacion and publicacion[3] else '' }}"
+                                required>
                     </div>
 
                     <div class="col-md-4 mb-3">
                         <label>Fecha límite</label>
                         <input type="date"
-                               name="fecha_limite"
-                               class="form-control">
+                                name="fecha_limite"
+                                class="form-control"
+                                value="{{ publicacion[4].strftime('%Y-%m-%d') if publicacion and publicacion[4] else '' }}">
                     </div>
 
                     <div class="col-md-12 mb-3">
                         <label>Objeto de compra</label>
                         <textarea name="objeto_compra"
-                                  class="form-control"
-                                  rows="3"
-                                  required></textarea>
+                                    class="form-control"
+                                    rows="3"
+                                    required>{{ publicacion[2] if publicacion else '' }}</textarea>
                     </div>
 
                     <div class="col-md-4 mb-3">
                         <label>Encargado</label>
                         <input type="text"
-                               name="encargado"
-                               class="form-control">
+       name="encargado"
+       class="form-control"
+       value="{{ publicacion[5] if publicacion else '' }}">
                     </div>
 
                     <div class="col-md-4 mb-3">
@@ -77,9 +91,10 @@
 
                     <div class="col-md-4 mb-3">
                         <label>Tipo de publicación</label>
-                        <input type="text"
-                               name="tipo_publicacion"
-                               class="form-control">
+                        <input type="email"
+                                name="correo"
+                                class="form-control"
+                                value="{{ publicacion[6] if publicacion else '' }}">
                     </div>
 
                     <div class="col-md-6 mb-3">
@@ -93,7 +108,10 @@
                             </option>
 
                             {% for u in unidades %}
-                                <option value="{{ u[1] }}">
+                                <option value="{{ u[1] }}"
+                                    {% if publicacion and publicacion[8] == u[1] %}
+                                        selected
+                                    {% endif %}>
                                     {{ u[1] }}
                                 </option>
                             {% endfor %}
@@ -106,35 +124,55 @@
                         <label>N.º de publicación</label>
 
                         <select name="numero_publicacion"
-                                class="form-control">
+                            class="form-control">
 
-                            <option value="1">Primera publicación</option>
-                            <option value="2">Segunda publicación</option>
-                            <option value="3">Tercera publicación</option>
-                            <option value="4">Cuarta publicación</option>
+                        <option value="1"
+                            {% if not publicacion or publicacion[10] == 1 %}selected{% endif %}>
+                            Primera publicación
+                        </option>
 
-                        </select>
+                        <option value="2"
+                            {% if publicacion and publicacion[10] == 2 %}selected{% endif %}>
+                            Segunda publicación
+                        </option>
+
+                        <option value="3"
+                            {% if publicacion and publicacion[10] == 3 %}selected{% endif %}>
+                            Tercera publicación
+                        </option>
+
+                        <option value="4"
+                            {% if publicacion and publicacion[10] == 4 %}selected{% endif %}>
+                            Cuarta publicación
+                        </option>
+
+                    </select>
                     </div>
 
                     <div class="col-md-4 mb-3">
                         <label>Estado</label>
 
                         <select name="estado"
-                                class="form-control">
+                            class="form-control">
 
-                            <option value="PUBLICADA">PUBLICADA</option>
-                            <option value="FINALIZADA">FINALIZADA</option>
-                            <option value="ANULADA">ANULADA</option>
+                        <option value="PUBLICADA"
+                            {% if not publicacion or publicacion[13] == 'PUBLICADA' %}selected{% endif %}>
+                            PUBLICADA
+                        </option>
 
-                        </select>
+                        <option value="FINALIZADA"
+                            {% if publicacion and publicacion[13] == 'FINALIZADA' %}selected{% endif %}>
+                            FINALIZADA
+                        </option>
+
+                        <option value="ANULADA"
+                            {% if publicacion and publicacion[13] == 'ANULADA' %}selected{% endif %}>
+                            ANULADA
+                        </option>
+
+                    </select>
                     </div>
-
-                    <div class="col-md-4 mb-3">
-                        <label>Código de proceso</label>
-                        <input type="text"
-                               name="codigo_proceso"
-                               class="form-control">
-                    </div>
+                 
 
                     <div class="col-md-4 mb-3">
 
@@ -144,9 +182,10 @@
 
                         <div class="form-check mt-2">
                             <input type="checkbox"
-                                   name="notificado"
-                                   class="form-check-input"
-                                   id="notificado">
+                                    name="notificado"
+                                    class="form-check-input"
+                                    id="notificado"
+                                    {% if publicacion and publicacion[11] %}checked{% endif %}>
 
                             <label class="form-check-label"
                                    for="notificado">
@@ -164,9 +203,10 @@
 
                         <div class="form-check mt-2">
                             <input type="checkbox"
-                                   name="oc_subida"
-                                   class="form-check-input"
-                                   id="ocSubida">
+                                    name="oc_subida"
+                                    class="form-check-input"
+                                    id="ocSubida"
+                                    {% if publicacion and publicacion[12] %}checked{% endif %}>
 
                             <label class="form-check-label"
                                    for="ocSubida">
@@ -179,8 +219,8 @@
                     <div class="col-md-12 mb-3">
                         <label>Observaciones</label>
                         <textarea name="observaciones"
-                                  class="form-control"
-                                  rows="3"></textarea>
+                                class="form-control"
+                                rows="3">{{ publicacion[14] if publicacion else '' }}</textarea>
                     </div>
 
                 </div>
@@ -229,39 +269,47 @@
 
                         <tbody id="tablaItems">
 
+                        {% if items %}
+
+                            {% for i in items %}
+
                             <tr class="fila-item">
 
                                 <td>
                                     <input type="text"
-                                           name="item_cpc[]"
-                                           class="form-control form-control-sm">
+                                        name="item_cpc[]"
+                                        class="form-control form-control-sm"
+                                        value="{{ i[1] or '' }}">
                                 </td>
 
                                 <td>
                                     <textarea name="item_descripcion[]"
-                                              class="form-control form-control-sm"
-                                              rows="2"
-                                              required></textarea>
+                                            class="form-control form-control-sm"
+                                            rows="2"
+                                            required>{{ i[2] or '' }}</textarea>
                                 </td>
 
                                 <td>
                                     <input type="number"
-                                           name="item_cantidad[]"
-                                           class="form-control form-control-sm"
-                                           step="0.01"
-                                           min="0">
+                                        name="item_cantidad[]"
+                                        class="form-control form-control-sm"
+                                        step="0.01"
+                                        min="0"
+                                        value="{{ i[3] if i[3] is not none else '' }}">
                                 </td>
 
                                 <td>
                                     <input type="text"
-                                           name="item_unidad[]"
-                                           class="form-control form-control-sm">
+                                        name="item_unidad[]"
+                                        class="form-control form-control-sm"
+                                        value="{{ i[4] or '' }}">
                                 </td>
 
                                 <td>
                                     <input type="text"
-                                           name="item_forma_pago[]"
-                                           class="form-control form-control-sm">
+                                        name="item_forma_pago[]"
+                                        class="form-control form-control-sm"
+                                        value="{{ i[5] or '' }}">
                                 </td>
 
                                 <td class="text-center">
@@ -272,6 +320,56 @@
                                 </td>
 
                             </tr>
+
+                            {% endfor %}
+
+                        {% else %}
+
+                            <tr class="fila-item">
+
+                                <td>
+                                    <input type="text"
+                                        name="item_cpc[]"
+                                        class="form-control form-control-sm">
+                                </td>
+
+                                <td>
+                                    <textarea name="item_descripcion[]"
+                                            class="form-control form-control-sm"
+                                            rows="2"
+                                            required></textarea>
+                                </td>
+
+                                <td>
+                                    <input type="number"
+                                        name="item_cantidad[]"
+                                        class="form-control form-control-sm"
+                                        step="0.01"
+                                        min="0">
+                                </td>
+
+                                <td>
+                                    <input type="text"
+                                        name="item_unidad[]"
+                                        class="form-control form-control-sm">
+                                </td>
+
+                                <td>
+                                    <input type="text"
+                                        name="item_forma_pago[]"
+                                        class="form-control form-control-sm">
+                                </td>
+
+                                <td class="text-center">
+                                    <button type="button"
+                                            class="btn btn-sm btn-danger btnQuitarItem">
+                                        🗑
+                                    </button>
+                                </td>
+
+                            </tr>
+
+                        {% endif %}
 
                         </tbody>
 
@@ -286,7 +384,11 @@
 
         <button type="submit"
                 class="btn btn-success btn-lg btn-block">
-            💾 Guardar publicación
+            {% if publicacion %}
+                💾 Guardar cambios
+            {% else %}
+                💾 Guardar publicación
+            {% endif %}
         </button>
 
     </form>

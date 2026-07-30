@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container-fluid mt-4 px-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h3>
+                🔎 Verificación de publicaciones
+            </h3>
+
+            <p class="text-muted">
+                Consulte rápidamente si un bien, servicio o consultoría
+                fue publicado previamente.
+            </p>
+        </div>
+
+        <a href="{{ url_for('main.publicaciones_necesidad') }}"
+           class="btn btn-secondary">
+            ⬅ Volver
+        </a>
+
+    </div>
+
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-dark text-white">
+            Buscar publicación
+        </div>
+
+        <div class="card-body">
+
+            <form method="GET"
+                  action="{{ url_for('main.consulta_publicaciones_necesidad') }}">
+
+                <div class="row">
+
+                    <div class="col-md-10">
+
+                        <input type="text"
+                               name="busqueda"
+                               class="form-control form-control-lg"
+                               value="{{ busqueda }}"
+                               placeholder="Ej.: mantenimiento de ascensores, seguros, licencias, CPC..."
+                               required>
+
+                    </div>
+
+                    <div class="col-md-2">
+
+                        <button type="submit"
+                                class="btn btn-primary btn-lg btn-block">
+
+                            🔎 Buscar
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    {% if busqueda %}
+
+    <div class="card shadow-sm">
+
+        <div class="card-header">
+
+            Resultados para:
+
+            <strong>
+                {{ busqueda }}
+            </strong>
+
+        </div>
+
+        <div class="card-body">
+
+
+            {% if resultados %}
+
+            <div class="alert alert-success">
+
+                ✅ Se encontraron
+                <strong>{{ resultados|length }}</strong>
+                publicación(es) relacionada(s).
+
+            </div>
+
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-hover">
+
+                    <thead class="thead-light">
+
+                        <tr>
+                            <th>Fecha</th>
+                            <th>N.º publicación</th>
+                            <th>Código publicación</th>
+                            <th>Objeto</th>
+                            <th>Unidad</th>
+                            <th>Proformas</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                    {% for p in resultados %}
+
+                        <tr>
+
+                            <td>
+
+                                {% if p[4] %}
+                                    {{ p[4].strftime('%d/%m/%Y') }}
+                                {% endif %}
+
+                            </td>
+
+                            <td class="text-center">
+                                {{ p[6] or 1 }}
+                            </td>
+
+                            <td>
+                                {{ p[1] or 'SIN CÓDIGO' }}
+                            </td>
+
+                            <td>
+                                {{ p[2] }}
+                            </td>
+
+                            <td>
+                                {{ p[3] or '' }}
+                            </td>
+
+                            <td class="text-center">
+
+                                <span class="badge badge-primary"
+                                      style="font-size:14px;">
+
+                                    {{ p[8] }}
+
+                                </span>
+
+                            </td>
+
+                            <td>
+                                {{ p[7] or '' }}
+                            </td>
+
+                            <td>
+
+                                <a href="{{ url_for(
+                                    'main.publicacion_necesidad_detalle',
+                                    publicacion_id=p[0]
+                                ) }}"
+                                   class="btn btn-info btn-sm">
+
+                                    👁 Ver
+
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            {% else %}
+
+            <div class="alert alert-warning">
+
+                ⚠️ No se encontró ninguna publicación relacionada con:
+
+                <strong>
+                    {{ busqueda }}
+                </strong>
+
+            </div>
+
+            {% endif %}
+
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -4873,6 +4873,8 @@ def publicacion_necesidad_nueva():
     return render_template(
         "publicaciones/publicacion_form.html",
         unidades=unidades,
+        publicacion=None,
+        items=[]
     )
 # ==========================================
 # GUARDAR PUBLICACIÓN DE NECESIDAD
@@ -5205,4 +5207,466 @@ def guardar_proforma_publicacion(publicacion_id):
             "main.publicacion_necesidad_detalle",
             publicacion_id=publicacion_id
         )
+    )
+# ==========================================
+# ELIMINAR PROFORMA
+# ==========================================
+@main.route(
+    "/proformas_publicacion/<int:proforma_id>/eliminar",
+    methods=["POST"]
+)
+@login_required()
+def eliminar_proforma_publicacion(proforma_id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+
+        cur.execute("""
+            SELECT publicacion_id
+            FROM proformas_publicacion
+            WHERE id = %s
+        """, (proforma_id,))
+
+        row = cur.fetchone()
+
+        if not row:
+
+            flash(
+                "❌ La proforma no existe.",
+                "danger"
+            )
+
+            return redirect(
+                url_for("main.publicaciones_necesidad")
+            )
+
+        publicacion_id = row[0]
+
+        cur.execute("""
+            DELETE FROM proformas_publicacion
+            WHERE id = %s
+        """, (proforma_id,))
+
+        conn.commit()
+
+        flash(
+            "✅ Proforma eliminada correctamente.",
+            "success"
+        )
+
+    except Exception as e:
+
+        conn.rollback()
+
+        print("ERROR ELIMINANDO PROFORMA:", e)
+
+        flash(
+            f"❌ Error al eliminar la proforma: {e}",
+            "danger"
+        )
+
+        publicacion_id = None
+
+    finally:
+
+        cur.close()
+        conn.close()
+
+    if publicacion_id:
+
+        return redirect(
+            url_for(
+                "main.publicacion_necesidad_detalle",
+                publicacion_id=publicacion_id
+            )
+        )
+
+    return redirect(
+        url_for("main.publicaciones_necesidad")
+    )
+# ==========================================
+# EDITAR PROFORMA
+# ==========================================
+@main.route(
+    "/proformas_publicacion/<int:proforma_id>/editar",
+    methods=["POST"]
+)
+@login_required()
+def editar_proforma_publicacion(proforma_id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+
+        cur.execute("""
+            SELECT publicacion_id
+            FROM proformas_publicacion
+            WHERE id = %s
+        """, (proforma_id,))
+
+        row = cur.fetchone()
+
+        if not row:
+            flash("❌ La proforma no existe.", "danger")
+
+            return redirect(
+                url_for("main.publicaciones_necesidad")
+            )
+
+        publicacion_id = row[0]
+
+        proveedor = request.form.get("proveedor")
+        ruc = request.form.get("ruc")
+        fecha_recepcion = (
+            request.form.get("fecha_recepcion") or None
+        )
+        monto_proforma = (
+            request.form.get("monto_proforma") or None
+        )
+        observaciones = request.form.get("observaciones")
+
+        cur.execute("""
+            UPDATE proformas_publicacion
+            SET
+                proveedor = %s,
+                ruc = %s,
+                fecha_recepcion = %s,
+                monto_proforma = %s,
+                observaciones = %s
+            WHERE id = %s
+        """, (
+            proveedor,
+            ruc,
+            fecha_recepcion,
+            monto_proforma,
+            observaciones,
+            proforma_id
+        ))
+
+        conn.commit()
+
+        flash(
+            "✅ Proforma actualizada correctamente.",
+            "success"
+        )
+
+    except Exception as e:
+
+        conn.rollback()
+
+        print("ERROR EDITANDO PROFORMA:", e)
+
+        flash(
+            f"❌ Error al editar la proforma: {e}",
+            "danger"
+        )
+
+        publicacion_id = None
+
+    finally:
+
+        cur.close()
+        conn.close()
+
+    if publicacion_id:
+
+        return redirect(
+            url_for(
+                "main.publicacion_necesidad_detalle",
+                publicacion_id=publicacion_id
+            )
+        )
+
+    return redirect(
+        url_for("main.publicaciones_necesidad")
+    )
+# ==========================================
+# EDITAR PUBLICACIÓN - MOSTRAR FORMULARIO
+# ==========================================
+@main.route("/publicaciones_necesidad/<int:publicacion_id>/editar")
+@login_required()
+def editar_publicacion_necesidad(publicacion_id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    # Publicación
+    cur.execute("""
+        SELECT
+            id,
+            numero_solicitud,
+            objeto_compra,
+            fecha_publicacion,
+            fecha_limite,
+            encargado,
+            correo,
+            tipo_publicacion,
+            unidad_requirente,
+            codigo_publicacion,
+            numero_publicacion,
+            notificado,
+            oc_subida,
+            estado,
+            observaciones
+        FROM publicaciones_necesidad
+        WHERE id = %s
+    """, (publicacion_id,))
+
+    publicacion = cur.fetchone()
+
+    if not publicacion:
+        cur.close()
+        conn.close()
+
+        flash("❌ La publicación no existe.", "danger")
+        return redirect(url_for("main.publicaciones_necesidad"))
+
+    # Items actuales
+    cur.execute("""
+        SELECT
+            id,
+            cpc,
+            descripcion_producto,
+            cantidad,
+            unidad,
+            forma_pago
+        FROM publicacion_items
+        WHERE publicacion_id = %s
+        ORDER BY id
+    """, (publicacion_id,))
+
+    items = cur.fetchall()
+
+    # Unidades
+    cur.execute("""
+        SELECT id, nombre_unidad
+        FROM unidades
+        ORDER BY nombre_unidad
+    """)
+
+    unidades = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template(
+        "publicaciones/publicacion_form.html",
+        publicacion=publicacion,
+        items=items,
+        unidades=unidades
+    )
+# ==========================================
+# ACTUALIZAR PUBLICACIÓN
+# ==========================================
+@main.route(
+    "/publicaciones_necesidad/<int:publicacion_id>/actualizar",
+    methods=["POST"]
+)
+@login_required()
+def actualizar_publicacion_necesidad(publicacion_id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+
+        numero_solicitud = request.form.get("numero_solicitud")
+        objeto_compra = request.form.get("objeto_compra")
+        fecha_publicacion = request.form.get("fecha_publicacion")
+        fecha_limite = request.form.get("fecha_limite") or None
+        encargado = request.form.get("encargado")
+        correo = request.form.get("correo")
+        tipo_publicacion = request.form.get("tipo_publicacion")
+        unidad_requirente = request.form.get("unidad_requirente")
+        codigo_publicacion = request.form.get("codigo_publicacion")
+        numero_publicacion = request.form.get("numero_publicacion") or 1
+        estado = request.form.get("estado")
+        observaciones = request.form.get("observaciones")
+
+        notificado = request.form.get("notificado") == "on"
+        oc_subida = request.form.get("oc_subida") == "on"
+
+        # Actualizar cabecera
+        cur.execute("""
+            UPDATE publicaciones_necesidad
+            SET
+                numero_solicitud = %s,
+                objeto_compra = %s,
+                fecha_publicacion = %s,
+                fecha_limite = %s,
+                encargado = %s,
+                correo = %s,
+                tipo_publicacion = %s,
+                unidad_requirente = %s,
+                codigo_publicacion = %s,
+                numero_publicacion = %s,
+                notificado = %s,
+                oc_subida = %s,
+                estado = %s,
+                observaciones = %s
+            WHERE id = %s
+        """, (
+            numero_solicitud,
+            objeto_compra,
+            fecha_publicacion,
+            fecha_limite,
+            encargado,
+            correo,
+            tipo_publicacion,
+            unidad_requirente,
+            codigo_publicacion,
+            numero_publicacion,
+            notificado,
+            oc_subida,
+            estado,
+            observaciones,
+            publicacion_id
+        ))
+
+        # Borrar items anteriores
+        cur.execute("""
+            DELETE FROM publicacion_items
+            WHERE publicacion_id = %s
+        """, (publicacion_id,))
+
+        # Recibir items del formulario
+        cpcs = request.form.getlist("item_cpc[]")
+        descripciones = request.form.getlist("item_descripcion[]")
+        cantidades = request.form.getlist("item_cantidad[]")
+        unidades_items = request.form.getlist("item_unidad[]")
+        formas_pago = request.form.getlist("item_forma_pago[]")
+
+        # Volver a guardar items
+        for i, descripcion in enumerate(descripciones):
+
+            if not descripcion.strip():
+                continue
+
+            cpc = cpcs[i] if i < len(cpcs) else None
+            cantidad = cantidades[i] if i < len(cantidades) else None
+            unidad_item = unidades_items[i] if i < len(unidades_items) else None
+            forma_pago = formas_pago[i] if i < len(formas_pago) else None
+
+            cantidad = cantidad or None
+
+            cur.execute("""
+                INSERT INTO publicacion_items (
+                    publicacion_id,
+                    cpc,
+                    descripcion_producto,
+                    cantidad,
+                    unidad,
+                    forma_pago
+                )
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (
+                publicacion_id,
+                cpc,
+                descripcion,
+                cantidad,
+                unidad_item,
+                forma_pago
+            ))
+
+        conn.commit()
+
+        flash(
+            "✅ Publicación actualizada correctamente.",
+            "success"
+        )
+
+    except Exception as e:
+
+        conn.rollback()
+
+        print("ERROR ACTUALIZANDO PUBLICACIÓN:", e)
+
+        flash(
+            f"❌ Error al actualizar la publicación: {e}",
+            "danger"
+        )
+
+    finally:
+        cur.close()
+        conn.close()
+
+    return redirect(
+        url_for(
+            "main.publicacion_necesidad_detalle",
+            publicacion_id=publicacion_id
+        )
+    )
+# ==========================================
+# CONSULTA RÁPIDA DE PUBLICACIONES
+# ==========================================
+@main.route("/publicaciones_necesidad/consulta")
+@login_required()
+def consulta_publicaciones_necesidad():
+
+    busqueda = request.args.get("busqueda", "").strip()
+
+    resultados = []
+
+    if busqueda:
+
+        conn = get_connection()
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT
+                p.id,
+                p.codigo_publicacion,
+                p.objeto_compra,
+                p.unidad_requirente,
+                p.fecha_publicacion,
+                p.fecha_limite,
+                p.numero_publicacion,
+                p.estado,
+                COUNT(pr.id) AS total_proformas
+            FROM publicaciones_necesidad p
+
+            LEFT JOIN publicacion_items i
+                ON i.publicacion_id = p.id
+
+            LEFT JOIN proformas_publicacion pr
+                ON pr.publicacion_id = p.id
+
+            WHERE
+                p.objeto_compra ILIKE %s
+                OR i.descripcion_producto ILIKE %s
+                OR i.cpc ILIKE %s
+                OR p.numero_solicitud ILIKE %s
+
+            GROUP BY
+                p.id,
+                p.codigo_publicacion,
+                p.objeto_compra,
+                p.unidad_requirente,
+                p.fecha_publicacion,
+                p.fecha_limite,
+                p.numero_publicacion,
+                p.estado
+
+            ORDER BY
+                p.fecha_publicacion DESC,
+                p.id DESC
+        """, (
+            f"%{busqueda}%",
+            f"%{busqueda}%",
+            f"%{busqueda}%",
+            f"%{busqueda}%"
+        ))
+
+        resultados = cur.fetchall()
+
+        cur.close()
+        conn.close()
+
+    return render_template(
+        "publicaciones/consulta_publicaciones.html",
+        busqueda=busqueda,
+        resultados=resultados
     )

@@ -233,7 +233,11 @@
         </div>
 
         <div class="sidebar-section">Procesos</div>
-
+        <a href="{{ url_for('main.publicaciones_necesidad') }}"
+        class="sidebar-link">
+            <span>📢</span>
+            <span>Publicaciones y Proformas</span>
+        </a>
         <a href="/requerimientos" class="sidebar-link">
             <span>📄</span>
             <span>Nuevo requerimiento</span>
@@ -323,7 +327,26 @@
         <h3 class="section-title">
             Gestión de procesos
         </h3>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="module-card">
 
+                <div class="module-icon">
+                    📢
+                </div>
+
+                <h5>Publicaciones y Proformas</h5>
+
+                <p>
+                    Registra publicaciones de necesidad y controla las proformas recibidas.
+                </p>
+
+                <a href="{{ url_for('main.publicaciones_necesidad') }}"
+                class="btn btn-primary">
+                    Ingresar
+                </a>
+
+            </div>
+        </div>
         <div class="row">
 
             <!-- REQUERIMIENTOS -->
