@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify, current_app
 import psycopg2
 import os
 from werkzeug.security import check_password_hash
@@ -21,6 +21,21 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from flask import (Blueprint, render_template, request, redirect, url_for, flash, session, jsonify)
+#############################
+## IMPORTACIONES PARA EXCEL
+############################
+from openpyxl import load_workbook
+from datetime import datetime, date
+#############################
+## IMPORTACIONES PARA TABLA DE PUBLICACIONES
+############################
+import os
+import uuid
+
+from datetime import date, datetime
+from openpyxl import load_workbook
+
+from werkzeug.utils import secure_filename
 
 def valor_en_letras_con_decimales(valor):
     valor = Decimal(valor).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
@@ -5459,13 +5474,467 @@ def editar_publicacion_necesidad(publicacion_id):
         unidades=unidades
     )
 # ==========================================
-# ACTUALIZAR PUBLICACIÓN
+# VISTA PREVIA DE MATRIZ DE PUBLICACIONES
+# NO MODIFICA LA BASE DE DATOS
 # ==========================================
 @main.route(
-    "/publicaciones_necesidad/<int:publicacion_id>/actualizar",
+    "/publicaciones_necesidad/vista_previa_excel",
+    methods=["GET", "POST"]
+)
+@login_required()
+def vista_previa_publicaciones_excel():
+
+    resumen = None
+    publicaciones_preview = []
+    advertencias = []
+    token_importacion = None
+    ruta_temporal = None
+
+    if request.method == "POST":
+
+        archivo = request.files.get("archivo")
+
+        if not archivo or not archivo.filename:
+
+            flash(
+                "❌ Debe seleccionar un archivo Excel.",
+                "danger"
+            )
+
+            return redirect(
+                url_for(
+                    "main.vista_previa_publicaciones_excel"
+                )
+            )
+
+        # ==========================================
+        # VALIDAR EXTENSIÓN DEL ARCHIVO
+        # ==========================================
+        nombre_seguro = secure_filename(
+            archivo.filename
+        )
+
+        extension = os.path.splitext(
+            nombre_seguro
+        )[1].lower()
+
+        if extension != ".xlsx":
+
+            flash(
+                "❌ Solo se permiten archivos Excel .xlsx.",
+                "danger"
+            )
+
+            return redirect(
+                url_for(
+                    "main.vista_previa_publicaciones_excel"
+                )
+            )
+
+        # ==========================================
+        # CREAR CARPETA TEMPORAL
+        # ==========================================
+        carpeta_temporal = os.path.join(
+            current_app.root_path,
+            "static",
+            "uploads",
+            "importaciones_temporales"
+        )
+
+        os.makedirs(
+            carpeta_temporal,
+            exist_ok=True
+        )
+
+        # ==========================================
+        # GENERAR UN ÚNICO TOKEN
+        # ==========================================
+        token_importacion = uuid.uuid4().hex
+
+        nombre_temporal = (
+            f"{token_importacion}.xlsx"
+        )
+
+        ruta_temporal = os.path.join(
+            carpeta_temporal,
+            nombre_temporal
+        )
+
+        try:
+
+            # Guardar el archivo una sola vez.
+            archivo.save(
+                ruta_temporal
+            )
+
+            print("===================================")
+            print("ARCHIVO TEMPORAL GUARDADO")
+            print("TOKEN:", token_importacion)
+            print("RUTA:", ruta_temporal)
+            print(
+                "TAMAÑO:",
+                os.path.getsize(ruta_temporal),
+                "bytes"
+            )
+            print("===================================")
+
+            # Utilizar la función auxiliar creada antes.
+            resultado = leer_excel_publicaciones(
+                ruta_temporal
+            )
+
+            resumen = resultado["resumen"]
+
+            publicaciones_preview = resultado[
+                "publicaciones_preview"
+            ]
+
+            advertencias = resultado[
+                "advertencias"
+            ]
+
+        except Exception as e:
+
+            import traceback
+            traceback.print_exc()
+
+            # Eliminar el archivo si falló la lectura.
+            try:
+
+                if (
+                    ruta_temporal
+                    and os.path.exists(ruta_temporal)
+                ):
+
+                    os.remove(
+                        ruta_temporal
+                    )
+
+            except OSError as error_archivo:
+
+                print(
+                    "No se pudo eliminar el archivo "
+                    "temporal:",
+                    error_archivo
+                )
+
+            token_importacion = None
+
+            flash(
+                f"❌ No fue posible analizar el Excel: {e}",
+                "danger"
+            )
+
+    return render_template(
+        "publicaciones/vista_previa_excel.html",
+        resumen=resumen,
+        publicaciones=publicaciones_preview,
+        advertencias=advertencias,
+        token_importacion=token_importacion
+    )
+# ==========================================
+# IMPORTAR PUBLICACIONES A SICOP
+# ==========================================
+@main.route(
+    "/publicaciones_necesidad/importar_confirmado",
     methods=["POST"]
 )
 @login_required()
+def importar_publicaciones_confirmado():
+
+    token_importacion = str(
+        request.form.get("token_importacion") or ""
+    ).strip()
+
+    if not token_importacion:
+
+        flash(
+            "❌ No se encontró el archivo previamente analizado.",
+            "danger"
+        )
+
+        return redirect(
+            url_for(
+                "main.vista_previa_publicaciones_excel"
+            )
+        )
+
+    # ==========================================
+    # VALIDAR TOKEN
+    # ==========================================
+    token_valido = (
+        len(token_importacion) == 32
+        and all(
+            caracter in "0123456789abcdef"
+            for caracter in token_importacion.lower()
+        )
+    )
+
+    if not token_valido:
+
+        flash(
+            "❌ El código de importación no es válido.",
+            "danger"
+        )
+
+        return redirect(
+            url_for(
+                "main.vista_previa_publicaciones_excel"
+            )
+        )
+
+    carpeta_temporal = os.path.join(
+        current_app.root_path,
+        "static",
+        "uploads",
+        "importaciones_temporales"
+    )
+
+    ruta_temporal = os.path.join(
+        carpeta_temporal,
+        f"{token_importacion}.xlsx"
+    )
+
+    if not os.path.exists(ruta_temporal):
+
+        flash(
+            "❌ El archivo temporal ya no está disponible. "
+            "Vuelva a cargar la matriz.",
+            "danger"
+        )
+
+        return redirect(
+            url_for(
+                "main.vista_previa_publicaciones_excel"
+            )
+        )
+
+    conn = None
+    cur = None
+    importacion_exitosa = False
+
+    try:
+
+        print("===================================")
+        print("INICIANDO IMPORTACIÓN")
+        print("TOKEN:", token_importacion)
+        print("RUTA:", ruta_temporal)
+        print(
+            "TAMAÑO:",
+            os.path.getsize(ruta_temporal),
+            "bytes"
+        )
+        print("===================================")
+
+        # Leer nuevamente el mismo archivo temporal.
+        resultado = leer_excel_publicaciones(
+            ruta_temporal
+        )
+
+        publicaciones = resultado[
+            "publicaciones"
+        ]
+
+        advertencias = resultado[
+            "advertencias"
+        ]
+
+        if not publicaciones:
+
+            raise ValueError(
+                "No se encontraron publicaciones válidas "
+                "para importar."
+            )
+
+        # Las advertencias no bloquean toda la importación.
+        # Las filas inválidas ya fueron excluidas por
+        # leer_excel_publicaciones().
+        print(
+            "ADVERTENCIAS DETECTADAS:",
+            len(advertencias)
+        )
+
+        conn = get_connection()
+        cur = conn.cursor()
+
+        total_publicaciones = 0
+        total_items = 0
+
+        # ==========================================
+        # INSERTAR PUBLICACIONES
+        # ==========================================
+        for datos in publicaciones.values():
+
+            cur.execute("""
+                INSERT INTO publicaciones_necesidad (
+                    numero_solicitud,
+                    objeto_compra,
+                    fecha_publicacion,
+                    fecha_limite,
+                    encargado,
+                    correo,
+                    tipo_publicacion,
+                    unidad_requirente,
+                    codigo_publicacion,
+                    numero_publicacion,
+                    notificado,
+                    oc_subida,
+                    codigo_proceso,
+                    estado,
+                    observaciones,
+                    proformas_historicas,
+                    usuario_id
+                )
+                VALUES (
+                    %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s,
+                    %s, %s
+                )
+                RETURNING id
+            """, (
+                datos["numero_solicitud"],
+                datos["objeto"],
+                datos["fecha_publicacion"],
+                datos["fecha_limite"],
+                datos["encargado"],
+                datos["correo"],
+                datos["tipo_publicacion"],
+                datos["unidad_requirente"],
+                datos["codigo_publicacion"],
+                datos["numero_publicacion"],
+                datos["notificado"],
+                datos["oc_subida"],
+                datos["codigo_proceso"],
+                "FINALIZADA",
+                datos["observaciones"],
+                datos["proformas_historicas"],
+                session.get("user_id")
+            ))
+
+            resultado_insert = cur.fetchone()
+
+            if not resultado_insert:
+
+                raise ValueError(
+                    "No fue posible obtener el ID "
+                    "de la publicación insertada."
+                )
+
+            publicacion_id = resultado_insert[0]
+
+            total_publicaciones += 1
+
+            # ==========================================
+            # INSERTAR ÍTEMS
+            # ==========================================
+            for item in datos["items"]:
+
+                cur.execute("""
+                    INSERT INTO publicacion_items (
+                        publicacion_id,
+                        cpc,
+                        descripcion_producto,
+                        cantidad,
+                        unidad,
+                        forma_pago
+                    )
+                    VALUES (
+                        %s, %s, %s, %s, %s, %s
+                    )
+                """, (
+                    publicacion_id,
+                    item["cpc"],
+                    item["descripcion"],
+                    item["cantidad"],
+                    item["unidad"],
+                    item["forma_pago"]
+                ))
+
+                total_items += 1
+
+        conn.commit()
+
+        importacion_exitosa = True
+
+        print("===================================")
+        print("IMPORTACIÓN COMPLETADA")
+        print(
+            "PUBLICACIONES:",
+            total_publicaciones
+        )
+        print(
+            "ÍTEMS:",
+            total_items
+        )
+        print("===================================")
+
+        flash(
+            f"✅ Importación completada: "
+            f"{total_publicaciones} publicaciones y "
+            f"{total_items} ítems guardados.",
+            "success"
+        )
+
+        return redirect(
+            url_for(
+                "main.publicaciones_necesidad"
+            )
+        )
+
+    except Exception as e:
+
+        if conn:
+
+            conn.rollback()
+
+        import traceback
+        traceback.print_exc()
+
+        flash(
+            f"❌ No se realizó la importación: {e}",
+            "danger"
+        )
+
+        return redirect(
+            url_for(
+                "main.vista_previa_publicaciones_excel"
+            )
+        )
+
+    finally:
+
+        if cur:
+
+            cur.close()
+
+        if conn:
+
+            conn.close()
+
+        # El archivo solo se elimina cuando la
+        # importación terminó correctamente.
+        if importacion_exitosa:
+
+            try:
+
+                if os.path.exists(ruta_temporal):
+
+                    os.remove(
+                        ruta_temporal
+                    )
+
+                    print(
+                        "ARCHIVO TEMPORAL ELIMINADO:",
+                        ruta_temporal
+                    )
+
+            except OSError as error_archivo:
+
+                print(
+                    "No se pudo eliminar el archivo temporal:",
+                    error_archivo
+                )
 def actualizar_publicacion_necesidad(publicacion_id):
 
     conn = get_connection()
@@ -5670,3 +6139,572 @@ def consulta_publicaciones_necesidad():
         busqueda=busqueda,
         resultados=resultados
     )
+# ==========================================
+# VISTA PREVIA DE MATRIZ DE PUBLICACIONES
+# NO MODIFICA LA BASE DE DATOS
+# ==========================================
+@main.route(
+    "/publicaciones_necesidad/vista_previa_excel",
+    methods=["GET", "POST"]
+)
+@login_required()
+# ==========================================
+# LEER MATRIZ EXCEL DE PUBLICACIONES
+# ==========================================
+def leer_excel_publicaciones(ruta_excel):
+
+    libro = None
+
+    publicaciones = {}
+    advertencias = []
+
+    filas_leidas = 0
+    filas_validas = 0
+    filas_invalidas = 0
+    publicaciones_sin_codigo = 0
+    items_detectados = 0
+    filas_vacias_consecutivas = 0
+
+    try:
+
+        # ==========================================
+        # VALIDAR ARCHIVO
+        # ==========================================
+        if not os.path.exists(ruta_excel):
+
+            raise ValueError(
+                "El archivo Excel no existe."
+            )
+
+        tamanio_archivo = os.path.getsize(
+            ruta_excel
+        )
+
+        if tamanio_archivo <= 0:
+
+            raise ValueError(
+                "El archivo Excel está vacío."
+            )
+
+        # Los archivos XLSX son contenedores ZIP.
+        with open(ruta_excel, "rb") as archivo:
+
+            firma = archivo.read(4)
+
+        if firma != b"PK\x03\x04":
+
+            raise ValueError(
+                "El archivo seleccionado no es un "
+                "Excel .xlsx válido."
+            )
+
+        # ==========================================
+        # ABRIR LIBRO
+        # ==========================================
+        libro = load_workbook(
+            ruta_excel,
+            read_only=True,
+            data_only=True
+        )
+
+        if "Hoja1" not in libro.sheetnames:
+
+            raise ValueError(
+                "El archivo no contiene la hoja 'Hoja1'."
+            )
+
+        hoja = libro["Hoja1"]
+
+        print("===================================")
+        print("LEYENDO MATRIZ DE PUBLICACIONES")
+        print("ARCHIVO:", ruta_excel)
+        print("TAMAÑO:", tamanio_archivo, "bytes")
+        print("HOJA:", hoja.title)
+        print(
+            "DIMENSIÓN REPORTADA:",
+            hoja.max_row,
+            "filas x",
+            hoja.max_column,
+            "columnas"
+        )
+        print("===================================")
+
+        # El Excel utiliza 20 columnas: A hasta T.
+        ultima_fila_analizar = min(
+            hoja.max_row,
+            3000
+        )
+
+        # ==========================================
+        # RECORRER FILAS DEL EXCEL
+        # ==========================================
+        for numero_fila, fila in enumerate(
+            hoja.iter_rows(
+                min_row=2,
+                max_row=ultima_fila_analizar,
+                min_col=1,
+                max_col=20,
+                values_only=True
+            ),
+            start=2
+        ):
+
+            filas_leidas += 1
+
+            fila_esta_vacia = all(
+                valor is None
+                or str(valor).strip() == ""
+                for valor in fila
+            )
+
+            if fila_esta_vacia:
+
+                filas_vacias_consecutivas += 1
+
+                # Se detiene cuando encuentra 20 filas
+                # consecutivas completamente vacías.
+                if filas_vacias_consecutivas >= 20:
+
+                    print(
+                        "LECTURA FINALIZADA EN LA FILA:",
+                        numero_fila
+                    )
+
+                    break
+
+                continue
+
+            filas_vacias_consecutivas = 0
+
+            (
+                numero_solicitud,
+                objeto,
+                fecha_publicacion,
+                fecha_limite,
+                tiempo_publicacion,
+                encargado,
+                correo,
+                tipo_publicacion,
+                cpc,
+                descripcion_producto,
+                cantidad,
+                unidad,
+                forma_pago,
+                unidad_requirente,
+                codigo_publicacion,
+                notificado,
+                manifestacion,
+                oc_subida,
+                codigo_proceso,
+                observaciones
+            ) = fila
+
+            objeto_texto = str(
+                objeto or ""
+            ).strip()
+
+            codigo_texto = str(
+                codigo_publicacion or ""
+            ).strip()
+
+            observacion_texto = str(
+                observaciones or ""
+            ).strip()
+
+            observacion_mayuscula = (
+                observacion_texto.upper()
+            )
+
+            # ==========================================
+            # DETECTAR PUBLICACIONES INVÁLIDAS
+            # ==========================================
+            es_invalida = (
+                "NO VALE" in observacion_mayuscula
+                or "PUBLICACIÓN CON ERROR"
+                in observacion_mayuscula
+                or "PUBLICACION CON ERROR"
+                in observacion_mayuscula
+            )
+
+            if es_invalida:
+
+                filas_invalidas += 1
+
+                advertencias.append({
+                    "fila": numero_fila,
+                    "codigo":
+                        codigo_texto or "SIN CÓDIGO",
+                    "mensaje": (
+                        "Fila marcada en la matriz como "
+                        "publicación inválida o con error."
+                    )
+                })
+
+                continue
+
+            # Una publicación válida debe tener objeto.
+            if not objeto_texto:
+
+                advertencias.append({
+                    "fila": numero_fila,
+                    "codigo":
+                        codigo_texto or "SIN CÓDIGO",
+                    "mensaje":
+                        "Fila sin objeto de compra."
+                })
+
+                continue
+
+            filas_validas += 1
+
+            # ==========================================
+            # CLAVE PARA AGRUPAR LOS ÍTEMS
+            # ==========================================
+            if codigo_texto:
+
+                clave = (
+                    "CODIGO",
+                    codigo_texto
+                )
+
+            else:
+
+                clave = (
+                    "SIN_CODIGO",
+                    str(
+                        numero_solicitud or ""
+                    ).strip(),
+                    str(
+                        fecha_publicacion or ""
+                    ),
+                    objeto_texto
+                )
+
+            # ==========================================
+            # NÚMERO DE PUBLICACIÓN
+            # ==========================================
+            numero_publicacion = 1
+
+            if (
+                "2DA" in observacion_mayuscula
+                or "SEGUNDA" in observacion_mayuscula
+            ):
+
+                numero_publicacion = 2
+
+            elif (
+                "3RA" in observacion_mayuscula
+                or "TERCERA" in observacion_mayuscula
+            ):
+
+                numero_publicacion = 3
+
+            elif (
+                "4TA" in observacion_mayuscula
+                or "CUARTA" in observacion_mayuscula
+            ):
+
+                numero_publicacion = 4
+
+            # ==========================================
+            # CONVERTIR CAMPOS BOOLEANOS
+            # ==========================================
+            texto_notificado = str(
+                notificado or ""
+            ).strip().upper()
+
+            valor_notificado = (
+                texto_notificado
+                in (
+                    "SI",
+                    "SÍ",
+                    "X",
+                    "1",
+                    "TRUE"
+                )
+            )
+
+            texto_oc_subida = str(
+                oc_subida or ""
+            ).strip().upper()
+
+            valor_oc_subida = (
+                texto_oc_subida
+                in (
+                    "SI",
+                    "SÍ",
+                    "X",
+                    "1",
+                    "TRUE"
+                )
+            )
+
+            # ==========================================
+            # MANIFESTACIONES HISTÓRICAS
+            # ==========================================
+            try:
+
+                proformas_historicas = int(
+                    float(
+                        manifestacion or 0
+                    )
+                )
+
+            except (TypeError, ValueError):
+
+                proformas_historicas = 0
+
+                advertencias.append({
+                    "fila": numero_fila,
+                    "codigo":
+                        codigo_texto or "SIN CÓDIGO",
+                    "mensaje": (
+                        "El número de manifestaciones "
+                        "no pudo convertirse a un número."
+                    )
+                })
+
+            # ==========================================
+            # CREAR CABECERA DE LA PUBLICACIÓN
+            # ==========================================
+            if clave not in publicaciones:
+
+                if not codigo_texto:
+
+                    publicaciones_sin_codigo += 1
+
+                publicaciones[clave] = {
+                    "numero_solicitud":
+                        numero_solicitud,
+
+                    "objeto":
+                        objeto_texto,
+
+                    "fecha_publicacion":
+                        fecha_publicacion,
+
+                    "fecha_limite":
+                        fecha_limite,
+
+                    "tiempo_publicacion":
+                        tiempo_publicacion,
+
+                    "encargado":
+                        encargado,
+
+                    "correo":
+                        correo,
+
+                    "tipo_publicacion":
+                        tipo_publicacion,
+
+                    "unidad_requirente":
+                        unidad_requirente,
+
+                    "codigo_publicacion":
+                        codigo_texto or None,
+
+                    "numero_publicacion":
+                        numero_publicacion,
+
+                    "notificado":
+                        valor_notificado,
+
+                    "oc_subida":
+                        valor_oc_subida,
+
+                    "codigo_proceso":
+                        codigo_proceso,
+
+                    "observaciones":
+                        observacion_texto,
+
+                    "proformas_historicas":
+                        proformas_historicas,
+
+                    "items": []
+                }
+
+            else:
+
+                # Evita sumar las manifestaciones
+                # repetidas en cada fila de producto.
+                publicaciones[clave][
+                    "proformas_historicas"
+                ] = max(
+                    publicaciones[clave][
+                        "proformas_historicas"
+                    ],
+                    proformas_historicas
+                )
+
+                # Conserva el mayor número de publicación.
+                publicaciones[clave][
+                    "numero_publicacion"
+                ] = max(
+                    publicaciones[clave][
+                        "numero_publicacion"
+                    ],
+                    numero_publicacion
+                )
+
+                # Si alguna fila está marcada como sí,
+                # conserva el valor verdadero.
+                publicaciones[clave][
+                    "notificado"
+                ] = (
+                    publicaciones[clave]["notificado"]
+                    or valor_notificado
+                )
+
+                publicaciones[clave][
+                    "oc_subida"
+                ] = (
+                    publicaciones[clave]["oc_subida"]
+                    or valor_oc_subida
+                )
+
+            # ==========================================
+            # AGREGAR ÍTEM
+            # ==========================================
+            if descripcion_producto:
+
+                descripcion_texto = str(
+                    descripcion_producto
+                ).strip()
+
+                publicaciones[clave][
+                    "items"
+                ].append({
+                    "cpc":
+                        cpc,
+
+                    "descripcion":
+                        descripcion_texto,
+
+                    "cantidad":
+                        cantidad,
+
+                    "unidad":
+                        unidad,
+
+                    "forma_pago":
+                        forma_pago
+                })
+
+                items_detectados += 1
+
+        # ==========================================
+        # CONSTRUIR DATOS PARA VISTA PREVIA
+        # ==========================================
+        publicaciones_preview = []
+
+        for datos in publicaciones.values():
+
+            publicaciones_preview.append({
+                "numero_solicitud":
+                    datos["numero_solicitud"],
+
+                "codigo_publicacion":
+                    datos["codigo_publicacion"],
+
+                "objeto":
+                    datos["objeto"],
+
+                "fecha_publicacion":
+                    datos["fecha_publicacion"],
+
+                "unidad_requirente":
+                    datos["unidad_requirente"],
+
+                "numero_publicacion":
+                    datos["numero_publicacion"],
+
+                "proformas_historicas":
+                    datos["proformas_historicas"],
+
+                "total_items":
+                    len(datos["items"])
+            })
+
+        # ==========================================
+        # ORDENAR POR FECHA DE PUBLICACIÓN
+        # ==========================================
+        def convertir_fecha_orden(valor):
+
+            if isinstance(valor, datetime):
+                return valor.date()
+
+            if isinstance(valor, date):
+                return valor
+
+            return date.min
+
+        publicaciones_preview.sort(
+            key=lambda registro: convertir_fecha_orden(
+                registro["fecha_publicacion"]
+            ),
+            reverse=True
+        )
+
+        # ==========================================
+        # RESUMEN DE LA LECTURA
+        # ==========================================
+        resumen = {
+            "filas_leidas":
+                filas_leidas,
+
+            "filas_validas":
+                filas_validas,
+
+            "filas_invalidas":
+                filas_invalidas,
+
+            "publicaciones_detectadas":
+                len(publicaciones),
+
+            "items_detectados":
+                items_detectados,
+
+            "publicaciones_sin_codigo":
+                publicaciones_sin_codigo,
+
+            "advertencias":
+                len(advertencias)
+        }
+
+        print("===================================")
+        print("LECTURA COMPLETADA")
+        print(
+            "PUBLICACIONES:",
+            len(publicaciones)
+        )
+        print(
+            "ÍTEMS:",
+            items_detectados
+        )
+        print(
+            "ADVERTENCIAS:",
+            len(advertencias)
+        )
+        print("===================================")
+
+        return {
+            "publicaciones":
+                publicaciones,
+
+            "publicaciones_preview":
+                publicaciones_preview,
+
+            "advertencias":
+                advertencias,
+
+            "resumen":
+                resumen
+        }
+
+    finally:
+
+        if libro:
+
+            libro.close()
