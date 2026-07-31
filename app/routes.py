@@ -5425,7 +5425,8 @@ def editar_publicacion_necesidad(publicacion_id):
             notificado,
             oc_subida,
             estado,
-            observaciones
+            observaciones,
+            codigo_proceso
         FROM publicaciones_necesidad
         WHERE id = %s
     """, (publicacion_id,))

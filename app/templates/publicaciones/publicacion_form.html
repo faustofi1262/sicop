@@ -76,146 +76,210 @@
 
                     <div class="col-md-4 mb-3">
                         <label>Encargado</label>
-                        <input type="text"
-       name="encargado"
-       class="form-control"
-       value="{{ publicacion[5] if publicacion else '' }}">
+
+                        <input
+                            type="text"
+                            name="encargado"
+                            class="form-control"
+                            value="{{ publicacion[5] if publicacion else '' }}"
+                        >
                     </div>
 
                     <div class="col-md-4 mb-3">
                         <label>Correo</label>
-                        <input type="email"
-                               name="correo"
-                               class="form-control">
+
+                        <input
+                            type="email"
+                            name="correo"
+                            class="form-control"
+                            value="{{ publicacion[6] if publicacion else '' }}"
+                        >
                     </div>
 
                     <div class="col-md-4 mb-3">
                         <label>Tipo de publicación</label>
+
                         <input
                             type="text"
-                            class="form-control"
                             name="tipo_publicacion"
+                            class="form-control"
                             value="{{ publicacion[7] if publicacion else '' }}"
+                            placeholder="IC o NC"
                         >
                     </div>
 
-                    <div class="col-md-6 mb-3">
+
+                    <div class="col-md-4 mb-3">
                         <label>Unidad requirente</label>
 
-                        <select name="unidad_requirente"
-                                class="form-control">
-
+                        <select
+                            name="unidad_requirente"
+                            class="form-control"
+                        >
                             <option value="">
                                 Seleccione...
                             </option>
 
                             {% for u in unidades %}
-                                <option value="{{ u[1] }}"
+                                <option
+                                    value="{{ u[1] }}"
                                     {% if publicacion and publicacion[8] == u[1] %}
                                         selected
-                                    {% endif %}>
+                                    {% endif %}
+                                >
                                     {{ u[1] }}
                                 </option>
                             {% endfor %}
-
                         </select>
                     </div>
 
-                    
+
+                    <div class="col-md-4 mb-3">
+                        <label>Código del proceso</label>
+
+                        <input
+                            type="text"
+                            name="codigo_proceso"
+                            id="codigo_proceso"
+                            class="form-control"
+                            value="{{ publicacion[15] if publicacion and publicacion[15] else '' }}"
+                        >
+                    </div>
+
+
                     <div class="col-md-4 mb-3">
                         <label>N.º de publicación</label>
 
-                        <select name="numero_publicacion"
-                            class="form-control">
+                        <select
+                            name="numero_publicacion"
+                            id="numero_publicacion"
+                            class="form-control"
+                        >
+                            <option
+                                value="1"
+                                {% if not publicacion or publicacion[10] == 1 %}
+                                    selected
+                                {% endif %}
+                            >
+                                Primera publicación
+                            </option>
 
-                        <option value="1"
-                            {% if not publicacion or publicacion[10] == 1 %}selected{% endif %}>
-                            Primera publicación
-                        </option>
+                            <option
+                                value="2"
+                                {% if publicacion and publicacion[10] == 2 %}
+                                    selected
+                                {% endif %}
+                            >
+                                Segunda publicación
+                            </option>
 
-                        <option value="2"
-                            {% if publicacion and publicacion[10] == 2 %}selected{% endif %}>
-                            Segunda publicación
-                        </option>
+                            <option
+                                value="3"
+                                {% if publicacion and publicacion[10] == 3 %}
+                                    selected
+                                {% endif %}
+                            >
+                                Tercera publicación
+                            </option>
 
-                        <option value="3"
-                            {% if publicacion and publicacion[10] == 3 %}selected{% endif %}>
-                            Tercera publicación
-                        </option>
-
-                        <option value="4"
-                            {% if publicacion and publicacion[10] == 4 %}selected{% endif %}>
-                            Cuarta publicación
-                        </option>
-
-                    </select>
+                            <option
+                                value="4"
+                                {% if publicacion and publicacion[10] == 4 %}
+                                    selected
+                                {% endif %}
+                            >
+                                Cuarta publicación
+                            </option>
+                        </select>
                     </div>
+
 
                     <div class="col-md-4 mb-3">
                         <label>Estado</label>
 
-                        <select name="estado"
-                            class="form-control">
+                        <select
+                            name="estado"
+                            class="form-control"
+                        >
+                            <option
+                                value="PUBLICADA"
+                                {% if not publicacion or publicacion[13] == 'PUBLICADA' %}
+                                    selected
+                                {% endif %}
+                            >
+                                PUBLICADA
+                            </option>
 
-                        <option value="PUBLICADA"
-                            {% if not publicacion or publicacion[13] == 'PUBLICADA' %}selected{% endif %}>
-                            PUBLICADA
-                        </option>
+                            <option
+                                value="FINALIZADA"
+                                {% if publicacion and publicacion[13] == 'FINALIZADA' %}
+                                    selected
+                                {% endif %}
+                            >
+                                FINALIZADA
+                            </option>
 
-                        <option value="FINALIZADA"
-                            {% if publicacion and publicacion[13] == 'FINALIZADA' %}selected{% endif %}>
-                            FINALIZADA
-                        </option>
-
-                        <option value="ANULADA"
-                            {% if publicacion and publicacion[13] == 'ANULADA' %}selected{% endif %}>
-                            ANULADA
-                        </option>
-
-                    </select>
+                            <option
+                                value="ANULADA"
+                                {% if publicacion and publicacion[13] == 'ANULADA' %}
+                                    selected
+                                {% endif %}
+                            >
+                                ANULADA
+                            </option>
+                        </select>
                     </div>
-                 
+
 
                     <div class="col-md-4 mb-3">
-
                         <label class="d-block">
                             Notificado
                         </label>
 
                         <div class="form-check mt-2">
-                            <input type="checkbox"
-                                    name="notificado"
-                                    class="form-check-input"
-                                    id="notificado"
-                                    {% if publicacion and publicacion[11] %}checked{% endif %}>
+                            <input
+                                type="checkbox"
+                                name="notificado"
+                                class="form-check-input"
+                                id="notificado"
+                                {% if publicacion and publicacion[11] %}
+                                    checked
+                                {% endif %}
+                            >
 
-                            <label class="form-check-label"
-                                   for="notificado">
+                            <label
+                                class="form-check-label"
+                                for="notificado"
+                            >
                                 Sí
                             </label>
                         </div>
-
                     </div>
 
-                    <div class="col-md-4 mb-3">
 
+                    <div class="col-md-4 mb-3">
                         <label class="d-block">
                             OC subida
                         </label>
 
                         <div class="form-check mt-2">
-                            <input type="checkbox"
-                                    name="oc_subida"
-                                    class="form-check-input"
-                                    id="ocSubida"
-                                    {% if publicacion and publicacion[12] %}checked{% endif %}>
+                            <input
+                                type="checkbox"
+                                name="oc_subida"
+                                class="form-check-input"
+                                id="ocSubida"
+                                {% if publicacion and publicacion[12] %}
+                                    checked
+                                {% endif %}
+                            >
 
-                            <label class="form-check-label"
-                                   for="ocSubida">
+                            <label
+                                class="form-check-label"
+                                for="ocSubida"
+                            >
                                 Sí
                             </label>
                         </div>
-
                     </div>
 
                     <div class="col-md-12 mb-3">
