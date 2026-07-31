@@ -91,10 +91,12 @@
 
                     <div class="col-md-4 mb-3">
                         <label>Tipo de publicación</label>
-                        <input type="email"
-                                name="correo"
-                                class="form-control"
-                                value="{{ publicacion[6] if publicacion else '' }}">
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="tipo_publicacion"
+                            value="{{ publicacion[7] if publicacion else '' }}"
+                        >
                     </div>
 
                     <div class="col-md-6 mb-3">
