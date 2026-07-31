@@ -5473,6 +5473,8 @@ def editar_publicacion_necesidad(publicacion_id):
         items=items,
         unidades=unidades
     )
+
+
 # ==========================================
 # VISTA PREVIA DE MATRIZ DE PUBLICACIONES
 # NO MODIFICA LA BASE DE DATOS
@@ -5935,6 +5937,15 @@ def importar_publicaciones_confirmado():
                     "No se pudo eliminar el archivo temporal:",
                     error_archivo
                 )
+
+# ==========================================
+# ACTUALIZAR PUBLICACIÓN DE NECESIDAD
+# ==========================================
+@main.route(
+    "/publicaciones_necesidad/<int:publicacion_id>/actualizar",
+    methods=["POST"]
+)
+@login_required()
 def actualizar_publicacion_necesidad(publicacion_id):
 
     conn = get_connection()
@@ -5951,14 +5962,23 @@ def actualizar_publicacion_necesidad(publicacion_id):
         tipo_publicacion = request.form.get("tipo_publicacion")
         unidad_requirente = request.form.get("unidad_requirente")
         codigo_publicacion = request.form.get("codigo_publicacion")
-        numero_publicacion = request.form.get("numero_publicacion") or 1
+        numero_publicacion = (
+            request.form.get("numero_publicacion") or 1
+        )
         estado = request.form.get("estado")
         observaciones = request.form.get("observaciones")
 
-        notificado = request.form.get("notificado") == "on"
-        oc_subida = request.form.get("oc_subida") == "on"
+        notificado = (
+            request.form.get("notificado") == "on"
+        )
 
-        # Actualizar cabecera
+        oc_subida = (
+            request.form.get("oc_subida") == "on"
+        )
+
+        # ==========================================
+        # ACTUALIZAR CABECERA
+        # ==========================================
         cur.execute("""
             UPDATE publicaciones_necesidad
             SET
@@ -5995,29 +6015,66 @@ def actualizar_publicacion_necesidad(publicacion_id):
             publicacion_id
         ))
 
-        # Borrar items anteriores
+        # ==========================================
+        # BORRAR ÍTEMS ANTERIORES
+        # ==========================================
         cur.execute("""
             DELETE FROM publicacion_items
             WHERE publicacion_id = %s
         """, (publicacion_id,))
 
-        # Recibir items del formulario
+        # ==========================================
+        # RECIBIR ÍTEMS DEL FORMULARIO
+        # ==========================================
         cpcs = request.form.getlist("item_cpc[]")
-        descripciones = request.form.getlist("item_descripcion[]")
-        cantidades = request.form.getlist("item_cantidad[]")
-        unidades_items = request.form.getlist("item_unidad[]")
-        formas_pago = request.form.getlist("item_forma_pago[]")
 
-        # Volver a guardar items
+        descripciones = request.form.getlist(
+            "item_descripcion[]"
+        )
+
+        cantidades = request.form.getlist(
+            "item_cantidad[]"
+        )
+
+        unidades_items = request.form.getlist(
+            "item_unidad[]"
+        )
+
+        formas_pago = request.form.getlist(
+            "item_forma_pago[]"
+        )
+
+        # ==========================================
+        # VOLVER A GUARDAR LOS ÍTEMS
+        # ==========================================
         for i, descripcion in enumerate(descripciones):
 
             if not descripcion.strip():
                 continue
 
-            cpc = cpcs[i] if i < len(cpcs) else None
-            cantidad = cantidades[i] if i < len(cantidades) else None
-            unidad_item = unidades_items[i] if i < len(unidades_items) else None
-            forma_pago = formas_pago[i] if i < len(formas_pago) else None
+            cpc = (
+                cpcs[i]
+                if i < len(cpcs)
+                else None
+            )
+
+            cantidad = (
+                cantidades[i]
+                if i < len(cantidades)
+                else None
+            )
+
+            unidad_item = (
+                unidades_items[i]
+                if i < len(unidades_items)
+                else None
+            )
+
+            forma_pago = (
+                formas_pago[i]
+                if i < len(formas_pago)
+                else None
+            )
 
             cantidad = cantidad or None
 
@@ -6051,7 +6108,10 @@ def actualizar_publicacion_necesidad(publicacion_id):
 
         conn.rollback()
 
-        print("ERROR ACTUALIZANDO PUBLICACIÓN:", e)
+        print(
+            "ERROR ACTUALIZANDO PUBLICACIÓN:",
+            e
+        )
 
         flash(
             f"❌ Error al actualizar la publicación: {e}",
@@ -6059,6 +6119,7 @@ def actualizar_publicacion_necesidad(publicacion_id):
         )
 
     finally:
+
         cur.close()
         conn.close()
 
@@ -6068,6 +6129,7 @@ def actualizar_publicacion_necesidad(publicacion_id):
             publicacion_id=publicacion_id
         )
     )
+
 # ==========================================
 # CONSULTA RÁPIDA DE PUBLICACIONES
 # ==========================================
@@ -6139,15 +6201,6 @@ def consulta_publicaciones_necesidad():
         busqueda=busqueda,
         resultados=resultados
     )
-# ==========================================
-# VISTA PREVIA DE MATRIZ DE PUBLICACIONES
-# NO MODIFICA LA BASE DE DATOS
-# ==========================================
-@main.route(
-    "/publicaciones_necesidad/vista_previa_excel",
-    methods=["GET", "POST"]
-)
-@login_required()
 # ==========================================
 # LEER MATRIZ EXCEL DE PUBLICACIONES
 # ==========================================
