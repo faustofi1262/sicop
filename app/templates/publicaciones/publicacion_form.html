@@ -42,12 +42,15 @@
                 <div class="row">
 
                     <div class="col-md-4 mb-3">
-                        <label>N.º solicitud</label>
-                        <input type="text"
-                            name="numero_solicitud"
-                            class="form-control"
-                            value="{{ publicacion[1] if publicacion else '' }}">
-                    </div>
+                    <label>N.º solicitud</label>
+
+                    <input
+                        type="text"
+                        name="numero_solicitud"
+                        class="form-control"
+                        value="{{ publicacion[1] if publicacion else numero_solicitud }}"
+                        readonly>
+                </div>
 
                     <div class="col-md-4 mb-3">
                         <label>Fecha de publicación</label>

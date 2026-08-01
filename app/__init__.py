@@ -7,6 +7,8 @@ def create_app():
 
     from .routes import main
     app.register_blueprint(main)
-
+    from app.inteligencia_routes import inteligencia
+    app.register_blueprint(inteligencia)
+    
     return app
 

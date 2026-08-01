@@ -41,7 +41,137 @@
 
     </div>
 
+<div class="card shadow-sm mb-4">
 
+    <div class="card-header bg-light">
+        <strong>🔎 Filtros de búsqueda</strong>
+    </div>
+
+    <div class="card-body">
+
+        <form
+            method="GET"
+            action="{{ url_for('main.publicaciones_necesidad') }}"
+        >
+
+            <div class="row">
+
+                <div class="col-md-4 mb-3">
+
+                    <label>Código de publicación</label>
+
+                    <input
+                        type="text"
+                        name="codigo_publicacion"
+                        class="form-control"
+                        value="{{ codigo_publicacion or '' }}"
+                        placeholder="Ingrese el código"
+                    >
+
+                </div>
+
+
+                <div class="col-md-4 mb-3">
+
+                    <label>Unidad requirente</label>
+
+                    <select
+                        name="unidad_requirente"
+                        class="form-control"
+                    >
+
+                        <option value="">
+                            Todas las unidades
+                        </option>
+
+                        {% for unidad in unidades_filtro %}
+
+                            <option
+                                value="{{ unidad[0] }}"
+                                {% if unidad_requirente == unidad[0] %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ unidad[0] }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <div class="col-md-4 mb-3">
+
+                    <label>Estado</label>
+
+                    <select
+                        name="estado"
+                        class="form-control"
+                    >
+
+                        <option value="">
+                            Todos los estados
+                        </option>
+
+                        <option
+                            value="PUBLICADA"
+                            {% if estado == "PUBLICADA" %}
+                                selected
+                            {% endif %}
+                        >
+                            PUBLICADA
+                        </option>
+
+                        <option
+                            value="FINALIZADA"
+                            {% if estado == "FINALIZADA" %}
+                                selected
+                            {% endif %}
+                        >
+                            FINALIZADA
+                        </option>
+
+                        <option
+                            value="ANULADA"
+                            {% if estado == "ANULADA" %}
+                                selected
+                            {% endif %}
+                        >
+                            ANULADA
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="d-flex justify-content-end">
+
+                <a
+                    href="{{ url_for('main.publicaciones_necesidad') }}"
+                    class="btn btn-secondary mr-2"
+                >
+                    🧹 Limpiar
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    🔎 Filtrar
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
     <div class="card shadow-sm">
 
         <div class="card-header bg-dark text-white">
@@ -160,27 +290,51 @@
 
                             </td>
 
-                            <td style="white-space: nowrap; min-width: 270px;">
+                            <td style="min-width: 210px;">
+
+                            <div class="mb-1">
 
                                 <a href="{{ url_for('main.publicacion_necesidad_detalle', publicacion_id=p[0]) }}"
-                                class="btn btn-sm btn-info mr-1 mb-1">
+                                class="btn btn-sm btn-info mr-1">
                                     👁 Ver
                                 </a>
 
-                                <a href="{{ url_for(
-                                    'main.editar_publicacion_necesidad',
-                                    publicacion_id=p[0]
-                                ) }}"
-                                class="btn btn-sm btn-warning mr-1 mb-1">
-                                    ✏️ Editar
+                                <a href="{{ url_for('main.editar_publicacion_necesidad',
+                                                    publicacion_id=p[0]) }}"
+                                class="btn btn-sm btn-warning">
+                                    ✏ Editar
                                 </a>
 
-                                <a href="{{ url_for('main.publicacion_necesidad_detalle', publicacion_id=p[0]) }}#proformas"
-                                class="btn btn-sm btn-success mb-1">
+                            </div>
+
+                            <div>
+
+                                <form
+                                    action="{{ url_for('main.eliminar_publicacion_necesidad',
+                                                    publicacion_id=p[0]) }}"
+                                    method="POST"
+                                    style="display:inline;">
+
+                                    <button
+                                        type="submit"
+                                        class="btn btn-sm btn-danger mr-1"
+                                        onclick="return confirm('¿Está seguro de eliminar esta publicación?\n\nTambién se eliminarán todos los ítems y las proformas asociadas.')">
+
+                                        🗑 Eliminar
+
+                                    </button>
+
+                                </form>
+
+                                <a href="{{ url_for('main.publicacion_necesidad_detalle',
+                                                    publicacion_id=p[0]) }}#proformas"
+                                class="btn btn-sm btn-success">
                                     ➕ Proformas
                                 </a>
 
-                            </td>
+                            </div>
+
+                        </td>
                             
 
                         </tr>

@@ -36,6 +36,7 @@ from datetime import date, datetime
 from openpyxl import load_workbook
 
 from werkzeug.utils import secure_filename
+from app.database import get_connection
 
 def valor_en_letras_con_decimales(valor):
     valor = Decimal(valor).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
@@ -60,9 +61,6 @@ main = Blueprint(
     __name__,
     template_folder="../templates"
 )
-
-def get_connection():
-    return psycopg2.connect(os.getenv("DATABASE_URL"))
 
 # 🔐 AQUÍ VA EL DECORADOR 
 def login_required(role=None):
@@ -4824,10 +4822,67 @@ def volver_panel():
 @login_required()
 def publicaciones_necesidad():
 
+    codigo_publicacion = request.args.get(
+        "codigo_publicacion",
+        ""
+    ).strip()
+
+    unidad_requirente = request.args.get(
+        "unidad_requirente",
+        ""
+    ).strip()
+
+    estado = request.args.get(
+        "estado",
+        ""
+    ).strip()
+
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("""
+    condiciones = []
+    parametros = []
+
+    if codigo_publicacion:
+
+        condiciones.append(
+            "p.codigo_publicacion ILIKE %s"
+        )
+
+        parametros.append(
+            f"%{codigo_publicacion}%"
+        )
+
+    if unidad_requirente:
+
+        condiciones.append(
+            "p.unidad_requirente = %s"
+        )
+
+        parametros.append(
+            unidad_requirente
+        )
+
+    if estado:
+
+        condiciones.append(
+            "p.estado = %s"
+        )
+
+        parametros.append(
+            estado
+        )
+
+    where_sql = ""
+
+    if condiciones:
+
+        where_sql = (
+            "WHERE "
+            + " AND ".join(condiciones)
+        )
+
+    consulta = f"""
         SELECT
             p.id,
             p.codigo_publicacion,
@@ -4839,8 +4894,12 @@ def publicaciones_necesidad():
             p.estado,
             COUNT(pr.id) AS total_proformas
         FROM publicaciones_necesidad p
+
         LEFT JOIN proformas_publicacion pr
             ON pr.publicacion_id = p.id
+
+        {where_sql}
+
         GROUP BY
             p.id,
             p.codigo_publicacion,
@@ -4850,20 +4909,44 @@ def publicaciones_necesidad():
             p.fecha_limite,
             p.numero_publicacion,
             p.estado
+
         ORDER BY
             p.fecha_publicacion DESC,
             p.id DESC
-    """)
+    """
+
+    cur.execute(
+        consulta,
+        tuple(parametros)
+    )
 
     publicaciones = cur.fetchall()
+
+    # ==========================================
+    # UNIDADES PARA EL FILTRO
+    # ==========================================
+    cur.execute("""
+        SELECT DISTINCT unidad_requirente
+        FROM publicaciones_necesidad
+        WHERE unidad_requirente IS NOT NULL
+          AND unidad_requirente <> ''
+        ORDER BY unidad_requirente
+    """)
+
+    unidades_filtro = cur.fetchall()
 
     cur.close()
     conn.close()
 
     return render_template(
         "publicaciones/publicaciones_list.html",
-        publicaciones=publicaciones
+        publicaciones=publicaciones,
+        unidades_filtro=unidades_filtro,
+        codigo_publicacion=codigo_publicacion,
+        unidad_requirente=unidad_requirente,
+        estado=estado
     )
+
 # ==========================================
 # NUEVA PUBLICACIÓN DE NECESIDAD
 # ==========================================
@@ -4873,7 +4956,21 @@ def publicacion_necesidad_nueva():
 
     conn = get_connection()
     cur = conn.cursor()
+    # ==========================================
+    # OBTENER EL SIGUIENTE NÚMERO DE SOLICITUD
+    # ==========================================
+    cur.execute("""
+        SELECT COALESCE(
+            MAX(CAST(numero_solicitud AS INTEGER)),
+            0
+        )
+        FROM publicaciones_necesidad
+        WHERE numero_solicitud ~ '^[0-9]+$'
+    """)
 
+    ultimo_numero = cur.fetchone()[0]
+
+    numero_solicitud = ultimo_numero + 1
     # Unidades institucionales
     cur.execute("""
         SELECT id, nombre_unidad
@@ -4889,7 +4986,8 @@ def publicacion_necesidad_nueva():
         "publicaciones/publicacion_form.html",
         unidades=unidades,
         publicacion=None,
-        items=[]
+        items=[],
+        numero_solicitud=numero_solicitud
     )
 # ==========================================
 # GUARDAR PUBLICACIÓN DE NECESIDAD
@@ -5474,7 +5572,85 @@ def editar_publicacion_necesidad(publicacion_id):
         items=items,
         unidades=unidades
     )
+# ==========================================
+# ELIMINAR PUBLICACIÓN
+# ==========================================
+@main.route(
+    "/publicaciones_necesidad/<int:publicacion_id>/eliminar",
+    methods=["POST"]
+)
+@login_required()
+def eliminar_publicacion_necesidad(publicacion_id):
 
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+
+        # ==========================================
+        # ELIMINAR PROFORMAS
+        # ==========================================
+        cur.execute("""
+            DELETE
+            FROM proformas_publicacion
+            WHERE publicacion_id = %s
+        """, (
+            publicacion_id,
+        ))
+
+        # ==========================================
+        # ELIMINAR ITEMS
+        # ==========================================
+        cur.execute("""
+            DELETE
+            FROM publicacion_items
+            WHERE publicacion_id = %s
+        """, (
+            publicacion_id,
+        ))
+
+        # ==========================================
+        # ELIMINAR PUBLICACIÓN
+        # ==========================================
+        cur.execute("""
+            DELETE
+            FROM publicaciones_necesidad
+            WHERE id = %s
+        """, (
+            publicacion_id,
+        ))
+
+        conn.commit()
+
+        flash(
+            "✅ Publicación eliminada correctamente.",
+            "success"
+        )
+
+    except Exception as e:
+
+        conn.rollback()
+
+        print(
+            "ERROR ELIMINANDO PUBLICACIÓN:",
+            e
+        )
+
+        flash(
+            f"❌ Error al eliminar la publicación: {e}",
+            "danger"
+        )
+
+    finally:
+
+        cur.close()
+        conn.close()
+
+    return redirect(
+        url_for(
+            "main.publicaciones_necesidad"
+        )
+    )
 
 # ==========================================
 # VISTA PREVIA DE MATRIZ DE PUBLICACIONES
