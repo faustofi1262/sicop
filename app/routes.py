@@ -36,6 +36,7 @@ from datetime import date, datetime
 from openpyxl import load_workbook
 
 from werkzeug.utils import secure_filename
+from app.decorators import login_required
 from app.database import get_connection
 
 def valor_en_letras_con_decimales(valor):
@@ -61,19 +62,6 @@ main = Blueprint(
     __name__,
     template_folder="../templates"
 )
-
-# 🔐 AQUÍ VA EL DECORADOR 
-def login_required(role=None):
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            if "user_id" not in session:
-                return redirect(url_for("main.login_form"))
-            if role and session.get("rol") != role:
-                return redirect(url_for("main.login_form"))
-            return func(*args, **kwargs)
-        wrapper.__name__ = func.__name__
-        return wrapper
-    return decorator
 
 @main.route("/", methods=["GET"])
 def inicio():
@@ -122,17 +110,12 @@ def login():
     session["usuario"] = user_usuario
     session["rol"] = rol
 
-#==========================
-# DIRECCIONAMIENTO DE ROLES
-#==========================
-# 🔀 Redirección por rol
-
-    if rol.lower() == "administrador":
-        return redirect(url_for("main.admin_dashboard"))
-    elif rol.lower() == "analista":
-        return redirect(url_for("main.analista_dashboard"))
-    else:
-        return redirect(url_for("main.user_dashboard"))
+# ==========================================
+# TODOS INGRESAN AL CENTRO DE INTELIGENCIA
+# ==========================================
+    return redirect(
+        url_for("inteligencia.centro_inteligencia")
+    )
 
 
 @main.route("/admin")
@@ -197,7 +180,7 @@ def panel_principal():
     elif rol == "usuario":
         return redirect(url_for("main.user_dashboard"))
 
-    return redirect(url_for("auth.login"))
+    return redirect(url_for("main.login_form"))
 #===================
 # CREAR USUARIO
 #===================
@@ -2654,10 +2637,31 @@ def informe_verificacion(id_tarea):
             
         )
   
+# ==========================================
+# CERRAR SESIÓN
+# ==========================================
 @main.route("/logout")
 def logout():
+
     session.clear()
-    return redirect(url_for("main.login_form"))
+
+    response = redirect(
+        url_for("main.inicio")
+    )
+
+    response.headers[
+        "Cache-Control"
+    ] = "no-store, no-cache, must-revalidate, max-age=0"
+
+    response.headers[
+        "Pragma"
+    ] = "no-cache"
+
+    response.headers[
+        "Expires"
+    ] = "0"
+
+    return response
 # =========================
 # EXPEDIENTE ELECTRÓNICO
 # =========================

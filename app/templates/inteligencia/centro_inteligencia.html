@@ -2,19 +2,652 @@
 
 {% block content %}
 
-<div class="container mt-4">
+<style>
+    .intel-brand {
+        max-width: 930px;
+    }
 
-    <h2>
-        🧠 Centro de Inteligencia SICOP
-    </h2>
+    .intel-brand-line {
+        margin-bottom: 20px;
+        color: #7fc2ff;
+        font-size: 2.40rem;
+        font-weight: 600;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+    }
 
-    <p class="text-muted">
-        Arquitectura inteligente para trazabilidad,
-        analítica y apoyo a la gestión.
-    </p>
+    .intel-title {
+        max-width: 900px;
+        margin: 0;
+        color: #ffffff;
+        font-size: 1.1rem;
+        font-weight: 800;
+        line-height: 1.10;
+        color: #fff;
+    }
 
-    <div class="alert alert-success">
-        El nuevo módulo de inteligencia está funcionando.
+    .intel-title-divider {
+        width: 800px;
+        height: 3px;
+        margin: 18px 0;
+        border-radius: 10px;
+        background: linear-gradient(90deg,
+                #4ea1ff,
+                #35d0d8);
+    }
+
+    .intel-subtitle {
+        max-width: 900px;
+        margin: 0;
+        color: #b8cada;
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+
+    .intel-slogan {
+        margin-top: 12px;
+        margin-bottom: 0;
+        color: #79d8ff;
+        font-size: 1.53rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .intel-header-actions {
+        display: flex;
+        align-items: flex-end;
+        flex-direction: column;
+        gap: 14px;
+        min-width: 220px;
+    }
+
+    .intel-back-button {
+        padding: 10px 18px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 30px;
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.07);
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .intel-back-button:hover {
+        border-color: #5aa9ff;
+        color: #ffffff;
+        background: rgba(78, 161, 255, 0.18);
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+
+    .intel-system-status {
+        min-width: 220px;
+        padding: 13px 17px;
+        border: 1px solid rgba(84, 217, 140, 0.32);
+        border-radius: 16px;
+        background: rgba(33, 150, 83, 0.12);
+    }
+
+    .intel-status-line {
+        display: flex;
+        align-items: center;
+        color: #8ff0b6;
+        font-size: 0.92rem;
+        font-weight: 600;
+    }
+
+    .intel-status-dot {
+        width: 9px;
+        height: 9px;
+        margin-right: 9px;
+        border-radius: 50%;
+        background: #63ef9e;
+        box-shadow: 0 0 12px rgba(99, 239, 158, 0.9);
+    }
+
+    .intel-status-detail {
+        margin-top: 8px;
+        padding-left: 0;
+        color: #b8cada;
+        font-size: 0.82rem;
+    }
+
+    .intel-page {
+        min-height: 100vh;
+        padding: 28px;
+        background:
+            radial-gradient(circle at top right,
+                rgba(26, 115, 232, 0.20),
+                transparent 32%),
+            linear-gradient(135deg,
+                #07182b 0%,
+                #0b2744 48%,
+                #071523 100%);
+        color: #ffffff;
+    }
+
+    .intel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 28px;
+    }
+
+    .intel-title {
+        margin: 0;
+        font-size: 2.15rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+
+    .intel-subtitle {
+        margin-top: 8px;
+        margin-bottom: 0;
+        color: #a9bdd0;
+        font-size: 1rem;
+    }
+
+    .intel-status {
+        padding: 10px 16px;
+        border: 1px solid rgba(101, 211, 161, 0.35);
+        border-radius: 30px;
+        background: rgba(33, 150, 83, 0.15);
+        color: #8ff0b6;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+
+    .metric-card {
+        position: relative;
+        height: 100%;
+        min-height: 165px;
+        padding: 22px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.07);
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.24);
+        backdrop-filter: blur(10px);
+        transition:
+            transform 0.25s ease,
+            border-color 0.25s ease,
+            box-shadow 0.25s ease;
+    }
+
+    .metric-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(94, 170, 255, 0.50);
+        box-shadow: 0 24px 55px rgba(0, 0, 0, 0.34);
+    }
+
+    .metric-card::after {
+        content: "";
+        position: absolute;
+        right: -45px;
+        bottom: -55px;
+        width: 145px;
+        height: 145px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    .metric-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .metric-icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        font-size: 1.45rem;
+        background: rgba(255, 255, 255, 0.11);
+    }
+
+    .metric-label {
+        margin-top: 18px;
+        color: #b8cada;
+        font-size: 0.92rem;
+        text-transform: uppercase;
+        letter-spacing: 0.7px;
+    }
+
+    .metric-value {
+        margin-top: 4px;
+        margin-bottom: 0;
+        font-size: 2.35rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .metric-detail {
+        margin-top: 12px;
+        margin-bottom: 0;
+        color: #8ea6ba;
+        font-size: 0.82rem;
+    }
+
+    .metric-card.blue {
+        border-top: 3px solid #4ea1ff;
+    }
+
+    .metric-card.cyan {
+        border-top: 3px solid #35d0d8;
+    }
+
+    .metric-card.orange {
+        border-top: 3px solid #ffb347;
+    }
+
+    .metric-card.green {
+        border-top: 3px solid #54d98c;
+    }
+
+    .metric-card.purple {
+        border-top: 3px solid #a989ff;
+    }
+
+    .metric-card.red {
+        border-top: 3px solid #ff667a;
+    }
+
+    .intel-panel {
+        margin-top: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        border-radius: 20px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.055);
+        box-shadow: 0 20px 55px rgba(0, 0, 0, 0.27);
+        backdrop-filter: blur(10px);
+    }
+
+    .intel-panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 19px 22px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+        background: rgba(0, 0, 0, 0.13);
+    }
+
+    .intel-panel-title {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 600;
+    }
+
+    .intel-panel-caption {
+        color: #8fa7ba;
+        font-size: 0.84rem;
+    }
+
+    .trace-flow {
+        display: grid;
+        grid-template-columns:
+            repeat(7, minmax(120px, 1fr));
+        gap: 14px;
+        padding: 28px 22px;
+        overflow-x: auto;
+    }
+
+    .trace-step {
+        position: relative;
+        min-width: 120px;
+        padding: 18px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 15px;
+        background: rgba(5, 18, 32, 0.58);
+        text-align: center;
+    }
+
+    .trace-step:not(:last-child)::after {
+        content: "→";
+        position: absolute;
+        top: 50%;
+        right: -20px;
+        color: #5aa9ff;
+        font-size: 1.4rem;
+        transform: translateY(-50%);
+    }
+
+    .trace-icon {
+        margin-bottom: 9px;
+        font-size: 1.45rem;
+    }
+
+    .trace-label {
+        color: #dce8f3;
+        font-size: 0.87rem;
+        font-weight: 600;
+    }
+
+    .intel-footer-note {
+        padding: 0 22px 24px;
+        color: #8fa7ba;
+        font-size: 0.88rem;
+        text-align: center;
+    }
+
+    @media (max-width: 992px) {
+        .intel-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .trace-flow {
+            grid-template-columns:
+                repeat(7, minmax(145px, 1fr));
+        }
+
+        .intel-header-actions {
+            align-items: flex-start;
+            width: 100%;
+        }
+
+        .intel-system-status {
+            width: 100%;
+        }
+    }
+</style>
+
+
+<div class="intel-page">
+
+    <div class="intel-header">
+
+        <div class="intel-header">
+
+            <div class="intel-brand">
+
+                <div class="intel-brand-line">
+                    🧠 Centro de Inteligencia SICOP
+                </div>
+
+                <h1 class="intel-title">
+                    Arquitectura Inteligente<br>
+
+                    <span class="intel-title-small">
+                        para la Trazabilidad, Analítica y Gestión<br>
+                        de la Contratación Pública
+                    </span>
+                </h1>
+
+                <div class="intel-title-divider"></div>
+
+                <p class="intel-subtitle">
+                    Plataforma inteligente para el análisis, seguimiento
+                    y apoyo a la toma de decisiones durante todo el ciclo
+                    de la contratación pública.
+                </p>
+
+                <p class="intel-slogan">
+                    Del dato a la decisión.
+                </p>
+
+            </div>
+
+
+            <div class="intel-header-actions">
+
+                <a href="{{ url_for('main.panel_principal') }}" class="intel-back-button">
+                    MENU PRINCIPAL SICOP
+                </a>
+
+                <div class="intel-system-status">
+
+                    <div class="intel-status-line">
+                        🧠 Estado del Centro
+                    </div>
+
+                    <div class="intel-status-detail">
+                        🟢 Motor Inteligente Activo
+                    </div>
+
+                    <div class="intel-status-detail">
+                        Base de datos sincronizada
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="row">
+
+        <div class="col-xl-2 col-lg-4 col-md-6 mb-4">
+            <div class="metric-card blue">
+
+                <div class="metric-top">
+                    <div class="metric-icon">
+                        📄
+                    </div>
+                </div>
+
+                <div class="metric-label">
+                    Requerimientos
+                </div>
+
+                <h2 class="metric-value">
+                    {{ total_requerimientos }}
+                </h2>
+
+                <p class="metric-detail">
+                    Solicitudes registradas
+                </p>
+
+            </div>
+        </div>
+
+
+        <div class="col-xl-2 col-lg-4 col-md-6 mb-4">
+            <div class="metric-card cyan">
+
+                <div class="metric-top">
+                    <div class="metric-icon">
+                        📋
+                    </div>
+                </div>
+
+                <div class="metric-label">
+                    Tareas
+                </div>
+
+                <h2 class="metric-value">
+                    {{ total_tareas }}
+                </h2>
+
+                <p class="metric-detail">
+                    Procesos asignados
+                </p>
+
+            </div>
+        </div>
+
+
+        <div class="col-xl-2 col-lg-4 col-md-6 mb-4">
+            <div class="metric-card orange">
+
+                <div class="metric-top">
+                    <div class="metric-icon">
+                        📢
+                    </div>
+                </div>
+
+                <div class="metric-label">
+                    Publicaciones
+                </div>
+
+                <h2 class="metric-value">
+                    {{ total_publicaciones }}
+                </h2>
+
+                <p class="metric-detail">
+                    Publicaciones históricas
+                </p>
+
+            </div>
+        </div>
+
+
+        <div class="col-xl-2 col-lg-4 col-md-6 mb-4">
+            <div class="metric-card green">
+
+                <div class="metric-top">
+                    <div class="metric-icon">
+                        📦
+                    </div>
+                </div>
+
+                <div class="metric-label">
+                    Órdenes de compra
+                </div>
+
+                <h2 class="metric-value">
+                    {{ total_ordenes }}
+                </h2>
+
+                <p class="metric-detail">
+                    Órdenes generadas
+                </p>
+
+            </div>
+        </div>
+
+
+        <div class="col-xl-2 col-lg-4 col-md-6 mb-4">
+            <div class="metric-card purple">
+
+                <div class="metric-top">
+                    <div class="metric-icon">
+                        📑
+                    </div>
+                </div>
+
+                <div class="metric-label">
+                    Contratos
+                </div>
+
+                <h2 class="metric-value">
+                    {{ total_contratos }}
+                </h2>
+
+                <p class="metric-detail">
+                    Contratos registrados
+                </p>
+
+            </div>
+        </div>
+
+
+        <div class="col-xl-2 col-lg-4 col-md-6 mb-4">
+            <div class="metric-card red">
+
+                <div class="metric-top">
+                    <div class="metric-icon">
+                        🚨
+                    </div>
+                </div>
+
+                <div class="metric-label">
+                    Alertas
+                </div>
+
+                <h2 class="metric-value">
+                    {{ total_alertas }}
+                </h2>
+
+                <p class="metric-detail">
+                    Casos que requieren revisión
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="intel-panel">
+
+        <div class="intel-panel-header">
+
+            <h3 class="intel-panel-title">
+                🧭 Flujo inteligente de trazabilidad
+            </h3>
+
+            <span class="intel-panel-caption">
+                Ciclo integral del proceso
+            </span>
+
+        </div>
+
+
+        <div class="trace-flow">
+
+            <div class="trace-step">
+                <div class="trace-icon">📄</div>
+                <div class="trace-label">
+                    Requerimiento
+                </div>
+            </div>
+
+            <div class="trace-step">
+                <div class="trace-icon">📋</div>
+                <div class="trace-label">
+                    Tarea
+                </div>
+            </div>
+
+            <div class="trace-step">
+                <div class="trace-icon">📢</div>
+                <div class="trace-label">
+                    Publicación
+                </div>
+            </div>
+
+            <div class="trace-step">
+                <div class="trace-icon">💰</div>
+                <div class="trace-label">
+                    Proformas
+                </div>
+            </div>
+
+            <div class="trace-step">
+                <div class="trace-icon">📦</div>
+                <div class="trace-label">
+                    Orden de compra
+                </div>
+            </div>
+
+            <div class="trace-step">
+                <div class="trace-icon">📑</div>
+                <div class="trace-label">
+                    Contrato
+                </div>
+            </div>
+
+            <div class="trace-step">
+                <div class="trace-icon">📍</div>
+                <div class="trace-label">
+                    Seguimiento
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="intel-footer-note">
+            Esta vista evolucionará para mostrar el estado real,
+            tiempos, alertas y trazabilidad individual de cada proceso.
+        </div>
+
     </div>
 
 </div>

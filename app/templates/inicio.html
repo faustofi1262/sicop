@@ -2,63 +2,663 @@
 
 {% block content %}
 
-<div class="container-fluid vh-100">
+<style>
+    .inicio-page {
+        min-height: 100vh;
+        padding: 40px 24px;
+        background:
+            radial-gradient(circle at top right,
+                rgba(35, 129, 255, 0.22),
+                transparent 30%),
+            linear-gradient(135deg,
+                #07182b 0%,
+                #0b2744 52%,
+                #071523 100%);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-    <div class="row justify-content-center align-items-center h-100">
+    .inicio-shell {
+        width: 100%;
+        max-width: 1180px;
+        display: grid;
+        grid-template-columns: 1.25fr 0.75fr;
+        gap: 30px;
+        align-items: stretch;
+    }
 
-        <div class="col-md-8">
+    .inicio-main,
+    .inicio-side {
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.065);
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.30);
+        backdrop-filter: blur(12px);
+    }
 
-            <div class="card shadow-lg p-4">        
-            <img src="{{ url_for('static',
-                    filename='logo.png') }}"
-                    width="150"
-                    class="mb-2">
+    .inicio-main {
+        padding: 42px;
+    }
 
-            <h1 class="fw-bold">
-                SICOP
+    .inicio-side {
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .inicio-brand {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+
+    .inicio-logo {
+        width: 92px;
+        height: 92px;
+        object-fit: contain;
+        padding: 10px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+    }
+
+    .inicio-brand-text {
+        margin: 0;
+        color: #7fc2ff;
+        font-size: 0.95rem;
+        font-weight: 700;
+        letter-spacing: 0.9px;
+        text-transform: uppercase;
+    }
+
+    .inicio-title {
+        margin: 0;
+        max-width: 760px;
+        font-size: 3rem;
+        font-weight: 800;
+        line-height: 1.08;
+        letter-spacing: -0.7px;
+    }
+
+    .inicio-title-small {
+        display: block;
+        margin-top: 12px;
+        color: #d9e7f4;
+        font-size: 1.85rem;
+        font-weight: 600;
+        line-height: 1.25;
+    }
+
+    .inicio-divider {
+        width: 300px;
+        height: 4px;
+        margin: 24px 0;
+        border-radius: 10px;
+        background: linear-gradient(90deg,
+                #4ea1ff,
+                #35d0d8);
+    }
+
+    .inicio-description {
+        max-width: 760px;
+        margin: 0;
+        color: #b8cada;
+        font-size: 1.02rem;
+        line-height: 1.7;
+    }
+
+    .inicio-slogan {
+        margin-top: 18px;
+        margin-bottom: 0;
+        color: #69d7ff;
+        font-size: 1.05rem;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+    }
+
+    .inicio-actions {
+        margin-top: 34px;
+    }
+
+    .btn-ingresar {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 14px 28px;
+        border: 1px solid rgba(92, 176, 255, 0.50);
+        border-radius: 999px;
+        color: #ffffff;
+        background: linear-gradient(90deg,
+                #2478d8,
+                #1ca6c7);
+        font-size: 1rem;
+        font-weight: 700;
+        text-decoration: none;
+        box-shadow: 0 14px 34px rgba(20, 104, 180, 0.30);
+        transition: all 0.22s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-ingresar:hover {
+        color: #ffffff;
+        text-decoration: none;
+        transform: translateY(-3px);
+        box-shadow: 0 20px 42px rgba(20, 104, 180, 0.42);
+    }
+
+    .institucion-block {
+        padding: 22px;
+        border-radius: 18px;
+        background: rgba(4, 19, 34, 0.42);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .institucion-label {
+        margin-bottom: 8px;
+        color: #7fc2ff;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+    }
+
+    .institucion-title {
+        margin: 0;
+        font-size: 1.28rem;
+        font-weight: 700;
+        line-height: 1.35;
+    }
+
+    .institucion-subtitle {
+        margin-top: 8px;
+        margin-bottom: 0;
+        color: #9fb5c7;
+        font-size: 0.92rem;
+        line-height: 1.5;
+    }
+
+    .estado-centro {
+        margin-top: 24px;
+        padding: 20px;
+        border: 1px solid rgba(84, 217, 140, 0.30);
+        border-radius: 18px;
+        background: rgba(33, 150, 83, 0.11);
+    }
+
+    .estado-titulo {
+        margin-bottom: 12px;
+        color: #ffffff;
+        font-weight: 700;
+    }
+
+    .estado-linea {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #8ff0b6;
+        font-size: 0.92rem;
+        font-weight: 600;
+    }
+
+    .estado-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #63ef9e;
+        box-shadow: 0 0 12px rgba(99, 239, 158, 0.9);
+    }
+
+    .estado-detalle {
+        margin-top: 8px;
+        color: #96acbd;
+        font-size: 0.82rem;
+    }
+
+    .inicio-footer {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.09);
+        color: #829aad;
+        font-size: 0.82rem;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 992px) {
+        .inicio-shell {
+            grid-template-columns: 1fr;
+        }
+
+        .inicio-title {
+            font-size: 2.45rem;
+        }
+
+        .inicio-title-small {
+            font-size: 1.55rem;
+        }
+
+        .inicio-divider {
+            width: 220px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .inicio-page {
+            padding: 18px;
+        }
+
+        .inicio-main,
+        .inicio-side {
+            padding: 24px;
+        }
+
+        .inicio-brand {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .inicio-title {
+            font-size: 2rem;
+        }
+
+        .inicio-title-small {
+            font-size: 1.28rem;
+        }
+    }
+
+    .login-panel {
+        display: none;
+        opacity: 0;
+        transform: translateX(25px);
+    }
+
+    .login-panel.active {
+        display: block;
+        animation: mostrarLogin 0.35s ease forwards;
+    }
+
+    #panelInformacion.oculto {
+        display: none;
+    }
+
+    @keyframes mostrarLogin {
+        from {
+            opacity: 0;
+            transform: translateX(25px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .login-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 30px;
+    }
+
+    .login-title {
+        margin: 0;
+        color: #ffffff;
+        font-size: 1.85rem;
+        font-weight: 700;
+    }
+
+    .login-description {
+        margin-top: 10px;
+        margin-bottom: 0;
+        color: #9fb5c7;
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    .login-close {
+        width: 38px;
+        height: 38px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 50%;
+        color: #ffffff;
+        background: rgba(255, 255, 255, 0.06);
+        font-size: 1.5rem;
+        line-height: 1;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .login-close:hover {
+        border-color: #4ea1ff;
+        background: rgba(78, 161, 255, 0.16);
+        transform: rotate(90deg);
+    }
+
+    .login-label {
+        display: block;
+        margin-bottom: 8px;
+        color: #c6d6e3;
+        font-size: 0.88rem;
+        font-weight: 600;
+    }
+
+    .login-input {
+        width: 100%;
+        padding: 13px 15px;
+        border: 1px solid rgba(255, 255, 255, 0.13);
+        border-radius: 12px;
+        outline: none;
+        color: #ffffff;
+        background: rgba(4, 19, 34, 0.55);
+        transition: all 0.2s ease;
+    }
+
+    .login-input::placeholder {
+        color: #6f899d;
+    }
+
+    .login-input:focus {
+        border-color: #35d0d8;
+        box-shadow: 0 0 0 3px rgba(53, 208, 216, 0.12);
+    }
+
+    .password-wrapper {
+        position: relative;
+    }
+
+    .password-wrapper .login-input {
+        padding-right: 52px;
+    }
+
+    .password-toggle {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        border: none;
+        color: #b8cada;
+        background: transparent;
+        cursor: pointer;
+        transform: translateY(-50%);
+    }
+
+    .login-submit {
+        width: 100%;
+        padding: 14px 20px;
+        border: none;
+        border-radius: 999px;
+        color: #ffffff;
+        background: linear-gradient(90deg,
+                #2478d8,
+                #1ca6c7);
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 14px 34px rgba(20, 104, 180, 0.30);
+        transition: all 0.22s ease;
+    }
+
+    .login-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 42px rgba(20, 104, 180, 0.42);
+    }
+</style>
+
+
+<div class="inicio-page">
+
+    <div class="inicio-shell">
+
+        <section class="inicio-main">
+
+            <div class="inicio-brand">
+
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo institucional" class="inicio-logo">
+
+                <p class="inicio-brand-text">
+                    Centro de Inteligencia SICOP
+                </p>
+
+            </div>
+
+
+            <h1 class="inicio-title">
+                Arquitectura Inteligente
+
+                <span class="inicio-title-small">
+                    Trazabilidad, Analítica y Gestión
+                    de la Contratación Pública
+                </span>
             </h1>
 
-            <h3 class="text-primary">
-                Sistema Integral de Compras Públicas
-            </h3>
 
-            <hr>
+            <div class="inicio-divider"></div>
 
-            <h5>
-                Universidad Técnica de Machala
-            </h5>
-            <p class="text-muted">
-                Gestión de requerimientos,
-                órdenes de compra,
-                seguimiento contractual,
-                informes y expedientes.
 
+            <p class="inicio-description">
+                Plataforma inteligente para el análisis, seguimiento
+                y apoyo a la toma de decisiones durante todo el ciclo
+                de la contratación pública.
             </p>
-            <br>
 
-            <a href="{{ url_for('main.login_form') }}"
-            class="btn btn-primary btn-lg rounded-pill px-5">
-            🔐 Ingresar al Sistema
-            </a>
+
+            <p class="inicio-slogan">
+                Del dato a la decisión.
+            </p>
+
+
+            <div class="inicio-actions" id="panelBotonIngreso">
+
+                <button
+                    type="button"
+                    class="btn-ingresar"
+                    id="btnMostrarLogin"
+                >
+                    🔐 Ingresar al sistema
+                </button>
+
             </div>
-         </div>
-   
+
+        </section>
+        <aside class="inicio-side">
+
+            <!-- ======================================
+         INFORMACIÓN INSTITUCIONAL
+    ======================================= -->
+            <div id="panelInformacion">
+
+                <div class="institucion-block">
+
+                    <div class="institucion-label">
+                        Institución
+                    </div>
+
+                    <h2 class="institucion-title">
+                        Universidad Técnica de Machala
+                    </h2>
+
+                    <p class="institucion-subtitle">
+                        Unidad de Compras Públicas
+                    </p>
+
+                </div>
+
+
+                <div class="estado-centro">
+
+                    <div class="estado-titulo">
+                        🧠 Estado del Centro
+                    </div>
+
+                    <div class="estado-linea">
+                        <span class="estado-dot"></span>
+                        Motor Inteligente Activo
+                    </div>
+
+                    <div class="estado-detalle">
+                        Base de datos sincronizada
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ======================================
+         FORMULARIO DE INICIO DE SESIÓN
+    ======================================= -->
+            <div id="panelLogin" class="login-panel">
+
+                <div class="login-header">
+
+                    <div>
+                        <div class="institucion-label">
+                            Acceso seguro
+                        </div>
+
+                        <h2 class="login-title">
+                            Iniciar sesión
+                        </h2>
+
+                        <p class="login-description">
+                            Ingrese sus credenciales para acceder
+                            al Centro de Inteligencia SICOP.
+                        </p>
+                    </div>
+
+                    <button type="button" id="btnCerrarLogin" class="login-close" title="Cerrar">
+                        ×
+                    </button>
+
+                </div>
+
+
+                <form method="POST" action="{{ url_for('main.login') }}">
+
+                    <div class="form-group mb-4">
+
+                        <label class="login-label">
+                            Usuario o correo
+                        </label>
+
+                        <input type="text" name="usuario" class="login-input" placeholder="Ingrese su usuario"
+                            autocomplete="username" required>
+
+                    </div>
+
+
+                    <div class="form-group mb-4">
+
+                        <label class="login-label">
+                            Contraseña
+                        </label>
+
+                        <div class="password-wrapper">
+
+                            <input type="password" name="password" id="loginPassword" class="login-input"
+                                placeholder="Ingrese su contraseña" autocomplete="current-password" required>
+
+                            <button type="button" id="btnMostrarClave" class="password-toggle"
+                                title="Mostrar contraseña">
+                                👁
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <button type="submit" class="login-submit">
+                        🔐 Acceder al sistema
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <footer class="inicio-footer">
+
+                Unidad de Compras Públicas<br>
+                SICOP v1.0 · 2026
+
+            </footer>
+
+        </aside>
+
     </div>
-   
+
 </div>
-<hr>
-<footer class="text-center mt-1">
+<script>
+document.addEventListener("DOMContentLoaded", function () {
 
-<hr>
+    const btnMostrarLogin =
+        document.getElementById("btnMostrarLogin");
 
-<small class="text-muted">
+    const btnCerrarLogin =
+        document.getElementById("btnCerrarLogin");
 
-Unidad de Compras Públicas<br>
+    const panelBotonIngreso =
+    document.getElementById("panelBotonIngreso");
 
-SICOP v1.0 • 2026
+    const panelInformacion =
+        document.getElementById("panelInformacion");
 
-</small>
+    const panelLogin =
+        document.getElementById("panelLogin");
 
-</footer>
+    const btnMostrarClave =
+        document.getElementById("btnMostrarClave");
 
+    const loginPassword =
+        document.getElementById("loginPassword");
+
+
+    btnMostrarLogin.addEventListener("click", function () {
+
+        panelInformacion.classList.add("oculto");
+        panelLogin.classList.add("active");
+        panelBotonIngreso.style.display = "none";
+
+        const campoUsuario =
+            panelLogin.querySelector(
+                'input[name="usuario"]'
+            );
+
+        setTimeout(function () {
+            campoUsuario.focus();
+        }, 350);
+
+    });
+
+
+    btnCerrarLogin.addEventListener("click", function () {
+
+        panelLogin.classList.remove("active");
+        panelInformacion.classList.remove("oculto");
+        panelBotonIngreso.style.display = "block";
+
+    });
+
+
+    btnMostrarClave.addEventListener("click", function () {
+
+        const esPassword =
+            loginPassword.type === "password";
+
+        loginPassword.type =
+            esPassword ? "text" : "password";
+
+        btnMostrarClave.textContent =
+            esPassword ? "🙈" : "👁";
+
+    });
+
+});
+</script>
 {% endblock %}
