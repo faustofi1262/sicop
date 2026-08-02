@@ -352,6 +352,151 @@
             width: 100%;
         }
     }
+
+    .smart-status-panel {
+        margin-top: 26px;
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        border-radius: 20px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.055);
+        box-shadow: 0 20px 55px rgba(0, 0, 0, 0.27);
+        backdrop-filter: blur(10px);
+    }
+
+    .smart-status-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 19px 22px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+        background: rgba(0, 0, 0, 0.13);
+    }
+
+    .smart-status-title {
+        margin: 0;
+        color: #ffffff;
+        font-size: 1.05rem;
+        font-weight: 600;
+    }
+
+    .smart-status-caption {
+        color: #8fa7ba;
+        font-size: 0.84rem;
+    }
+
+    .smart-status-body {
+        padding: 22px;
+    }
+
+    .smart-flow-row {
+        display: grid;
+        grid-template-columns: minmax(280px, 1.35fr) repeat(3, minmax(220px, 1fr));
+        gap: 18px;
+        align-items: stretch;
+        margin-bottom: 14px;
+    }
+
+    .smart-stage,
+    .smart-indicator {
+        min-height: 116px;
+    }
+
+    .smart-indicator {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .smart-flow-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .smart-stage {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 17px;
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        border-radius: 15px;
+        background: rgba(5, 18, 32, 0.58);
+    }
+
+    .smart-stage-icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 13px;
+        background: rgba(255, 255, 255, 0.09);
+        font-size: 1.3rem;
+    }
+
+    .smart-stage-name {
+        color: #ffffff;
+        font-size: 0.96rem;
+        font-weight: 600;
+    }
+
+    .smart-stage-description {
+        margin-top: 3px;
+        color: #8199ad;
+        font-size: 0.76rem;
+    }
+
+    .smart-indicator {
+        padding: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 15px;
+        background: rgba(5, 18, 32, 0.45);
+        text-align: center;
+    }
+
+    .smart-indicator-label {
+        color: #91a8ba;
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .smart-indicator-value {
+        margin-top: 5px;
+        color: #ffffff;
+        font-size: 1.65rem;
+        font-weight: 700;
+    }
+
+    .smart-indicator.green {
+        border-top: 3px solid #54d98c;
+    }
+
+    .smart-indicator.yellow {
+        border-top: 3px solid #ffbd4a;
+    }
+
+    .smart-indicator.red {
+        border-top: 3px solid #ff667a;
+    }
+
+    .smart-legend {
+        display: flex;
+        justify-content: flex-end;
+        gap: 18px;
+        margin-bottom: 18px;
+        color: #9bb0c1;
+        font-size: 0.78rem;
+    }
+
+    @media (max-width: 900px) {
+        .smart-flow-row {
+            grid-template-columns: 1fr;
+        }
+
+        .smart-legend {
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+    }
 </style>
 
 
@@ -660,6 +805,344 @@
 
     </div>
 
+    <div class="smart-status-panel">
+
+        <div class="smart-status-header">
+
+            <h3 class="smart-status-title">
+                🧠 Estado Inteligente del Flujo
+            </h3>
+
+            <span class="smart-status-caption">
+                Primera capa del motor analítico
+            </span>
+
+        </div>
+
+
+        <div class="smart-status-body">
+
+            <div class="smart-legend">
+                <span>🟢 Correcto</span>
+                <span>🟡 Pendiente</span>
+                <span>🔴 Requiere atención</span>
+            </div>
+
+
+            <!-- PUBLICACIONES -->
+            <div class="smart-flow-row">
+
+                <div class="smart-stage">
+
+                    <div class="smart-stage-icon">
+                        📢
+                    </div>
+
+                    <div>
+                        <div class="smart-stage-name">
+                            Publicaciones
+                        </div>
+
+                        <div class="smart-stage-description">
+                            Estado de las publicaciones registradas
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="smart-indicator green">
+
+                    <div class="smart-indicator-label">
+                        Finalizadas
+                    </div>
+
+                    <div class="smart-indicator-value">
+                        {{ publicaciones_verde }}
+                    </div>
+
+                </div>
+
+
+                <div class="smart-indicator yellow">
+
+                    <div class="smart-indicator-label">
+                        Activas
+                    </div>
+
+                    <div class="smart-indicator-value">
+                        {{ publicaciones_amarillo }}
+                    </div>
+
+                </div>
+
+
+                <div class="smart-indicator red">
+
+                    <div class="smart-indicator-label">
+                        Vencidas activas
+                    </div>
+
+                    <div class="smart-indicator-value">
+                        {{ publicaciones_rojo }}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- PROFORMAS -->
+            <div class="smart-flow-row">
+
+                <div class="smart-stage">
+
+                    <div class="smart-stage-icon">
+                        💰
+                    </div>
+
+                    <div>
+                        <div class="smart-stage-name">
+                            Proformas
+                        </div>
+
+                        <div class="smart-stage-description">
+                            Recepción de proformas por publicación
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="smart-indicator green">
+
+                    <div class="smart-indicator-label">
+                        Recibidas
+                    </div>
+
+                    <div class="smart-indicator-value">
+                        {{ proformas_verde }}
+                    </div>
+
+                </div>
+
+
+                <div class="smart-indicator yellow">
+
+                    <div class="smart-indicator-label">
+                        Pendientes en plazo
+                    </div>
+
+                    <div class="smart-indicator-value">
+                        {{ proformas_amarillo }}
+                    </div>
+
+                </div>
+
+
+                <div class="smart-indicator red">
+
+                    <div class="smart-indicator-label">
+                        Vencidas sin proforma
+                    </div>
+
+                    <div class="smart-indicator-value">
+                        {{ proformas_rojo }}
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+        <!-- REQUERIMIENTOS -->
+        <div class="smart-flow-row">
+
+            <div class="smart-stage">
+
+                <div class="smart-stage-icon">
+                    📄
+                </div>
+
+                <div>
+                    <div class="smart-stage-name">
+                        Requerimientos
+                    </div>
+
+                    <div class="smart-stage-description">
+                        Vinculación de requerimientos con tareas
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="smart-indicator green">
+
+                <div class="smart-indicator-label">
+                    Con tarea
+                </div>
+
+                <div class="smart-indicator-value">
+                    {{ requerimientos_verde }}
+                </div>
+
+            </div>
+
+
+            <div class="smart-indicator yellow">
+
+                <div class="smart-indicator-label">
+                    Sin tarea
+                </div>
+
+                <div class="smart-indicator-value">
+                    {{ requerimientos_amarillo }}
+                </div>
+
+            </div>
+
+
+            <div class="smart-indicator red">
+
+                <div class="smart-indicator-label">
+                    Observados
+                </div>
+
+                <div class="smart-indicator-value">
+                    {{ requerimientos_rojo }}
+                </div>
+
+            </div>
+
+        </div>
+        <!-- TAREAS -->
+<div class="smart-flow-row">
+
+    <div class="smart-stage">
+
+        <div class="smart-stage-icon">
+            📋
+        </div>
+
+        <div>
+            <div class="smart-stage-name">
+                Tareas
+            </div>
+
+            <div class="smart-stage-description">
+                Estado operativo de los procesos asignados
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="smart-indicator green">
+
+        <div class="smart-indicator-label">
+            Avanzadas / finalizadas
+        </div>
+
+        <div class="smart-indicator-value">
+            {{ tareas_verde }}
+        </div>
+
+    </div>
+
+
+    <div class="smart-indicator yellow">
+
+        <div class="smart-indicator-label">
+            En trámite
+        </div>
+
+        <div class="smart-indicator-value">
+            {{ tareas_amarillo }}
+        </div>
+
+    </div>
+
+
+    <div class="smart-indicator red">
+
+        <div class="smart-indicator-label">
+            Devueltas
+        </div>
+
+        <div class="smart-indicator-value">
+            {{ tareas_rojo }}
+        </div>
+
+    </div>
+
+</div>
+<!-- FIN TAREAS -->
+
+
+<!-- ÓRDENES DE COMPRA -->
+<div class="smart-flow-row">
+
+    <div class="smart-stage">
+
+        <div class="smart-stage-icon">
+            📦
+        </div>
+
+        <div>
+            <div class="smart-stage-name">
+                Órdenes de Ínfima Cuantía
+            </div>
+
+            <div class="smart-stage-description">
+                Procesos cuyo código inicia con IC
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="smart-indicator green">
+
+        <div class="smart-indicator-label">
+            Generadas
+        </div>
+
+        <div class="smart-indicator-value">
+            {{ ordenes_verde }}
+        </div>
+
+    </div>
+
+
+    <div class="smart-indicator yellow">
+
+        <div class="smart-indicator-label">
+            Sin orden
+        </div>
+
+        <div class="smart-indicator-value">
+            {{ ordenes_amarillo }}
+        </div>
+
+    </div>
+
+
+    <div class="smart-indicator red">
+
+        <div class="smart-indicator-label">
+            Incompletas
+        </div>
+
+        <div class="smart-indicator-value">
+            {{ ordenes_rojo }}
+        </div>
+
+    </div>
+
+</div>
+<!-- FIN ÓRDENES -->
+    </div>
 </div>
 
 {% endblock %}
