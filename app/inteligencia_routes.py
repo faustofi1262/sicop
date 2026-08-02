@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, flash
+from flask import Blueprint, render_template, flash, session
 from app.database import get_connection
 from app.decorators import login_required
 
@@ -106,7 +106,8 @@ def centro_inteligencia():
 
         cur.close()
         conn.close()
-
+    rol_actual = session.get("rol", "").strip().lower()
+    
     return render_template(
         "inteligencia/centro_inteligencia.html",
 
@@ -116,9 +117,11 @@ def centro_inteligencia():
         total_ordenes=total_ordenes,
         total_contratos=total_contratos,
         total_alertas=total_alertas,
+        rol_actual=rol_actual,
         alerta_publicaciones_sin_proformas=
             alerta_publicaciones_sin_proformas,
 
         alerta_contratos_por_vencer=
-            alerta_contratos_por_vencer
+            alerta_contratos_por_vencer,
+        
     )

@@ -410,7 +410,20 @@
                     <div class="intel-status-detail">
                         Base de datos sincronizada
                     </div>
+                    <div class="intel-status-detail">
 
+                        {% if rol_actual == "administrador" %}
+                        Acceso total habilitado
+
+                        {% elif rol_actual == "analista" %}
+                        Acceso de lectura y apoyo operativo
+
+                        {% elif rol_actual == "usuario" %}
+                        Consulta ejecutiva para autoridades
+
+                        {% endif %}
+
+                    </div>
                 </div>
 
             </div>
@@ -587,23 +600,7 @@
             </span>
 
         </div>
-
-
         <div class="trace-flow">
-
-            <div class="trace-step">
-                <div class="trace-icon">📄</div>
-                <div class="trace-label">
-                    Requerimiento
-                </div>
-            </div>
-
-            <div class="trace-step">
-                <div class="trace-icon">📋</div>
-                <div class="trace-label">
-                    Tarea
-                </div>
-            </div>
 
             <div class="trace-step">
                 <div class="trace-icon">📢</div>
@@ -616,6 +613,20 @@
                 <div class="trace-icon">💰</div>
                 <div class="trace-label">
                     Proformas
+                </div>
+            </div>
+
+            <div class="trace-step">
+                <div class="trace-icon">📄</div>
+                <div class="trace-label">
+                    Requerimiento
+                </div>
+            </div>
+
+            <div class="trace-step">
+                <div class="trace-icon">📋</div>
+                <div class="trace-label">
+                    Tarea
                 </div>
             </div>
 
@@ -641,7 +652,6 @@
             </div>
 
         </div>
-
 
         <div class="intel-footer-note">
             Esta vista evolucionará para mostrar el estado real,
