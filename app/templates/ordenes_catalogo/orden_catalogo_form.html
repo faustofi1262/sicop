@@ -1,0 +1,518 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <div>
+            <h3 class="mb-1">
+                🛒 Orden de Catálogo Electrónico
+            </h3>
+
+            <p class="text-muted mb-0">
+                Registre una o varias órdenes asociadas al proceso.
+            </p>
+        </div>
+
+        <a href="{{ url_for('main.tareas') }}" class="btn btn-secondary">
+            ⬅ Volver a tareas
+        </a>
+
+    </div>
+
+
+    <div class="card mb-4">
+
+        <div class="card-header bg-dark text-white">
+            Datos del proceso
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-4 mb-3">
+                    <label>Código del proceso</label>
+
+                    <input type="text" class="form-control" value="{{ proceso.codigo_proceso }}" readonly>
+                </div>
+
+
+                <div class="col-md-4 mb-3">
+                    <label>Unidad requirente</label>
+
+                    <input type="text" class="form-control" value="{{ proceso.unidad_requirente }}" readonly>
+                </div>
+
+
+                <div class="col-md-4 mb-3">
+                    <label>Presupuesto referencial</label>
+
+                    <input type="text" id="presupuesto_referencial" class="form-control"
+                        value="{{ proceso.presupuesto_referencial or 0 }}" readonly>
+                </div>
+
+
+                <div class="col-md-8 mb-3">
+                    <label>Objeto de contratación</label>
+
+                    <textarea class="form-control" rows="3" readonly>{{ proceso.objeto_contratacion }}</textarea>
+                </div>
+
+
+                <div class="col-md-2 mb-3">
+                    <label>Memorando</label>
+
+                    <input type="text" class="form-control" value="{{ proceso.memo_vice_ad }}" readonly>
+                </div>
+
+
+                <div class="col-md-2 mb-3">
+                    <label>Fecha memorando</label>
+
+                    <input type="date" class="form-control" value="{{ proceso.fecha_memo_vice_ad }}" readonly>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <form method="POST" action="{{ url_for('main.orden_catalogo_guardar') }}">
+
+        <input type="hidden" name="tarea_id" value="{{ proceso.tarea_id }}">
+
+
+        <div class="card mb-4">
+
+            <div class="card-header bg-primary text-white">
+                Datos de la orden
+            </div>
+
+            <div class="card-body">
+
+                <div class="row">
+
+                    <div class="col-md-4 mb-3">
+
+                        <label>Número de orden</label>
+
+                        <input type="text" name="numero_orden" class="form-control" required>
+
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label>Fecha de aceptación</label>
+                        <input type="date" name="fecha_aceptacion" id="fecha_aceptacion" class="form-control" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label>Plazo en días</label>
+                        <input type="number" name="plazo_dias" id="plazo_dias" class="form-control" min="0" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label>Fecha de vencimiento</label>
+                        <input type="date" id="fecha_vencimiento" class="form-control" readonly>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label>RUC</label>
+                        <input type="text" name="ruc" class="form-control" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label>Proveedor</label>
+                        <input type="text" name="proveedor" class="form-control" required>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label>Monto adjudicado</label>
+                        <input type="number" name="monto_adjudicado" id="monto_adjudicado" class="form-control"
+                            step="0.01" min="0" required>
+                    </div>
+                    <div class="col-md-8 mb-3">
+                        <label>Administrador de la orden</label>
+                        <input type="text" name="administrador_orden" class="form-control" required>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label>Observaciones</label>
+                        <textarea name="observaciones" class="form-control" rows="3"></textarea>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card mb-4">
+
+            <div class="card-header bg-dark text-white">
+                Resumen económico acumulado
+            </div>
+
+            <div class="card-body">
+
+                <div class="row">
+
+                    <div class="col-md-3 mb-3">
+
+                        <label>Presupuesto referencial</label>
+
+                        <input type="text" id="resumen_presupuesto" class="form-control"
+                            value="{{ '%.2f'|format(proceso.presupuesto_referencial or 0) }}" readonly>
+
+                    </div>
+
+
+                    <div class="col-md-3 mb-3">
+
+                        <label>Total ya adjudicado</label>
+
+                        <input type="text" id="total_adjudicado_anterior" class="form-control"
+                            value="{{ '%.2f'|format(total_adjudicado or 0) }}" readonly>
+
+                    </div>
+
+
+                    <div class="col-md-3 mb-3">
+
+                        <label>Nueva orden</label>
+
+                        <input type="text" id="resumen_adjudicado" class="form-control" value="0.00" readonly>
+
+                    </div>
+
+
+                    <div class="col-md-3 mb-3">
+
+                        <label>Saldo proyectado</label>
+
+                        <input type="text" id="saldo_no_adjudicado" class="form-control"
+                            value="{{ '%.2f'|format(saldo_no_adjudicado or 0) }}" readonly>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="d-flex justify-content-end">
+
+            <button type="submit" class="btn btn-success btn-lg">
+
+                💾 Guardar orden
+
+            </button>
+
+        </div>
+
+    </form>
+    <div class="card mt-4 mb-4">
+
+        <div class="card-header bg-dark text-white">
+            Órdenes registradas en este proceso
+        </div>
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+                <div class="table-responsive" style="max-height: 320px; overflow-y: auto;">
+                    <table class="table table-bordered table-hover">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Número de orden</th>
+                                <th>Fecha aceptación</th>
+                                <th>Proveedor</th>
+                                <th>RUC</th>
+                                <th class="text-right">
+                                    Monto adjudicado
+                                </th>
+                                <th>Administrador</th>
+                                <th>Plazo</th>
+                                <th>Vencimiento</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            {% for orden in ordenes_registradas %}
+
+                            <tr>
+
+                                <td>
+                                    {{ loop.index }}
+                                </td>
+
+                                <td>
+                                    {{ orden.numero_orden }}
+                                </td>
+
+                                <td>
+                                    {{ orden.fecha_aceptacion.strftime('%d/%m/%Y')
+                                    if orden.fecha_aceptacion else '' }}
+                                </td>
+
+                                <td>
+                                    {{ orden.proveedor }}
+                                </td>
+
+                                <td>
+                                    {{ orden.ruc }}
+                                </td>
+
+                                <td class="text-right">
+                                    $ {{ "{:,.2f}".format(
+                                    orden.monto_adjudicado or 0
+                                    ) }}
+                                </td>
+
+                                <td>
+                                    {{ orden.administrador_orden }}
+                                </td>
+
+                                <td>
+                                    {{ orden.plazo_dias }} días
+                                </td>
+
+                                <td>
+                                    {{ orden.fecha_vencimiento.strftime('%d/%m/%Y')
+                                    if orden.fecha_vencimiento else '' }}
+                                </td>
+                                <td class="text-center">
+
+                                    <a href="{{ url_for('main.editar_orden_catalogo', orden_id=orden.id) }}">
+                                        ✏️
+                                    </a>
+
+                                    <a href="#" class="btn btn-danger btn-sm" title="Eliminar">
+                                        🗑️
+                                    </a>
+
+                                    <a href="#" class="btn btn-info btn-sm" title="Imprimir">
+                                        🖨️
+                                    </a>
+                                </td>
+                            </tr>
+
+                            {% else %}
+
+                            <tr>
+                                <td colspan="10" class="text-center text-muted">
+
+                                    Todavía no existen órdenes registradas
+                                    para este proceso.
+
+                                </td>
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                        <tfoot>
+
+                            <tr class="font-weight-bold">
+
+                                <td colspan="5" class="text-right">
+
+                                    TOTAL ADJUDICADO
+
+                                </td>
+
+                                <td class="text-right">
+
+                                    $ {{ "{:,.2f}".format(
+                                    total_adjudicado or 0
+                                    ) }}
+
+                                </td>
+
+                                <td colspan="4"></td>
+
+                            </tr>
+
+
+                            <tr class="font-weight-bold">
+
+                                <td colspan="5" class="text-right">
+
+                                    AHORRO / SALDO NO ADJUDICADO
+
+                                </td>
+
+                                <td class="text-right">
+
+                                    $ {{ "{:,.2f}".format(
+                                    saldo_no_adjudicado or 0
+                                    ) }}
+
+                                </td>
+
+                                <td colspan="4"></td>
+
+                            </tr>
+
+                        </tfoot>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const fechaAceptacion =
+                document.getElementById("fecha_aceptacion");
+
+            const plazoDias =
+                document.getElementById("plazo_dias");
+
+            const fechaVencimiento =
+                document.getElementById("fecha_vencimiento");
+
+            const montoAdjudicado =
+                document.getElementById("monto_adjudicado");
+
+            const resumenAdjudicado =
+                document.getElementById("resumen_adjudicado");
+
+            const saldoNoAdjudicado =
+                document.getElementById("saldo_no_adjudicado");
+
+            const totalAnteriorInput =
+                document.getElementById("total_adjudicado_anterior");
+
+            const presupuestoInput =
+                document.getElementById("presupuesto_referencial");
+
+            const botonGuardar =
+                document.querySelector('button[type="submit"]');
+
+            const presupuestoReferencial =
+                parseFloat(presupuestoInput.value || 0);
+
+            const totalAdjudicadoAnterior =
+                parseFloat(totalAnteriorInput.value || 0);
+
+
+            function calcularFechaVencimiento() {
+
+                if (!fechaAceptacion.value || !plazoDias.value) {
+                    fechaVencimiento.value = "";
+                    return;
+                }
+
+                const fecha =
+                    new Date(fechaAceptacion.value + "T00:00:00");
+
+                fecha.setDate(
+                    fecha.getDate() + parseInt(plazoDias.value || 0)
+                );
+
+                const anio = fecha.getFullYear();
+
+                const mes = String(
+                    fecha.getMonth() + 1
+                ).padStart(2, "0");
+
+                const dia = String(
+                    fecha.getDate()
+                ).padStart(2, "0");
+
+                fechaVencimiento.value =
+                    `${anio}-${mes}-${dia}`;
+            }
+
+
+            function calcularSaldo() {
+
+                const montoNuevaOrden =
+                    parseFloat(montoAdjudicado.value || 0);
+
+                const nuevoTotalAdjudicado =
+                    totalAdjudicadoAnterior + montoNuevaOrden;
+
+                const saldo =
+                    presupuestoReferencial - nuevoTotalAdjudicado;
+
+                resumenAdjudicado.value =
+                    "$ " + Number(montoNuevaOrden).toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+
+                saldoNoAdjudicado.value =
+                    "$ " + Number(saldo).toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    });
+
+                saldoNoAdjudicado.classList.remove(
+                    "is-invalid",
+                    "is-valid"
+                );
+
+                if (saldo < 0) {
+
+                    saldoNoAdjudicado.classList.add("is-invalid");
+
+                    botonGuardar.disabled = true;
+
+                    botonGuardar.innerHTML =
+                        "⚠ Monto supera presupuesto";
+
+                } else {
+
+                    saldoNoAdjudicado.classList.add("is-valid");
+
+                    botonGuardar.disabled = false;
+
+                    botonGuardar.innerHTML =
+                        "💾 Guardar orden";
+                }
+
+                if (saldo === 0) {
+
+                    botonGuardar.disabled = true;
+
+                    botonGuardar.innerHTML =
+                        "✅ Presupuesto completamente adjudicado";
+                }
+
+            }
+
+
+            fechaAceptacion.addEventListener(
+                "change",
+                calcularFechaVencimiento
+            );
+
+            plazoDias.addEventListener(
+                "input",
+                calcularFechaVencimiento
+            );
+
+            montoAdjudicado.addEventListener(
+                "input",
+                calcularSaldo
+            );
+
+
+            calcularFechaVencimiento();
+            calcularSaldo();
+
+        });
+    </script>
+
+    {% endblock %}

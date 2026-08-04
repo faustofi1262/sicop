@@ -16,14 +16,30 @@
 <div class="card mb-3">
   <div class="card-header font-weight-bold">Proceso Asociado</div>
   <div class="card-body">
-    <select name="tarea_id" id="tarea_id" class="form-control" required>
-      <option value="">-- Seleccione una tarea --</option>
-      {% for t in tareas %}
-        <option value="{{ t[0] }}">
-          {{ t[1] }} — {{ t[2] }}
+    <select name="tarea_id"
+              id="tarea_id"
+              class="form-control"
+              required>
+
+        <option value="">
+          -- Seleccione una tarea --
         </option>
-      {% endfor %}
-    </select>
+
+        {% for t in tareas %}
+
+          <option value="{{ t[0] }}"
+              {% if tarea_id_seleccionada
+                    and t[0] == tarea_id_seleccionada %}
+                  selected
+              {% endif %}>
+
+              {{ t[1] }} — {{ t[2] }}
+
+          </option>
+
+        {% endfor %}
+
+      </select>
   </div>
 </div>
 {% endif %}
@@ -427,6 +443,10 @@ document.addEventListener("DOMContentLoaded", function () {
       })
       .catch(err => console.error("Error fetch:", err));
   });
+    // Si viene una tarea desde el listado, dispara el cambio automáticamente
+  if (selectTarea.value) {
+      selectTarea.dispatchEvent(new Event("change"));
+  }
 });
 </script>
 

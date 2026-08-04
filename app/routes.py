@@ -38,6 +38,7 @@ from openpyxl import load_workbook
 from werkzeug.utils import secure_filename
 from app.decorators import login_required
 from app.database import get_connection
+from datetime import datetime, date, timedelta
 
 def valor_en_letras_con_decimales(valor):
     valor = Decimal(valor).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
@@ -710,7 +711,124 @@ def guardar_partida(requerimiento_id):
     return redirect(
         url_for("main.partidas_requerimiento", requerimiento_id=requerimiento_id)
     )
+# ==========================================
+# EDITAR PARTIDA DESDE EL MODAL DE TAREAS
+# ==========================================
+@main.route("/partidas/<int:partida_id>/editar", methods=["POST"])
+@login_required()
+def editar_partida(partida_id):
 
+    nombre_part = request.form.get("nombre_part", "").strip()
+    num_part = request.form.get("num_part", "").strip()
+    programa = request.form.get("programa", "").strip()
+    fuente = request.form.get("fuente", "").strip()
+    monto = request.form.get("monto", "").strip()
+
+    if not num_part or not nombre_part or not monto:
+        return jsonify({
+            "ok": False,
+            "mensaje": "Debe completar partida, nombre y monto."
+        }), 400
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+
+        cur.execute("""
+            UPDATE partidas
+            SET
+                nombre_part = %s,
+                num_part = %s,
+                programa = %s,
+                fuente = %s,
+                monto = %s,
+                usuario_id = %s
+            WHERE id = %s
+        """, (
+            nombre_part,
+            num_part,
+            programa,
+            fuente,
+            monto,
+            session.get("user_id"),
+            partida_id
+        ))
+
+        if cur.rowcount == 0:
+            conn.rollback()
+
+            return jsonify({
+                "ok": False,
+                "mensaje": "La partida no existe."
+            }), 404
+
+        conn.commit()
+
+        return jsonify({
+            "ok": True,
+            "mensaje": "Partida actualizada correctamente."
+        })
+
+    except Exception as e:
+
+        conn.rollback()
+
+        return jsonify({
+            "ok": False,
+            "mensaje": str(e)
+        }), 500
+
+    finally:
+
+        cur.close()
+        conn.close()
+# ==========================================
+# API - OBTENER UNA PARTIDA
+# ==========================================
+@main.route("/api/partidas/<int:partida_id>")
+@login_required()
+def api_obtener_partida(partida_id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+        cur.execute("""
+            SELECT
+                id,
+                nombre_part,
+                num_part,
+                programa,
+                fuente,
+                monto
+            FROM partidas
+            WHERE id = %s
+        """, (partida_id,))
+
+        partida = cur.fetchone()
+
+        if not partida:
+            return jsonify({
+                "ok": False,
+                "mensaje": "La partida no existe."
+            }), 404
+
+        return jsonify({
+            "ok": True,
+            "partida": {
+                "id": partida[0],
+                "nombre_part": partida[1] or "",
+                "num_part": partida[2] or "",
+                "programa": partida[3] or "",
+                "fuente": partida[4] or "",
+                "monto": float(partida[5] or 0)
+            }
+        })
+
+    finally:
+        cur.close()
+        conn.close()
 # ===============================
 # ELIMINAR REQUERIMIENTOS
 # ===============================
@@ -1407,30 +1525,62 @@ def orden_compra_pdf(id):
 # =========================
 # NUEVA ORDEN DE COMPRA
 # =========================
+# =========================
+# NUEVA ORDEN DE COMPRA
+# ÍNFIMA CUANTÍA
+# =========================
 @main.route("/ordenes_compra/nueva")
+@main.route("/ordenes_compra/nueva/<int:tarea_id>")
 @login_required()
-def ordenes_compra_nueva():
+def ordenes_compra_nueva(tarea_id=None):
+
     conn = get_connection()
     cur = conn.cursor()
 
-    # Para asociar a una tarea (solo referencia)
     cur.execute("""
-            SELECT
+        SELECT
             t.id,
             t.codigo_proceso,
             r.memo_vice_ad
         FROM tareas t
-        JOIN requerimientos r ON r.id = t.requerimiento_id
+        JOIN requerimientos r
+            ON r.id = t.requerimiento_id
+        WHERE UPPER(TRIM(COALESCE(t.codigo_proceso, '')))
+              LIKE 'IC-%'
         ORDER BY t.codigo_proceso
     """)
+
     tareas = cur.fetchall()
+
+    # Verificar que la tarea enviada corresponda a Ínfima Cuantía
+    if tarea_id is not None:
+
+        tarea_valida = any(
+            tarea[0] == tarea_id
+            for tarea in tareas
+        )
+
+        if not tarea_valida:
+
+            cur.close()
+            conn.close()
+
+            flash(
+                "La tarea seleccionada no corresponde a un proceso de Ínfima Cuantía.",
+                "danger"
+            )
+
+            return redirect(
+                url_for("main.tareas")
+            )
 
     cur.close()
     conn.close()
 
     return render_template(
         "ordenes_compra/ordenes_compra_form.html",
-         tareas=tareas,
+        tareas=tareas,
+        tarea_id_seleccionada=tarea_id,
         orden=None,
         items=[]
     )
@@ -1741,6 +1891,475 @@ def ordenes_compra_editar(id):
         orden=orden,
         productos=productos
     )
+# ==========================================
+# NUEVA ORDEN DE CATÁLOGO ELECTRÓNICO
+# ==========================================
+@main.route("/ordenes_catalogo/nueva/<int:tarea_id>")
+@login_required()
+def orden_catalogo_nueva(tarea_id):
+
+    conn = get_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    cur.execute("""
+        SELECT
+            t.id AS tarea_id,
+            t.codigo_proceso,
+            t.objeto_contratacion,
+            r.memo_vice_ad,
+            r.fecha_memo_vice_ad,
+            r.monto_req AS presupuesto_referencial,
+            u.nombre_unidad AS unidad_requirente
+        FROM tareas t
+        JOIN requerimientos r
+            ON r.id = t.requerimiento_id
+        LEFT JOIN unidades u
+            ON u.id = r.unid_requirente
+        WHERE t.id = %s
+    """, (tarea_id,))
+
+    proceso = cur.fetchone()
+
+    if not proceso:
+        cur.close()
+        conn.close()
+
+        flash(
+            "No se encontró la tarea seleccionada.",
+            "danger"
+        )
+        return redirect(url_for("main.tareas"))
+
+    codigo = (
+        proceso["codigo_proceso"] or ""
+    ).strip().upper()
+
+    if not codigo.startswith("CATE-"):
+        cur.close()
+        conn.close()
+
+        flash(
+            "La tarea seleccionada no corresponde a Catálogo Electrónico.",
+            "danger"
+        )
+        return redirect(url_for("main.tareas"))
+
+    # ==========================================
+    # BUSCAR CATÁLOGO Y ÓRDENES YA REGISTRADAS
+    # ==========================================
+    cur.execute("""
+        SELECT
+            id,
+            presupuesto_referencial
+        FROM catalogos_electronicos
+        WHERE tarea_id = %s
+    """, (tarea_id,))
+
+    catalogo_existente = cur.fetchone()
+
+    ordenes_registradas = []
+    total_adjudicado = Decimal("0.00")
+
+    if catalogo_existente:
+
+        catalogo_id = catalogo_existente["id"]
+
+        cur.execute("""
+            SELECT
+                id,
+                numero_orden,
+                fecha_aceptacion,
+                ruc,
+                proveedor,
+                monto_adjudicado,
+                administrador_orden,
+                plazo_dias,
+                fecha_vencimiento,
+                observaciones
+            FROM ordenes_catalogo
+            WHERE catalogo_id = %s
+            ORDER BY id DESC
+        """, (catalogo_id,))
+
+        ordenes_registradas = cur.fetchall()
+
+        total_adjudicado = sum(
+            Decimal(str(orden["monto_adjudicado"] or 0))
+            for orden in ordenes_registradas
+        )
+
+    presupuesto_referencial = Decimal(
+        str(proceso["presupuesto_referencial"] or 0)
+    )
+
+    saldo_no_adjudicado = (
+        presupuesto_referencial - total_adjudicado
+    )
+
+    cur.close()
+    conn.close()
+
+    return render_template(
+    "ordenes_catalogo/orden_catalogo_form.html",
+    proceso=proceso,
+    catalogo_existente=catalogo_existente,
+    ordenes_registradas=ordenes_registradas,
+    total_adjudicado=total_adjudicado,
+    saldo_no_adjudicado=saldo_no_adjudicado
+)
+# ==========================================
+# GUARDAR ORDEN DE CATÁLOGO ELECTRÓNICO
+# ==========================================
+@main.route("/ordenes_catalogo/guardar", methods=["POST"])
+@login_required()
+def orden_catalogo_guardar():
+
+    tarea_id = request.form.get("tarea_id")
+    numero_orden = request.form.get("numero_orden", "").strip()
+    fecha_aceptacion = request.form.get("fecha_aceptacion")
+    ruc = request.form.get("ruc", "").strip()
+    proveedor = request.form.get("proveedor", "").strip()
+    monto_adjudicado = request.form.get("monto_adjudicado", 0)
+    administrador_orden = request.form.get(
+        "administrador_orden", ""
+    ).strip()
+    plazo_dias = request.form.get("plazo_dias", 0)
+    observaciones = request.form.get("observaciones", "").strip()
+
+    if not tarea_id or not numero_orden or not fecha_aceptacion:
+        flash(
+            "Debe completar la tarea, número de orden y fecha de aceptación.",
+            "danger"
+        )
+        return redirect(request.referrer)
+
+    try:
+        plazo_dias = int(plazo_dias or 0)
+        monto_adjudicado = Decimal(
+            str(monto_adjudicado or 0)
+        )
+
+        fecha_aceptacion_obj = datetime.strptime(
+            fecha_aceptacion,
+            "%Y-%m-%d"
+        ).date()
+
+        fecha_vencimiento = (
+            fecha_aceptacion_obj
+            + timedelta(days=plazo_dias)
+        )
+
+        conn = get_connection()
+        cur = conn.cursor()
+
+        # Datos del proceso
+        cur.execute("""
+            SELECT
+                t.codigo_proceso,
+                t.objeto_contratacion,
+                r.memo_vice_ad,
+                r.fecha_memo_vice_ad,
+                r.monto_req,
+                u.nombre_unidad
+            FROM tareas t
+            JOIN requerimientos r
+                ON r.id = t.requerimiento_id
+            LEFT JOIN unidades u
+                ON u.id = r.unid_requirente
+            WHERE t.id = %s
+        """, (tarea_id,))
+
+        proceso = cur.fetchone()
+
+        if not proceso:
+            flash("No se encontró la tarea seleccionada.", "danger")
+            return redirect(url_for("main.tareas"))
+
+        # Crear cabecera si todavía no existe
+        cur.execute("""
+            INSERT INTO catalogos_electronicos (
+                tarea_id,
+                codigo_proceso,
+                objeto_contratacion,
+                unidad_requirente,
+                memo_vice_ad,
+                fecha_memo_vice_ad,
+                presupuesto_referencial
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (tarea_id)
+            DO UPDATE SET
+                codigo_proceso = EXCLUDED.codigo_proceso,
+                objeto_contratacion = EXCLUDED.objeto_contratacion,
+                unidad_requirente = EXCLUDED.unidad_requirente,
+                memo_vice_ad = EXCLUDED.memo_vice_ad,
+                fecha_memo_vice_ad = EXCLUDED.fecha_memo_vice_ad,
+                presupuesto_referencial =
+                    EXCLUDED.presupuesto_referencial
+            RETURNING id
+        """, (
+            tarea_id,
+            proceso[0],
+            proceso[1],
+            proceso[5],
+            proceso[2],
+            proceso[3],
+            proceso[4]
+        ))
+
+        catalogo_id = cur.fetchone()[0]
+
+        # Guardar la orden
+        cur.execute("""
+            INSERT INTO ordenes_catalogo (
+                catalogo_id,
+                numero_orden,
+                fecha_aceptacion,
+                ruc,
+                proveedor,
+                monto_adjudicado,
+                administrador_orden,
+                plazo_dias,
+                fecha_vencimiento,
+                observaciones
+            )
+            VALUES (
+                %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s
+            )
+        """, (
+            catalogo_id,
+            numero_orden,
+            fecha_aceptacion_obj,
+            ruc,
+            proveedor,
+            monto_adjudicado,
+            administrador_orden,
+            plazo_dias,
+            fecha_vencimiento,
+            observaciones
+        ))
+
+        conn.commit()
+
+        flash(
+            "✅ Orden de Catálogo guardada correctamente.",
+            "success"
+        )
+
+        return redirect(
+            url_for(
+                "main.orden_catalogo_nueva",
+                tarea_id=tarea_id
+            )
+        )
+
+    except Exception as e:
+
+        if "conn" in locals():
+            conn.rollback()
+
+        print("ERROR ORDEN CATÁLOGO:", e)
+
+        flash(
+            f"❌ Error al guardar la orden: {e}",
+            "danger"
+        )
+
+        return redirect(request.referrer)
+
+    finally:
+
+        if "cur" in locals():
+            cur.close()
+
+        if "conn" in locals():
+            conn.close()
+
+# ==========================================
+# EDITAR ORDEN DE CATÁLOGO
+# ==========================================
+@main.route(
+    "/ordenes_catalogo/editar/<int:orden_id>",
+    methods=["GET", "POST"]
+)
+@login_required()
+def editar_orden_catalogo(orden_id):
+
+    conn = get_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    try:
+
+        cur.execute("""
+            SELECT
+                oc.*,
+                ce.tarea_id,
+                ce.codigo_proceso,
+                ce.objeto_contratacion,
+                ce.unidad_requirente,
+                ce.memo_vice_ad,
+                ce.fecha_memo_vice_ad,
+                ce.presupuesto_referencial
+            FROM ordenes_catalogo oc
+            JOIN catalogos_electronicos ce
+                ON ce.id = oc.catalogo_id
+            WHERE oc.id = %s
+        """, (orden_id,))
+
+        orden = cur.fetchone()
+
+        if not orden:
+            flash(
+                "La orden de catálogo no existe.",
+                "danger"
+            )
+            return redirect(url_for("main.tareas"))
+
+        if request.method == "POST":
+
+            numero_orden = request.form.get(
+                "numero_orden", ""
+            ).strip()
+
+            fecha_aceptacion = request.form.get(
+                "fecha_aceptacion"
+            )
+
+            ruc = request.form.get(
+                "ruc", ""
+            ).strip()
+
+            proveedor = request.form.get(
+                "proveedor", ""
+            ).strip()
+
+            monto_adjudicado = Decimal(
+                str(
+                    request.form.get(
+                        "monto_adjudicado", 0
+                    ) or 0
+                )
+            )
+
+            administrador_orden = request.form.get(
+                "administrador_orden", ""
+            ).strip()
+
+            plazo_dias = int(
+                request.form.get(
+                    "plazo_dias", 0
+                ) or 0
+            )
+
+            observaciones = request.form.get(
+                "observaciones", ""
+            ).strip()
+
+            fecha_aceptacion_obj = datetime.strptime(
+                fecha_aceptacion,
+                "%Y-%m-%d"
+            ).date()
+
+            fecha_vencimiento = (
+                fecha_aceptacion_obj
+                + timedelta(days=plazo_dias)
+            )
+
+            # Total de las otras órdenes
+            cur.execute("""
+                SELECT
+                    COALESCE(
+                        SUM(monto_adjudicado),
+                        0
+                    ) AS total_otras
+                FROM ordenes_catalogo
+                WHERE catalogo_id = %s
+                AND id <> %s
+            """, (
+                orden["catalogo_id"],
+                orden_id
+            ))
+
+            fila = cur.fetchone()
+
+            total_otras = Decimal(
+                str(fila["total_otras"] or 0)
+            )
+
+            presupuesto = Decimal(
+                str(
+                    orden[
+                        "presupuesto_referencial"
+                    ] or 0
+                )
+            )
+
+            if total_otras + monto_adjudicado > presupuesto:
+
+                flash(
+                    "El monto supera el presupuesto disponible.",
+                    "danger"
+                )
+
+                return redirect(
+                    url_for(
+                        "main.editar_orden_catalogo",
+                        orden_id=orden_id
+                    )
+                )
+
+            cur.execute("""
+                UPDATE ordenes_catalogo
+                SET
+                    numero_orden = %s,
+                    fecha_aceptacion = %s,
+                    ruc = %s,
+                    proveedor = %s,
+                    monto_adjudicado = %s,
+                    administrador_orden = %s,
+                    plazo_dias = %s,
+                    fecha_vencimiento = %s,
+                    observaciones = %s
+                WHERE id = %s
+            """, (
+                numero_orden,
+                fecha_aceptacion_obj,
+                ruc,
+                proveedor,
+                monto_adjudicado,
+                administrador_orden,
+                plazo_dias,
+                fecha_vencimiento,
+                observaciones,
+                orden_id
+            ))
+
+            conn.commit()
+
+            flash(
+                "✅ Orden de catálogo actualizada.",
+                "success"
+            )
+
+            return redirect(
+                url_for(
+                    "main.orden_catalogo_nueva",
+                    tarea_id=orden["tarea_id"]
+                )
+            )
+
+        return render_template(
+            "ordenes_catalogo/orden_catalogo_editar.html",
+            orden=orden
+        )
+
+    finally:
+
+        cur.close()
+        conn.close()
+
+
 # =========================
 # LISTAR SEGUIMIENTO CONTRATOS CON ALERTAS
 # =========================
@@ -5022,7 +5641,7 @@ def guardar_publicacion_necesidad():
         numero_publicacion = request.form.get("numero_publicacion") or 1
 
         estado = request.form.get("estado")
-        observaciones = request.form.get("observaciones")
+        observaciones = request.form.get("observaciones") 
 
         notificado = request.form.get("notificado") == "on"
         oc_subida = request.form.get("oc_subida") == "on"
@@ -5273,7 +5892,7 @@ def guardar_proforma_publicacion(publicacion_id):
         ruc = request.form.get("ruc")
         fecha_recepcion = request.form.get("fecha_recepcion") or None
         monto_proforma = request.form.get("monto_proforma") or None
-        observaciones = request.form.get("observaciones")
+        observaciones = request.form.get("observaciones") or None
 
         cur.execute("""
             INSERT INTO proformas_publicacion (
