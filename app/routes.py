@@ -1524,9 +1524,6 @@ def orden_compra_pdf(id):
     )
 # =========================
 # NUEVA ORDEN DE COMPRA
-# =========================
-# =========================
-# NUEVA ORDEN DE COMPRA
 # ÍNFIMA CUANTÍA
 # =========================
 @main.route("/ordenes_compra/nueva")

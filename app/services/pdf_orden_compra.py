@@ -287,8 +287,7 @@ def generar_pdf_orden_compra(orden, productos):
         [
             P("PLAZO DE EJECUCIÓN:", bold),
             P(
-                f"El plazo para la ejecución de la orden de compra será de <b>{plazo}</b>, "
-                f"contados a partir de la fecha de suscripción de la orden de compra.",
+                f"El plazo para la ejecución de la orden de compra será de <b>{plazo}</b>, ",
                 normal
             )
         ],
