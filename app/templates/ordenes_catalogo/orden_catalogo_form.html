@@ -404,7 +404,14 @@
 
             const totalAdjudicadoAnterior =
                 parseFloat(totalAnteriorInput.value || 0);
+            if (totalAdjudicadoAnterior >= presupuestoReferencial) {
 
+                montoAdjudicado.disabled = true;
+                botonGuardar.disabled = true;
+
+                botonGuardar.innerHTML =
+                    "✅ Presupuesto completamente adjudicado";
+            }
 
             function calcularFechaVencimiento() {
 
@@ -482,12 +489,23 @@
                         "💾 Guardar orden";
                 }
 
-                if (saldo === 0) {
+               if (saldo < 0) {
+
+                    saldoNoAdjudicado.classList.add("is-invalid");
 
                     botonGuardar.disabled = true;
 
                     botonGuardar.innerHTML =
-                        "✅ Presupuesto completamente adjudicado";
+                        "⚠ Monto supera presupuesto";
+
+                } else {
+
+                    saldoNoAdjudicado.classList.add("is-valid");
+
+                    botonGuardar.disabled = false;
+
+                    botonGuardar.innerHTML =
+                        "💾 Guardar orden";
                 }
 
             }

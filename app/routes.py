@@ -1275,7 +1275,9 @@ def tareas():
             t.objeto_contratacion,
             tp.nombre_proceso,
             t.estado_requerimiento,
-            t.fecha_recepcion
+            t.fecha_recepcion,
+            t.numero_certificacion,
+            t.funcionario_encargado
         FROM tareas t
         LEFT JOIN tipo_procesos tp
             ON t.tipo_proceso = tp.id::TEXT

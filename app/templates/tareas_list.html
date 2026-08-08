@@ -53,87 +53,115 @@
                 <th>Tipo Proceso</th>
                 <th>Estado</th>
                 <th>Fecha Recepción</th>
+                <th>Certificación Presupuestaria</th>
+                <th>Analista</th>
                 <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
             {% for t in tareas %}
+
             <tr>
+
                 <td>{{ t[0] }}</td>
+
                 <td>{{ t[1] }}</td>
+
                 <td>{{ t[2] }}</td>
+
                 <td>{{ t[3] }}</td>
+
                 <td>{{ t[4] }}</td>
+
                 <td>{{ t[5] }}</td>
+
                 <td>
+                    {% if t[6] %}
+                        <span class="badge badge-success">
+                            N.º {{ t[6] }}
+                        </span>
+                    {% else %}
+                        <span class="text-muted">
+                            —
+                        </span>
+                    {% endif %}
+                </td>
 
-                    <a href="{{ url_for('main.tareas_editar', id=t[0]) }}" class="btn btn-sm btn-warning mb-1">
-                        ✏️ Editar
-                    </a>
+                <td>
+                    {{ t[7] if t[7] else '—' }}
+                </td>
 
-                    <form action="{{ url_for('main.tareas_eliminar', id=t[0]) }}" method="post" style="display:inline;"
-                        onsubmit="return confirm('¿Seguro que deseas eliminar esta tarea?');">
+                <td>
+                <a href="{{ url_for('main.tareas_editar', id=t[0]) }}" class="btn btn-sm btn-warning mb-1">
+                    ✏️ Editar
+                </a>
 
-                        <button type="submit" class="btn btn-sm btn-danger mb-1">
-                            🗑️ Eliminar
-                        </button>
-                    </form>
+                <form action="{{ url_for('main.tareas_eliminar', id=t[0]) }}" method="post" style="display:inline;"
+                    onsubmit="return confirm('¿Seguro que deseas eliminar esta tarea?');">
 
-                    <a href="{{ url_for('main.informe_verificacion', id_tarea=t[0]) }}"
-                        class="btn btn-sm btn-info mb-1">
-                        📄 Informe Verificación
-                    </a>
-
-                    <a href="{{ url_for('main.tarea_certificaciones', tarea_id=t[0]) }}"
-                        class="btn btn-sm btn-success mb-1">
-                        📑 Certificaciones
-                    </a>
-
-                    <button type="button" class="btn btn-sm btn-dark mb-1 btn-detalle-tarea" data-toggle="modal"
-                        data-target="#modalDetalleTarea" data-id="{{ t[0] }}">
-                        👁 Ver detalle
+                    <button type="submit" class="btn btn-sm btn-danger mb-1">
+                        🗑️ Eliminar
                     </button>
-                    {% set codigo = (t[1] or '')|upper|trim %}
+                </form>
 
-                    {% if codigo.startswith('IC-') %}
+                <a href="{{ url_for('main.informe_verificacion', id_tarea=t[0]) }}" class="btn btn-sm btn-info mb-1">
+                    📄 Informe Verificación
+                </a>
 
-                        <a href="{{ url_for(
+                <a href="{{ url_for('main.tarea_certificaciones', tarea_id=t[0]) }}"
+                    class="btn btn-sm btn-success mb-1">
+                    📑 Certificaciones
+                </a>
+                <a href="{{ url_for(
+                        'main.seguimiento_tareas',
+                        codigo=t[1]
+                    ) }}" class="btn btn-sm btn-outline-primary mb-1">
+
+                    📌 Seguimiento
+
+                </a>
+                <button type="button" class="btn btn-sm btn-dark mb-1 btn-detalle-tarea" data-toggle="modal"
+                    data-target="#modalDetalleTarea" data-id="{{ t[0] }}">
+                    👁 Ver detalle
+                </button>
+                {% set codigo = (t[1] or '')|upper|trim %}
+
+                {% if codigo.startswith('IC-') %}
+
+                <a href="{{ url_for(
                             'main.ordenes_compra_nueva',
                             tarea_id=t[0]
-                        ) }}"
-                        class="btn btn-sm btn-primary mb-1">
-                            📦 Orden de Compra
-                        </a>
+                        ) }}" class="btn btn-sm btn-primary mb-1">
+                    📦 Orden de Compra
+                </a>
 
-                    {% elif codigo.startswith('CATE-') %}
+                {% elif codigo.startswith('CATE-') %}
 
-                        <a href="{{ url_for(
+                <a href="{{ url_for(
                             'main.orden_catalogo_nueva',
                             tarea_id=t[0]
-                        ) }}"
-                        class="btn btn-sm btn-info mb-1">
+                        ) }}" class="btn btn-sm btn-info mb-1">
 
-                            🛒 Orden de Catálogo
+                    🛒 Orden de Catálogo
 
-                        </a>
+                </a>
 
-                    {% else %}
+                {% else %}
 
-                        <a href="#"
-                        class="btn btn-sm btn-secondary mb-1">
+                <a href="#" class="btn btn-sm btn-secondary mb-1">
 
-                            📑 Registrar Contrato
+                    📑 Registrar Contrato
 
-                        </a>
+                </a>
 
-                    {% endif %}
+                {% endif %}
                 </td>
 
 
             </tr>
             {% else %}
             <tr>
-                <td colspan="7" class="text-center text-muted">
+                <td colspan="9" class="text-center text-muted">
                     No existen tareas registradas
                 </td>
             </tr>
@@ -290,9 +318,7 @@
                     ✏ Editar partida presupuestaria
                 </h5>
 
-                <button type="button"
-                        class="close"
-                        data-dismiss="modal">
+                <button type="button" class="close" data-dismiss="modal">
                     &times;
                 </button>
 
@@ -302,27 +328,18 @@
 
                 <div class="modal-body">
 
-                    <input type="hidden"
-                           id="editarPartidaId">
+                    <input type="hidden" id="editarPartidaId">
 
                     <div class="form-group">
                         <label>Número de partida</label>
 
-                        <input type="text"
-                               id="editarNumPart"
-                               name="num_part"
-                               class="form-control"
-                               required>
+                        <input type="text" id="editarNumPart" name="num_part" class="form-control" required>
                     </div>
 
                     <div class="form-group">
                         <label>Nombre de la partida</label>
 
-                        <input type="text"
-                               id="editarNombrePart"
-                               name="nombre_part"
-                               class="form-control"
-                               required>
+                        <input type="text" id="editarNombrePart" name="nombre_part" class="form-control" required>
                     </div>
 
                     <div class="form-row">
@@ -330,19 +347,13 @@
                         <div class="form-group col-md-6">
                             <label>Programa</label>
 
-                            <input type="text"
-                                   id="editarPrograma"
-                                   name="programa"
-                                   class="form-control">
+                            <input type="text" id="editarPrograma" name="programa" class="form-control">
                         </div>
 
                         <div class="form-group col-md-6">
                             <label>Fuente</label>
 
-                            <input type="text"
-                                   id="editarFuente"
-                                   name="fuente"
-                                   class="form-control">
+                            <input type="text" id="editarFuente" name="fuente" class="form-control">
                         </div>
 
                     </div>
@@ -350,13 +361,8 @@
                     <div class="form-group">
                         <label>Monto</label>
 
-                        <input type="number"
-                               id="editarMonto"
-                               name="monto"
-                               class="form-control"
-                               step="0.01"
-                               min="0"
-                               required>
+                        <input type="number" id="editarMonto" name="monto" class="form-control" step="0.01" min="0"
+                            required>
                     </div>
 
                     <div id="mensajeEditarPartida"></div>
@@ -365,14 +371,11 @@
 
                 <div class="modal-footer">
 
-                    <button type="button"
-                            class="btn btn-secondary"
-                            data-dismiss="modal">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
                         Cancelar
                     </button>
 
-                    <button type="submit"
-                            class="btn btn-success">
+                    <button type="submit" class="btn btn-success">
                         💾 Guardar cambios
                     </button>
 
@@ -496,14 +499,14 @@
 
                         <td class="text-right">
                             $ ${Number(
-                                partida.monto || 0
-                            ).toLocaleString(
-                                "en-US",
-                                {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2
-                                }
-                            )}
+                            partida.monto || 0
+                        ).toLocaleString(
+                            "en-US",
+                            {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }
+                        )}
                         </td>
 
                         <td class="text-center">
@@ -557,153 +560,153 @@
         });
 
     });
-async function editarPartida(id) {
-
-    const mensaje =
-        document.getElementById("mensajeEditarPartida");
-
-    mensaje.innerHTML = "";
-
-    try {
-
-        const respuesta =
-            await fetch(`/api/partidas/${id}`);
-
-        const data =
-            await respuesta.json();
-
-        if (!respuesta.ok || !data.ok) {
-            throw new Error(
-                data.mensaje || "No se pudo cargar la partida."
-            );
-        }
-
-        const partida = data.partida;
-
-        document.getElementById(
-            "editarPartidaId"
-        ).value = partida.id;
-
-        document.getElementById(
-            "editarNumPart"
-        ).value = partida.num_part;
-
-        document.getElementById(
-            "editarNombrePart"
-        ).value = partida.nombre_part;
-
-        document.getElementById(
-            "editarPrograma"
-        ).value = partida.programa;
-
-        document.getElementById(
-            "editarFuente"
-        ).value = partida.fuente;
-
-        document.getElementById(
-            "editarMonto"
-        ).value = partida.monto;
-
-        $("#modalEditarPartida").modal("show");
-
-    } catch (error) {
-
-        alert(error.message);
-
-    }
-
-}
-document.getElementById(
-    "formEditarPartida"
-).addEventListener(
-    "submit",
-    async function (event) {
-
-        event.preventDefault();
-
-        const partidaId =
-            document.getElementById(
-                "editarPartidaId"
-            ).value;
-
-        const formData =
-            new FormData(this);
+    async function editarPartida(id) {
 
         const mensaje =
-            document.getElementById(
-                "mensajeEditarPartida"
-            );
+            document.getElementById("mensajeEditarPartida");
 
         mensaje.innerHTML = "";
 
         try {
 
             const respuesta =
-                await fetch(
-                    `/partidas/${partidaId}/editar`,
-                    {
-                        method: "POST",
-                        body: formData
-                    }
-                );
+                await fetch(`/api/partidas/${id}`);
 
             const data =
                 await respuesta.json();
 
             if (!respuesta.ok || !data.ok) {
                 throw new Error(
-                    data.mensaje ||
-                    "No se pudo actualizar la partida."
+                    data.mensaje || "No se pudo cargar la partida."
                 );
             }
 
-            mensaje.innerHTML = `
+            const partida = data.partida;
+
+            document.getElementById(
+                "editarPartidaId"
+            ).value = partida.id;
+
+            document.getElementById(
+                "editarNumPart"
+            ).value = partida.num_part;
+
+            document.getElementById(
+                "editarNombrePart"
+            ).value = partida.nombre_part;
+
+            document.getElementById(
+                "editarPrograma"
+            ).value = partida.programa;
+
+            document.getElementById(
+                "editarFuente"
+            ).value = partida.fuente;
+
+            document.getElementById(
+                "editarMonto"
+            ).value = partida.monto;
+
+            $("#modalEditarPartida").modal("show");
+
+        } catch (error) {
+
+            alert(error.message);
+
+        }
+
+    }
+    document.getElementById(
+        "formEditarPartida"
+    ).addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+            const partidaId =
+                document.getElementById(
+                    "editarPartidaId"
+                ).value;
+
+            const formData =
+                new FormData(this);
+
+            const mensaje =
+                document.getElementById(
+                    "mensajeEditarPartida"
+                );
+
+            mensaje.innerHTML = "";
+
+            try {
+
+                const respuesta =
+                    await fetch(
+                        `/partidas/${partidaId}/editar`,
+                        {
+                            method: "POST",
+                            body: formData
+                        }
+                    );
+
+                const data =
+                    await respuesta.json();
+
+                if (!respuesta.ok || !data.ok) {
+                    throw new Error(
+                        data.mensaje ||
+                        "No se pudo actualizar la partida."
+                    );
+                }
+
+                mensaje.innerHTML = `
                 <div class="alert alert-success">
                     ✅ ${data.mensaje}
                 </div>
             `;
 
-            setTimeout(function () {
+                setTimeout(function () {
 
-                $("#modalEditarPartida").modal("hide");
+                    $("#modalEditarPartida").modal("hide");
 
-                const modalDetalle =
-                    document.getElementById(
-                        "modalDetalleTarea"
-                    );
-
-                const tareaId =
-                    modalDetalle.getAttribute(
-                        "data-tarea-id"
-                    );
-
-                if (tareaId) {
-
-                    const boton =
-                        document.querySelector(
-                            `.btn-detalle-tarea[data-id="${tareaId}"]`
+                    const modalDetalle =
+                        document.getElementById(
+                            "modalDetalleTarea"
                         );
 
-                    if (boton) {
-                        boton.click();
+                    const tareaId =
+                        modalDetalle.getAttribute(
+                            "data-tarea-id"
+                        );
+
+                    if (tareaId) {
+
+                        const boton =
+                            document.querySelector(
+                                `.btn-detalle-tarea[data-id="${tareaId}"]`
+                            );
+
+                        if (boton) {
+                            boton.click();
+                        }
+
                     }
 
-                }
+                }, 600);
 
-            }, 600);
+            } catch (error) {
 
-        } catch (error) {
-
-            mensaje.innerHTML = `
+                mensaje.innerHTML = `
                 <div class="alert alert-danger">
                     ❌ ${error.message}
                 </div>
             `;
 
-        }
+            }
 
-    }
-);
+        }
+    );
 
 </script>
 {% endblock %}
