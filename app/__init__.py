@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, app
 import os
 
 def create_app():
@@ -9,6 +9,8 @@ def create_app():
     app.register_blueprint(main)
     from .inteligencia_routes import inteligencia
     app.register_blueprint(inteligencia) 
-   
+    from .planificacion_routes import planificacion
+    app.register_blueprint(planificacion)
+    
     return app
 

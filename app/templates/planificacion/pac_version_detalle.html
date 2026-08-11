@@ -1,0 +1,333 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h3>👁 Detalle de la Reforma del PAC</h3>
+
+            <p class="text-muted mb-0">
+                {{ version[2] }} — {{ version[1] }}
+            </p>
+        </div>
+
+        <a href="{{ url_for('planificacion.pac_historial') }}"
+           class="btn btn-secondary">
+            ⬅ Volver al historial
+        </a>
+
+    </div>
+
+
+    <div class="card mb-4">
+
+        <div class="card-header bg-dark text-white">
+            Información de la versión
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-2">
+                    <strong>Año</strong><br>
+                    {{ version[1] }}
+                </div>
+
+                <div class="col-md-3">
+                    <strong>Reforma</strong><br>
+                    {{ version[2] }}
+                </div>
+
+                <div class="col-md-2">
+                    <strong>Estado</strong><br>
+
+                    {% if version[4] == 'VIGENTE' %}
+                        <span class="badge badge-success">
+                            ✅ VIGENTE
+                        </span>
+                    {% else %}
+                        <span class="badge badge-secondary">
+                            HISTÓRICO
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-2">
+                    <strong>Fecha reforma</strong><br>
+                    {{ version[3].strftime('%d/%m/%Y')
+                       if version[3] else '—' }}
+                </div>
+
+                <div class="col-md-3">
+                    <strong>Archivo</strong><br>
+                    {{ version[5] or '—' }}
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- FILTROS -->
+    <div class="card mb-4">
+
+        <div class="card-header bg-primary text-white">
+            🔎 Filtros
+        </div>
+
+        <div class="card-body">
+
+            <form method="GET">
+
+                <div class="row">
+
+                    <div class="col-md-3">
+                        <label>Unidad</label>
+
+                        <select name="unidad" class="form-control">
+                            <option value="">Todas</option>
+
+                            {% for item in unidades %}
+                            <option value="{{ item }}"
+                                {% if unidad == item %}selected{% endif %}>
+                                {{ item }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+
+                    <div class="col-md-2">
+                        <label>Programa</label>
+
+                        <select name="programa" class="form-control">
+                            <option value="">Todos</option>
+
+                            {% for item in programas %}
+                            <option value="{{ item }}"
+                                {% if programa == item %}selected{% endif %}>
+                                {{ item }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label>Tipo de presupuesto</label>
+
+                        <select name="tipo_presupuesto"
+                                class="form-control">
+
+                            <option value="">
+                                Todos
+                            </option>
+
+                            {% for item in tipos_presupuesto %}
+
+                            <option value="{{ item }}"
+                                {% if tipo_presupuesto == item %}
+                                    selected
+                                {% endif %}>
+
+                                {{ item }}
+
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label>Partida</label>
+
+                        <select name="partida" class="form-control">
+                            <option value="">Todas</option>
+
+                            {% for item in partidas %}
+                            <option value="{{ item }}"
+                                {% if partida == item %}selected{% endif %}>
+                                {{ item }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+
+                    <div class="col-md-1">
+                        <label>Fuente</label>
+
+                        <select name="fuente" class="form-control">
+                            <option value="">Todas</option>
+
+                            {% for item in fuentes %}
+                            <option value="{{ item }}"
+                                {% if fuente == item %}selected{% endif %}>
+                                {{ item }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+
+                    <div class="col-md-2 d-flex align-items-end">
+
+                        <button type="submit"
+                                class="btn btn-primary mr-2">
+                            🔍 Filtrar
+                        </button>
+
+                        <a href="{{ url_for(
+                            'planificacion.pac_version_detalle',
+                            version_id=version[0]
+                        ) }}"
+                        class="btn btn-secondary">
+                            Limpiar
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- RESUMEN -->
+    <div class="row mb-4">
+
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <small class="text-muted">REGISTROS</small>
+                    <h4>{{ "{:,}".format(total_registros) }}</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <small class="text-muted">SUBTOTAL</small>
+                    <h4>$ {{ "{:,.2f}".format(subtotal) }}</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <small class="text-muted">IVA</small>
+                    <h4>$ {{ "{:,.2f}".format(iva) }}</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <small class="text-muted">TOTAL PAC</small>
+                    <h4>$ {{ "{:,.2f}".format(total) }}</h4>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- TABLA -->
+    <div class="card">
+
+        <div class="card-header bg-dark text-white">
+            Registros del PAC
+        </div>
+
+        <div class="card-body p-0">
+
+            <div style="
+                max-height: 550px;
+                overflow-y: auto;
+                overflow-x: auto;
+            ">
+
+                <table class="table table-bordered table-sm mb-0">
+
+                    <thead class="thead-light">
+
+                        <tr>
+                            <th>Unidad</th>
+                            <th>Programa</th>
+                            <th>Partida</th>
+                            <th>Fuente</th>
+                            <th>CPC</th>
+                            <th>Tipo</th>
+                            <th>Descripción</th>
+                            <th>Procedimiento</th>
+                            <th class="text-right">Subtotal</th>
+                            <th class="text-right">IVA</th>
+                            <th class="text-right">Total</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for d in detalles %}
+
+                        <tr>
+
+                            <td>{{ d[1] or '' }}</td>
+                            <td>{{ d[2] or '' }}</td>
+                            <td>{{ d[3] or '' }}</td>
+                            <td>{{ d[4] or '' }}</td>
+                            <td>{{ d[5] or '' }}</td>
+                            <td>{{ d[6] or '' }}</td>
+                            <td>{{ d[7] or '' }}</td>
+                            <td>{{ d[8] or '' }}</td>
+
+                            <td class="text-right">
+                                $ {{ "{:,.2f}".format(d[9] or 0) }}
+                            </td>
+
+                            <td class="text-right">
+                                $ {{ "{:,.2f}".format(d[10] or 0) }}
+                            </td>
+
+                            <td class="text-right font-weight-bold">
+                                $ {{ "{:,.2f}".format(d[11] or 0) }}
+                            </td>
+
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+                            <td colspan="11"
+                                class="text-center text-muted py-4">
+                                No existen registros con estos filtros.
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

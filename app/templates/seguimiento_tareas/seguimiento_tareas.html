@@ -189,7 +189,101 @@
                                    id="fechaCertificacion"
                                    class="form-control">
                         </div>
+                        <div class="form-group">
+                            <label>Valor de la certificación</label>
 
+                            <input type="number"
+                                name="valor_certificacion"
+                                id="valorCertificacion"
+                                class="form-control"
+                                min="0"
+                                step="0.01"
+                                placeholder="0.00">
+                        </div>
+                        <!-- ==========================================
+                            CERTIFICACIÓN PLURIANUAL
+                        ========================================== -->
+
+                        <div class="form-group mt-3">
+
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                    type="checkbox"
+                                    id="certificacionPlurianual"
+                                    name="certificacion_plurianual"
+                                    value="1">
+
+                                <label class="form-check-label font-weight-bold"
+                                    for="certificacionPlurianual">
+                                    ¿La certificación es plurianual?
+                                </label>
+                            </div>
+
+                        </div>
+
+
+                        <!-- DETALLE PLURIANUAL -->
+                        <div id="bloquePlurianual"
+                            style="display:none;"
+                            class="border rounded p-3 mb-3">
+
+                            <h6 class="font-weight-bold mb-3">
+                                📅 Distribución de la certificación por año
+                            </h6>
+
+                            <div id="filasPlurianuales">
+
+                                <div class="form-row fila-plurianual mb-2">
+
+                                    <div class="col-md-4">
+                                        <label>Año</label>
+
+                                        <input type="number"
+                                            name="anio_plurianual[]"
+                                            class="form-control"
+                                            min="2020"
+                                            max="2100"
+                                            placeholder="Ej. 2026">
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label>Monto certificado</label>
+
+                                        <input type="number"
+                                            name="monto_plurianual[]"
+                                            class="form-control monto-plurianual"
+                                            min="0"
+                                            step="0.01"
+                                            placeholder="0.00">
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-primary mt-2"
+                                    id="agregarAnioPlurianual">
+                                ➕ Agregar año
+                            </button>
+
+                            <hr>
+
+                            <div class="text-right">
+
+                            <div>
+                                <strong>Otros ejercicios:</strong>
+                                $ <span id="totalPlurianual">0.00</span>
+                            </div>
+
+                            <div class="mt-2" style="font-size: 1.15rem;">
+                                <strong>Total de la certificación:</strong>
+                                $ <span id="totalGeneralCertificacion">0.00</span>
+                            </div>
+
+                        </div>
+
+                        </div>
                     </div>
 
                     <!-- ===================================== -->
@@ -295,6 +389,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const tipoProceso = this.getAttribute("data-tipo");
 
             document.getElementById("tarea_id_modal").value = tareaId || "";
+            cargarCertificacionExistente(tareaId);
             document.getElementById("codigoSeguimiento").value = codigo || "";
 
             tipoProcesoActual = tipoProceso || "";
@@ -715,6 +810,303 @@ document.addEventListener("DOMContentLoaded", function () {
     actualizarBloques();
 
 });
-</script>
+async function cargarCertificacionExistente(tareaId) {
 
+    const respuesta = await fetch(
+        `/api/tareas/${tareaId}/certificacion`
+    );
+
+    const data = await respuesta.json();
+
+    if (!respuesta.ok || !data.ok) {
+        return;
+    }
+
+    document.getElementById(
+        "numeroCertificacion"
+    ).value = data.certificacion.numero || "";
+
+    document.getElementById(
+        "fechaCertificacion"
+    ).value = data.certificacion.fecha || "";
+
+    document.getElementById(
+        "valorCertificacion"
+    ).value = data.certificacion.valor || 0;
+
+    const checkPlurianual =
+        document.getElementById("certificacionPlurianual");
+
+    checkPlurianual.checked =
+        data.certificacion.plurianual === true;
+
+    const bloquePlurianual =
+        document.getElementById("bloquePlurianual");
+
+    bloquePlurianual.style.display =
+        checkPlurianual.checked
+            ? "block"
+            : "none";
+
+    const contenedor =
+        document.getElementById("filasPlurianuales");
+
+    contenedor.innerHTML = "";
+
+    if (data.anios.length > 0) {
+
+        data.anios.forEach(function (item) {
+
+            const fila = document.createElement("div");
+
+            fila.className =
+                "form-row fila-plurianual mb-2";
+
+            fila.innerHTML = `
+                <div class="col-md-4">
+
+                    <input type="number"
+                           name="anio_plurianual[]"
+                           class="form-control"
+                           value="${item.anio}"
+                           min="2020"
+                           max="2100">
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <input type="number"
+                           name="monto_plurianual[]"
+                           class="form-control monto-plurianual"
+                           value="${item.monto}"
+                           min="0"
+                           step="0.01">
+
+                </div>
+
+                <div class="col-md-2">
+
+                    <button type="button"
+                            class="btn btn-danger btn-block quitar-anio">
+                        ✕
+                    </button>
+
+                </div>
+            `;
+
+            contenedor.appendChild(fila);
+        });
+
+    } else {
+
+        contenedor.innerHTML = `
+            <div class="form-row fila-plurianual mb-2">
+
+                <div class="col-md-4">
+                    <label>Año</label>
+
+                    <input type="number"
+                           name="anio_plurianual[]"
+                           class="form-control"
+                           min="2020"
+                           max="2100"
+                           placeholder="Ej. 2026">
+                </div>
+
+                <div class="col-md-6">
+                    <label>Monto certificado</label>
+
+                    <input type="number"
+                           name="monto_plurianual[]"
+                           class="form-control monto-plurianual"
+                           min="0"
+                           step="0.01"
+                           placeholder="0.00">
+                </div>
+
+            </div>
+        `;
+    }
+    document.getElementById(
+        "valorCertificacion"
+    ).dispatchEvent(
+        new Event("input", { bubbles: true })
+    );
+}
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const checkPlurianual =
+        document.getElementById("certificacionPlurianual");
+
+    const bloquePlurianual =
+        document.getElementById("bloquePlurianual");
+
+    const contenedor =
+        document.getElementById("filasPlurianuales");
+
+    const botonAgregar =
+        document.getElementById("agregarAnioPlurianual");
+
+    const totalTexto =
+        document.getElementById("totalPlurianual");
+
+
+    // ==========================================
+    // MOSTRAR / OCULTAR PLURIANUALIDAD
+    // ==========================================
+    checkPlurianual.addEventListener("change", function () {
+
+        if (this.checked) {
+            bloquePlurianual.style.display = "block";
+        } else {
+            bloquePlurianual.style.display = "none";
+        }
+
+    });
+
+
+    // ==========================================
+    // AGREGAR OTRO AÑO
+    // ==========================================
+    botonAgregar.addEventListener("click", function () {
+
+        const nuevaFila = document.createElement("div");
+
+        nuevaFila.className =
+            "form-row fila-plurianual mb-2";
+
+        nuevaFila.innerHTML = `
+            <div class="col-md-4">
+
+                <input type="number"
+                       name="anio_plurianual[]"
+                       class="form-control"
+                       min="2020"
+                       max="2100"
+                       placeholder="Ej. 2027">
+
+            </div>
+
+            <div class="col-md-6">
+
+                <input type="number"
+                       name="monto_plurianual[]"
+                       class="form-control monto-plurianual"
+                       min="0"
+                       step="0.01"
+                       placeholder="0.00">
+
+            </div>
+
+            <div class="col-md-2">
+
+                <button type="button"
+                        class="btn btn-danger btn-block quitar-anio">
+                    ✕
+                </button>
+
+            </div>
+        `;
+
+        contenedor.appendChild(nuevaFila);
+
+    });
+
+
+    // ==========================================
+    // ELIMINAR UNA FILA
+    // ==========================================
+    contenedor.addEventListener("click", function (e) {
+
+        if (e.target.classList.contains("quitar-anio")) {
+
+            e.target.closest(".fila-plurianual").remove();
+
+            calcularTotalPlurianual();
+        }
+
+    });
+
+
+    // ==========================================
+    // CALCULAR TOTAL
+    // ==========================================
+    contenedor.addEventListener("input", function (e) {
+
+        if (e.target.classList.contains("monto-plurianual")) {
+            calcularTotalPlurianual();
+        }
+
+    });
+
+
+    function calcularTotalPlurianual() {
+
+        let otrosEjercicios = 0;
+
+        // ==========================================
+        // SUMAR LOS AÑOS ADICIONALES
+        // ==========================================
+        document.querySelectorAll(".monto-plurianual")
+            .forEach(function(input) {
+
+                otrosEjercicios +=
+                    parseFloat(input.value) || 0;
+
+            });
+
+
+        // ==========================================
+        // VALOR DEL EJERCICIO ACTUAL
+        // ==========================================
+        const valorActual =
+            parseFloat(
+                document.getElementById(
+                    "valorCertificacion"
+                ).value
+            ) || 0;
+
+
+        // ==========================================
+        // TOTAL COMPLETO DE LA CERTIFICACIÓN
+        // ==========================================
+        const totalCertificacion =
+            valorActual + otrosEjercicios;
+
+
+        document.getElementById(
+            "totalPlurianual"
+        ).textContent =
+            otrosEjercicios.toLocaleString(
+                "en-US",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            );
+
+
+        document.getElementById(
+            "totalGeneralCertificacion"
+        ).textContent =
+            totalCertificacion.toLocaleString(
+                "en-US",
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            );
+    }
+    document.getElementById(
+        "valorCertificacion"
+    ).addEventListener(
+        "input",
+        calcularTotalPlurianual
+    );
+
+});
+</script>
 {% endblock %}

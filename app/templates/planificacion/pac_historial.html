@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h3 class="mb-1">
+                📚 Historial de Reformas del PAC
+            </h3>
+
+            <p class="text-muted mb-0">
+                Versiones históricas y PAC vigente registrados en el sistema.
+            </p>
+        </div>
+
+        <a href="{{ url_for('planificacion.pac_gestion') }}"
+           class="btn btn-secondary">
+            ⬅ Volver
+        </a>
+
+    </div>
+
+
+    <div class="card shadow-sm">
+
+        <div class="card-header bg-dark text-white">
+            Versiones registradas
+        </div>
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-hover mb-0">
+
+                    <thead class="thead-light">
+
+                        <tr>
+                            <th>Año</th>
+                            <th>Reforma</th>
+                            <th>Fecha reforma</th>
+                            <th>Estado</th>
+                            <th class="text-center">Registros</th>
+                            <th class="text-right">Subtotal</th>
+                            <th class="text-right">IVA</th>
+                            <th class="text-right">Total PAC</th>
+                            <th>Archivo</th>
+                            <th>Fecha carga</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for v in versiones %}
+
+                        <tr>
+
+                            <td>
+                                {{ v[1] }}
+                            </td>
+
+                            <td>
+                                <strong>
+                                    {{ v[2] }}
+                                </strong>
+                            </td>
+
+                            <td>
+                                {{ v[3].strftime('%d/%m/%Y')
+                                   if v[3] else '—' }}
+                            </td>
+
+                            <td>
+
+                                {% if v[4] == 'VIGENTE' %}
+
+                                    <span class="badge badge-success">
+                                        ✅ VIGENTE
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge badge-secondary">
+                                        HISTÓRICO
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                            <td class="text-center">
+                                {{ "{:,}".format(v[7] or 0) }}
+                            </td>
+
+                            <td class="text-right">
+                                $ {{ "{:,.2f}".format(v[8] or 0) }}
+                            </td>
+
+                            <td class="text-right">
+                                $ {{ "{:,.2f}".format(v[9] or 0) }}
+                            </td>
+
+                            <td class="text-right font-weight-bold">
+                                $ {{ "{:,.2f}".format(v[10] or 0) }}
+                            </td>
+
+                            <td>
+                                {{ v[5] or '—' }}
+                            </td>
+
+                            <td>
+                                {{ v[6].strftime('%d/%m/%Y %H:%M')
+                                   if v[6] else '—' }}
+                            </td>
+
+                            <td class="text-center">
+
+                                <a href="{{ url_for(
+                                    'planificacion.pac_version_detalle',
+                                    version_id=v[0]
+                                ) }}"
+                                class="btn btn-sm btn-info"
+                                title="Ver detalle">
+
+                                    👁 Ver
+
+                                </a>
+
+                            </td>
+
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+                            <td colspan="11"
+                                class="text-center text-muted py-4">
+
+                                No existen reformas del PAC registradas.
+
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

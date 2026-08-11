@@ -39,6 +39,7 @@ from werkzeug.utils import secure_filename
 from app.decorators import login_required
 from app.database import get_connection
 from datetime import datetime, date, timedelta
+from decimal import Decimal
 
 def valor_en_letras_con_decimales(valor):
     valor = Decimal(valor).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
@@ -3812,10 +3813,14 @@ def seguimiento_tareas_guardar():
     observacion = request.form.get("observacion")
     numero_certificacion = request.form.get("numero_certificacion")
     fecha_certificacion = request.form.get("fecha_certificacion")
+    valor_certificacion = request.form.get("valor_certificacion")
 
+    certificacion_plurianual = (
+        request.form.get("certificacion_plurianual") == "1"
+    )
 
-    numero_certificacion = request.form.get("numero_certificacion")
-    fecha_certificacion = request.form.get("fecha_certificacion")
+    anios_plurianuales = request.form.getlist("anio_plurianual[]")
+    montos_plurianuales = request.form.getlist("monto_plurianual[]")
 
     # Partidas mostradas en el formulario de adjudicación
     partida_ids = request.form.getlist("partida_id[]")
@@ -3832,7 +3837,9 @@ def seguimiento_tareas_guardar():
         cur.execute("""
             SELECT
                 codigo_proceso,
-                tipo_proceso
+                tipo_proceso,
+                estado_requerimiento,
+                numero_certificacion
             FROM tareas
             WHERE id = %s
         """, (tarea_id,))
@@ -3844,7 +3851,14 @@ def seguimiento_tareas_guardar():
 
         codigo_proceso = tarea[0] or ""
         tipo_proceso = tarea[1] or ""
+        estado_anterior = tarea[2] or ""
+        numero_certificacion_anterior = tarea[3] or ""
 
+        editando_certificacion = (
+            estado == "CON CERTIFICACION"
+            and estado_anterior == "CON CERTIFICACION"
+            and bool(numero_certificacion_anterior)
+        )
         codigo_normalizado = codigo_proceso.upper().strip()
 
         es_catalogo = codigo_normalizado.startswith("CATE-")
@@ -3854,40 +3868,191 @@ def seguimiento_tareas_guardar():
         # ==========================================
         # 2. GUARDAR HISTORIAL DEL SEGUIMIENTO
         # ==========================================
-        cur.execute("""
-            INSERT INTO seguimiento_tareas (
+        # Si estamos editando una certificación existente,
+        # NO crear otro movimiento de seguimiento.
+        if not editando_certificacion:
+
+            cur.execute("""
+                INSERT INTO seguimiento_tareas (
+                    tarea_id,
+                    estado,
+                    observacion,
+                    usuario_id
+                )
+                VALUES (%s, %s, %s, %s)
+            """, (
                 tarea_id,
                 estado,
                 observacion,
-                usuario_id
-            )
-            VALUES (%s, %s, %s, %s)
-        """, (
-            tarea_id,
-            estado,
-            observacion,
-            session.get("user_id")
-        ))
-
-
+                session.get("user_id")
+            ))
         # ==========================================
-        # 3. ACTUALIZAR ESTADO DE LA TAREA
+        # 3. ACTUALIZAR ESTADO / CERTIFICACIÓN
         # ==========================================
         if estado == "CON CERTIFICACION":
 
+            # ------------------------------------------
+            # VALIDAR VALOR DE CERTIFICACIÓN
+            # ------------------------------------------
+            try:
+                valor_certificacion_decimal = Decimal(
+                    str(valor_certificacion or 0)
+                )
+            except Exception:
+                raise ValueError(
+                    "El valor de la certificación no es válido."
+                )
+
+            if valor_certificacion_decimal < 0:
+                raise ValueError(
+                    "El valor de la certificación no puede ser negativo."
+                )
+
+
+            # ------------------------------------------
+            # SI ES PLURIANUAL, VALIDAR AÑOS Y MONTOS
+            # ------------------------------------------
+            detalle_plurianual = []
+
+            if certificacion_plurianual:
+
+                if not anios_plurianuales:
+                    raise ValueError(
+                        "Debe ingresar al menos un año "
+                        "para la certificación plurianual."
+                    )
+
+                total_plurianual = Decimal("0.00")
+                anios_usados = set()
+
+                for indice, anio_texto in enumerate(anios_plurianuales):
+
+                    anio_texto = (anio_texto or "").strip()
+
+                    monto_texto = (
+                        montos_plurianuales[indice]
+                        if indice < len(montos_plurianuales)
+                        else ""
+                    )
+
+                    monto_texto = (monto_texto or "").strip()
+
+                    # Ignorar una fila completamente vacía
+                    if not anio_texto and not monto_texto:
+                        continue
+
+                    if not anio_texto:
+                        raise ValueError(
+                            "Existe un monto plurianual sin año."
+                        )
+
+                    try:
+                        anio = int(anio_texto)
+                    except ValueError:
+                        raise ValueError(
+                            f"El año '{anio_texto}' no es válido."
+                        )
+
+                    if anio in anios_usados:
+                        raise ValueError(
+                            f"El año {anio} está repetido."
+                        )
+
+                    anios_usados.add(anio)
+
+                    try:
+                        monto = Decimal(
+                            str(monto_texto or 0)
+                        )
+                    except Exception:
+                        raise ValueError(
+                            f"El monto del año {anio} no es válido."
+                        )
+
+                    if monto < 0:
+                        raise ValueError(
+                            f"El monto del año {anio} "
+                            f"no puede ser negativo."
+                        )
+
+                    detalle_plurianual.append(
+                        (anio, monto)
+                    )
+
+                    total_plurianual += monto
+
+
+                if not detalle_plurianual:
+                    raise ValueError(
+                        "Debe registrar al menos un año "
+                        "con su monto plurianual."
+                    )
+
+
+                # ==========================================
+                # TOTAL GENERAL DE LA CERTIFICACIÓN
+                # Ejercicio actual + otros ejercicios
+                # ==========================================
+                total_certificacion_general = (
+                    valor_certificacion_decimal
+                    + total_plurianual
+                )
+
+
+            # ------------------------------------------
+            # GUARDAR / EDITAR CERTIFICACIÓN EN TAREAS
+            # ------------------------------------------
             cur.execute("""
                 UPDATE tareas
                 SET
                     estado_requerimiento = %s,
                     numero_certificacion = %s,
-                    fecha_certificacion = %s
+                    fecha_certificacion = %s,
+                    valor_certificacion = %s,
+                    certificacion_plurianual = %s
                 WHERE id = %s
             """, (
                 estado,
                 numero_certificacion,
-                fecha_certificacion,
+                fecha_certificacion or None,
+                valor_certificacion_decimal,
+                certificacion_plurianual,
                 tarea_id
             ))
+
+
+            # ------------------------------------------
+            # BORRAR DISTRIBUCIÓN ANTERIOR
+            # Esto permite EDITAR sin duplicar años
+            # ------------------------------------------
+            cur.execute("""
+                DELETE FROM certificaciones_plurianuales
+                WHERE tarea_id = %s
+            """, (tarea_id,))
+
+
+            # ------------------------------------------
+            # VOLVER A GUARDAR DISTRIBUCIÓN ACTUAL
+            # ------------------------------------------
+            if certificacion_plurianual:
+
+                for anio, monto in detalle_plurianual:
+
+                    cur.execute("""
+                        INSERT INTO certificaciones_plurianuales (
+                            tarea_id,
+                            anio,
+                            monto,
+                            usuario_id
+                        )
+                        VALUES (%s, %s, %s, %s)
+                    """, (
+                        tarea_id,
+                        anio,
+                        monto,
+                        session.get("user_id")
+                    ))
+
 
         else:
 
@@ -3899,8 +4064,7 @@ def seguimiento_tareas_guardar():
                 estado,
                 tarea_id
             ))
-
-
+     
         # ==========================================
         # 4. DETERMINAR SI DEBE GUARDAR ADJUDICACIÓN
         # ==========================================
@@ -4147,47 +4311,118 @@ def seguimiento_tareas_guardar():
 # ===============================
 # HISTORIAL SEGUIMIENTO DE TAREA
 # ===============================
+
 @main.route("/seguimiento_tareas/historial/<int:tarea_id>")
 @login_required()
 def seguimiento_tareas_historial(tarea_id):
+
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("""
-        SELECT
-            id,
-            codigo_proceso,
-            objeto_contratacion,
-            unidad_solicitante,
-            funcionario_encargado,
-            estado_requerimiento
-        FROM tareas
-        WHERE id = %s
-    """, (tarea_id,))
-    tarea = cur.fetchone()
+    try:
 
-    cur.execute("""
-        SELECT
-            s.fecha,
-            s.estado,
-            s.observacion,
-            u.nombre
-        FROM seguimiento_tareas s
-        LEFT JOIN usuarios u
-            ON s.usuario_id = u.id
-        WHERE s.tarea_id = %s
-        ORDER BY s.fecha DESC
-    """, (tarea_id,))
-    seguimientos = cur.fetchall()
+        # ==========================================
+        # 1. DATOS DE LA TAREA
+        # ==========================================
+        cur.execute("""
+            SELECT
+                id,
+                codigo_proceso,
+                objeto_contratacion,
+                unidad_solicitante,
+                funcionario_encargado,
+                estado_requerimiento,
+                numero_certificacion,
+                fecha_certificacion,
+                valor_certificacion,
+                certificacion_plurianual
+            FROM tareas
+            WHERE id = %s
+        """, (tarea_id,))
 
-    cur.close()
-    conn.close()
+        tarea = cur.fetchone()
 
-    return render_template(
-        "seguimiento_tareas/historial.html",
-        tarea=tarea,
-        seguimientos=seguimientos
-    )
+        if not tarea:
+            flash(
+                "No se encontró la tarea.",
+                "danger"
+            )
+
+            return redirect(
+                url_for("main.seguimiento_tareas")
+            )
+
+
+        # ==========================================
+        # 2. CERTIFICACIÓN PLURIANUAL
+        # ==========================================
+        cur.execute("""
+            SELECT
+                anio,
+                monto
+            FROM certificaciones_plurianuales
+            WHERE tarea_id = %s
+            ORDER BY anio
+        """, (tarea_id,))
+
+        plurianuales = cur.fetchall()
+
+
+        # ==========================================
+        # 3. TOTALES DE LA CERTIFICACIÓN
+        # ==========================================
+        otros_ejercicios = sum(
+            Decimal(str(p[1] or 0))
+            for p in plurianuales
+        )
+
+        valor_actual = Decimal(
+            str(tarea[8] or 0)
+        )
+
+        total_certificacion = (
+            valor_actual + otros_ejercicios
+        )
+
+
+        # ==========================================
+        # 4. HISTORIAL DE MOVIMIENTOS
+        # ==========================================
+        cur.execute("""
+            SELECT
+                s.fecha,
+                s.estado,
+                s.observacion,
+                u.nombre
+            FROM seguimiento_tareas s
+            LEFT JOIN usuarios u
+                ON s.usuario_id = u.id
+            WHERE s.tarea_id = %s
+            ORDER BY s.fecha DESC
+        """, (tarea_id,))
+
+        seguimientos = cur.fetchall()
+
+
+        # ==========================================
+        # 5. MOSTRAR HISTORIAL
+        # ==========================================
+        return render_template(
+            "seguimiento_tareas/historial.html",
+
+            tarea=tarea,
+            seguimientos=seguimientos,
+
+            plurianuales=plurianuales,
+            otros_ejercicios=otros_ejercicios,
+            valor_actual=valor_actual,
+            total_certificacion=total_certificacion
+        )
+
+    finally:
+
+        cur.close()
+        conn.close()
 @main.route("/seguimiento_tareas/dashboard")
 @login_required()
 def seguimiento_tareas_dashboard():
@@ -7560,3 +7795,68 @@ def leer_excel_publicaciones(ruta_excel):
         if libro:
 
             libro.close()
+@main.route("/api/tareas/<int:tarea_id>/certificacion")
+@login_required()
+def api_tarea_certificacion(tarea_id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+
+        cur.execute("""
+            SELECT
+                numero_certificacion,
+                fecha_certificacion,
+                valor_certificacion,
+                certificacion_plurianual
+            FROM tareas
+            WHERE id = %s
+        """, (tarea_id,))
+
+        tarea = cur.fetchone()
+
+        if not tarea:
+            return {
+                "ok": False,
+                "mensaje": "No se encontró la tarea."
+            }, 404
+
+
+        cur.execute("""
+            SELECT
+                anio,
+                monto
+            FROM certificaciones_plurianuales
+            WHERE tarea_id = %s
+            ORDER BY anio
+        """, (tarea_id,))
+
+        plurianuales = cur.fetchall()
+
+
+        return {
+            "ok": True,
+
+            "certificacion": {
+                "numero": tarea[0],
+                "fecha": (
+                    tarea[1].isoformat()
+                    if tarea[1] else None
+                ),
+                "valor": float(tarea[2] or 0),
+                "plurianual": bool(tarea[3])
+            },
+
+            "anios": [
+                {
+                    "anio": fila[0],
+                    "monto": float(fila[1] or 0)
+                }
+                for fila in plurianuales
+            ]
+        }
+
+    finally:
+        cur.close()
+        conn.close()

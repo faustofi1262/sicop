@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <div>
+            <h3>👁 Vista previa del PAC</h3>
+            <p class="text-muted">
+                Verificación del archivo antes de importar.
+                <strong>No se ha modificado la base de datos.</strong>
+            </p>
+        </div>
+
+        <a href="{{ url_for('planificacion.pac_gestion') }}" class="btn btn-secondary">
+            ⬅ Volver
+        </a>
+
+    </div>
+
+
+    <div class="card mb-4">
+
+        <div class="card-header bg-dark text-white">
+            Datos de la versión
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-2">
+                    <strong>Año</strong><br>
+                    {{ anio }}
+                </div>
+
+                <div class="col-md-2">
+                    <strong>Reforma</strong><br>
+                    {{ numero_reforma }}
+                </div>
+
+                <div class="col-md-2">
+                    <strong>Estado</strong><br>
+                    {{ estado }}
+                </div>
+
+                <div class="col-md-2">
+                    <strong>Fecha</strong><br>
+                    {{ fecha_reforma or '—' }}
+                </div>
+
+                <div class="col-md-4">
+                    <strong>Archivo</strong><br>
+                    {{ nombre_archivo }}
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="alert alert-success">
+        ✅ Fila de encabezados detectada:
+        <strong>{{ fila_encabezados }}</strong>
+    </div>
+    <div class="row mb-4">
+
+        <div class="col-md">
+            <div class="card shadow-sm text-center">
+                <div class="card-body">
+                    <small class="text-muted">
+                        REGISTROS PAC
+                    </small>
+
+                    <h4 class="mb-0">
+                        {{ "{:,}".format(total_registros) }}
+                    </h4>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md">
+            <div class="card shadow-sm text-center">
+                <div class="card-body">
+                    <small class="text-muted">
+                        TOTAL PAC
+                    </small>
+
+                    <h4 class="mb-0">
+                        $ {{ "{:,.2f}".format(total_pac) }}
+                    </h4>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md">
+            <div class="card shadow-sm text-center">
+                <div class="card-body">
+                    <small class="text-muted">
+                        UNIDADES
+                    </small>
+
+                    <h4 class="mb-0">
+                        {{ total_unidades }}
+                    </h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="card shadow-sm text-center">
+                <div class="card-body">
+
+                    <small class="text-muted">
+                        PROGRAMAS
+                    </small>
+
+                    <h4 class="mb-0">
+                        {{ total_programas }}
+                    </h4>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md">
+            <div class="card shadow-sm text-center">
+                <div class="card-body">
+                    <small class="text-muted">
+                        PARTIDAS
+                    </small>
+
+                    <h4 class="mb-0">
+                        {{ total_partidas }}
+                    </h4>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md">
+            <div class="card shadow-sm text-center">
+                <div class="card-body">
+                    <small class="text-muted">
+                        FUENTES
+                    </small>
+
+                    <h4 class="mb-0">
+                        {{ total_fuentes }}
+                    </h4>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+
+    <div class="card">
+
+        <div class="card-header bg-primary text-white">
+            Vista previa — primeros 10 registros
+        </div>
+
+        <div class="card-body p-0">
+
+            <div style="max-height: 420px; overflow-y: auto; overflow-x: auto;">
+
+                <table class="table table-bordered table-sm mb-0">
+
+                    <thead class="thead-light">
+                        <tr>
+
+                            {% for encabezado in encabezados %}
+                            <th style="white-space:nowrap;">
+                                {{ encabezado }}
+                            </th>
+                            {% endfor %}
+
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for fila in registros %}
+
+                        <tr>
+
+                            {% for valor in fila %}
+                            <td style="white-space:nowrap;">
+                                {{ valor if valor is not none else '' }}
+                            </td>
+                            {% endfor %}
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+                <div class="d-flex justify-content-end mt-4">
+
+                    <a href="{{ url_for('planificacion.pac_gestion') }}"
+                    class="btn btn-secondary mr-2">
+                        ⬅ Cancelar
+                    </a>
+
+                    <form method="POST"
+                        action="{{ url_for('planificacion.pac_importar') }}">
+
+                        <input type="hidden" name="anio" value="{{ anio }}">
+                        <input type="hidden" name="numero_reforma" value="{{ numero_reforma }}">
+                        <input type="hidden" name="fecha_reforma" value="{{ fecha_reforma }}">
+                        <input type="hidden" name="descripcion" value="{{ descripcion }}">
+                        <input type="hidden" name="estado" value="{{ estado }}">
+                        <input type="hidden" name="nombre_archivo" value="{{ nombre_archivo }}">
+
+                        <button type="submit"
+                                class="btn btn-success">
+                            ✅ Importar PAC
+                        </button>
+                        
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

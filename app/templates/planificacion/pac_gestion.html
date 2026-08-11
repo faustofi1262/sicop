@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+            <h3 class="mb-1">
+                📊 Gestión del Plan Anual de Compras
+            </h3>
+
+            <p class="text-muted mb-0">
+                Administración, carga y consulta de versiones y reformas del PAC.
+            </p>
+        </div>
+
+        <a href="{{ url_for('planificacion.inicio') }}"
+           class="btn btn-secondary">
+            ⬅ Volver
+        </a>
+
+    </div>
+
+
+    <div class="row">
+
+        <div class="col-md-6 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-header bg-primary text-white">
+                    📥 Cargar nueva versión / reforma
+                </div>
+
+                <div class="card-body">
+
+                    <p class="text-muted">
+                        El archivo será revisado primero en una vista previa.
+                        No se modificará la base de datos hasta confirmar la importación.
+                    </p>
+
+                    <form method="POST"
+                        enctype="multipart/form-data"
+                        action="{{ url_for('planificacion.pac_vista_previa') }}">
+
+                        <div class="form-group">
+                            <label>Año</label>
+
+                            <input type="number"
+                                   name="anio"
+                                   class="form-control"
+                                   value="2026"
+                                   required>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label>Número de reforma</label>
+
+                            <input type="text"
+                                   name="numero_reforma"
+                                   class="form-control"
+                                   placeholder="Ej. REFORMA 05"
+                                   required>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label>Fecha de reforma</label>
+
+                            <input type="date"
+                                   name="fecha_reforma"
+                                   class="form-control">
+                        </div>
+
+
+                        <div class="form-group">
+                            <label>Descripción</label>
+
+                            <textarea name="descripcion"
+                                      class="form-control"
+                                      rows="2"
+                                      placeholder="Ej. Reforma General Vigente"></textarea>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label>Estado</label>
+
+                            <select name="estado"
+                                    class="form-control"
+                                    required>
+
+                                <option value="HISTORICO">
+                                    Histórico
+                                </option>
+
+                                <option value="VIGENTE">
+                                    Vigente
+                                </option>
+
+                            </select>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label>Archivo Excel del PAC</label>
+
+                            <input type="file"
+                                   name="archivo_pac"
+                                   class="form-control-file"
+                                   accept=".xlsx,.xls"
+                                   required>
+                        </div>
+
+
+                        <button type="submit"
+                                class="btn btn-primary btn-block">
+
+                            👁 Vista previa
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-6 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-header bg-dark text-white">
+                    🧠 ¿Qué hará este módulo?
+                </div>
+
+                <div class="card-body">
+
+                    <p>
+                        Cada reforma del PAC quedará almacenada como una versión
+                        independiente, preservando el histórico institucional.
+                    </p>
+
+                    <hr>
+
+                    <p>
+                        <strong>Posteriormente permitirá analizar:</strong>
+                    </p>
+
+                    <ul>
+                        <li>PAC vigente.</li>
+                        <li>Presupuesto ingresado a Compras.</li>
+                        <li>Monto adjudicado.</li>
+                        <li>Saldo pendiente.</li>
+                        <li>Porcentaje de ejecución.</li>
+                        <li>Análisis por unidad, grupo, partida y fuente.</li>
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

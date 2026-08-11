@@ -22,6 +22,113 @@
             <p><b>Unidad:</b> {{ tarea[3] }}</p>
             <p><b>Funcionario:</b> {{ tarea[4] }}</p>
             <p><b>Estado actual:</b> {{ tarea[5] }}</p>
+            {% if tarea[6] %}
+
+            <hr>
+
+            <h5 class="mb-3">
+                💰 Información de la Certificación Presupuestaria
+            </h5>
+
+            <div class="row">
+
+                <div class="col-md-3 mb-3">
+                    <strong>N.º de certificación</strong><br>
+                    {{ tarea[6] }}
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <strong>Fecha de certificación</strong><br>
+
+                    {% if tarea[7] %}
+                    {{ tarea[7].strftime('%d/%m/%Y') }}
+                    {% else %}
+                    —
+                    {% endif %}
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <strong>Valor ejercicio actual</strong><br>
+
+                    <span class="text-primary font-weight-bold">
+                        $ {{ "{:,.2f}".format(valor_actual or 0) }}
+                    </span>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <strong>Tipo</strong><br>
+
+                    {% if tarea[9] %}
+                    <span class="badge badge-info">
+                        📅 PLURIANUAL
+                    </span>
+                    {% else %}
+                    <span class="badge badge-secondary">
+                        CERTIFICACIÓN NORMAL
+                    </span>
+                    {% endif %}
+                </div>
+
+            </div>
+            {% if tarea[9] and plurianuales %}
+
+            <div class="card mt-2 mb-3">
+
+                <div class="card-header bg-light">
+                    📅 Distribución por otros ejercicios
+                </div>
+
+                <div class="card-body">
+
+                    <div class="row">
+
+                        {% for p in plurianuales %}
+
+                        <div class="col-md-3 mb-2">
+
+                            <strong>{{ p[0] }}</strong><br>
+
+                            $ {{ "{:,.2f}".format(p[1] or 0) }}
+
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                    <hr>
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <strong>Otros ejercicios:</strong>
+
+                            $ {{ "{:,.2f}".format(otros_ejercicios or 0) }}
+                        </div>
+
+                        <div class="col-md-6 text-right">
+
+                            <strong style="font-size:1.15rem;">
+                                Total de la certificación:
+                            </strong>
+
+                            <span class="font-weight-bold text-success" style="font-size:1.15rem;">
+
+                                $ {{ "{:,.2f}".format(total_certificacion or 0) }}
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endif %}
+
+            {% endif %}
         </div>
     </div>
 
@@ -36,20 +143,20 @@
         </thead>
 
         <tbody>
-        {% for s in seguimientos %}
+            {% for s in seguimientos %}
             <tr>
                 <td>{{ s[0] }}</td>
                 <td><b>{{ s[1] }}</b></td>
                 <td>{{ s[2] }}</td>
                 <td>{{ s[3] }}</td>
             </tr>
-        {% else %}
+            {% else %}
             <tr>
                 <td colspan="4" class="text-center text-muted">
                     No existen seguimientos registrados para esta tarea.
                 </td>
             </tr>
-        {% endfor %}
+            {% endfor %}
         </tbody>
     </table>
 
