@@ -77,13 +77,13 @@
 
                 <td>
                     {% if t[6] %}
-                        <span class="badge badge-success">
-                            N.º {{ t[6] }}
-                        </span>
+                    <span class="badge badge-success">
+                        N.º {{ t[6] }}
+                    </span>
                     {% else %}
-                        <span class="text-muted">
-                            —
-                        </span>
+                    <span class="text-muted">
+                        —
+                    </span>
                     {% endif %}
                 </td>
 
@@ -92,72 +92,88 @@
                 </td>
 
                 <td>
-                <a href="{{ url_for('main.tareas_editar', id=t[0]) }}" class="btn btn-sm btn-warning mb-1">
-                    ✏️ Editar
-                </a>
+                    <a href="{{ url_for('main.tareas_editar', id=t[0]) }}" class="btn btn-sm btn-warning mb-1">
+                        ✏️ Editar
+                    </a>
 
-                <form action="{{ url_for('main.tareas_eliminar', id=t[0]) }}" method="post" style="display:inline;"
-                    onsubmit="return confirm('¿Seguro que deseas eliminar esta tarea?');">
+                    <form action="{{ url_for('main.tareas_eliminar', id=t[0]) }}" method="post" style="display:inline;"
+                        onsubmit="return confirm('¿Seguro que deseas eliminar esta tarea?');">
 
-                    <button type="submit" class="btn btn-sm btn-danger mb-1">
-                        🗑️ Eliminar
+                        <button type="submit" class="btn btn-sm btn-danger mb-1">
+                            🗑️ Eliminar
+                        </button>
+                    </form>
+
+                    <a href="{{ url_for('main.informe_verificacion', id_tarea=t[0]) }}"
+                        class="btn btn-sm btn-info mb-1">
+                        📄 Informe Verificación
+                    </a>
+
+                    <a href="{{ url_for('main.tarea_certificaciones', tarea_id=t[0]) }}"
+                        class="btn btn-sm btn-success mb-1">
+                        📑 Certificaciones
+                    </a>
+                    <a href="{{ url_for('main.seguimiento_tareas',codigo=t[1]) }}"
+                        class="btn btn-sm btn-outline-primary mb-1">
+                        📌 Seguimiento
+                    </a>
+                    <button type="button" class="btn btn-sm btn-dark mb-1 btn-detalle-tarea" data-toggle="modal"
+                        data-target="#modalDetalleTarea" data-id="{{ t[0] }}">
+                        👁 Ver detalle
                     </button>
-                </form>
+                    {% set codigo = (t[1] or '')|upper|trim %}
 
-                <a href="{{ url_for('main.informe_verificacion', id_tarea=t[0]) }}" class="btn btn-sm btn-info mb-1">
-                    📄 Informe Verificación
-                </a>
+                    {% if codigo.startswith('IC-') %}
 
-                <a href="{{ url_for('main.tarea_certificaciones', tarea_id=t[0]) }}"
-                    class="btn btn-sm btn-success mb-1">
-                    📑 Certificaciones
-                </a>
-                <a href="{{ url_for(
-                        'main.seguimiento_tareas',
-                        codigo=t[1]
-                    ) }}" class="btn btn-sm btn-outline-primary mb-1">
+                    <a href="{{ url_for(
+        'main.ordenes_compra_nueva',
+        tarea_id=t[0]
+    ) }}" class="btn btn-sm btn-primary mb-1">
 
-                    📌 Seguimiento
+                        📦 Orden de Compra
 
-                </a>
-                <button type="button" class="btn btn-sm btn-dark mb-1 btn-detalle-tarea" data-toggle="modal"
-                    data-target="#modalDetalleTarea" data-id="{{ t[0] }}">
-                    👁 Ver detalle
-                </button>
-                {% set codigo = (t[1] or '')|upper|trim %}
+                    </a>
 
-                {% if codigo.startswith('IC-') %}
+                    {% elif codigo.startswith('CATE-') %}
 
-                <a href="{{ url_for(
-                            'main.ordenes_compra_nueva',
-                            tarea_id=t[0]
-                        ) }}" class="btn btn-sm btn-primary mb-1">
-                    📦 Orden de Compra
-                </a>
+                    <a href="{{ url_for(
+        'main.orden_catalogo_nueva',
+        tarea_id=t[0]
+    ) }}" class="btn btn-sm btn-info mb-1">
 
-                {% elif codigo.startswith('CATE-') %}
+                        🛒 Orden de Catálogo
 
-                <a href="{{ url_for(
-                            'main.orden_catalogo_nueva',
-                            tarea_id=t[0]
-                        ) }}" class="btn btn-sm btn-info mb-1">
+                    </a>
 
-                    🛒 Orden de Catálogo
+                    {% else %}
 
-                </a>
+                    {% if t[8] %}
 
-                {% else %}
+                    <a href="{{ url_for(
+            'main.seguimiento_contratos_detalle',
+            contrato_id=t[8]
+        ) }}" class="btn btn-sm btn-success mb-1">
 
-                <a href="{{ url_for('main.seguimiento_contratos_nuevo',tarea_id=t[0]) }}"class="btn btn-sm btn-secondary mb-1">
+                        👁 Ver Contrato
 
-                    📑 Registrar Contrato
+                    </a>
 
-                </a>
+                    {% else %}
 
-                {% endif %}
+                    <a href="{{ url_for(
+                        'main.seguimiento_contratos_nuevo',
+                        tarea_id=t[0]
+                    ) }}"
+                    class="btn btn-sm btn-secondary mb-1">
+
+                        📑 Registrar Contrato
+
+                    </a>
+
+                    {% endif %}
+
+                    {% endif %}
                 </td>
-
-
             </tr>
             {% else %}
             <tr>

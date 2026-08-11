@@ -116,7 +116,7 @@
                                name="codigo_proceso"
                                class="form-control"
                                required
-                               value="{{ contrato.codigo_proceso if contrato else '' }}">
+                               value="{{ contrato.codigo_proceso if contrato else (tarea.codigo_proceso if tarea else '') }}">
                     </div>
 
                     <div class="form-group">
@@ -127,7 +127,11 @@
 
                             {% for tp in tipos_proceso %}
                                 <option value="{{ tp.nombre_proceso }}"
-                                    {% if contrato and contrato.tipo_procedimiento == tp.nombre_proceso %}selected{% endif %}>
+                                    {% if contrato and contrato.tipo_procedimiento == tp.nombre_proceso %}
+                                        selected
+                                    {% elif not contrato and tarea and tarea.nombre_proceso == tp.nombre_proceso %}
+                                        selected
+                                    {% endif %}>
                                     {{ tp.nombre_proceso }}
                                 </option>
                             {% endfor %}
@@ -139,7 +143,7 @@
                         <textarea name="objeto_contratacion"
                                   class="form-control"
                                   rows="3"
-                                  required>{{ contrato.objeto_contratacion if contrato else '' }}</textarea>
+                                  required>{{ contrato.objeto_contratacion if contrato else (tarea.objeto_contratacion if tarea else '') }}</textarea>
                     </div>
 
                     <div class="form-group">
@@ -150,7 +154,11 @@
 
                             {% for u in unidades %}
                                 <option value="{{ u.nombre_unidad }}"
-                                    {% if contrato and contrato.unidad_requirente == u.nombre_unidad %}selected{% endif %}>
+                                    {% if contrato and contrato.unidad_requirente == u.nombre_unidad %}
+                                        selected
+                                    {% elif not contrato and tarea and tarea.unidad_solicitante == u.nombre_unidad %}
+                                        selected
+                                    {% endif %}>
                                     {{ u.nombre_unidad }}
                                 </option>
                             {% endfor %}

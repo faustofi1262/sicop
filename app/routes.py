@@ -1278,10 +1278,21 @@ def tareas():
             t.estado_requerimiento,
             t.fecha_recepcion,
             t.numero_certificacion,
-            t.funcionario_encargado
+            t.funcionario_encargado,
+
+            (
+                SELECT sc.id
+                FROM seguimiento_contratos sc
+                WHERE sc.codigo_proceso = t.codigo_proceso
+                ORDER BY sc.id DESC
+                LIMIT 1
+            ) AS contrato_id
+
         FROM tareas t
+
         LEFT JOIN tipo_procesos tp
             ON t.tipo_proceso = tp.id::TEXT
+
         WHERE 1=1
     """
 
@@ -2561,20 +2572,56 @@ def seguimiento_contratos_dashboard():
 @login_required()
 def seguimiento_contratos_nuevo():
 
-    conn = get_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
+    tarea_id = request.args.get(
+        "tarea_id",
+        type=int
+    )
 
-    # Tipos de proceso
+    conn = get_connection()
+    cur = conn.cursor(
+        cursor_factory=RealDictCursor
+    )
+
+    # ==========================================
+    # DATOS DE LA TAREA DE ORIGEN
+    # ==========================================
+    tarea = None
+    if tarea_id:
+        cur.execute("""
+            SELECT
+                t.id,
+                t.codigo_proceso,
+                t.objeto_contratacion,
+                t.unidad_solicitante,
+                t.tipo_proceso,
+                tp.nombre_proceso
+            FROM tareas t
+            LEFT JOIN tipo_procesos tp
+                ON t.tipo_proceso = tp.id::TEXT
+
+            WHERE t.id = %s
+        """, (tarea_id,))
+
+        tarea = cur.fetchone()
+    # ==========================================
+    # TIPOS DE PROCESO
+    # ==========================================
     cur.execute("""
-        SELECT id, nombre_proceso
+        SELECT
+            id,
+            nombre_proceso
         FROM tipo_procesos
         ORDER BY nombre_proceso
     """)
-    tipos_proceso = cur.fetchall()
 
-    # Unidades
+    tipos_proceso = cur.fetchall()
+    # ==========================================
+    # UNIDADES
+    # ==========================================
     cur.execute("""
-        SELECT id, nombre_unidad
+        SELECT
+            id,
+            nombre_unidad
         FROM unidades
         ORDER BY nombre_unidad
     """)
@@ -2585,6 +2632,10 @@ def seguimiento_contratos_nuevo():
 
     return render_template(
         "seguimiento_contratos/seguimiento_contratos_form.html",
+
+        tarea=tarea,
+        tarea_id=tarea_id,
+
         tipos_proceso=tipos_proceso,
         unidades=unidades
     )
