@@ -4402,8 +4402,57 @@ def seguimiento_tareas_historial(tarea_id):
         """, (tarea_id,))
 
         seguimientos = cur.fetchall()
+        # ==========================================
+        # ÓRDENES DE COMPRA - ÍNFIMA CUANTÍA
+        # ==========================================
+        cur.execute("""
+            SELECT
+                fecha,
+                numero_oc,
+                total,
+                proveedor
+            FROM ordenes_compra
+            WHERE tarea_id = %s
+            ORDER BY fecha DESC, id DESC
+        """, (tarea_id,))
 
+        ordenes_compra = cur.fetchall()
+        # ==========================================
+        # ÓRDENES DE CATÁLOGO ELECTRÓNICO
+        # ==========================================
+        cur.execute("""
+            SELECT
+                oc.fecha_aceptacion,
+                oc.numero_orden,
+                oc.monto_adjudicado,
+                oc.proveedor
+            FROM ordenes_catalogo oc
+            JOIN catalogos_electronicos ce
+                ON ce.id = oc.catalogo_id
+            WHERE ce.tarea_id = %s
+            ORDER BY oc.fecha_aceptacion DESC, oc.id DESC
+        """, (tarea_id,))
 
+        ordenes_catalogo = cur.fetchall()
+        # ==========================================
+        # 7. CONTRATOS VINCULADOS AL PROCESO
+        # ==========================================
+        cur.execute("""
+            SELECT
+                fecha_suscripcion,
+                numero_contrato,
+                proveedor,
+                monto_contractual,
+                estado
+            FROM seguimiento_contratos
+            WHERE codigo_proceso = %s
+            ORDER BY fecha_suscripcion DESC, id DESC
+        """, (tarea[1],))
+
+        contratos = cur.fetchall()
+        
+        
+        
         # ==========================================
         # 5. MOSTRAR HISTORIAL
         # ==========================================
@@ -4416,7 +4465,10 @@ def seguimiento_tareas_historial(tarea_id):
             plurianuales=plurianuales,
             otros_ejercicios=otros_ejercicios,
             valor_actual=valor_actual,
-            total_certificacion=total_certificacion
+            total_certificacion=total_certificacion,
+            ordenes_compra=ordenes_compra,
+            ordenes_catalogo=ordenes_catalogo,
+            contratos=contratos
         )
 
     finally:
