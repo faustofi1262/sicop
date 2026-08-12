@@ -4606,93 +4606,875 @@ def seguimiento_tareas_dashboard():
         stats=stats,
         alertas=alertas
     )
- # ===============================
+# ===============================
 # DASHBOARD EJECUTIVO SICOP
 # ===============================
 @main.route("/dashboard_ejecutivo")
 @login_required()
 def dashboard_ejecutivo():
 
-    unidad = request.args.get("unidad")
-    fecha_inicio = request.args.get("fecha_inicio")
-    fecha_fin = request.args.get("fecha_fin")
+    unidad = (request.args.get("unidad") or "").strip()
+    fecha_inicio = (request.args.get("fecha_inicio") or "").strip()
+    fecha_fin = (request.args.get("fecha_fin") or "").strip()
 
     conn = get_connection()
     cur = conn.cursor()
 
-    # ==========================================
-    # FILTRO GENERAL POR FECHAS
-    # ==========================================
-    condiciones = [
-        "fecha_recepcion IS NOT NULL"
-    ]
+    try:
 
-    parametros = []
-    
-    if unidad:
-        condiciones.append("unidad_solicitante = %s")
-        parametros.append(unidad)
+        # =====================================================
+        # 1. FILTROS GENERALES
+        # =====================================================
+        condiciones_generales = [
+            "t.fecha_recepcion IS NOT NULL"
+        ]
 
-    if fecha_inicio:
-        condiciones.append("fecha_recepcion >= %s")
-        parametros.append(fecha_inicio)
+        parametros = []
 
-    if fecha_fin:
-        condiciones.append("fecha_recepcion <= %s")
-        parametros.append(fecha_fin)
+        if unidad:
+            condiciones_generales.append(
+                "t.unidad_solicitante = %s"
+            )
+            parametros.append(unidad)
 
-    where_sql = " WHERE " + " AND ".join(condiciones)
+        if fecha_inicio:
+            condiciones_generales.append(
+                "t.fecha_recepcion >= %s"
+            )
+            parametros.append(fecha_inicio)
 
-    # ==========================================
-    # INDICADORES GENERALES
-    # ==========================================
-    sql_resumen = f"""
-        SELECT
-            COUNT(*) AS total,
+        if fecha_fin:
+            condiciones_generales.append(
+                "t.fecha_recepcion <= %s"
+            )
+            parametros.append(fecha_fin)
 
-            ROUND(
-                AVG(CURRENT_DATE - fecha_recepcion),
-                2
-            ) AS promedio_dias,
-          
-            COUNT(*) FILTER (
-                WHERE EXISTS (
-                    SELECT 1
-                    FROM ordenes_compra oc
-                    WHERE oc.tarea_id = tareas.id
+        where_general = (
+            " WHERE "
+            + " AND ".join(condiciones_generales)
+        )
+
+
+        # =====================================================
+        # 2. FILTRO ECONÓMICO
+        #
+        # NO PARTICIPAN:
+        # - DEVUELTOS
+        # - VERIFICACION PRODUCCION NACIONAL
+        # - ARRENDAMIENTOS BIENES MUEBLES
+        # =====================================================
+        condiciones_economicas = list(
+            condiciones_generales
+        )
+
+        condiciones_economicas.append("""
+            UPPER(
+                TRIM(
+                    COALESCE(
+                        t.estado_requerimiento,
+                        ''
+                    )
                 )
-            ) AS con_orden_compra,
+            ) <> 'DEVUELTO'
+        """)
 
-            COUNT(*) FILTER (
-                WHERE EXISTS (
-                    SELECT 1
-                    FROM seguimiento_contratos sc
-                    WHERE UPPER(TRIM(sc.codigo_proceso))
-                        = UPPER(TRIM(tareas.codigo_proceso))
+        condiciones_economicas.append("""
+            UPPER(
+                TRIM(
+                    COALESCE(
+                        tp.nombre_proceso,
+                        ''
+                    )
                 )
-            ) AS con_contrato,
+            ) NOT IN (
+                'VERIFICACION DE PRODUCCION NACIONAL',
+                'ARRENDAMIENTOS DE BIENES MUEBLES'
+            )
+        """)
 
-            COALESCE(
-                SUM(
-                    COALESCE(valor_sin_iva, 0)
+        where_economico = (
+            " WHERE "
+            + " AND ".join(condiciones_economicas)
+        )
+
+
+        # =====================================================
+        # 3. RESUMEN ECONÓMICO GENERAL
+        # =====================================================
+        #
+        # adjudicado_tarea:
+        # suma una sola vez todo lo adjudicado por tarea.
+        #
+        # IMPORTANTE:
+        # adjudicacion_partidas es nuestra fuente económica
+        # central para evitar contar nuevamente órdenes.
+        # =====================================================
+        sql_resumen = f"""
+            WITH adjudicado_tarea AS (
+                SELECT
+                    a.tarea_id,
+                    COALESCE(
+                        SUM(ap.monto_adjudicado),
+                        0
+                    ) AS monto_adjudicado
+                FROM adjudicaciones a
+                LEFT JOIN adjudicacion_partidas ap
+                    ON ap.adjudicacion_id = a.id
+                GROUP BY a.tarea_id
+            ),
+
+            base AS (
+                SELECT
+                    t.id,
+                    t.fecha_recepcion,
+                    t.estado_requerimiento,
+                    t.unidad_solicitante,
+
+                    COALESCE(
+                        t.valor_sin_iva,
+                        0
+                    )
                     +
-                    COALESCE(valor_exento, 0)
-                ),
-                0
-            ) AS monto_total
+                    COALESCE(
+                        t.valor_exento,
+                        0
+                    ) AS monto_ingresado,
 
-        FROM tareas
+                    COALESCE(
+                        at.monto_adjudicado,
+                        0
+                    ) AS monto_adjudicado,
 
-        {where_sql}
-    """
+                    CASE
+                        WHEN at.tarea_id IS NOT NULL
+                        THEN TRUE
+                        ELSE FALSE
+                    END AS tiene_adjudicacion
 
-    cur.execute(
-        sql_resumen,
-        parametros
-    )
+                FROM tareas t
 
-    resumen = cur.fetchone()
+                LEFT JOIN tipo_procesos tp
+                    ON t.tipo_proceso = tp.id::TEXT
 
+                LEFT JOIN adjudicado_tarea at
+                    ON at.tarea_id = t.id
+
+                {where_economico}
+            )
+
+            SELECT
+                COUNT(*) AS procesos_validos,
+
+                COALESCE(
+                    SUM(monto_ingresado),
+                    0
+                ) AS monto_ingresado,
+
+                COALESCE(
+                    SUM(monto_adjudicado),
+                    0
+                ) AS monto_adjudicado,
+
+                COALESCE(
+                    SUM(monto_ingresado)
+                    -
+                    SUM(monto_adjudicado),
+                    0
+                ) AS diferencia_total,
+
+                CASE
+                    WHEN COALESCE(
+                        SUM(monto_ingresado),
+                        0
+                    ) > 0
+                    THEN ROUND(
+                        (
+                            SUM(monto_adjudicado)
+                            /
+                            SUM(monto_ingresado)
+                        ) * 100,
+                        2
+                    )
+                    ELSE 0
+                END AS porcentaje_adjudicado,
+
+                ROUND(
+                    AVG(
+                        CURRENT_DATE
+                        - fecha_recepcion
+                    ),
+                    2
+                ) AS promedio_dias,
+
+                COUNT(*) FILTER (
+                    WHERE tiene_adjudicacion
+                ) AS procesos_adjudicados,
+
+                COALESCE(
+                    SUM(
+                        CASE
+                            WHEN tiene_adjudicacion
+                            THEN (
+                                monto_ingresado
+                                -
+                                monto_adjudicado
+                            )
+                            ELSE 0
+                        END
+                    ),
+                    0
+                ) AS diferencia_solo_adjudicados
+
+            FROM base
+        """
+
+        cur.execute(
+            sql_resumen,
+            parametros
+        )
+
+        resumen = cur.fetchone()
+
+
+        # =====================================================
+        # 4. PROCESOS DEVUELTOS
+        # Se muestran aparte pero NO participan económicamente
+        # =====================================================
+        sql_devueltos = f"""
+            SELECT
+                COUNT(*) AS total,
+
+                COALESCE(
+                    SUM(
+                        COALESCE(
+                            t.valor_sin_iva,
+                            0
+                        )
+                        +
+                        COALESCE(
+                            t.valor_exento,
+                            0
+                        )
+                    ),
+                    0
+                ) AS monto
+
+            FROM tareas t
+
+            LEFT JOIN tipo_procesos tp
+                ON t.tipo_proceso = tp.id::TEXT
+
+            {where_general}
+
+            AND UPPER(
+                TRIM(
+                    COALESCE(
+                        t.estado_requerimiento,
+                        ''
+                    )
+                )
+            ) = 'DEVUELTO'
+        """
+
+        cur.execute(
+            sql_devueltos,
+            parametros
+        )
+
+        devueltos = cur.fetchone()
+
+
+        # =====================================================
+        # 5. PROCESOS EXCLUIDOS POR TIPO
+        # VPN + ARRENDAMIENTOS
+        # =====================================================
+        sql_excluidos = f"""
+            SELECT
+                COUNT(*) AS total,
+
+                COALESCE(
+                    SUM(
+                        COALESCE(
+                            t.valor_sin_iva,
+                            0
+                        )
+                        +
+                        COALESCE(
+                            t.valor_exento,
+                            0
+                        )
+                    ),
+                    0
+                ) AS monto
+
+            FROM tareas t
+
+            LEFT JOIN tipo_procesos tp
+                ON t.tipo_proceso = tp.id::TEXT
+
+            {where_general}
+
+            AND UPPER(
+                TRIM(
+                    COALESCE(
+                        tp.nombre_proceso,
+                        ''
+                    )
+                )
+            ) IN (
+                'VERIFICACION DE PRODUCCION NACIONAL',
+                'ARRENDAMIENTOS DE BIENES MUEBLES'
+            )
+        """
+
+        cur.execute(
+            sql_excluidos,
+            parametros
+        )
+
+        excluidos = cur.fetchone()
+
+
+        # =====================================================
+        # 6. MONTO POR UNIDAD
+        # =====================================================
+        sql_unidad = f"""
+            WITH adjudicado_tarea AS (
+                SELECT
+                    a.tarea_id,
+                    COALESCE(
+                        SUM(ap.monto_adjudicado),
+                        0
+                    ) AS adjudicado
+                FROM adjudicaciones a
+                LEFT JOIN adjudicacion_partidas ap
+                    ON ap.adjudicacion_id = a.id
+                GROUP BY a.tarea_id
+            )
+
+            SELECT
+                COALESCE(
+                    t.unidad_solicitante,
+                    'SIN UNIDAD'
+                ) AS unidad,
+
+                COUNT(*) AS procesos,
+
+                COALESCE(
+                    SUM(
+                        COALESCE(
+                            t.valor_sin_iva,
+                            0
+                        )
+                        +
+                        COALESCE(
+                            t.valor_exento,
+                            0
+                        )
+                    ),
+                    0
+                ) AS ingresado,
+
+                COALESCE(
+                    SUM(
+                        COALESCE(
+                            at.adjudicado,
+                            0
+                        )
+                    ),
+                    0
+                ) AS adjudicado,
+
+                COALESCE(
+                    SUM(
+                        COALESCE(
+                            t.valor_sin_iva,
+                            0
+                        )
+                        +
+                        COALESCE(
+                            t.valor_exento,
+                            0
+                        )
+                    ),
+                    0
+                )
+                -
+                COALESCE(
+                    SUM(
+                        COALESCE(
+                            at.adjudicado,
+                            0
+                        )
+                    ),
+                    0
+                ) AS diferencia
+
+            FROM tareas t
+
+            LEFT JOIN tipo_procesos tp
+                ON t.tipo_proceso = tp.id::TEXT
+
+            LEFT JOIN adjudicado_tarea at
+                ON at.tarea_id = t.id
+
+            {where_economico}
+
+            GROUP BY
+                t.unidad_solicitante
+
+            ORDER BY
+                ingresado DESC
+        """
+
+        cur.execute(
+            sql_unidad,
+            parametros
+        )
+
+        por_unidad = cur.fetchall()
+
+
+        # =====================================================
+        # 7. MONTO POR PROCEDIMIENTO
+        # =====================================================
+        sql_procedimiento = f"""
+            WITH adjudicado_tarea AS (
+                SELECT
+                    a.tarea_id,
+                    COALESCE(
+                        SUM(ap.monto_adjudicado),
+                        0
+                    ) AS adjudicado
+                FROM adjudicaciones a
+                LEFT JOIN adjudicacion_partidas ap
+                    ON ap.adjudicacion_id = a.id
+                GROUP BY a.tarea_id
+            )
+
+            SELECT
+                COALESCE(
+                    tp.nombre_proceso,
+                    'SIN TIPO DE PROCESO'
+                ) AS procedimiento,
+
+                COUNT(*) AS procesos,
+
+                COALESCE(
+                    SUM(
+                        COALESCE(
+                            t.valor_sin_iva,
+                            0
+                        )
+                        +
+                        COALESCE(
+                            t.valor_exento,
+                            0
+                        )
+                    ),
+                    0
+                ) AS ingresado,
+
+                COALESCE(
+                    SUM(
+                        COALESCE(
+                            at.adjudicado,
+                            0
+                        )
+                    ),
+                    0
+                ) AS adjudicado,
+
+                COALESCE(
+                    SUM(
+                        CASE
+                            WHEN at.tarea_id IS NOT NULL
+                            THEN
+                                COALESCE(t.valor_sin_iva, 0)
+                                +
+                                COALESCE(t.valor_exento, 0)
+                                -
+                                COALESCE(at.adjudicado, 0)
+                            ELSE 0
+                        END
+                    ),
+                    0
+                ) AS diferencia
+
+            FROM tareas t
+
+            LEFT JOIN tipo_procesos tp
+                ON t.tipo_proceso = tp.id::TEXT
+
+            LEFT JOIN adjudicado_tarea at
+                ON at.tarea_id = t.id
+
+            {where_economico}
+
+            GROUP BY
+                tp.nombre_proceso
+
+            ORDER BY
+                ingresado DESC
+        """
+
+        cur.execute(
+            sql_procedimiento,
+            parametros
+        )
+
+        por_procedimiento = cur.fetchall()
+
+
+        # =====================================================
+        # 8. DISTRIBUCIÓN POR PROGRAMA
+        #
+        # Aquí usamos partidas.monto porque una tarea puede
+        # tener varias partidas y no debemos repetir el monto
+        # total de la tarea en cada una.
+        # =====================================================
+        sql_programa = f"""
+            SELECT
+                COALESCE(
+                    p.programa,
+                    'SIN PROGRAMA'
+                ) AS programa,
+
+                COUNT(
+                    DISTINCT t.id
+                ) AS procesos,
+
+                COALESCE(
+                    SUM(p.monto),
+                    0
+                ) AS ingresado,
+
+                COALESCE(
+                    SUM(
+                        ap.monto_adjudicado
+                    ),
+                    0
+                ) AS adjudicado,
+
+                COALESCE(
+                    SUM(p.monto),
+                    0
+                )
+                -
+                COALESCE(
+                    SUM(
+                        ap.monto_adjudicado
+                    ),
+                    0
+                ) AS diferencia
+
+            FROM tareas t
+
+            LEFT JOIN tipo_procesos tp
+                ON t.tipo_proceso = tp.id::TEXT
+
+            INNER JOIN partidas p
+                ON p.requerimiento_id =
+                   t.requerimiento_id
+
+            LEFT JOIN adjudicaciones a
+                ON a.tarea_id = t.id
+
+            LEFT JOIN adjudicacion_partidas ap
+                ON ap.adjudicacion_id = a.id
+               AND ap.partida_id = p.id
+
+            {where_economico}
+
+            GROUP BY
+                p.programa
+
+            ORDER BY
+                ingresado DESC
+        """
+
+        cur.execute(
+            sql_programa,
+            parametros
+        )
+
+        por_programa = cur.fetchall()
+
+
+        # =====================================================
+        # 9. DISTRIBUCIÓN POR PARTIDA
+        # =====================================================
+        sql_partida = f"""
+            SELECT
+                COALESCE(
+                    p.num_part,
+                    'SIN PARTIDA'
+                ) AS partida,
+
+                COALESCE(
+                    p.nombre_part,
+                    ''
+                ) AS nombre,
+
+                COUNT(
+                    DISTINCT t.id
+                ) AS procesos,
+
+                COALESCE(
+                    SUM(p.monto),
+                    0
+                ) AS ingresado,
+
+                COALESCE(
+                    SUM(
+                        ap.monto_adjudicado
+                    ),
+                    0
+                ) AS adjudicado,
+
+                COALESCE(
+                    SUM(p.monto),
+                    0
+                )
+                -
+                COALESCE(
+                    SUM(
+                        ap.monto_adjudicado
+                    ),
+                    0
+                ) AS diferencia
+
+            FROM tareas t
+
+            LEFT JOIN tipo_procesos tp
+                ON t.tipo_proceso = tp.id::TEXT
+
+            INNER JOIN partidas p
+                ON p.requerimiento_id =
+                   t.requerimiento_id
+
+            LEFT JOIN adjudicaciones a
+                ON a.tarea_id = t.id
+
+            LEFT JOIN adjudicacion_partidas ap
+                ON ap.adjudicacion_id = a.id
+               AND ap.partida_id = p.id
+
+            {where_economico}
+
+            GROUP BY
+                p.num_part,
+                p.nombre_part
+
+            ORDER BY
+                ingresado DESC
+        """
+
+        cur.execute(
+            sql_partida,
+            parametros
+        )
+
+        por_partida = cur.fetchall()
+
+
+        # =====================================================
+        # 10. DISTRIBUCIÓN POR FUENTE
+        # =====================================================
+        sql_fuente = f"""
+            SELECT
+                COALESCE(
+                    p.fuente,
+                    'SIN FUENTE'
+                ) AS fuente,
+
+                COUNT(
+                    DISTINCT t.id
+                ) AS procesos,
+
+                COALESCE(
+                    SUM(p.monto),
+                    0
+                ) AS ingresado,
+
+                COALESCE(
+                    SUM(
+                        ap.monto_adjudicado
+                    ),
+                    0
+                ) AS adjudicado,
+
+                COALESCE(
+                    SUM(p.monto),
+                    0
+                )
+                -
+                COALESCE(
+                    SUM(
+                        ap.monto_adjudicado
+                    ),
+                    0
+                ) AS diferencia
+
+            FROM tareas t
+
+            LEFT JOIN tipo_procesos tp
+                ON t.tipo_proceso = tp.id::TEXT
+
+            INNER JOIN partidas p
+                ON p.requerimiento_id =
+                   t.requerimiento_id
+
+            LEFT JOIN adjudicaciones a
+                ON a.tarea_id = t.id
+
+            LEFT JOIN adjudicacion_partidas ap
+                ON ap.adjudicacion_id = a.id
+               AND ap.partida_id = p.id
+
+            {where_economico}
+
+            GROUP BY
+                p.fuente
+
+            ORDER BY
+                ingresado DESC
+        """
+
+        cur.execute(
+            sql_fuente,
+            parametros
+        )
+
+        por_fuente = cur.fetchall()
+
+
+        # =====================================================
+        # 11. ESTADOS
+        # Aquí mostramos TODOS, incluso DEVUELTOS.
+        # Es información operativa, no cálculo económico.
+        # =====================================================
+        sql_estado = f"""
+            SELECT
+                COALESCE(
+                    t.estado_requerimiento,
+                    'SIN ESTADO'
+                ) AS estado,
+
+                COUNT(*) AS total
+
+            FROM tareas t
+
+            LEFT JOIN tipo_procesos tp
+                ON t.tipo_proceso = tp.id::TEXT
+
+            {where_general}
+
+            GROUP BY
+                t.estado_requerimiento
+
+            ORDER BY
+                total DESC
+        """
+
+        cur.execute(
+            sql_estado,
+            parametros
+        )
+
+        por_estado = cur.fetchall()
+
+
+        # =====================================================
+        # 12. ANALISTAS
+        # =====================================================
+        sql_funcionario = f"""
+            SELECT
+                COALESCE(
+                    t.funcionario_encargado,
+                    'SIN FUNCIONARIO'
+                ) AS funcionario,
+
+                COUNT(*) AS total
+
+            FROM tareas t
+
+            LEFT JOIN tipo_procesos tp
+                ON t.tipo_proceso = tp.id::TEXT
+
+            {where_general}
+
+            GROUP BY
+                t.funcionario_encargado
+
+            ORDER BY
+                total DESC
+        """
+
+        cur.execute(
+            sql_funcionario,
+            parametros
+        )
+
+        por_funcionario = cur.fetchall()
+
+
+        # =====================================================
+        # 13. UNIDADES PARA EL FILTRO
+        # =====================================================
+        cur.execute("""
+            SELECT DISTINCT
+                unidad_solicitante
+
+            FROM tareas
+
+            WHERE unidad_solicitante
+                IS NOT NULL
+
+              AND TRIM(
+                    unidad_solicitante
+                  ) <> ''
+
+            ORDER BY
+                unidad_solicitante
+        """)
+
+        unidades_filtro = [
+            fila[0]
+            for fila in cur.fetchall()
+        ]
+
+
+        # =====================================================
+        # 14. ENVIAR AL DASHBOARD
+        # =====================================================
+        return render_template(
+            "dashboard_ejecutivo.html",
+
+            resumen=resumen,
+
+            devueltos=devueltos,
+            excluidos=excluidos,
+
+            por_estado=por_estado,
+            por_funcionario=por_funcionario,
+
+            por_unidad=por_unidad,
+            por_procedimiento=por_procedimiento,
+            por_programa=por_programa,
+            por_partida=por_partida,
+            por_fuente=por_fuente,
+
+            fecha_inicio=fecha_inicio,
+            fecha_fin=fecha_fin,
+            unidad=unidad,
+            unidades_filtro=unidades_filtro
+        )
+
+    finally:
+
+        cur.close()
+        conn.close()
     # ==========================================
     # TAREAS POR ESTADO
     # ==========================================
