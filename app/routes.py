@@ -1256,12 +1256,11 @@ def guardar_tarea():
     conn.close()
     return redirect(url_for("main.tareas"))
 
-# =================
-# LISTAR  TAREAS
-# ================
 @main.route("/tareas")
 @login_required()
 def tareas():
+
+    buscar = request.args.get("buscar", "").strip()
     codigo = request.args.get("codigo", "").strip()
     unidad = request.args.get("unidad", "").strip()
     funcionario = request.args.get("funcionario", "").strip()
@@ -1298,6 +1297,38 @@ def tareas():
 
     params = []
 
+    # ==========================================
+    # BUSCADOR GENERAL
+    # ==========================================
+    if buscar:
+
+        patron = f"%{buscar}%"
+
+        sql += """
+            AND (
+                COALESCE(t.codigo_proceso, '') ILIKE %s
+                OR COALESCE(t.objeto_contratacion, '') ILIKE %s
+                OR COALESCE(tp.nombre_proceso, '') ILIKE %s
+                OR COALESCE(t.estado_requerimiento, '') ILIKE %s
+                OR COALESCE(t.unidad_solicitante, '') ILIKE %s
+                OR COALESCE(t.funcionario_encargado, '') ILIKE %s
+                OR COALESCE(t.numero_certificacion, '') ILIKE %s
+            )
+        """
+
+        params.extend([
+            patron,
+            patron,
+            patron,
+            patron,
+            patron,
+            patron,
+            patron
+        ])
+
+    # ==========================================
+    # FILTROS INDIVIDUALES
+    # ==========================================
     if codigo:
         sql += " AND t.codigo_proceso ILIKE %s"
         params.append(f"%{codigo}%")
@@ -1313,6 +1344,7 @@ def tareas():
     sql += " ORDER BY t.id DESC"
 
     cur.execute(sql, params)
+
     tareas = cur.fetchall()
 
     cur.close()
@@ -1321,6 +1353,7 @@ def tareas():
     return render_template(
         "tareas_list.html",
         tareas=tareas,
+        buscar=buscar,
         codigo=codigo,
         unidad=unidad,
         funcionario=funcionario
@@ -3780,16 +3813,17 @@ def tipo_procesos_eliminar(id):
 @main.route("/seguimiento_tareas")
 @login_required()
 def seguimiento_tareas():
+
+    codigo = request.args.get("codigo", "").strip()
     estado = request.args.get("estado", "").strip()
     unidad = request.args.get("unidad", "").strip()
     funcionario = request.args.get("funcionario", "").strip()
-    codigo = request.args.get("codigo", "").strip()
 
     conn = get_connection()
     cur = conn.cursor()
 
     sql = """
-         SELECT
+        SELECT
             id,
             codigo_proceso,
             objeto_contratacion,
@@ -3821,7 +3855,11 @@ def seguimiento_tareas():
         sql += " AND codigo_proceso ILIKE %s"
         params.append(f"%{codigo}%")
 
-    sql += " ORDER BY fecha_recepcion DESC NULLS LAST, id DESC"
+    sql += """
+        ORDER BY
+            fecha_recepcion DESC NULLS LAST,
+            id DESC
+    """
 
     cur.execute(sql, params)
     tareas = cur.fetchall()
@@ -3832,10 +3870,10 @@ def seguimiento_tareas():
     return render_template(
         "seguimiento_tareas/seguimiento_tareas.html",
         tareas=tareas,
+        codigo=codigo,
         estado=estado,
         unidad=unidad,
-        funcionario=funcionario,
-        codigo=codigo
+        funcionario=funcionario
     )
 # ==========================================
 # API - PARTIDAS PRESUPUESTARIAS DE UNA TAREA
@@ -3981,10 +4019,11 @@ def seguimiento_tareas_guardar():
 
 
         # ==========================================
-        # 2. GUARDAR HISTORIAL SOLO SI ES
-        # UN NUEVO CAMBIO DE ESTADO
+        # 2. GUARDAR HISTORIAL DEL SEGUIMIENTO
         # ==========================================
-        if not editando_mismo_estado:
+        # Si estamos editando una certificación existente,
+        # NO crear otro movimiento de seguimiento.
+        if not editando_certificacion:
 
             cur.execute("""
                 INSERT INTO seguimiento_tareas (
@@ -4373,7 +4412,35 @@ def seguimiento_tareas_guardar():
             "✅ Seguimiento registrado correctamente",
             "success"
         )
-        
+
+        if estado == "CON CERTIFICACION":
+
+            cur.execute("""
+                UPDATE tareas
+                SET
+                    estado_requerimiento = %s,
+                    numero_certificacion = %s,
+                    fecha_certificacion = %s
+                WHERE id = %s
+            """, (
+                estado,
+                numero_certificacion,
+                fecha_certificacion,
+                tarea_id
+            ))
+
+        else:
+
+            cur.execute("""
+                UPDATE tareas
+                SET estado_requerimiento = %s
+                WHERE id = %s
+            """, (
+                estado,
+                tarea_id
+            ))
+
+
     except Exception as e:
     
         conn.rollback()

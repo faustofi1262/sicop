@@ -43,6 +43,28 @@
 
         </div>
     </form>
+    <form method="GET" action="{{ url_for('main.tareas') }}" class="mb-3">
+
+        <div class="input-group">
+
+            <input type="text" name="buscar" class="form-control" value="{{ buscar or '' }}"
+                placeholder="🔎 Buscar por código, objeto, estado, unidad, analista, tipo de proceso o certificación...">
+
+            <div class="input-group-append">
+
+                <button type="submit" class="btn btn-primary">
+                    Buscar
+                </button>
+
+                <a href="{{ url_for('main.tareas') }}" class="btn btn-secondary">
+                    Limpiar
+                </a>
+
+            </div>
+
+        </div>
+
+    </form>
 
     <table class="table table-bordered table-hover">
         <thead class="table table-dark">
@@ -163,8 +185,7 @@
                     <a href="{{ url_for(
                         'main.seguimiento_contratos_nuevo',
                         tarea_id=t[0]
-                    ) }}"
-                    class="btn btn-sm btn-secondary mb-1">
+                    ) }}" class="btn btn-sm btn-secondary mb-1">
 
                         📑 Registrar Contrato
 
