@@ -156,14 +156,15 @@
                             <option>EN REVISIÓN</option>
                             <option>OBSERVADA</option>
                             <option>CORREGIDA</option>
+                            <option>DEVUELTO</option>
                             <option>SOLICITUD DE CERTIFICACIÓN</option>
                             <option>CON CERTIFICACION</option>
                             <option>ELABORANDO ORDEN DE COMPRA</option>
+                            <option>ADJUDICADA</option>
                             <option>ORDEN DE COMPRA ENVIADA</option>
                             <option>ELABORANDO PLIEGO</option>
-                            <option>DEVUELTO</option>
                             <option>PUBLICADA</option>
-                            <option>ADJUDICADA</option>
+                            <option>CON CONTRATO</option>
                             <option>FINALIZADA</option>
 
                         </select>
@@ -551,13 +552,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     <td>
                         <input type="number"
-                               name="monto_adjudicado[]"
-                               id="montoAdjudicado_${partida.id}"
-                               class="form-control form-control-sm"
-                               step="0.01"
-                               min="0"
-                               placeholder="0.00"
-                               ${esCatalogo ? "readonly" : ""}>
+                            name="monto_adjudicado[]"
+                            id="montoAdjudicado_${partida.id}"
+                            class="form-control form-control-sm"
+                            step="0.01"
+                            min="0"
+                            value="${Number(partida.monto_adjudicado || 0).toFixed(2)}"
+                            placeholder="0.00"
+                             ${esCatalogo ? "readonly" : ""}>
                     </td>
 
                     <td style="${mostrarOrdenCompra ? "" : "display:none;"}">

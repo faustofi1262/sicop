@@ -3,309 +3,750 @@
 
 <div class="container-fluid mt-4">
 
+    <!-- ==========================================
+         ENCABEZADO
+    ========================================== -->
     <div class="text-center mb-4">
+
         <h2 class="font-weight-bold mb-1">
             📊 Dashboard Ejecutivo SICOP
         </h2>
 
         <p class="text-muted mb-0">
-            <b> Indicadores y seguimiento de los procesos de contratación</b>
+            <b>Indicadores y seguimiento de los procesos de contratación</b>
         </p>
+
     </div>
 
-    <form method="GET" action="{{ url_for('main.dashboard_ejecutivo') }}">
 
-        <div class="row align-items-end">
+    <!-- ==========================================
+         VOLVER
+    ========================================== -->
+    <div class="mb-3">
 
-            <div class="col-md-3 mb-2">
-                <label><strong>Fecha desde</strong></label>
+        <a href="{{ url_for('main.volver_panel') }}"
+           class="btn btn-secondary">
 
-                <input type="date" name="fecha_inicio" class="form-control" value="{{ fecha_inicio or '' }}">
+            ⬅ Volver
+
+        </a>
+
+    </div>
+
+
+    <!-- ==========================================
+         FILTROS
+    ========================================== -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <form method="GET"
+                  action="{{ url_for('main.dashboard_ejecutivo') }}">
+
+                <div class="row align-items-end">
+
+                    <!-- FECHA DESDE -->
+                    <div class="col-md-2 mb-2">
+
+                        <label>
+                            <strong>Fecha desde</strong>
+                        </label>
+
+                        <input type="date"
+                               name="fecha_inicio"
+                               class="form-control"
+                               value="{{ fecha_inicio or '' }}">
+
+                    </div>
+
+
+                    <!-- FECHA HASTA -->
+                    <div class="col-md-2 mb-2">
+
+                        <label>
+                            <strong>Fecha hasta</strong>
+                        </label>
+
+                        <input type="date"
+                               name="fecha_fin"
+                               class="form-control"
+                               value="{{ fecha_fin or '' }}">
+
+                    </div>
+
+
+                    <!-- UNIDAD -->
+                    <div class="col-md-4 mb-2">
+
+                        <label>
+                            <strong>Unidad</strong>
+                        </label>
+
+                        <select name="unidad"
+                                class="form-control">
+
+                            <option value="">
+                                Todas las unidades
+                            </option>
+
+                            {% for u in unidades_filtro %}
+
+                            <option value="{{ u }}"
+                                {% if unidad == u %}selected{% endif %}>
+
+                                {{ u }}
+
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- APLICAR -->
+                    <div class="col-md-2 mb-2">
+
+                        <button type="submit"
+                                class="btn btn-primary btn-block">
+
+                            🔎 Aplicar filtro
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- LIMPIAR -->
+                    <div class="col-md-2 mb-2">
+
+                        <a href="{{ url_for('main.dashboard_ejecutivo') }}"
+                           class="btn btn-secondary btn-block">
+
+                            ↻ Limpiar
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         INDICADORES EJECUTIVOS
+         PRIMERA FILA
+    ========================================== -->
+    <div class="row">
+
+        <!-- PROCESOS ECONÓMICOS -->
+        <div class="col-lg-4 col-md-6 mb-3">
+
+            <div class="card text-center border-primary shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted">
+                        📋 Procesos Económicos
+                    </div>
+
+                    <h2 class="text-primary mt-2">
+                        {{ resumen[0] or 0 }}
+                    </h2>
+
+                </div>
+
             </div>
 
-            <div class="col-md-3 mb-2">
-                <label><strong>Fecha hasta</strong></label>
+        </div>
 
-                <input type="date" name="fecha_fin" class="form-control" value="{{ fecha_fin or '' }}">
+
+        <!-- MONTO INGRESADO -->
+        <div class="col-lg-4 col-md-6 mb-3">
+
+            <div class="card text-center border-success shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted">
+                        💰 Monto Ingresado
+                    </div>
+
+                    <h2 class="text-success mt-2">
+                        $ {{ "{:,.2f}".format(resumen[1] or 0) }}
+                    </h2>
+
+                </div>
+
             </div>
-            <div class="col-md-3 mb-2">
-                <label>
-                    <strong>Unidad</strong>
-                </label>
 
-                <select name="unidad" class="form-control">
+        </div>
 
-                    <option value="">
-                        Todas las unidades
-                    </option>
 
-                    {% for u in unidades_filtro %}
-                    <option value="{{ u }}" {% if unidad==u %}selected{% endif %}>
-                        {{ u }}
-                    </option>
+        <!-- MONTO ADJUDICADO -->
+        <div class="col-lg-4 col-md-6 mb-3">
+
+            <div class="card text-center border-info shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted">
+                        🏆 Monto Adjudicado
+                    </div>
+
+                    <h2 class="text-info mt-2">
+                        $ {{ "{:,.2f}".format(resumen[2] or 0) }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         INDICADORES EJECUTIVOS
+         SEGUNDA FILA
+    ========================================== -->
+    <div class="row mb-3">
+
+        <!-- DIFERENCIA -->
+        <div class="col-lg-4 col-md-6 mb-3">
+
+            <div class="card text-center border-warning shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted">
+                        📉 Diferencia
+                    </div>
+
+                    <h2 class="text-warning mt-2">
+                        $ {{ "{:,.2f}".format(resumen[7] or 0) }}
+                    </h2>
+
+                    <small class="text-muted">
+                        Solo procesos adjudicados
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- PORCENTAJE -->
+        <div class="col-lg-4 col-md-6 mb-3">
+
+            <div class="card text-center border-primary shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted">
+                        📊 % Adjudicado
+                    </div>
+
+                    <h2 class="text-primary mt-2">
+                        {{ "{:,.2f}".format(resumen[4] or 0) }} %
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- PROCESOS ADJUDICADOS -->
+        <div class="col-lg-4 col-md-6 mb-3">
+
+            <div class="card text-center border-success shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted">
+                        ✅ Procesos Adjudicados
+                    </div>
+
+                    <h2 class="text-success mt-2">
+                        {{ resumen[6] or 0 }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         MONTOS POR PROCEDIMIENTO
+    ========================================== -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-dark text-white">
+            💼 Montos por Tipo de Procedimiento
+        </div>
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-hover mb-0">
+
+                    <thead class="thead-light">
+
+                        <tr>
+
+                            <th>Procedimiento</th>
+
+                            <th class="text-center">
+                                Procesos
+                            </th>
+
+                            <th class="text-right">
+                                Monto ingresado
+                            </th>
+
+                            <th class="text-right">
+                                Monto adjudicado
+                            </th>
+
+                            <th class="text-right">
+                                Diferencia
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for p in por_procedimiento %}
+
+                        <tr>
+
+                            <td>
+                                <strong>{{ p[0] }}</strong>
+                            </td>
+
+                            <td class="text-center">
+                                {{ p[1] }}
+                            </td>
+
+                            <td class="text-right">
+                                $ {{ "{:,.2f}".format(p[2] or 0) }}
+                            </td>
+
+                            <td class="text-right">
+                                $ {{ "{:,.2f}".format(p[3] or 0) }}
+                            </td>
+
+                            <td class="text-right font-weight-bold">
+                                $ {{ "{:,.2f}".format(p[4] or 0) }}
+                            </td>
+
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+
+                            <td colspan="5"
+                                class="text-center text-muted py-4">
+
+                                No existen datos para mostrar.
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         PROGRAMA Y FUENTE
+    ========================================== -->
+    <div class="row">
+
+        <!-- PROGRAMA -->
+        <div class="col-md-6 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-header bg-dark text-white">
+                    📊 Montos por Programa
+                </div>
+
+                <div class="card-body p-0">
+
+                    <div class="table-responsive">
+
+                        <table class="table table-bordered table-hover mb-0">
+
+                            <thead class="thead-light">
+
+                                <tr>
+
+                                    <th>Programa</th>
+
+                                    <th class="text-center">
+                                        Procesos
+                                    </th>
+
+                                    <th class="text-right">
+                                        Ingresado
+                                    </th>
+
+                                    <th class="text-right">
+                                        Adjudicado
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                {% for p in por_programa %}
+
+                                <tr>
+
+                                    <td>
+                                        <strong>{{ p[0] }}</strong>
+                                    </td>
+
+                                    <td class="text-center">
+                                        {{ p[1] }}
+                                    </td>
+
+                                    <td class="text-right">
+                                        $ {{ "{:,.2f}".format(p[2] or 0) }}
+                                    </td>
+
+                                    <td class="text-right">
+                                        $ {{ "{:,.2f}".format(p[3] or 0) }}
+                                    </td>
+
+                                </tr>
+
+                                {% else %}
+
+                                <tr>
+
+                                    <td colspan="4"
+                                        class="text-center text-muted">
+
+                                        Sin datos
+
+                                    </td>
+
+                                </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- FUENTE -->
+        <div class="col-md-6 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-header bg-dark text-white">
+                    💳 Montos por Fuente
+                </div>
+
+                <div class="card-body p-0">
+
+                    <div class="table-responsive">
+
+                        <table class="table table-bordered table-hover mb-0">
+
+                            <thead class="thead-light">
+
+                                <tr>
+
+                                    <th>Fuente</th>
+
+                                    <th class="text-center">
+                                        Procesos
+                                    </th>
+
+                                    <th class="text-right">
+                                        Ingresado
+                                    </th>
+
+                                    <th class="text-right">
+                                        Adjudicado
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                {% for f in por_fuente %}
+
+                                <tr>
+
+                                    <td>
+                                        <strong>{{ f[0] }}</strong>
+                                    </td>
+
+                                    <td class="text-center">
+                                        {{ f[1] }}
+                                    </td>
+
+                                    <td class="text-right">
+                                        $ {{ "{:,.2f}".format(f[2] or 0) }}
+                                    </td>
+
+                                    <td class="text-right">
+                                        $ {{ "{:,.2f}".format(f[3] or 0) }}
+                                    </td>
+
+                                </tr>
+
+                                {% else %}
+
+                                <tr>
+
+                                    <td colspan="4"
+                                        class="text-center text-muted">
+
+                                        Sin datos
+
+                                    </td>
+
+                                </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         PARTIDA PRESUPUESTARIA
+         TODO EL ANCHO
+    ========================================== -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-dark text-white">
+            🧾 Montos por Partida Presupuestaria
+        </div>
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive"
+                 style="max-height: 420px; overflow-y: auto;">
+
+                <table class="table table-bordered table-hover mb-0">
+
+                    <thead class="thead-light"
+                           style="position: sticky; top: 0; z-index: 1;">
+
+                        <tr>
+
+                            <th>Partida</th>
+
+                            <th>Descripción</th>
+
+                            <th class="text-center">
+                                Procesos
+                            </th>
+
+                            <th class="text-right">
+                                Ingresado
+                            </th>
+
+                            <th class="text-right">
+                                Adjudicado
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for p in por_partida %}
+
+                        <tr>
+
+                            <td>
+                                <strong>{{ p[0] }}</strong>
+                            </td>
+
+                            <td>
+                                {{ p[1] or '—' }}
+                            </td>
+
+                            <td class="text-center">
+                                {{ p[2] }}
+                            </td>
+
+                            <td class="text-right">
+                                $ {{ "{:,.2f}".format(p[3] or 0) }}
+                            </td>
+
+                            <td class="text-right">
+                                $ {{ "{:,.2f}".format(p[4] or 0) }}
+                            </td>
+
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+
+                            <td colspan="5"
+                                class="text-center text-muted">
+
+                                Sin datos
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         INFORMACIÓN OPERATIVA
+    ========================================== -->
+    <div class="row">
+
+        <!-- ESTADO -->
+        <div class="col-md-4 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-header bg-dark text-white">
+                    📌 Tareas por Estado
+                </div>
+
+                <div class="card-body">
+
+                    {% for e in por_estado %}
+
+                    <p>
+                        <b>{{ e[0] }}</b>:
+                        {{ e[1] }}
+                    </p>
+
                     {% endfor %}
 
-                </select>
-            </div>
-            <div class="col-md-3 mb-2">
-                <button type="submit" class="btn btn-primary btn-block">
-                    🔎 Aplicar filtro
-                </button>
-            </div>
+                </div>
 
-            <div class="col-md-3 mb-2">
-                <a href="{{ url_for('main.dashboard_ejecutivo') }}" class="btn btn-secondary btn-block">
-                    ↻ Limpiar
-                </a>
             </div>
 
         </div>
 
-    </form>
 
-</div>
-</div>
-<a href="{{ url_for('main.volver_panel') }}" class="btn btn-secondary">
-    ⬅ Volver
-</a>
-</div>
+        <!-- ANALISTA -->
+        <div class="col-md-4 mb-4">
 
-<div class="row mb-4">
+            <div class="card shadow-sm h-100">
 
-    <!-- PROCESOS ECONÓMICOS -->
-    <div class="col-md-2">
-        <div class="card text-center border-primary shadow-sm h-100">
-            <div class="card-body">
+                <div class="card-header bg-dark text-white">
+                    👩‍💼 Tareas por Analista
+                </div>
 
-                <div>📋 Procesos Económicos</div>
+                <div class="card-body">
 
-                <h2 class="text-primary mt-2">
-                    {{ resumen[0] or 0 }}
-                </h2>
+                    {% for f in por_funcionario %}
 
-            </div>
-        </div>
-    </div>
-
-
-    <!-- MONTO INGRESADO -->
-    <div class="col-md-2">
-        <div class="card text-center border-success shadow-sm h-100">
-            <div class="card-body">
-
-                <div>💰 Monto Ingresado</div>
-
-                <h2 class="text-success mt-2">
-                    $ {{ "{:,.2f}".format(resumen[1] or 0) }}
-                </h2>
-
-            </div>
-        </div>
-    </div>
-
-
-    <!-- MONTO ADJUDICADO -->
-    <div class="col-md-2">
-        <div class="card text-center border-info shadow-sm h-100">
-            <div class="card-body">
-
-                <div>🏆 Monto Adjudicado</div>
-
-                <h2 class="text-info mt-2">
-                    $ {{ "{:,.2f}".format(resumen[2] or 0) }}
-                </h2>
-
-            </div>
-        </div>
-    </div>
-
-
-    <!-- DIFERENCIA -->
-    <div class="col-md-2">
-        <div class="card text-center border-warning shadow-sm h-100">
-            <div class="card-body">
-
-                <div>📉 Diferencia</div>
-
-                <h2 class="text-warning mt-2">
-                    $ {{ "{:,.2f}".format(resumen[7] or 0) }}
-                </h2>
-
-                <small>
-                    Solo procesos adjudicados
-                </small>
-
-            </div>
-        </div>
-    </div>
-
-
-    <!-- PORCENTAJE ADJUDICADO -->
-    <div class="col-md-2">
-        <div class="card text-center border-primary shadow-sm h-100">
-            <div class="card-body">
-
-                <div>📊 % Adjudicado</div>
-
-                <h2 class="text-primary mt-2">
-                    {{ "{:,.2f}".format(resumen[4] or 0) }} %
-                </h2>
-
-            </div>
-        </div>
-    </div>
-
-
-    <!-- PROCESOS ADJUDICADOS -->
-    <div class="col-md-2">
-        <div class="card text-center border-success shadow-sm h-100">
-            <div class="card-body">
-
-                <div>✅ Procesos Adjudicados</div>
-
-                <h2 class="text-success mt-2">
-                    {{ resumen[6] or 0 }}
-                </h2>
-
-            </div>
-        </div>
-    </div>
-
-</div>
-<div class="card shadow-sm mb-4">
-
-    <div class="card-header bg-dark text-white">
-        💼 Montos por Tipo de Procedimiento
-    </div>
-
-    <div class="card-body p-0">
-
-        <div class="table-responsive">
-
-            <table class="table table-bordered table-hover mb-0">
-
-                <thead class="thead-light">
-                    <tr>
-                        <th>Procedimiento</th>
-                        <th class="text-center">Procesos</th>
-                        <th class="text-right">Monto ingresado</th>
-                        <th class="text-right">Monto adjudicado</th>
-                        <th class="text-right">Diferencia</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    {% for p in por_procedimiento %}
-
-                    <tr>
-
-                        <td>
-                            <strong>{{ p[0] }}</strong>
-                        </td>
-
-                        <td class="text-center">
-                            {{ p[1] }}
-                        </td>
-
-                        <td class="text-right">
-                            $ {{ "{:,.2f}".format(p[2] or 0) }}
-                        </td>
-
-                        <td class="text-right">
-                            $ {{ "{:,.2f}".format(p[3] or 0) }}
-                        </td>
-
-                        <td class="text-right font-weight-bold">
-                            $ {{ "{:,.2f}".format(p[4] or 0) }}
-                        </td>
-
-                    </tr>
-
-                    {% else %}
-
-                    <tr>
-                        <td colspan="5"
-                            class="text-center text-muted py-4">
-                            No existen datos para mostrar.
-                        </td>
-                    </tr>
+                    <p>
+                        <b>{{ f[0] }}</b>:
+                        {{ f[1] }}
+                    </p>
 
                     {% endfor %}
 
-                </tbody>
+                </div>
 
-            </table>
+            </div>
 
         </div>
 
-    </div>
 
-</div>
-<div class="row">
+        <!-- UNIDAD -->
+        <div class="col-md-4 mb-4">
 
-    <!-- ============================== -->
-    <!-- MONTOS POR PROGRAMA -->
-    <!-- ============================== -->
-    <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
 
-        <div class="card shadow-sm h-100">
+                <div class="card-header bg-dark text-white">
+                    🏢 Tareas por Unidad
+                </div>
 
-            <div class="card-header bg-dark text-white">
-                📊 Montos por Programa
-            </div>
+                <div class="card-body"
+                     style="max-height: 330px; overflow-y: auto;">
 
-            <div class="card-body p-0">
+                    {% for u in por_unidad %}
 
-                <div class="table-responsive">
+                    <p>
+                        <b>{{ u[0] }}</b>:
+                        {{ u[1] }}
+                    </p>
 
-                    <table class="table table-bordered table-hover table-sm mb-0">
-
-                        <thead class="thead-light">
-                            <tr>
-                                <th>Programa</th>
-                                <th class="text-center">Proc.</th>
-                                <th class="text-right">Ingresado</th>
-                                <th class="text-right">Adjudicado</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-
-                            {% for p in por_programa %}
-
-                            <tr>
-                                <td>
-                                    <strong>{{ p[0] }}</strong>
-                                </td>
-
-                                <td class="text-center">
-                                    {{ p[1] }}
-                                </td>
-
-                                <td class="text-right">
-                                    $ {{ "{:,.2f}".format(p[2] or 0) }}
-                                </td>
-
-                                <td class="text-right">
-                                    $ {{ "{:,.2f}".format(p[3] or 0) }}
-                                </td>
-                            </tr>
-
-                            {% else %}
-
-                            <tr>
-                                <td colspan="4"
-                                    class="text-center text-muted">
-                                    Sin datos
-                                </td>
-                            </tr>
-
-                            {% endfor %}
-
-                        </tbody>
-
-                    </table>
+                    {% endfor %}
 
                 </div>
 
@@ -314,207 +755,6 @@
         </div>
 
     </div>
-
-
-    <!-- ============================== -->
-    <!-- MONTOS POR PARTIDA -->
-    <!-- ============================== -->
-    <div class="col-md-5 mb-4">
-
-        <div class="card shadow-sm h-100">
-
-            <div class="card-header bg-dark text-white">
-                🧾 Montos por Partida Presupuestaria
-            </div>
-
-            <div class="card-body p-0">
-
-                <div class="table-responsive"
-                     style="max-height:420px; overflow-y:auto;">
-
-                    <table class="table table-bordered table-hover table-sm mb-0">
-
-                        <thead class="thead-light"
-                               style="position:sticky; top:0; z-index:1;">
-                            <tr>
-                                <th>Partida</th>
-                                <th>Descripción</th>
-                                <th class="text-center">Proc.</th>
-                                <th class="text-right">Ingresado</th>
-                                <th class="text-right">Adjudicado</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-
-                            {% for p in por_partida %}
-
-                            <tr>
-
-                                <td>
-                                    <strong>{{ p[0] }}</strong>
-                                </td>
-
-                                <td>
-                                    {{ p[1] or '—' }}
-                                </td>
-
-                                <td class="text-center">
-                                    {{ p[2] }}
-                                </td>
-
-                                <td class="text-right">
-                                    $ {{ "{:,.2f}".format(p[3] or 0) }}
-                                </td>
-
-                                <td class="text-right">
-                                    $ {{ "{:,.2f}".format(p[4] or 0) }}
-                                </td>
-
-                            </tr>
-
-                            {% else %}
-
-                            <tr>
-                                <td colspan="5"
-                                    class="text-center text-muted">
-                                    Sin datos
-                                </td>
-                            </tr>
-
-                            {% endfor %}
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- ============================== -->
-    <!-- MONTOS POR FUENTE -->
-    <!-- ============================== -->
-    <div class="col-md-3 mb-4">
-
-        <div class="card shadow-sm h-100">
-
-            <div class="card-header bg-dark text-white">
-                💳 Montos por Fuente
-            </div>
-
-            <div class="card-body p-0">
-
-                <div class="table-responsive">
-
-                    <table class="table table-bordered table-hover table-sm mb-0">
-
-                        <thead class="thead-light">
-                            <tr>
-                                <th>Fuente</th>
-                                <th class="text-center">Proc.</th>
-                                <th class="text-right">Ingresado</th>
-                                <th class="text-right">Adjudicado</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-
-                            {% for f in por_fuente %}
-
-                            <tr>
-
-                                <td>
-                                    <strong>{{ f[0] }}</strong>
-                                </td>
-
-                                <td class="text-center">
-                                    {{ f[1] }}
-                                </td>
-
-                                <td class="text-right">
-                                    $ {{ "{:,.2f}".format(f[2] or 0) }}
-                                </td>
-
-                                <td class="text-right">
-                                    $ {{ "{:,.2f}".format(f[3] or 0) }}
-                                </td>
-
-                            </tr>
-
-                            {% else %}
-
-                            <tr>
-                                <td colspan="4"
-                                    class="text-center text-muted">
-                                    Sin datos
-                                </td>
-                            </tr>
-
-                            {% endfor %}
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-</div>
-
-<div class="row">
-
-    <div class="col-md-4 mb-3">
-        <div class="card shadow">
-            <div class="card-header bg-dark text-white">
-                📌 Tareas por Estado
-            </div>
-            <div class="card-body">
-                {% for e in por_estado %}
-                <p><b>{{ e[0] }}</b>: {{ e[1] }}</p>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4 mb-3">
-        <div class="card shadow">
-            <div class="card-header bg-dark text-white">
-                👩‍💼 Tareas por Analista
-            </div>
-            <div class="card-body">
-                {% for f in por_funcionario %}
-                <p><b>{{ f[0] }}</b>: {{ f[1] }}</p>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4 mb-3">
-        <div class="card shadow">
-            <div class="card-header bg-dark text-white">
-                🏢 Tareas por Unidad
-            </div>
-            <div class="card-body">
-                {% for u in por_unidad %}
-                <p><b>{{ u[0] }}</b>: {{ u[1] }}</p>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
-</div>
 
 </div>
 

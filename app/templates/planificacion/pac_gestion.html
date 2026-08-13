@@ -1,165 +1,102 @@
 {% extends "base.html" %}
-
 {% block content %}
 
-<div class="container mt-4">
+<div class="container-fluid mt-4">
 
+    <!-- ==========================================
+         ENCABEZADO
+    ========================================== -->
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
-            <h3 class="mb-1">
-                📊 Gestión del Plan Anual de Compras
-            </h3>
+
+            <h2 class="font-weight-bold mb-1">
+                📊 Gestión del Plan Anual de Contratación - PAC
+            </h2>
 
             <p class="text-muted mb-0">
-                Administración, carga y consulta de versiones y reformas del PAC.
+                Control de versiones, reformas y seguimiento del PAC institucional.
             </p>
+
         </div>
 
-        <a href="{{ url_for('planificacion.inicio') }}"
+        <a href="{{ url_for('main.volver_panel') }}"
            class="btn btn-secondary">
+
             ⬅ Volver
+
         </a>
 
     </div>
 
 
-    <div class="row">
+    <!-- ==========================================
+         PAC VIGENTE
+    ========================================== -->
+    {% if pac_vigente %}
 
-        <div class="col-md-6 mb-4">
+    <div class="card shadow-sm mb-4">
 
-            <div class="card shadow-sm h-100">
+        <div class="card-header bg-dark text-white">
 
-                <div class="card-header bg-primary text-white">
-                    📥 Cargar nueva versión / reforma
-                </div>
-
-                <div class="card-body">
-
-                    <p class="text-muted">
-                        El archivo será revisado primero en una vista previa.
-                        No se modificará la base de datos hasta confirmar la importación.
-                    </p>
-
-                    <form method="POST"
-                        enctype="multipart/form-data"
-                        action="{{ url_for('planificacion.pac_vista_previa') }}">
-
-                        <div class="form-group">
-                            <label>Año</label>
-
-                            <input type="number"
-                                   name="anio"
-                                   class="form-control"
-                                   value="2026"
-                                   required>
-                        </div>
-
-
-                        <div class="form-group">
-                            <label>Número de reforma</label>
-
-                            <input type="text"
-                                   name="numero_reforma"
-                                   class="form-control"
-                                   placeholder="Ej. REFORMA 05"
-                                   required>
-                        </div>
-
-
-                        <div class="form-group">
-                            <label>Fecha de reforma</label>
-
-                            <input type="date"
-                                   name="fecha_reforma"
-                                   class="form-control">
-                        </div>
-
-
-                        <div class="form-group">
-                            <label>Descripción</label>
-
-                            <textarea name="descripcion"
-                                      class="form-control"
-                                      rows="2"
-                                      placeholder="Ej. Reforma General Vigente"></textarea>
-                        </div>
-
-
-                        <div class="form-group">
-                            <label>Estado</label>
-
-                            <select name="estado"
-                                    class="form-control"
-                                    required>
-
-                                <option value="HISTORICO">
-                                    Histórico
-                                </option>
-
-                                <option value="VIGENTE">
-                                    Vigente
-                                </option>
-
-                            </select>
-                        </div>
-
-
-                        <div class="form-group">
-                            <label>Archivo Excel del PAC</label>
-
-                            <input type="file"
-                                   name="archivo_pac"
-                                   class="form-control-file"
-                                   accept=".xlsx,.xls"
-                                   required>
-                        </div>
-
-
-                        <button type="submit"
-                                class="btn btn-primary btn-block">
-
-                            👁 Vista previa
-                        </button>
-
-                    </form>
-
-                </div>
-
-            </div>
+            ✅ PAC VIGENTE
 
         </div>
 
+        <div class="card-body">
 
-        <div class="col-md-6 mb-4">
+            <div class="row">
 
-            <div class="card shadow-sm h-100">
+                <div class="col-md-3">
 
-                <div class="card-header bg-dark text-white">
-                    🧠 ¿Qué hará este módulo?
+                    <small class="text-muted">
+                        Año
+                    </small>
+
+                    <h5>
+                        {{ pac_vigente[1] }}
+                    </h5>
+
                 </div>
 
-                <div class="card-body">
 
-                    <p>
-                        Cada reforma del PAC quedará almacenada como una versión
-                        independiente, preservando el histórico institucional.
-                    </p>
+                <div class="col-md-3">
 
-                    <hr>
+                    <small class="text-muted">
+                        Reforma vigente
+                    </small>
 
-                    <p>
-                        <strong>Posteriormente permitirá analizar:</strong>
-                    </p>
+                    <h5>
+                        {{ pac_vigente[2] }}
+                    </h5>
 
-                    <ul>
-                        <li>PAC vigente.</li>
-                        <li>Presupuesto ingresado a Compras.</li>
-                        <li>Monto adjudicado.</li>
-                        <li>Saldo pendiente.</li>
-                        <li>Porcentaje de ejecución.</li>
-                        <li>Análisis por unidad, grupo, partida y fuente.</li>
-                    </ul>
+                </div>
+
+
+                <div class="col-md-3">
+
+                    <small class="text-muted">
+                        Fecha reforma
+                    </small>
+
+                    <h5>
+                        {{ pac_vigente[3].strftime('%d/%m/%Y')
+                           if pac_vigente[3]
+                           else '—' }}
+                    </h5>
+
+                </div>
+
+
+                <div class="col-md-3">
+
+                    <small class="text-muted">
+                        Archivo
+                    </small>
+
+                    <h6>
+                        {{ pac_vigente[5] or '—' }}
+                    </h6>
 
                 </div>
 
@@ -168,6 +105,426 @@
         </div>
 
     </div>
+
+
+    <!-- ==========================================
+         INDICADORES
+    ========================================== -->
+    <div class="row mb-4">
+
+        <div class="col-lg-3 col-md-6 mb-3">
+
+            <div class="card text-center border-primary shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted">
+                        📋 Registros PAC
+                    </div>
+
+                    <h2 class="text-primary mt-2">
+                        {{ pac_vigente[6] or 0 }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-lg-3 col-md-6 mb-3">
+
+            <div class="card text-center border-success shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted">
+                        💰 Monto PAC Vigente
+                    </div>
+
+                    <h2 class="text-success mt-2">
+                        $ {{ "{:,.2f}".format(pac_vigente[9] or 0) }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-lg-3 col-md-6 mb-3">
+
+            <div class="card text-center border-info shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted">
+                        🏢 Unidades
+                    </div>
+
+                    <h2 class="text-info mt-2">
+                        {{ total_unidades }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-lg-3 col-md-6 mb-3">
+
+            <div class="card text-center border-secondary shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted">
+                        📚 Reformas registradas
+                    </div>
+
+                    <h2 class="text-secondary mt-2">
+                        {{ total_versiones }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         DIMENSIONES PAC
+    ========================================== -->
+    <div class="row mb-4">
+
+        <div class="col-md-4 mb-3">
+
+            <div class="card text-center shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted">
+                        📊 Programas
+                    </div>
+
+                    <h3>
+                        {{ total_programas }}
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4 mb-3">
+
+            <div class="card text-center shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted">
+                        🧾 Partidas
+                    </div>
+
+                    <h3>
+                        {{ total_partidas }}
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-md-4 mb-3">
+
+            <div class="card text-center shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="text-muted">
+                        💳 Fuentes
+                    </div>
+
+                    <h3>
+                        {{ total_fuentes }}
+                    </h3>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         ACCIONES PRINCIPALES
+    ========================================== -->
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-primary text-white">
+            ⚙ Gestión del PAC
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-4 mb-2">
+
+                    <a href="{{ url_for(
+                        'planificacion.pac_version_detalle',
+                        version_id=pac_vigente[0]
+                    ) }}"
+                    class="btn btn-primary btn-block">
+
+                        👁 Ver PAC vigente
+
+                    </a>
+
+                </div>
+
+
+                <div class="col-md-4 mb-2">
+
+                    <a href="{{ url_for(
+                        'planificacion.pac_historial'
+                    ) }}"
+                    class="btn btn-dark btn-block">
+
+                        📚 Historial de reformas
+
+                    </a>
+
+                </div>
+
+
+                <div class="col-md-4 mb-2">
+
+                    <button type="button"
+                            class="btn btn-success btn-block"
+                            data-toggle="collapse"
+                            data-target="#bloqueCargaPac">
+
+                        📥 Cargar nueva reforma
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {% else %}
+
+    <div class="alert alert-warning">
+
+        ⚠ No existe un PAC vigente registrado.
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- ==========================================
+         CARGA NUEVA REFORMA
+    ========================================== -->
+    <div class="collapse"
+         id="bloqueCargaPac">
+
+        <div class="card shadow-sm mb-4">
+
+            <div class="card-header bg-success text-white">
+
+                📥 Cargar nueva versión / reforma
+
+            </div>
+
+            <div class="card-body">
+
+                <p class="text-muted">
+
+                    El archivo será revisado primero en una vista previa.
+                    La base de datos no se modificará hasta confirmar la importación.
+
+                </p>
+
+
+                <form method="POST"
+                      enctype="multipart/form-data"
+                      action="{{ url_for(
+                        'planificacion.pac_vista_previa'
+                      ) }}">
+
+                    <div class="row">
+
+                        <div class="col-md-3">
+
+                            <div class="form-group">
+
+                                <label>Año</label>
+
+                                <input type="number"
+                                       name="anio"
+                                       class="form-control"
+                                       value="2026"
+                                       required>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-3">
+
+                            <div class="form-group">
+
+                                <label>Número de reforma</label>
+
+                                <input type="text"
+                                       name="numero_reforma"
+                                       class="form-control"
+                                       placeholder="Ej. REFORMA NRO. 06-2026"
+                                       required>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-3">
+
+                            <div class="form-group">
+
+                                <label>Fecha de reforma</label>
+
+                                <input type="date"
+                                       name="fecha_reforma"
+                                       class="form-control">
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-3">
+
+                            <div class="form-group">
+
+                                <label>Estado</label>
+
+                                <select name="estado"
+                                        class="form-control"
+                                        required>
+
+                                    <option value="VIGENTE">
+                                        Vigente
+                                    </option>
+
+                                    <option value="HISTORICO">
+                                        Histórico
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>Descripción</label>
+
+                        <textarea name="descripcion"
+                                  class="form-control"
+                                  rows="2"
+                                  placeholder="Ej. Reforma General Vigente"></textarea>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            Archivo Excel del PAC
+                        </label>
+
+                        <input type="file"
+                               name="archivo_pac"
+                               class="form-control-file"
+                               accept=".xlsx,.xls"
+                               required>
+
+                    </div>
+
+
+                    <button type="submit"
+                            class="btn btn-success">
+
+                        👁 Vista previa antes de importar
+
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         PRÓXIMA ETAPA
+    ========================================== -->
+    {% if pac_vigente %}
+
+    <div class="card shadow-sm">
+
+        <div class="card-header bg-dark text-white">
+
+            🧠 Análisis de ejecución
+
+        </div>
+
+        <div class="card-body">
+
+            <p class="mb-0">
+
+                El siguiente nivel permitirá comparar el
+                <strong>PAC vigente</strong>
+                contra los
+                <strong>procesos ingresados a Compras</strong>,
+                los
+                <strong>montos adjudicados</strong>
+                y el
+                <strong>saldo pendiente de ejecución</strong>.
+
+            </p>
+
+        </div>
+
+    </div>
+
+    {% endif %}
 
 </div>
 

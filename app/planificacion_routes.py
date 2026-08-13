@@ -104,9 +104,106 @@ def inicio():
 @planificacion.route("/pac")
 @login_required()
 def pac_gestion():
-    return render_template(
-        "planificacion/pac_gestion.html"
-    )
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+
+        # ==========================================
+        # PAC VIGENTE
+        # ==========================================
+        cur.execute("""
+            SELECT
+                pv.id,
+                pv.anio,
+                pv.numero_reforma,
+                pv.fecha_reforma,
+                pv.estado,
+                pv.nombre_archivo,
+                COUNT(pd.id) AS total_registros,
+                COALESCE(SUM(pd.subtotal), 0) AS subtotal,
+                COALESCE(SUM(pd.iva), 0) AS iva,
+                COALESCE(SUM(pd.total), 0) AS total_pac
+            FROM pac_versiones pv
+
+            LEFT JOIN pac_detalle pd
+                ON pd.pac_version_id = pv.id
+
+            WHERE pv.estado = 'VIGENTE'
+
+            GROUP BY
+                pv.id,
+                pv.anio,
+                pv.numero_reforma,
+                pv.fecha_reforma,
+                pv.estado,
+                pv.nombre_archivo
+
+            ORDER BY
+                pv.anio DESC,
+                pv.id DESC
+
+            LIMIT 1
+        """)
+
+        pac_vigente = cur.fetchone()
+
+
+        # ==========================================
+        # TOTAL DE VERSIONES / REFORMAS
+        # ==========================================
+        cur.execute("""
+            SELECT COUNT(*)
+            FROM pac_versiones
+        """)
+
+        total_versiones = cur.fetchone()[0]
+
+
+        # ==========================================
+        # TOTAL DE UNIDADES DEL PAC VIGENTE
+        # ==========================================
+        total_unidades = 0
+        total_programas = 0
+        total_partidas = 0
+        total_fuentes = 0
+
+        if pac_vigente:
+
+            version_id = pac_vigente[0]
+
+            cur.execute("""
+                SELECT
+                    COUNT(DISTINCT unidad),
+                    COUNT(DISTINCT programa),
+                    COUNT(DISTINCT partida),
+                    COUNT(DISTINCT fuente)
+                FROM pac_detalle
+                WHERE pac_version_id = %s
+            """, (version_id,))
+
+            resumen = cur.fetchone()
+
+            total_unidades = resumen[0] or 0
+            total_programas = resumen[1] or 0
+            total_partidas = resumen[2] or 0
+            total_fuentes = resumen[3] or 0
+
+
+        return render_template(
+            "planificacion/pac_gestion.html",
+            pac_vigente=pac_vigente,
+            total_versiones=total_versiones,
+            total_unidades=total_unidades,
+            total_programas=total_programas,
+            total_partidas=total_partidas,
+            total_fuentes=total_fuentes
+        )
+
+    finally:
+        cur.close()
+        conn.close()
 @planificacion.route("/pac/vista-previa", methods=["POST"])
 @login_required()
 def pac_vista_previa():

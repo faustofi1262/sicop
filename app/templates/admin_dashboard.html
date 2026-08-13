@@ -252,8 +252,7 @@
         </a>
 
         <div class="sidebar-section">Procesos</div>
-        <a href="{{ url_for('main.publicaciones_necesidad') }}"
-            class="sidebar-link">
+        <a href="{{ url_for('main.publicaciones_necesidad') }}" class="sidebar-link">
             <span>📢</span>
             <span>Publicaciones y Proformas</span>
         </a>
@@ -291,6 +290,11 @@
             <span>📊</span>
             <span>Reportes</span>
         </a>
+        <a href="{{ url_for('planificacion.pac_gestion') }}"
+        class="sidebar-link">
+            <span>📋</span>
+            <span>Gestión del PAC</span>
+        </a>
         <a href="{{ url_for('main.dashboard_ejecutivo') }}" class="sidebar-link">
             <span>🚀</span>
             <span>Dashboard Ejecutivo</span>
@@ -308,9 +312,7 @@
             <span>Crear pliegos</span>
         </a>
 
-        <a href="https://sinacop-ia.onrender.com"
-        target="_blank"
-        class="sidebar-link">
+        <a href="https://sinacop-ia.onrender.com" target="_blank" class="sidebar-link">
             <span>🧠</span>
             <span>SINACOP IA</span>
         </a>
@@ -360,7 +362,7 @@
                     </a>
                 </div>
             </div>
-             <div class="col-lg-4 col-md-6 mb-4">
+            <div class="col-lg-4 col-md-6 mb-4">
                 <div class="module-card">
                     <div class="module-icon">🧾</div>
                     <h5>Órdenes de compra</h5>
@@ -370,7 +372,7 @@
                     </a>
                 </div>
             </div>
-             <div class="col-lg-4 col-md-6 mb-4">
+            <div class="col-lg-4 col-md-6 mb-4">
                 <div class="module-card">
 
                     <div class="module-icon">
@@ -383,14 +385,13 @@
                         Registra publicaciones de necesidad y controla las proformas recibidas.
                     </p>
 
-                    <a href="{{ url_for('main.publicaciones_necesidad') }}"
-                    class="btn btn-primary">
+                    <a href="{{ url_for('main.publicaciones_necesidad') }}" class="btn btn-primary">
                         Ingresar
                     </a>
 
                 </div>
-            </div>           
-            
+            </div>
+
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="module-card">
                     <div class="module-icon">🎯</div>
@@ -418,7 +419,7 @@
                     </a>
                 </div>
             </div>
-            
+
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="module-card">
                     <div class="module-icon">📑</div>
@@ -438,6 +439,25 @@
                     <a href="{{ url_for('main.reportes') }}" class="btn btn-info">
                         Abrir reportes
                     </a>
+                </div>
+            </div>
+            <!-- GESTIÓN DEL PAC -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="module-card">
+
+                    <div class="module-icon">📋</div>
+
+                    <h5>Gestión del PAC</h5>
+
+                    <p>
+                        Administra el Plan Anual de Contratación,
+                        sus versiones, reformas e información presupuestaria.
+                    </p>
+
+                    <a href="{{ url_for('planificacion.pac_gestion') }}" class="btn btn-success">
+                        📊 Ingresar al PAC
+                    </a>
+
                 </div>
             </div>
             <div class="col-lg-4 col-md-6 mb-4">
@@ -473,55 +493,52 @@
 
 
         </div>
-<h3 class="section-title">Herramientas adicionales</h3>
+        <h3 class="section-title">Herramientas adicionales</h3>
 
-<div class="row">
+        <div class="row">
 
-    <!-- CREAR PLIEGOS -->
-    <div class="col-lg-4 col-md-6 mb-4">
-        <div class="module-card">
+            <!-- CREAR PLIEGOS -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="module-card">
 
-            <div class="module-icon">📘</div>
+                    <div class="module-icon">📘</div>
 
-            <h5>Crear pliegos</h5>
+                    <h5>Crear pliegos</h5>
 
-            <p>
-                Módulo reservado para la elaboración de pliegos.
-            </p>
+                    <p>
+                        Módulo reservado para la elaboración de pliegos.
+                    </p>
 
-            <a href="#"
-               class="btn btn-outline-secondary">
-                Próximamente
-            </a>
+                    <a href="#" class="btn btn-outline-secondary">
+                        Próximamente
+                    </a>
+
+                </div>
+            </div>
+
+
+            <!-- SINACOP IA -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="module-card">
+
+                    <div class="module-icon">🧠</div>
+
+                    <h5>SINACOP IA</h5>
+
+                    <p>
+                        Analiza documentos de contratación pública
+                        mediante inteligencia artificial.
+                    </p>
+
+                    <a href="https://sinacop-ia.onrender.com" target="_blank" rel="noopener noreferrer"
+                        class="btn btn-primary">
+                        🤖 Abrir SINACOP IA
+                    </a>
+
+                </div>
+            </div>
 
         </div>
-    </div>
-
-
-    <!-- SINACOP IA -->
-    <div class="col-lg-4 col-md-6 mb-4">
-        <div class="module-card">
-
-            <div class="module-icon">🧠</div>
-
-            <h5>SINACOP IA</h5>
-
-            <p>
-                Analiza documentos de contratación pública
-                mediante inteligencia artificial.
-            </p>
-
-            <a href="https://sinacop-ia.onrender.com"
-               target="_blank"
-               rel="noopener noreferrer"
-               class="btn btn-primary">
-                🤖 Abrir SINACOP IA
-            </a>
-
-        </div>
-    </div>
-
-</div>
 
         <h3 class="section-title">Configuración del sistema</h3>
 

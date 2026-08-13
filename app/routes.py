@@ -1408,18 +1408,45 @@ def api_tarea_detalle(tarea_id):
 
         requerimiento_id = tarea[6]
 
+        # ==========================================
+        # PARTIDAS + ADJUDICACIÓN EXISTENTE
+        # ==========================================
         cur.execute("""
             SELECT
-                id,
-                nombre_part,
-                num_part,
-                programa,
-                fuente,
-                monto
-            FROM partidas
-            WHERE requerimiento_id = %s
-            ORDER BY id
-        """, (requerimiento_id,))
+                p.id,
+                p.nombre_part,
+                p.num_part,
+                p.programa,
+                p.fuente,
+                p.monto,
+
+                COALESCE(
+                    ap.monto_adjudicado,
+                    0
+                ) AS monto_adjudicado
+
+            FROM partidas p
+
+            LEFT JOIN LATERAL (
+                SELECT
+                    a.id
+                FROM adjudicaciones a
+                WHERE a.tarea_id = %s
+                ORDER BY a.id DESC
+                LIMIT 1
+            ) a ON TRUE
+
+            LEFT JOIN adjudicacion_partidas ap
+                ON ap.adjudicacion_id = a.id
+            AND ap.partida_id = p.id
+
+            WHERE p.requerimiento_id = %s
+
+            ORDER BY p.id
+        """, (
+            tarea_id,
+            requerimiento_id
+        ))
 
         filas_partidas = cur.fetchall()
 
@@ -1438,7 +1465,8 @@ def api_tarea_detalle(tarea_id):
                 "numero": p[2] or "",
                 "programa": p[3] or "",
                 "fuente": p[4] or "",
-                "monto": monto
+                "monto": monto,
+                "monto_adjudicado": float(p[6] or 0)
             })
 
         return jsonify({
@@ -3819,39 +3847,67 @@ def api_tarea_partidas(tarea_id):
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("""
-        SELECT
-            p.id,
-            p.nombre_part,
-            p.num_part,
-            p.programa,
-            p.fuente,
-            p.monto
-        FROM tareas t
-        INNER JOIN partidas p
-            ON p.requerimiento_id = t.requerimiento_id
-        WHERE t.id = %s
-        ORDER BY p.id
-    """, (tarea_id,))
+    try:
 
-    filas = cur.fetchall()
+        cur.execute("""
+            SELECT
+                p.id,
+                p.nombre_part,
+                p.num_part,
+                p.programa,
+                p.fuente,
+                p.monto,
 
-    cur.close()
-    conn.close()
+                COALESCE(
+                    ap.monto_adjudicado,
+                    0
+                ) AS monto_adjudicado
 
-    partidas = []
+            FROM tareas t
 
-    for p in filas:
-        partidas.append({
-            "id": p[0],
-            "nombre": p[1],
-            "numero": p[2],
-            "programa": p[3],
-            "fuente": p[4],
-            "monto": float(p[5] or 0)
-        })
+            INNER JOIN partidas p
+                ON p.requerimiento_id = t.requerimiento_id
 
-    return jsonify(partidas)
+            LEFT JOIN LATERAL (
+                SELECT
+                    a.id
+                FROM adjudicaciones a
+                WHERE a.tarea_id = t.id
+                ORDER BY a.id DESC
+                LIMIT 1
+            ) a ON TRUE
+
+            LEFT JOIN adjudicacion_partidas ap
+                ON ap.adjudicacion_id = a.id
+               AND ap.partida_id = p.id
+
+            WHERE t.id = %s
+
+            ORDER BY p.id
+        """, (tarea_id,))
+
+        filas = cur.fetchall()
+
+        partidas = []
+
+        for p in filas:
+
+            partidas.append({
+                "id": p[0],
+                "nombre": p[1] or "",
+                "numero": p[2] or "",
+                "programa": p[3] or "",
+                "fuente": p[4] or "",
+                "monto": float(p[5] or 0),
+                "monto_adjudicado": float(p[6] or 0)
+            })
+
+        return jsonify(partidas)
+
+    finally:
+
+        cur.close()
+        conn.close()
 # ===============================
 # GUARDAR SEGUIMIENTO DE TAREA
 # ===============================
@@ -4594,7 +4650,7 @@ def seguimiento_tareas_dashboard():
           AND estado_requerimiento NOT ILIKE '%FINALIZADA%'
           AND estado_requerimiento NOT ILIKE '%ANULADA%'
         ORDER BY dias DESC
-        LIMIT 10
+        LIMIT 20
     """)
     alertas = cur.fetchall()
 
@@ -5520,7 +5576,7 @@ def dashboard_ejecutivo():
 
         GROUP BY funcionario_encargado
         ORDER BY total DESC
-        LIMIT 10
+        LIMIT 20
     """
 
     cur.execute(
@@ -5548,7 +5604,7 @@ def dashboard_ejecutivo():
 
         GROUP BY unidad_solicitante
         ORDER BY total DESC
-        LIMIT 10
+        LIMIT 20
     """
 
     cur.execute(
