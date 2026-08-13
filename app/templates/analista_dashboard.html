@@ -233,8 +233,7 @@
         </div>
 
         <div class="sidebar-section">Procesos</div>
-        <a href="{{ url_for('main.publicaciones_necesidad') }}"
-        class="sidebar-link">
+        <a href="{{ url_for('main.publicaciones_necesidad') }}" class="sidebar-link">
             <span>📢</span>
             <span>Publicaciones y Proformas</span>
         </a>
@@ -282,10 +281,7 @@
             <span>Crear pliegos</span>
         </a>
 
-        <a href="https://sinacop-ia.onrender.com"
-           target="_blank"
-           rel="noopener noreferrer"
-           class="sidebar-link">
+        <a href="https://sinacop-ia.onrender.com" target="_blank" rel="noopener noreferrer" class="sidebar-link">
             <span>🧠</span>
             <span>SINACOP IA</span>
         </a>
@@ -340,8 +336,7 @@
                     Registra publicaciones de necesidad y controla las proformas recibidas.
                 </p>
 
-                <a href="{{ url_for('main.publicaciones_necesidad') }}"
-                class="btn btn-primary">
+                <a href="{{ url_for('main.publicaciones_necesidad') }}" class="btn btn-primary">
                     Ingresar
                 </a>
 
@@ -363,8 +358,7 @@
                         Registra nuevos requerimientos institucionales.
                     </p>
 
-                    <a href="/requerimientos/nuevo"
-                       class="btn btn-primary">
+                    <a href="/requerimientos/nuevo" class="btn btn-primary">
                         Ingresar
                     </a>
 
@@ -386,8 +380,7 @@
                         Registra y administra tareas asociadas a los procesos.
                     </p>
 
-                    <a href="{{ url_for('main.tareas') }}"
-                       class="btn btn-success">
+                    <a href="{{ url_for('main.tareas') }}" class="btn btn-success">
                         Ingresar
                     </a>
 
@@ -409,8 +402,7 @@
                         Crea, edita y consulta órdenes de compra.
                     </p>
 
-                    <a href="{{ url_for('main.ordenes_compra') }}"
-                       class="btn btn-warning">
+                    <a href="{{ url_for('main.ordenes_compra') }}" class="btn btn-warning">
                         Ingresar
                     </a>
 
@@ -432,8 +424,7 @@
                         Consulte en segundos el estado completo de cualquier proceso de contratación.
                     </p>
 
-                    <a href="{{ url_for('main.trazabilidad_procesos') }}"
-                       class="btn btn-info">
+                    <a href="{{ url_for('main.trazabilidad_procesos') }}" class="btn btn-info">
                         Consultar
                     </a>
 
@@ -455,15 +446,50 @@
                         Consulta el avance y estado de las tareas registradas.
                     </p>
 
-                    <a href="{{ url_for('main.seguimiento_tareas') }}"
-                       class="btn btn-primary">
+                    <a href="{{ url_for('main.seguimiento_tareas') }}" class="btn btn-primary">
                         Consultar
                     </a>
 
                 </div>
             </div>
+            <!-- DASHBOARD EJECUTIVO -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="module-card">
 
+                    <div class="module-icon">🚀</div>
 
+                    <h5>Dashboard Ejecutivo</h5>
+
+                    <p>
+                        Consulta indicadores, montos, procesos adjudicados
+                        y estadísticas de contratación.
+                    </p>
+
+                    <a href="{{ url_for('main.dashboard_ejecutivo') }}" class="btn btn-primary">
+                        Ver Dashboard
+                    </a>
+
+                </div>
+            </div>
+            <!-- SEGUIMIENTO PAC -->
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="module-card">
+
+                    <div class="module-icon">📋</div>
+
+                    <h5>Plan Anual de Contratación</h5>
+
+                    <p>
+                        Consulta el PAC vigente, sus partidas,
+                        programas, fuentes y ejecución institucional.
+                    </p>
+
+                    <a href="{{ url_for('planificacion.pac_gestion') }}" class="btn btn-success">
+                        Ver PAC
+                    </a>
+
+                </div>
+            </div>
             <!-- SEGUIMIENTO DE CONTRATOS -->
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="module-card">
@@ -478,8 +504,7 @@
                         Consulta contratos, fechas, estados y documentación.
                     </p>
 
-                    <a href="{{ url_for('main.seguimiento_contratos') }}"
-                       class="btn btn-dark">
+                    <a href="{{ url_for('main.seguimiento_contratos') }}" class="btn btn-dark">
                         Ingresar
                     </a>
 
@@ -501,8 +526,7 @@
                         Genera reportes y consulta información consolidada.
                     </p>
 
-                    <a href="{{ url_for('main.reportes') }}"
-                       class="btn btn-info">
+                    <a href="{{ url_for('main.reportes') }}" class="btn btn-info">
                         Abrir reportes
                     </a>
 
@@ -535,8 +559,7 @@
                         Módulo reservado para la elaboración de pliegos.
                     </p>
 
-                    <a href="#"
-                       class="btn btn-outline-secondary">
+                    <a href="#" class="btn btn-outline-secondary">
                         Próximamente
                     </a>
 
@@ -558,10 +581,8 @@
                         Analiza documentos de contratación pública mediante inteligencia artificial.
                     </p>
 
-                    <a href="https://sinacop-ia.onrender.com"
-                       target="_blank"
-                       rel="noopener noreferrer"
-                       class="btn btn-primary">
+                    <a href="https://sinacop-ia.onrender.com" target="_blank" rel="noopener noreferrer"
+                        class="btn btn-primary">
                         🤖 Abrir SINACOP IA
                     </a>
 
