@@ -3861,7 +3861,8 @@ def api_tarea_partidas(tarea_id):
                 COALESCE(
                     ap.monto_adjudicado,
                     0
-                ) AS monto_adjudicado
+                ) AS monto_adjudicado,
+            ap.numero_orden_compra
 
             FROM tareas t
 
@@ -3899,7 +3900,8 @@ def api_tarea_partidas(tarea_id):
                 "programa": p[3] or "",
                 "fuente": p[4] or "",
                 "monto": float(p[5] or 0),
-                "monto_adjudicado": float(p[6] or 0)
+                "monto_adjudicado": float(p[6] or 0),
+                "numero_orden_compra": p[7] or ""
             })
 
         return jsonify(partidas)
@@ -3961,10 +3963,16 @@ def seguimiento_tareas_guardar():
         estado_anterior = tarea[2] or ""
         numero_certificacion_anterior = tarea[3] or ""
 
-        editando_certificacion = (
-            estado == "CON CERTIFICACION"
-            and estado_anterior == "CON CERTIFICACION"
-            and bool(numero_certificacion_anterior)
+        # ==========================================
+        # DETECTAR EDICIÓN DEL MISMO ESTADO
+        # ==========================================
+        editando_mismo_estado = (
+            estado == estado_anterior
+            and estado in (
+                "CON CERTIFICACION",
+                "ADJUDICADA",
+                "ORDEN DE COMPRA ENVIADA"
+            )
         )
         codigo_normalizado = codigo_proceso.upper().strip()
 
@@ -3973,11 +3981,10 @@ def seguimiento_tareas_guardar():
 
 
         # ==========================================
-        # 2. GUARDAR HISTORIAL DEL SEGUIMIENTO
+        # 2. GUARDAR HISTORIAL SOLO SI ES
+        # UN NUEVO CAMBIO DE ESTADO
         # ==========================================
-        # Si estamos editando una certificación existente,
-        # NO crear otro movimiento de seguimiento.
-        if not editando_certificacion:
+        if not editando_mismo_estado:
 
             cur.execute("""
                 INSERT INTO seguimiento_tareas (
@@ -4366,35 +4373,7 @@ def seguimiento_tareas_guardar():
             "✅ Seguimiento registrado correctamente",
             "success"
         )
-
-        if estado == "CON CERTIFICACION":
-
-            cur.execute("""
-                UPDATE tareas
-                SET
-                    estado_requerimiento = %s,
-                    numero_certificacion = %s,
-                    fecha_certificacion = %s
-                WHERE id = %s
-            """, (
-                estado,
-                numero_certificacion,
-                fecha_certificacion,
-                tarea_id
-            ))
-
-        else:
-
-            cur.execute("""
-                UPDATE tareas
-                SET estado_requerimiento = %s
-                WHERE id = %s
-            """, (
-                estado,
-                tarea_id
-            ))
-
-
+        
     except Exception as e:
     
         conn.rollback()
