@@ -12,5 +12,8 @@ def create_app():
     from .planificacion_routes import planificacion
     app.register_blueprint(planificacion)
     
+    from .inteligencia_financiera_routes import inteligencia_financiera
+    app.register_blueprint(inteligencia_financiera)
+    
     return app
 

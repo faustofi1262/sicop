@@ -1,0 +1,1005 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container-fluid mt-4">
+
+    <!-- ==========================================
+         ENCABEZADO
+    ========================================== -->
+    <div class="executive-header mb-4">
+
+        <div>
+            <h2 class="mb-1">
+                📈 Inteligencia Financiera y Proyección
+            </h2>
+
+            <p class="mb-0">
+                Análisis prospectivo de la ejecución del PAC y la contratación institucional
+            </p>
+        </div>
+
+        <div class="executive-badge">
+            SICOP · Inteligencia Gerencial
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         PAC ACTUAL
+    ========================================== -->
+    {% if pac_anio %}
+
+    <div class="alert alert-light border shadow-sm mb-4">
+
+        <strong>📋 PAC vigente:</strong>
+
+        {{ pac_anio }}
+
+        {% if pac_reforma %}
+        — {{ pac_reforma }}
+        {% endif %}
+
+    </div>
+
+    {% endif %}
+
+
+    <!-- ==========================================
+         INDICADORES FINANCIEROS
+    ========================================== -->
+    <div class="row">
+
+        <div class="col-lg-3 col-md-6 mb-4">
+
+            <div class="financial-card card-pac">
+
+                <div class="financial-label">
+                    📋 PAC Vigente
+                </div>
+
+                <div class="financial-value">
+                    $ {{ "{:,.2f}".format(monto_pac or 0) }}
+                </div>
+
+                <div class="financial-subtext">
+                    Planificación institucional vigente
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- INGRESADO -->
+        <div class="col-lg-3 col-md-6 mb-4">
+
+            <div class="financial-card card-ingresado">
+
+                <div class="financial-label">
+                    💰 Monto Ingresado
+                </div>
+
+                <div class="financial-value">
+                    $ {{ "{:,.2f}".format(monto_ingresado or 0) }}
+                </div>
+
+                <div class="financial-subtext">
+                    Procesos recibidos en Compras Públicas
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- CERTIFICADO -->
+        <div class="col-lg-3 col-md-6 mb-4">
+
+            <div class="financial-card card-certificado">
+
+                <div class="financial-label">
+                    📑 Monto Certificado
+                </div>
+
+                <div class="financial-value">
+                    $ {{ "{:,.2f}".format(monto_certificado or 0) }}
+                </div>
+
+                <div class="financial-subtext">
+                    Recursos con certificación presupuestaria
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ADJUDICADO -->
+        <div class="col-lg-3 col-md-6 mb-4">
+
+            <div class="financial-card card-adjudicado">
+
+                <div class="financial-label">
+                    🏆 Monto Adjudicado
+                </div>
+
+                <div class="financial-value">
+                    $ {{ "{:,.2f}".format(monto_adjudicado or 0) }}
+                </div>
+
+                <div class="financial-subtext">
+                    Procesos con resultado económico consolidado
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    <!-- ==========================================
+     PARÁMETROS DE PROYECCIÓN
+========================================== -->
+    <div class="analysis-card mb-4">
+
+        <div class="analysis-card-header">
+            🎯 Parámetros del análisis y proyección
+        </div>
+
+        <div class="card-body">
+
+            <form method="GET" action="{{ url_for('inteligencia_financiera.dashboard') }}">
+
+                <!-- PRIMERA FILA -->
+                <div class="row align-items-end">
+
+                    <!-- FECHA INICIAL -->
+                    <div class="col-lg-2 col-md-4 mb-3">
+
+                        <label class="font-weight-bold">
+                            Fecha inicial
+                        </label>
+
+                        <input type="date" name="fecha_inicio" class="form-control" value="{{ fecha_inicio or '' }}">
+
+                        <small class="text-muted">
+                            Inicio histórico
+                        </small>
+
+                    </div>
+
+
+                    <!-- FECHA CORTE -->
+                    <div class="col-lg-2 col-md-4 mb-3">
+
+                        <label class="font-weight-bold">
+                            Fecha de corte
+                        </label>
+
+                        <input type="date" name="fecha_corte" class="form-control" value="{{ fecha_corte or '' }}">
+
+                        <small class="text-muted">
+                            Último dato real
+                        </small>
+
+                    </div>
+
+
+                    <!-- PROYECTAR HASTA -->
+                    <div class="col-lg-2 col-md-4 mb-3">
+
+                        <label class="font-weight-bold">
+                            Proyectar hasta
+                        </label>
+
+                        <select name="proyectar_hasta" class="form-control">
+                            <option value="">-- Mes --</option>
+
+                            <option value="01" {% if proyectar_hasta=='01' %}selected{% endif %}>
+                                Enero
+                            </option>
+
+                            <option value="02" {% if proyectar_hasta=='02' %}selected{% endif %}>
+                                Febrero
+                            </option>
+
+                            <option value="03" {% if proyectar_hasta=='03' %}selected{% endif %}>
+                                Marzo
+                            </option>
+
+                            <option value="04" {% if proyectar_hasta=='04' %}selected{% endif %}>
+                                Abril
+                            </option>
+
+                            <option value="05" {% if proyectar_hasta=='05' %}selected{% endif %}>
+                                Mayo
+                            </option>
+
+                            <option value="06" {% if proyectar_hasta=='06' %}selected{% endif %}>
+                                Junio
+                            </option>
+
+                            <option value="07" {% if proyectar_hasta=='07' %}selected{% endif %}>
+                                Julio
+                            </option>
+
+                            <option value="08" {% if proyectar_hasta=='08' %}selected{% endif %}>
+                                Agosto
+                            </option>
+
+                            <option value="09" {% if proyectar_hasta=='09' %}selected{% endif %}>
+                                Septiembre
+                            </option>
+
+                            <option value="10" {% if proyectar_hasta=='10' %}selected{% endif %}>
+                                Octubre
+                            </option>
+
+                            <option value="11" {% if proyectar_hasta=='11' %}selected{% endif %}>
+                                Noviembre
+                            </option>
+
+                            <option value="12" {% if proyectar_hasta=='12' %}selected{% endif %}>
+                                Diciembre
+                            </option>
+
+                        </select>
+
+                        <small class="text-muted">
+                            Mes objetivo
+                        </small>
+
+                    </div>
+
+
+                    <!-- UNIDAD -->
+                    <div class="col-lg-6 col-md-12 mb-3">
+
+                        <label class="font-weight-bold">
+                            Unidad
+                        </label>
+
+                        <select name="unidad" class="form-control">
+
+                            <option value="">
+                                Todas las unidades
+                            </option>
+
+                            {% for u in unidades_filtro %}
+
+                            <option value="{{ u }}" {% if unidad==u %}selected{% endif %}>
+                                {{ u }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                        <small class="text-muted">
+                            Unidad requirente
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- SEGUNDA FILA -->
+                <div class="row align-items-end">
+
+                    <!-- PROGRAMA -->
+                    <div class="col-lg-2 col-md-3 mb-3">
+
+                        <label class="font-weight-bold">
+                            Programa
+                        </label>
+
+                        <select name="programa" class="form-control">
+
+                            <option value="">
+                                Todos
+                            </option>
+
+                            {% for p in programas_filtro %}
+
+                            <option value="{{ p }}" {% if programa==p %}selected{% endif %}>
+                                {{ p }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- PARTIDA -->
+                    <div class="col-lg-2 col-md-3 mb-3">
+
+                        <label class="font-weight-bold">
+                            Partida
+                        </label>
+
+                        <select name="partida" class="form-control">
+
+                            <option value="">
+                                Todas
+                            </option>
+
+                            {% for p in partidas_filtro %}
+
+                            <option value="{{ p }}" {% if partida==p %}selected{% endif %}>
+                                {{ p }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- FUENTE -->
+                    <div class="col-lg-2 col-md-3 mb-3">
+
+                        <label class="font-weight-bold">
+                            Fuente
+                        </label>
+
+                        <select name="fuente" class="form-control">
+
+                            <option value="">
+                                Todas
+                            </option>
+
+                            {% for f in fuentes_filtro %}
+
+                            <option value="{{ f }}" {% if fuente==f %}selected{% endif %}>
+                                {{ f }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- GENERAR -->
+                    <div class="col-lg-3 col-md-6 mb-3">
+
+                        <button type="submit" class="btn btn-primary btn-block">
+
+                            📈 Generar proyección
+
+                        </button>
+
+                    </div>
+
+
+                    <!-- LIMPIAR -->
+                    <div class="col-lg-3 col-md-6 mb-3">
+
+                        <a href="{{ url_for('inteligencia_financiera.dashboard') }}"
+                            class="btn btn-outline-secondary btn-block">
+
+                            ↻ Limpiar parámetros
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- ==========================================
+         ÁREA QUE USAREMOS PARA PROYECCIÓN
+    ========================================== -->
+    <div class="card shadow-sm mt-3">
+
+        <div class="card-header bg-dark text-white">
+            🧠 Motor de Proyección Financiera
+        </div>
+        <div class="card-body">
+
+            <p class="text-muted mb-0">
+                {% if mensaje_analisis %}
+
+            <div class="alert alert-warning m-3">
+                ⚠ {{ mensaje_analisis }}
+            </div>
+
+            {% elif analisis_generado %}
+
+            <div class="p-4">
+
+                <div class="d-flex justify-content-between
+                align-items-center mb-3">
+
+                    <div>
+
+                        <h5 class="font-weight-bold mb-1">
+                            📊 Evolución mensual del monto ingresado
+                        </h5>
+
+                        <small class="text-muted">
+                            Flujo real de procesos recibidos durante
+                            el período seleccionado
+                        </small>
+
+                    </div>
+
+                    <div class="text-right">
+
+                        <small class="text-muted">
+                            Total del período
+                        </small>
+
+                        <h5 class="mb-0 font-weight-bold">
+                            $ {{ "{:,.2f}".format(
+                            total_periodo_analizado or 0
+                            ) }}
+                        </h5>
+
+                    </div>
+
+                </div>
+                {% if proyeccion_generada %}
+
+                <div class="row mb-4">
+
+                    <div class="col-md-3">
+
+                        <div class="p-3 border rounded bg-light h-100">
+
+                            <small class="text-muted">
+                                Promedio mensual ajustado
+                            </small>
+
+                            <h5 class="font-weight-bold mt-2 mb-0">
+                                $ {{ "{:,.2f}".format(
+                                promedio_mensual_proyectado or 0
+                                ) }}
+                            </h5>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-3">
+
+                        <div class="p-3 border rounded bg-light h-100">
+
+                            <small class="text-muted">
+                                Ritmo diario del mes de corte
+                            </small>
+
+                            <h5 class="font-weight-bold mt-2 mb-0">
+                                $ {{ "{:,.2f}".format(
+                                ritmo_diario_mes_corte or 0
+                                ) }}
+                            </h5>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-3">
+
+                        <div class="p-3 border rounded bg-light h-100">
+
+                            <small class="text-muted">
+                                Cierre estimado del mes actual
+                            </small>
+
+                            <h5 class="font-weight-bold mt-2 mb-0">
+                                $ {{ "{:,.2f}".format(
+                                monto_mes_corte_estimado or 0
+                                ) }}
+                            </h5>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-3">
+
+                        <div class="p-3 border rounded bg-light h-100">
+
+                            <small class="text-muted">
+                                Proyección acumulada al objetivo
+                            </small>
+
+                            <h5 class="font-weight-bold mt-2 mb-0">
+                                $ {{ "{:,.2f}".format(
+                                proyeccion_acumulada_objetivo or 0
+                                ) }}
+                            </h5>
+
+                        </div>
+
+                    </div>
+
+                </div>
+                {% if proyeccion_generada %}
+
+                <!-- ==========================================
+     RESULTADO EJECUTIVO PAC VS PROYECCIÓN
+========================================== -->
+                <div class="mt-4 mb-4">
+
+                    <div class="d-flex justify-content-between
+                align-items-center mb-3">
+
+                        <div>
+                            <h5 class="font-weight-bold mb-1">
+                                🎯 Proyección frente al PAC
+                            </h5>
+
+                            <small class="text-muted">
+                                Resultado estimado al mes objetivo seleccionado
+                            </small>
+                        </div>
+
+                    </div>
+
+
+                    <div class="row">
+
+                        <!-- PAC DEL ÁMBITO -->
+                        <div class="col-lg-3 col-md-6 mb-3">
+
+                            <div class="financial-card card-pac">
+
+                                <div class="financial-label">
+                                    📋 PAC analizado
+                                </div>
+
+                                <div class="financial-value">
+                                    $ {{ "{:,.2f}".format(
+                                    pac_ambito_seleccionado or 0
+                                    ) }}
+                                </div>
+
+                                <div class="financial-subtext">
+                                    PAC sin IVA correspondiente a los filtros seleccionados
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- PROYECCIÓN ACUMULADA -->
+                        <div class="col-lg-3 col-md-6 mb-3">
+
+                            <div class="financial-card card-ingresado">
+
+                                <div class="financial-label">
+                                    📈 Ingreso proyectado acumulado
+                                </div>
+
+                                <div class="financial-value">
+                                    $ {{ "{:,.2f}".format(
+                                    monto_proyectado_acumulado or 0
+                                    ) }}
+                                </div>
+
+                                <div class="financial-subtext">
+                                    Monto esperado acumulado al mes objetivo
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- PORCENTAJE PAC -->
+                        <div class="col-lg-3 col-md-6 mb-3">
+
+                            <div class="financial-card card-adjudicado">
+
+                                <div class="financial-label">
+                                    📊 PAC movilizado proyectado
+                                </div>
+
+                                <div class="financial-value">
+                                    {{ "{:,.2f}".format(
+                                    porcentaje_pac_proyectado or 0
+                                    ) }} %
+                                </div>
+
+                                <div class="financial-subtext">
+                                    Participación proyectada respecto del PAC
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- SALDO PAC -->
+                        <div class="col-lg-3 col-md-6 mb-3">
+
+                            <div class="financial-card card-riesgo">
+
+                                <div class="financial-label">
+                                    ⚠️ PAC pendiente proyectado
+                                </div>
+
+                                <div class="financial-value">
+                                    $ {{ "{:,.2f}".format(
+                                    saldo_pac_proyectado or 0
+                                    ) }}
+                                </div>
+
+                                <div class="financial-subtext">
+                                    Monto que se estima aún no habría ingresado a contratación
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                {% endif %}
+                {% endif %}
+
+                <div style="height: 360px;">
+
+                    <canvas id="graficoFlujoMensual"></canvas>
+
+                </div>
+
+            </div>
+
+            {% else %}
+
+            <div class="p-4 text-center text-muted">
+
+                Seleccione una
+                <strong>fecha inicial</strong>,
+                una
+                <strong>fecha de corte</strong>
+                y pulse
+                <strong>Generar proyección</strong>
+                para iniciar el análisis financiero.
+
+            </div>
+
+            {% endif %}
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+<style>
+    body {
+        background: #f4f7fb;
+    }
+
+    .executive-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        padding: 24px 28px;
+
+        background: linear-gradient(135deg,
+                #0b2f4f,
+                #174f7c);
+
+        color: white;
+
+        border-radius: 16px;
+
+        box-shadow:
+            0 10px 30px rgba(15, 23, 42, 0.12);
+    }
+
+    .executive-header h2 {
+        font-weight: 700;
+    }
+
+    .executive-header p {
+        color: #dbeafe;
+    }
+
+    .executive-badge {
+        padding: 10px 16px;
+
+        background:
+            rgba(255, 255, 255, 0.15);
+
+        border:
+            1px solid rgba(255, 255, 255, 0.2);
+
+        border-radius: 999px;
+
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .financial-card {
+        position: relative;
+
+        min-height: 145px;
+
+        padding: 22px;
+
+        background: white;
+
+        border: 1px solid #e2e8f0;
+
+        border-radius: 16px;
+
+        box-shadow:
+            0 6px 18px rgba(15, 23, 42, 0.06);
+
+        overflow: hidden;
+    }
+
+    .financial-card::before {
+        content: "";
+
+        position: absolute;
+
+        top: 0;
+        left: 0;
+
+        width: 100%;
+        height: 5px;
+    }
+
+    .card-pac::before {
+        background: #1d4ed8;
+    }
+
+    .card-ingresado::before {
+        background: #16a34a;
+    }
+
+    .card-certificado::before {
+        background: #d97706;
+    }
+
+    .card-adjudicado::before {
+        background: #0891b2;
+    }
+
+    .financial-label {
+        color: #64748b;
+
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .financial-value {
+        margin-top: 12px;
+
+        color: #0f172a;
+
+        font-size: 30px;
+        font-weight: 700;
+    }
+
+    .financial-subtext {
+        margin-top: 8px;
+
+        color: #94a3b8;
+
+        font-size: 12px;
+    }
+
+    .analysis-card {
+        background: white;
+
+        border: 1px solid #e2e8f0;
+
+        border-radius: 16px;
+
+        box-shadow:
+            0 6px 18px rgba(15, 23, 42, 0.05);
+    }
+
+    .analysis-card-header {
+        padding: 16px 20px;
+
+        background: #172033;
+
+        color: white;
+
+        border-radius:
+            16px 16px 0 0;
+
+        font-weight: 600;
+    }
+    .card-riesgo::before {
+    background: #dc3545;
+    }
+</style>
+{% if analisis_generado %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            const canvas =
+                document.getElementById(
+                    "graficoFlujoMensual"
+                );
+
+            if (!canvas) {
+                return;
+            }
+
+            const etiquetas =
+                {{ grafico_labels | tojson
+        }};
+
+    const valoresReales =
+        {{ serie_real_grafico | tojson }};
+
+    const valoresProyectados =
+        {{ serie_proyectada_grafico | tojson }};
+
+
+    new Chart(
+        canvas,
+        {
+            type: "line",
+
+            data: {
+
+                labels: etiquetas,
+
+                datasets: [
+
+                    {
+                        label: "Flujo real",
+
+                        data: valoresReales,
+
+                        borderWidth: 3,
+
+                        tension: 0.30,
+
+                        fill: false,
+
+                        pointRadius: 5,
+
+                        pointHoverRadius: 7,
+
+                        spanGaps: false
+                    },
+
+                    {
+                        label: "Flujo proyectado",
+
+                        data: valoresProyectados,
+
+                        borderWidth: 3,
+
+                        borderDash: [8, 6],
+
+                        tension: 0.30,
+
+                        fill: false,
+
+                        pointRadius: 5,
+
+                        pointHoverRadius: 7,
+
+                        spanGaps: true
+                    }
+
+                ]
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                interaction: {
+                    mode: "index",
+                    intersect: false
+                },
+
+                plugins: {
+
+                    legend: {
+                        display: true
+                    },
+
+                    tooltip: {
+
+                        callbacks: {
+
+                            label:
+                                function (
+                                    context
+                                ) {
+
+                                    const valor =
+                                        Number(
+                                            context.raw
+                                            || 0
+                                        );
+
+                                    return (
+                                        " $ "
+                                        +
+                                        valor
+                                            .toLocaleString(
+                                                "en-US",
+                                                {
+                                                    minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2
+                                                }
+                                            )
+                                    );
+                                }
+                        }
+                    }
+                },
+
+                scales: {
+
+                    y: {
+
+                        beginAtZero: true,
+
+                        ticks: {
+
+                            callback:
+                                function (
+                                    value
+                                ) {
+
+                                    return (
+                                        "$ "
+                                        +
+                                        Number(
+                                            value
+                                        )
+                                            .toLocaleString(
+                                                "en-US"
+                                            )
+                                    );
+                                }
+                        }
+                    }
+                }
+            }
+        }
+    );
+
+    }
+);
+
+</script>
+
+{% endif %}
+{% endblock %}

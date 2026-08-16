@@ -141,71 +141,25 @@
 
 
     <!-- ==========================================
-         INDICADORES EJECUTIVOS
-         PRIMERA FILA
-    ========================================== -->
-    <div class="row">
+     INDICADORES EJECUTIVOS
+     PRIMERA FILA
+========================================== -->
+<div class="row">
 
-        <!-- PROCESOS ECONÓMICOS -->
-        <div class="col-lg-4 col-md-6 mb-3">
+    <!-- PROCESOS ECONÓMICOS -->
+    <div class="col-lg-4 col-md-6 mb-3">
 
-            <div class="card text-center border-primary shadow-sm h-100">
+        <div class="card text-center border-primary shadow-sm h-100">
 
-                <div class="card-body">
+            <div class="card-body">
 
-                    <div class="text-muted">
-                        📋 Procesos Económicos
-                    </div>
-
-                    <h2 class="text-primary mt-2">
-                        {{ resumen[0] or 0 }}
-                    </h2>
-
+                <div class="text-muted">
+                    📋 Procesos Económicos
                 </div>
 
-            </div>
-
-        </div>
-
-
-        <!-- MONTO INGRESADO -->
-        <div class="col-lg-4 col-md-6 mb-3">
-
-            <div class="card text-center border-success shadow-sm h-100">
-
-                <div class="card-body">
-
-                    <div class="text-muted">
-                        💰 Monto Ingresado
-                    </div>
-
-                    <h2 class="text-success mt-2">
-                        $ {{ "{:,.2f}".format(resumen[1] or 0) }}
-                    </h2>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- MONTO ADJUDICADO -->
-        <div class="col-lg-4 col-md-6 mb-3">
-
-            <div class="card text-center border-info shadow-sm h-100">
-
-                <div class="card-body">
-
-                    <div class="text-muted">
-                        🏆 Monto Adjudicado
-                    </div>
-
-                    <h2 class="text-info mt-2">
-                        $ {{ "{:,.2f}".format(resumen[2] or 0) }}
-                    </h2>
-
-                </div>
+                <h2 class="text-primary mt-2">
+                    {{ resumen[0] or 0 }}
+                </h2>
 
             </div>
 
@@ -214,76 +168,20 @@
     </div>
 
 
-    <!-- ==========================================
-         INDICADORES EJECUTIVOS
-         SEGUNDA FILA
-    ========================================== -->
-    <div class="row mb-3">
+    <!-- MONTO INGRESADO -->
+    <div class="col-lg-4 col-md-6 mb-3">
 
-        <!-- DIFERENCIA -->
-        <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card text-center border-success shadow-sm h-100">
 
-            <div class="card text-center border-warning shadow-sm h-100">
+            <div class="card-body">
 
-                <div class="card-body">
-
-                    <div class="text-muted">
-                        📉 Diferencia
-                    </div>
-
-                    <h2 class="text-warning mt-2">
-                        $ {{ "{:,.2f}".format(resumen[7] or 0) }}
-                    </h2>
-
-                    <small class="text-muted">
-                        Solo procesos adjudicados
-                    </small>
-
+                <div class="text-muted">
+                    💰 Monto Ingresado
                 </div>
 
-            </div>
-
-        </div>
-
-
-        <!-- PORCENTAJE -->
-        <div class="col-lg-4 col-md-6 mb-3">
-
-            <div class="card text-center border-primary shadow-sm h-100">
-
-                <div class="card-body">
-
-                    <div class="text-muted">
-                        📊 % Adjudicado
-                    </div>
-
-                    <h2 class="text-primary mt-2">
-                        {{ "{:,.2f}".format(resumen[4] or 0) }} %
-                    </h2>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- PROCESOS ADJUDICADOS -->
-        <div class="col-lg-4 col-md-6 mb-3">
-
-            <div class="card text-center border-success shadow-sm h-100">
-
-                <div class="card-body">
-
-                    <div class="text-muted">
-                        ✅ Procesos Adjudicados
-                    </div>
-
-                    <h2 class="text-success mt-2">
-                        {{ resumen[6] or 0 }}
-                    </h2>
-
-                </div>
+                <h2 class="text-success mt-2">
+                    $ {{ "{:,.2f}".format(resumen[1] or 0) }}
+                </h2>
 
             </div>
 
@@ -291,6 +189,103 @@
 
     </div>
 
+
+    <!-- MONTO CERTIFICADO -->
+    <div class="col-lg-4 col-md-6 mb-3">
+
+        <div class="card text-center border-warning shadow-sm h-100">
+
+            <div class="card-body">
+
+                <div class="text-muted">
+                    📑 Monto Certificado
+                </div>
+
+                <h2 class="text-warning mt-2">
+                    $ {{ "{:,.2f}".format(resumen[2] or 0) }}
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==========================================
+     INDICADORES EJECUTIVOS
+     SEGUNDA FILA
+========================================== -->
+<div class="row mb-3">
+
+    <!-- MONTO ADJUDICADO -->
+    <div class="col-lg-4 col-md-6 mb-3">
+
+        <div class="card text-center border-info shadow-sm h-100">
+
+            <div class="card-body">
+
+                <div class="text-muted">
+                    🏆 Monto Adjudicado
+                </div>
+
+                <h2 class="text-info mt-2">
+                    $ {{ "{:,.2f}".format(resumen[3] or 0) }}
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- PORCENTAJE ADJUDICADO -->
+    <div class="col-lg-4 col-md-6 mb-3">
+
+        <div class="card text-center border-primary shadow-sm h-100">
+
+            <div class="card-body">
+
+                <div class="text-muted">
+                    📊 % Adjudicado
+                </div>
+
+                <h2 class="text-primary mt-2">
+                    {{ "{:,.2f}".format(resumen[5] or 0) }} %
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- PROCESOS ADJUDICADOS -->
+    <div class="col-lg-4 col-md-6 mb-3">
+
+        <div class="card text-center border-success shadow-sm h-100">
+
+            <div class="card-body">
+
+                <div class="text-muted">
+                    ✅ Procesos Adjudicados
+                </div>
+
+                <h2 class="text-success mt-2">
+                    {{ resumen[7] or 0 }}
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
     <!-- ==========================================
          MONTOS POR PROCEDIMIENTO

@@ -307,13 +307,30 @@ def listar_requerimientos():
     cur = conn.cursor()
 
     cur.execute("""
-        SELECT r.id,
-               r.mem_requi,
-               r.fecha_memo_requi,
-               u.nombre_unidad,
-               r.monto_req
+        SELECT
+            r.id,
+            r.mem_requi,
+            r.fecha_memo_requi,
+
+            CASE
+                WHEN UPPER(TRIM(u.nombre_unidad))
+                    IN ('DECANATO', 'SUBDECANATO')
+                THEN
+                    u.nombre_unidad
+                    || ' - '
+                    || COALESCE(u.bloque, '')
+
+                ELSE
+                    u.nombre_unidad
+            END AS unidad,
+
+            r.monto_req
+
         FROM requerimientos r
-        LEFT JOIN unidades u ON u.id = r.unid_requirente
+
+        LEFT JOIN unidades u
+            ON u.id = r.unid_requirente
+
         ORDER BY r.id DESC
     """)
 
@@ -345,8 +362,47 @@ def nuevo_requerimiento():
     conn = get_connection()
     cur = conn.cursor()
 
-    # Unidades
-    cur.execute("SELECT id, nombre_unidad FROM unidades ORDER BY nombre_unidad")
+   # ==========================================================
+    # UNIDADES REQUIRIENTES ACTIVAS
+    #
+    # Se obtiene:
+    # - ID de la unidad
+    # - Nombre oficial
+    # - Departamento principal
+    # - Bloque
+    #
+    # Para DECANATO y SUBDECANATO se construye una etiqueta
+    # especial para distinguir a qué Facultad pertenecen.
+    # ==========================================================
+    cur.execute("""
+        SELECT
+            id,
+            nombre_unidad,
+            departamento_principal,
+            bloque,
+
+            CASE
+                WHEN UPPER(TRIM(nombre_unidad))
+                    IN ('DECANATO', 'SUBDECANATO')
+                THEN
+                    nombre_unidad
+                    || ' - '
+                    || COALESCE(bloque, '')
+
+                ELSE
+                    nombre_unidad
+            END AS etiqueta
+
+        FROM unidades
+
+        WHERE activo = TRUE
+
+        ORDER BY
+            bloque,
+            departamento_principal,
+            nombre_unidad
+    """)
+
     unidades = cur.fetchall()
 
     # Funcionarios (usuarios)
@@ -511,8 +567,47 @@ def editar_requerimiento(id):
         "monto_req": row[12],
     }
 
-    # Unidades
-    cur.execute("SELECT id, nombre_unidad FROM unidades ORDER BY nombre_unidad")
+    # ==========================================================
+    # UNIDADES REQUIRIENTES ACTIVAS
+    #
+    # Se obtiene:
+    # - ID de la unidad
+    # - Nombre oficial
+    # - Departamento principal
+    # - Bloque
+    #
+    # Para DECANATO y SUBDECANATO se construye una etiqueta
+    # especial para distinguir a qué Facultad pertenecen.
+    # ==========================================================
+    cur.execute("""
+        SELECT
+            id,
+            nombre_unidad,
+            departamento_principal,
+            bloque,
+
+            CASE
+                WHEN UPPER(TRIM(nombre_unidad))
+                    IN ('DECANATO', 'SUBDECANATO')
+                THEN
+                    nombre_unidad
+                    || ' - '
+                    || COALESCE(bloque, '')
+
+                ELSE
+                    nombre_unidad
+            END AS etiqueta
+
+        FROM unidades
+
+        WHERE activo = TRUE
+
+        ORDER BY
+            bloque,
+            departamento_principal,
+            nombre_unidad
+    """)
+
     unidades = cur.fetchall()
 
     # Funcionarios
@@ -4023,7 +4118,7 @@ def seguimiento_tareas_guardar():
         # ==========================================
         # Si estamos editando una certificación existente,
         # NO crear otro movimiento de seguimiento.
-        if not editando_certificacion:
+        if not editando_mismo_estado:
 
             cur.execute("""
                 INSERT INTO seguimiento_tareas (
@@ -4413,34 +4508,7 @@ def seguimiento_tareas_guardar():
             "success"
         )
 
-        if estado == "CON CERTIFICACION":
-
-            cur.execute("""
-                UPDATE tareas
-                SET
-                    estado_requerimiento = %s,
-                    numero_certificacion = %s,
-                    fecha_certificacion = %s
-                WHERE id = %s
-            """, (
-                estado,
-                numero_certificacion,
-                fecha_certificacion,
-                tarea_id
-            ))
-
-        else:
-
-            cur.execute("""
-                UPDATE tareas
-                SET estado_requerimiento = %s
-                WHERE id = %s
-            """, (
-                estado,
-                tarea_id
-            ))
-
-
+       
     except Exception as e:
     
         conn.rollback()
@@ -4841,7 +4909,10 @@ def dashboard_ejecutivo():
                         t.valor_exento,
                         0
                     ) AS monto_ingresado,
-
+                    COALESCE(
+                        t.valor_certificacion,
+                        0
+                    ) AS monto_certificado,
                     COALESCE(
                         at.monto_adjudicado,
                         0
@@ -4871,7 +4942,10 @@ def dashboard_ejecutivo():
                     SUM(monto_ingresado),
                     0
                 ) AS monto_ingresado,
-
+                COALESCE(
+                    SUM(monto_certificado),
+                    0
+                ) AS monto_certificado,
                 COALESCE(
                     SUM(monto_adjudicado),
                     0

@@ -47,8 +47,13 @@
 
         <div class="input-group">
 
-            <input type="text" name="buscar" class="form-control" value="{{ buscar or '' }}"
-                placeholder="🔎 Buscar por código, objeto, estado, unidad, analista, tipo de proceso o certificación...">
+            <input type="text"
+                    id="buscadorTareas"
+                    name="buscar"
+                    class="form-control"
+                    value="{{ buscar or '' }}"
+                    autocomplete="off"
+                    placeholder="🔎 Buscar por código, objeto, estado, unidad, analista, tipo de proceso o certificación...">
 
             <div class="input-group-append">
 
@@ -745,5 +750,45 @@
         }
     );
 
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const buscador = document.getElementById("buscadorTareas");
+
+    if (!buscador) {
+        return;
+    }
+
+    let temporizador;
+
+    buscador.addEventListener("input", function () {
+
+        clearTimeout(temporizador);
+
+        const texto = this.value.trim();
+
+        // Esperamos un poquito para no consultar
+        // al servidor con cada tecla instantáneamente
+        temporizador = setTimeout(function () {
+
+            if (texto.length >= 2) {
+
+                window.location.href =
+                    "{{ url_for('main.tareas') }}" +
+                    "?buscar=" +
+                    encodeURIComponent(texto);
+
+            } else if (texto.length === 0) {
+
+                window.location.href =
+                    "{{ url_for('main.tareas') }}";
+            }
+
+        }, 500);
+
+    });
+
+});
 </script>
 {% endblock %}
