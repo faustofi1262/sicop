@@ -33,7 +33,7 @@
         </div>
         <div class="tarea-body">
 
-            <form method="POST" action="{{ url_for('main.guardar_tarea') }}">
+            <form method="POST" action="{{ url_for('main.guardar_tarea') }}"autocomplete="off">
 
                 {% if tarea %}
                 <input type="hidden" name="id" value="{{ tarea[0] if tarea else '' }}">
