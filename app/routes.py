@@ -6663,6 +6663,9 @@ def certificacion_pac_pdf(certificacion_id):
     conn = get_connection()
     cur = conn.cursor()
 
+    # ==========================================
+    # DATOS DE LA CERTIFICACIÓN
+    # ==========================================
     cur.execute("""
         SELECT
             c.id,
@@ -6673,40 +6676,6 @@ def certificacion_pac_pdf(certificacion_id):
             t.funcionario_encargado,
             t.nombre_jefe_compras,
             t.consta_pac,
-            u.nombre_unidad,
-            u.departamento_principal,
-            u.bloque
-
-        FROM certificaciones_tareas c
-
-        JOIN tareas t
-            ON t.id = c.tarea_id
-
-        LEFT JOIN tipo_procesos tp
-            ON tp.id::text = TRIM(t.tipo_proceso)
-        LEFT JOIN requerimientos r
-            ON r.id = t.requerimiento_id
-
-        LEFT JOIN unidades u
-            ON u.id = r.unid_requirente
-
-        WHERE c.id = %s
-          AND c.tipo_certificacion = 'PAC'
-    """, (certificacion_id,))
-
-    datos = cur.fetchone()
-
-    cur.execute("""
-        SELECT
-            c.id,
-            c.fecha_certificacion,
-            t.codigo_proceso,
-            t.objeto_contratacion,
-            COALESCE(tp.nombre_proceso, t.tipo_proceso) AS tipo_proceso,
-            t.funcionario_encargado,
-            t.nombre_jefe_compras,
-            t.consta_pac,
-
             u.nombre_unidad,
             u.departamento_principal,
             u.bloque
@@ -6726,22 +6695,47 @@ def certificacion_pac_pdf(certificacion_id):
             ON u.id = r.unid_requirente
 
         WHERE c.id = %s
-        AND c.tipo_certificacion = 'PAC'
+          AND c.tipo_certificacion = 'PAC'
+    """, (certificacion_id,))
+
+    datos = cur.fetchone()
+
+
+    # ==========================================
+    # CAPTURAS DE RESPALDO
+    # ==========================================
+    cur.execute("""
+        SELECT
+            id,
+            nombre_archivo,
+            tipo_mime,
+            imagen
+        FROM certificaciones_imagenes
+        WHERE certificacion_id = %s
+        ORDER BY id ASC
     """, (certificacion_id,))
 
     capturas = cur.fetchall()
 
+
     cur.close()
     conn.close()
+
 
     if not datos:
         flash(
             "❌ No se encontró la Certificación PAC.",
             "danger"
         )
-        return redirect(url_for("main.tareas"))
+        return redirect(
+            url_for("main.tareas")
+        )
 
-    return generar_pdf_pac(datos, capturas)
+
+    return generar_pdf_pac(
+        datos,
+        capturas
+    )
 # ==========================================
 # TRAZABILIDAD INTEGRAL DE PROCESOS
 # ==========================================
