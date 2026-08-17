@@ -100,6 +100,24 @@ def generar_pdf_orden_compra(orden, productos):
     administrador = orden[18]
     maxima_autoridad = orden[27]
     cargo_maxima_autoridad = orden[28]
+    # ==========================================
+    # ESTRUCTURA INSTITUCIONAL
+    # ==========================================
+    unidad_requirente = orden[-3] or area
+    departamento_principal = orden[-2] or ""
+    bloque = orden[-1] or ""
+    # ==========================================
+    # SEGUNDA FILA DE ESTRUCTURA INSTITUCIONAL
+    # ==========================================
+    if unidad_requirente.strip().upper() in (
+        "DECANATO",
+        "SUBDECANATO"
+    ):
+        etiqueta_estructura = "BLOQUE:"
+        valor_estructura = bloque
+    else:
+        etiqueta_estructura = "DEPARTAMENTO PRINCIPAL:"
+        valor_estructura = departamento_principal
     subtotal = 0
 
     for p in productos:
@@ -153,17 +171,53 @@ def generar_pdf_orden_compra(orden, productos):
 
     story.append(encabezado)
 
+    # ==========================================
+    # DATOS GENERALES DE LA ORDEN
+    # ==========================================
     datos = [
-        [P(f"<b>FECHA:</b> {fecha}", normal)],
-        [P(f"<b>ÁREA REQUIRENTE:</b> {area}", normal)],
-        [P(f"<b>NÚMERO DE CERTIFICACIÓN PRESUPUESTARIA:</b> {cert}", normal)],
-        [P(
-            f"<b>OBJETO DE CONTRATACIÓN:</b> El Contratista se obliga con la "
-            f"UNIVERSIDAD TÉCNICA DE MACHALA a proveer los bienes/servicios requeridos "
-            f"a entera satisfacción de la contratante, conforme el siguiente detalle: "
-            f"{objeto}",
-            normal
-        )],
+
+        [
+            P(
+                f"<b>FECHA:</b> {fecha}",
+                normal
+            )
+        ],
+
+        [
+            P(
+                f"<b>UNIDAD REQUIRENTE:</b> "
+                f"{unidad_requirente}",
+                normal
+            )
+        ],
+
+        [
+            P(
+                f"<b>{etiqueta_estructura}</b> "
+                f"{valor_estructura}",
+                normal
+            )
+        ],
+
+        [
+            P(
+                f"<b>NÚMERO DE CERTIFICACIÓN PRESUPUESTARIA:</b> "
+                f"{cert}",
+                normal
+            )
+        ],
+
+        [
+            P(
+                f"<b>OBJETO DE CONTRATACIÓN:</b> "
+                f"El Contratista se obliga con la "
+                f"UNIVERSIDAD TÉCNICA DE MACHALA a proveer "
+                f"los bienes/servicios requeridos a entera "
+                f"satisfacción de la contratante, conforme "
+                f"el siguiente detalle: {objeto}",
+                normal
+            )
+        ],
     ]
 
     tabla_datos = Table(datos, colWidths=[18 * cm])

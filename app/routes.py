@@ -1051,6 +1051,7 @@ def tareas_editar(id):
         presenta_apus,                  -- 30
         presenta_condiciones_contratacion, -- 31
         presenta_viabilidad_tecnico_economica -- 32
+        tipo_compra                        -- 33
     FROM tareas
     WHERE id = %s
 """, (id,))
@@ -1472,34 +1473,62 @@ def tareas_eliminar(id):
     flash("🗑️ Tarea eliminada correctamente", "success")
     return redirect(url_for("main.tareas"))
 
-# =================
-# DEVUELVE DATOS  TAREAS
-# ================
+# ==========================================
+# API - DATOS DEL REQUERIMIENTO PARA TAREAS
+# ==========================================
 @main.route("/api/requerimiento/<int:requerimiento_id>")
 @login_required()
 def api_requerimiento(requerimiento_id):
+
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("""
-        SELECT u.nombre_unidad, r.funcionario_encargado
-        FROM requerimientos r
-        JOIN unidades u ON u.id = r.unid_requirente
-        WHERE r.id = %s
-    """, (requerimiento_id,))
+    try:
 
-    row = cur.fetchone()
+        # ==========================================
+        # CONSULTAR REQUERIMIENTO + UNIDAD OFICIAL
+        # ==========================================
+        cur.execute("""
+            SELECT
+                u.nombre_unidad,
+                u.departamento_principal,
+                u.bloque,
+                r.funcionario_encargado
+            FROM requerimientos r
 
-    cur.close()
-    conn.close()
+            LEFT JOIN unidades u
+                ON u.id = r.unid_requirente
 
-    if row:
-        return {
-            "unidad": row[0],
-            "funcionario": row[1]
-        }
+            WHERE r.id = %s
+        """, (requerimiento_id,))
 
-    return {}
+        row = cur.fetchone()
+
+        if not row:
+            return jsonify({
+                "ok": False,
+                "unidad": "",
+                "departamento_principal": "",
+                "bloque": "",
+                "funcionario": ""
+            }), 404
+
+
+        # ==========================================
+        # RESPUESTA JSON
+        # ==========================================
+        return jsonify({
+            "ok": True,
+            "unidad": row[0] or "",
+            "departamento_principal": row[1] or "",
+            "bloque": row[2] or "",
+            "funcionario": row[3] or ""
+        })
+
+    finally:
+
+        cur.close()
+        conn.close()
 
 # ==========================================
 # API - DETALLE DE TAREA Y PARTIDAS
@@ -1656,36 +1685,81 @@ def orden_compra_pdf(id):
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("""
-        SELECT *
-        FROM ordenes_compra
-        WHERE id = %s
-    """, (id,))
-    orden = cur.fetchone()
+    try:
 
-    cur.execute("""
-        SELECT
-            id,
-            descripcion,
-            unidad,
-            cantidad,
-            valor_uni,
-            cantidad * valor_uni AS valor_total,
-            cpc
-        FROM productos
-        WHERE orden_compra_id = %s
-        ORDER BY id
-    """, (id,))
-    productos = cur.fetchall()
+        # ==========================================
+        # 1. ORDEN DE COMPRA + ESTRUCTURA
+        #    INSTITUCIONAL DE LA UNIDAD
+        # ==========================================
+        cur.execute("""
+            SELECT
+                oc.*,
 
-    cur.close()
-    conn.close()
+                u.nombre_unidad,
+                u.departamento_principal,
+                u.bloque
 
+            FROM ordenes_compra oc
+
+            LEFT JOIN tareas t
+                ON t.id = oc.tarea_id
+
+            LEFT JOIN requerimientos r
+                ON r.id = t.requerimiento_id
+
+            LEFT JOIN unidades u
+                ON u.id = r.unid_requirente
+
+            WHERE oc.id = %s
+        """, (id,))
+
+        orden = cur.fetchone()
+
+
+        # ==========================================
+        # 2. PRODUCTOS DE LA ORDEN
+        # ==========================================
+        cur.execute("""
+            SELECT
+                id,
+                descripcion,
+                unidad,
+                cantidad,
+                valor_uni,
+                cantidad * valor_uni AS valor_total,
+                cpc
+            FROM productos
+            WHERE orden_compra_id = %s
+            ORDER BY id
+        """, (id,))
+
+        productos = cur.fetchall()
+
+    finally:
+
+        cur.close()
+        conn.close()
+
+
+    # ==========================================
+    # 3. VALIDAR EXISTENCIA
+    # ==========================================
     if not orden:
         abort(404)
 
-    buffer = generar_pdf_orden_compra(orden, productos)
 
+    # ==========================================
+    # 4. GENERAR PDF
+    # ==========================================
+    buffer = generar_pdf_orden_compra(
+        orden,
+        productos
+    )
+
+
+    # ==========================================
+    # 5. DESCARGAR PDF
+    # ==========================================
     return send_file(
         buffer,
         as_attachment=True,
@@ -1987,36 +2061,68 @@ def ordenes_compra_eliminar(id):
 
     return redirect(url_for("main.ordenes_compra"))
 
+# ==========================================
+# API - DATOS DE LA TAREA PARA
+# ÓRDENES DE COMPRA
+# ==========================================
 @main.route("/api/tarea/<int:id>")
 @login_required()
 def api_tarea(id):
+
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("""
-        SELECT
-            t.codigo_proceso,
-            t.objeto_contratacion,
-            u.nombre_unidad
-        FROM tareas t
-        JOIN requerimientos r ON r.id = t.requerimiento_id
-        JOIN unidades u ON u.id = r.unid_requirente
-        WHERE t.id = %s
-    """, (id,))
+    try:
 
-    row = cur.fetchone()
-    print("ROW API TAREA:", row)
-    cur.close()
-    conn.close()
+        # ==========================================
+        # TAREA + REQUERIMIENTO + UNIDAD OFICIAL
+        # ==========================================
+        cur.execute("""
+            SELECT
+                t.codigo_proceso,
+                t.objeto_contratacion,
 
-    if not row:
-        return jsonify({}), 404
+                u.nombre_unidad,
+                u.departamento_principal,
+                u.bloque
 
-    return jsonify({
-        "codigo_proceso": row[0],
-        "objeto": row[1],
-        "unidad": row[2]
-    })
+            FROM tareas t
+
+            JOIN requerimientos r
+                ON r.id = t.requerimiento_id
+
+            JOIN unidades u
+                ON u.id = r.unid_requirente
+
+            WHERE t.id = %s
+        """, (id,))
+
+        row = cur.fetchone()
+
+        if not row:
+            return jsonify({
+                "ok": False
+            }), 404
+
+
+        # ==========================================
+        # RESPUESTA PARA EL FORMULARIO
+        # ==========================================
+        return jsonify({
+            "ok": True,
+
+            "codigo_proceso": row[0] or "",
+            "objeto": row[1] or "",
+
+            "unidad": row[2] or "",
+            "departamento_principal": row[3] or "",
+            "bloque": row[4] or ""
+        })
+
+    finally:
+
+        cur.close()
+        conn.close()
 
 # ================================
 # EDITAR ORDEN DE COMPRA
@@ -3386,83 +3492,213 @@ def comunicacion_guardar(contrato_id):
         cur.close()
         conn.close()
 
-
 # ================================
 # INFORME DE VERIFICACIÓN (AUTOMÁTICO)
 # ================================
 @main.route('/informe/verificacion/<int:id_tarea>')
 @login_required()
 def informe_verificacion(id_tarea):
+
     conn = get_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
-    cur.execute("""
-        SELECT
-            t.*,
-            tp.nombre_proceso AS tipo_proceso_nombre
-        FROM tareas t
-        LEFT JOIN tipo_procesos tp ON t.tipo_proceso::INTEGER = tp.id
-        WHERE t.id = %s
-    """, (id_tarea,))   
-    tarea = cur.fetchone()
-    print("===================")
-    print("ID:", tarea["id"])
-    print("POA:", tarea["consta_poa"])
-    print("===================")
-    conn.close()
+    try:
 
+        # ==========================================
+        # TAREA + TIPO DE PROCESO
+        # + ESTRUCTURA INSTITUCIONAL
+        # ==========================================
+        cur.execute("""
+            SELECT
+                t.*,
+
+                tp.nombre_proceso
+                    AS tipo_proceso_nombre,
+
+                u.nombre_unidad
+                    AS unidad_requirente_oficial,
+
+                u.departamento_principal
+
+            FROM tareas t
+
+            LEFT JOIN tipo_procesos tp
+                ON t.tipo_proceso::INTEGER = tp.id
+
+            LEFT JOIN requerimientos r
+                ON r.id = t.requerimiento_id
+
+            LEFT JOIN unidades u
+                ON u.id = r.unid_requirente
+
+            WHERE t.id = %s
+
+        """, (id_tarea,))
+
+        tarea = cur.fetchone()
+
+    finally:
+
+        cur.close()
+        conn.close()
+
+
+    # ==========================================
+    # VALIDAR TAREA
+    # ==========================================
     if not tarea:
         abort(404)
 
-    year = datetime.now().year
-    codigo_verificacion = f"UCP-VERF-{year}-{str(id_tarea).zfill(4)}"
 
+    # ==========================================
+    # CÓDIGO DEL INFORME
+    # ==========================================
+    year = datetime.now().year
+
+    codigo_verificacion = (
+        f"UCP-VERF-{year}-"
+        f"{str(id_tarea).zfill(4)}"
+    )
+
+
+    # ==========================================
+    # GENERAR INFORME
+    # ==========================================
     return render_template(
         'verificaciones/informe_verificacion.html',
 
-            fecha=datetime.now().strftime('%d/%m/%Y'),
-            codigo_verificacion=codigo_verificacion,
+        fecha=datetime.now().strftime('%d/%m/%Y'),
 
-            unidad_solicitante=tarea['unidad_solicitante'],
-            funcionario_encargado=tarea['funcionario_encargado'],
-            objeto_contratacion=tarea['objeto_contratacion'],
-            codigo_proceso=tarea['codigo_proceso'],
-            tipo_proceso=tarea['tipo_proceso_nombre'],
-            tipo_compra=tarea['tipo_compra'],
-            valor_sin_iva=tarea['valor_sin_iva'],
-            valor_exento=tarea['valor_exento'],
-            valor_en_letras=tarea['valor_en_letras'],
+        codigo_verificacion=
+            codigo_verificacion,
 
-            base_legal=tarea['base_legal'] or "No registrada",
-            observaciones="La documentación cumple con los requisitos formales.",
-            nombre_jefe_compras=tarea['nombre_jefe_compras'],
-             # 🔹 VERIFICACIÓN DOCUMENTAL
-            presenta_estudio_previo=tarea['presenta_estudio_previo'],
-            presenta_terminos_referencia=tarea['presenta_terminos_referencia'],
-            presenta_estudio_mercado=tarea['presenta_estudio_mercado'],
-            presenta_especificaciones=tarea['presenta_especificaciones'],
-            presenta_proformas=tarea['presenta_proformas'],
-            determinacion_necesidad=tarea['determinacion_necesidad'],
-            consta_catalogo_electronico=tarea['consta_catalogo_electronico'],
-            consta_poa=tarea['consta_poa'],
-            consta_pac=tarea['consta_pac'],
-            presenta_errores=tarea['presenta_errores'],
-            cumple_normativa=tarea['cumple_normativa'],
 
-            # 🔹 SOLO PARA OBRAS
-            presenta_planos=tarea['presenta_planos'],
-            presenta_apus=tarea['presenta_apus'],
-            presenta_condiciones_contratacion=tarea['presenta_condiciones_contratacion'],
+        # ======================================
+        # ESTRUCTURA INSTITUCIONAL
+        # ======================================
+        unidad_solicitante=
+            tarea['unidad_requirente_oficial']
+            or tarea['unidad_solicitante'],
 
-            # 🔹 SOLO CEP
-            presenta_viabilidad_tecnico_economica=tarea['presenta_viabilidad_tecnico_economica'],
+        departamento_principal=
+            tarea['departamento_principal']
+            or "",
 
-            # 🔹 PARA CONDICIONAR VISTAS
-            tipo_proceso_nombre=tarea['tipo_proceso_nombre'],
-            tipo_regimen=tarea['tipo_regimen']
-            
-        )
-  
+
+        # ======================================
+        # DATOS DEL PROCESO
+        # ======================================
+        funcionario_encargado=
+            tarea['funcionario_encargado'],
+
+        objeto_contratacion=
+            tarea['objeto_contratacion'],
+
+        codigo_proceso=
+            tarea['codigo_proceso'],
+
+        tipo_proceso=
+            tarea['tipo_proceso_nombre'],
+
+        tipo_compra=
+            tarea['tipo_compra'],
+
+        valor_sin_iva=
+            tarea['valor_sin_iva'],
+
+        valor_exento=
+            tarea['valor_exento'],
+
+        valor_en_letras=
+            tarea['valor_en_letras'],
+
+
+        # ======================================
+        # INFORMACIÓN COMPLEMENTARIA
+        # ======================================
+        base_legal=
+            tarea['base_legal']
+            or "No registrada",
+
+        observaciones=
+            "La documentación cumple con "
+            "los requisitos formales.",
+
+        nombre_jefe_compras=
+            tarea['nombre_jefe_compras'],
+
+
+        # ======================================
+        # VERIFICACIÓN DOCUMENTAL
+        # ======================================
+        presenta_estudio_previo=
+            tarea['presenta_estudio_previo'],
+
+        presenta_terminos_referencia=
+            tarea['presenta_terminos_referencia'],
+
+        presenta_estudio_mercado=
+            tarea['presenta_estudio_mercado'],
+
+        presenta_especificaciones=
+            tarea['presenta_especificaciones'],
+
+        presenta_proformas=
+            tarea['presenta_proformas'],
+
+        determinacion_necesidad=
+            tarea['determinacion_necesidad'],
+
+        consta_catalogo_electronico=
+            tarea['consta_catalogo_electronico'],
+
+        consta_poa=
+            tarea['consta_poa'],
+
+        consta_pac=
+            tarea['consta_pac'],
+
+        presenta_errores=
+            tarea['presenta_errores'],
+
+        cumple_normativa=
+            tarea['cumple_normativa'],
+
+
+        # ======================================
+        # SOLO PARA OBRAS
+        # ======================================
+        presenta_planos=
+            tarea['presenta_planos'],
+
+        presenta_apus=
+            tarea['presenta_apus'],
+
+        presenta_condiciones_contratacion=
+            tarea[
+                'presenta_condiciones_contratacion'
+            ],
+
+
+        # ======================================
+        # SOLO CEP
+        # ======================================
+        presenta_viabilidad_tecnico_economica=
+            tarea[
+                'presenta_viabilidad_tecnico_economica'
+            ],
+
+
+        # ======================================
+        # PARA CONDICIONAR VISTAS
+        # ======================================
+        tipo_proceso_nombre=
+            tarea['tipo_proceso_nombre'],
+
+        tipo_regimen=
+            tarea['tipo_regimen']
+    )
+
 # ==========================================
 # CERRAR SESIÓN
 # ==========================================
@@ -6355,10 +6591,22 @@ def certificacion_cate_pdf(certificacion_id):
             c.fecha_certificacion,
             t.codigo_proceso,
             t.objeto_contratacion,
-            COALESCE(tp.nombre_proceso, t.tipo_proceso) AS tipo_proceso,
+
+            COALESCE(
+                tp.nombre_proceso,
+                t.tipo_proceso
+            ) AS tipo_proceso,
+
             t.funcionario_encargado,
             t.nombre_jefe_compras,
-            t.consta_catalogo_electronico
+            t.consta_pac,
+
+            -- ==========================================
+            -- ESTRUCTURA INSTITUCIONAL
+            -- ==========================================
+            u.nombre_unidad AS unidad_requirente,
+            u.departamento_principal,
+            u.bloque
 
         FROM certificaciones_tareas c
 
@@ -6368,8 +6616,14 @@ def certificacion_cate_pdf(certificacion_id):
         LEFT JOIN tipo_procesos tp
             ON tp.id::text = TRIM(t.tipo_proceso)
 
+        LEFT JOIN requerimientos r
+            ON r.id = t.requerimiento_id
+
+        LEFT JOIN unidades u
+            ON u.id = r.unid_requirente
+
         WHERE c.id = %s
-          AND c.tipo_certificacion = 'CATE'
+        AND c.tipo_certificacion = 'CATE'
     """, (certificacion_id,))
 
     datos = cur.fetchone()
@@ -6418,7 +6672,10 @@ def certificacion_pac_pdf(certificacion_id):
             COALESCE(tp.nombre_proceso, t.tipo_proceso) AS tipo_proceso,
             t.funcionario_encargado,
             t.nombre_jefe_compras,
-            t.consta_pac
+            t.consta_pac,
+            u.nombre_unidad,
+            u.departamento_principal,
+            u.bloque
 
         FROM certificaciones_tareas c
 
@@ -6427,6 +6684,11 @@ def certificacion_pac_pdf(certificacion_id):
 
         LEFT JOIN tipo_procesos tp
             ON tp.id::text = TRIM(t.tipo_proceso)
+        LEFT JOIN requerimientos r
+            ON r.id = t.requerimiento_id
+
+        LEFT JOIN unidades u
+            ON u.id = r.unid_requirente
 
         WHERE c.id = %s
           AND c.tipo_certificacion = 'PAC'
@@ -6436,13 +6698,35 @@ def certificacion_pac_pdf(certificacion_id):
 
     cur.execute("""
         SELECT
-            id,
-            nombre_archivo,
-            tipo_mime,
-            imagen
-        FROM certificaciones_imagenes
-        WHERE certificacion_id = %s
-        ORDER BY id ASC
+            c.id,
+            c.fecha_certificacion,
+            t.codigo_proceso,
+            t.objeto_contratacion,
+            COALESCE(tp.nombre_proceso, t.tipo_proceso) AS tipo_proceso,
+            t.funcionario_encargado,
+            t.nombre_jefe_compras,
+            t.consta_pac,
+
+            u.nombre_unidad,
+            u.departamento_principal,
+            u.bloque
+
+        FROM certificaciones_tareas c
+
+        JOIN tareas t
+            ON t.id = c.tarea_id
+
+        LEFT JOIN tipo_procesos tp
+            ON tp.id::text = TRIM(t.tipo_proceso)
+
+        LEFT JOIN requerimientos r
+            ON r.id = t.requerimiento_id
+
+        LEFT JOIN unidades u
+            ON u.id = r.unid_requirente
+
+        WHERE c.id = %s
+        AND c.tipo_certificacion = 'PAC'
     """, (certificacion_id,))
 
     capturas = cur.fetchall()
@@ -6891,10 +7175,22 @@ def publicacion_necesidad_nueva():
     numero_solicitud = ultimo_numero + 1
     # Unidades institucionales
     cur.execute("""
-        SELECT id, nombre_unidad
+        SELECT
+            id,
+            nombre_unidad,
+            departamento_principal,
+            bloque,
+            CASE
+                WHEN UPPER(TRIM(nombre_unidad)) IN ('DECANATO', 'SUBDECANATO')
+                    AND bloque IS NOT NULL
+                    AND TRIM(bloque) <> ''
+                THEN nombre_unidad || ' - ' || bloque
+                ELSE nombre_unidad
+            END AS nombre_visible
         FROM unidades
-        ORDER BY nombre_unidad
+        ORDER BY nombre_visible
     """)
+
     unidades = cur.fetchall()
 
     cur.close()
@@ -7474,9 +7770,20 @@ def editar_publicacion_necesidad(publicacion_id):
 
     # Unidades
     cur.execute("""
-        SELECT id, nombre_unidad
+        SELECT
+            id,
+            nombre_unidad,
+            departamento_principal,
+            bloque,
+            CASE
+                WHEN UPPER(TRIM(nombre_unidad)) IN ('DECANATO', 'SUBDECANATO')
+                    AND bloque IS NOT NULL
+                    AND TRIM(bloque) <> ''
+                THEN nombre_unidad || ' - ' || bloque
+                ELSE nombre_unidad
+            END AS nombre_visible
         FROM unidades
-        ORDER BY nombre_unidad
+        ORDER BY nombre_visible
     """)
 
     unidades = cur.fetchall()

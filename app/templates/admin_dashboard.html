@@ -278,7 +278,12 @@
             <span>🧾</span>
             <span>Órdenes de compra</span>
         </a>
-
+        <li class="nav-item">
+            <a class="nav-link"
+            href="{{ url_for('inteligencia_financiera.dashboard') }}">
+                📊 Inteligencia Financiera
+            </a>
+        </li>
         <div class="sidebar-section">Contratos y reportes</div>
 
         <a href="{{ url_for('main.seguimiento_contratos') }}" class="sidebar-link">
@@ -290,8 +295,7 @@
             <span>📊</span>
             <span>Reportes</span>
         </a>
-        <a href="{{ url_for('planificacion.pac_gestion') }}"
-        class="sidebar-link">
+        <a href="{{ url_for('planificacion.pac_gestion') }}" class="sidebar-link">
             <span>📋</span>
             <span>Gestión del PAC</span>
         </a>
@@ -372,43 +376,45 @@
                     </a>
                 </div>
             </div>
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm h-100 border-0">
+                    <div class="card-body">
+                        <h5 class="card-title font-weight-bold">
+                            📊 Inteligencia Financiera
+                        </h5>
+                        <p class="card-text text-muted">Análisis del PAC, ejecución, certificación, adjudicación y proyección financiera.</p>
+                        <a href="{{ url_for('inteligencia_financiera.dashboard') }}" class="btn btn-primary">
+                            Ingresar
+                        </a>
+                    </div>
+                </div>
+            </div>
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="module-card">
-
                     <div class="module-icon">
                         📢
                     </div>
-
                     <h5>Publicaciones y Proformas</h5>
-
                     <p>
                         Registra publicaciones de necesidad y controla las proformas recibidas.
                     </p>
-
                     <a href="{{ url_for('main.publicaciones_necesidad') }}" class="btn btn-primary">
                         Ingresar
                     </a>
-
                 </div>
             </div>
-
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="module-card">
                     <div class="module-icon">🎯</div>
-
                     <h5>Trazabilidad</h5>
-
                     <p>
                         Consulte en segundos el estado completo de cualquier proceso de contratación.
                     </p>
-
                     <a href="{{ url_for('main.trazabilidad_procesos') }}" class="btn btn-info">
                         Consultar
                     </a>
-
                 </div>
             </div>
-
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="module-card">
                     <div class="module-icon">📌</div>
@@ -419,7 +425,6 @@
                     </a>
                 </div>
             </div>
-
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="module-card">
                     <div class="module-icon">📑</div>
@@ -430,7 +435,6 @@
                     </a>
                 </div>
             </div>
-
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="module-card">
                     <div class="module-icon">📊</div>
@@ -444,20 +448,15 @@
             <!-- GESTIÓN DEL PAC -->
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="module-card">
-
                     <div class="module-icon">📋</div>
-
                     <h5>Gestión del PAC</h5>
-
                     <p>
                         Administra el Plan Anual de Contratación,
                         sus versiones, reformas e información presupuestaria.
                     </p>
-
                     <a href="{{ url_for('planificacion.pac_gestion') }}" class="btn btn-success">
                         📊 Ingresar al PAC
                     </a>
-
                 </div>
             </div>
             <div class="col-lg-4 col-md-6 mb-4">

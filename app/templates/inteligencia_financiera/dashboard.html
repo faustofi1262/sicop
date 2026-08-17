@@ -659,14 +659,857 @@
                 {% endif %}
                 {% endif %}
 
-                <div style="height: 360px;">
+                <div class="row">
 
-                    <canvas id="graficoFlujoMensual"></canvas>
+                    <!-- ========================= -->
+                    <!-- GRÁFICO REAL -->
+                    <!-- ========================= -->
+                    <div class="col-md-6 mb-4">
+
+                        <div class="card shadow-sm h-100">
+
+                            <div class="card-body">
+
+                                <h5 class="font-weight-bold mb-1">
+                                    📊 Ingreso real por mes
+                                </h5>
+
+                                <p class="text-muted mb-3">
+                                    Montos efectivamente recibidos hasta la fecha de corte
+                                </p>
+
+                                <div style="height: 340px;">
+                                    <canvas id="graficoFlujoReal"></canvas>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <!-- ========================= -->
+                    <!-- GENRACION GRÁFICO PROYECCIÓN -->
+                    <!-- ========================= -->
+                    <div class="col-md-6 mb-4">
+
+                        <div class="card shadow-sm h-100">
+
+                            <div class="card-body">
+
+                                <h5 class="font-weight-bold mb-1">
+                                    📈 Proyección mensual
+                                </h5>
+
+                                <p class="text-muted mb-3">
+                                    Estimación si continúa el ritmo actual de ingreso
+                                </p>
+
+                                <div style="height: 340px;">
+                                    <canvas id="graficoFlujoProyectado"></canvas>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="row mt-4">
+
+                    <div class="col-md-12">
+
+                        <div class="card shadow-sm">
+
+                            <div class="card-body">
+
+                                <h5 class="font-weight-bold mb-1">
+                                    🎯 PAC movilizado vs PAC pendiente
+                                </h5>
+
+                                <p class="text-muted mb-3">
+                                    Participación proyectada del PAC al mes objetivo seleccionado
+                                </p>
+
+                                <div style="
+                        max-width: 520px;
+                        height: 360px;
+                        margin: 0 auto;
+                    ">
+                                    <canvas id="graficoPacMovilizado"></canvas>
+                                </div>
+
+                                <div class="row text-center mt-3">
+
+                                    <div class="col-md-4">
+                                        <small class="text-muted">
+                                            PAC analizado
+                                        </small>
+
+                                        <div class="font-weight-bold">
+                                            $
+                                            {{
+                                            "{:,.2f}".format(
+                                            pac_ambito_seleccionado
+                                            or 0
+                                            )
+                                            }}
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <small class="text-muted">
+                                            Movilizado proyectado
+                                        </small>
+
+                                        <div class="font-weight-bold">
+                                            {{
+                                            "{:,.2f}".format(
+                                            porcentaje_pac_proyectado
+                                            or 0
+                                            )
+                                            }}
+                                            %
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <small class="text-muted">
+                                            Pendiente proyectado
+                                        </small>
+
+                                        <div class="font-weight-bold">
+                                            $
+                                            {{
+                                            "{:,.2f}".format(
+                                            saldo_pac_proyectado
+                                            or 0
+                                            )
+                                            }}
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+                <!-- ========================================== -->
+                <!-- ESCENARIOS DE PROYECCIÓN -->
+                <!-- ========================================== -->
+
+                <div class="row mt-4">
+
+                    <!-- ====================================== -->
+                    <!-- ESCENARIO CONSERVADOR -->
+                    <!-- ====================================== -->
+                    <div class="col-md-4 mb-4">
+
+                        <div class="card shadow-sm h-100 border-danger">
+
+                            <div class="card-body">
+
+                                <h5 class="font-weight-bold">
+                                    🔴 Escenario conservador
+                                </h5>
+
+                                <p class="text-muted mb-3">
+                                    Ritmo proyectado reducido en 20 %
+                                </p>
+
+                                <h3 class="font-weight-bold">
+                                    {{ "{:,.2f}".format(escenario_conservador_pct or 0) }} %
+                                </h3>
+
+                                <p class="mb-1">
+                                    <strong>Movilizado:</strong>
+                                    $
+                                    {{
+                                    "{:,.2f}".format(
+                                    escenario_conservador_monto or 0
+                                    )
+                                    }}
+                                </p>
+
+                                <p class="mb-0">
+                                    <strong>Pendiente:</strong>
+                                    $
+                                    {{
+                                    "{:,.2f}".format(
+                                    escenario_conservador_pendiente or 0
+                                    )
+                                    }}
+                                </p>
+
+                                <hr>
+
+                                <p class="mb-1 text-danger font-weight-bold">
+                                    ↓
+                                    {{
+                                    "{:,.2f}".format(
+                                    (escenario_actual_pct or 0)
+                                    -
+                                    (escenario_conservador_pct or 0)
+                                    )
+                                    }}
+                                    puntos porcentuales
+                                </p>
+
+                                <p class="mb-0 text-muted">
+                                    $
+                                    {{
+                                    "{:,.2f}".format(
+                                    (escenario_actual_monto or 0)
+                                    -
+                                    (escenario_conservador_monto or 0)
+                                    )
+                                    }}
+                                    menos movilizados frente al ritmo actual
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ====================================== -->
+                    <!-- ESCENARIO ACTUAL -->
+                    <!-- ====================================== -->
+                    <div class="col-md-4 mb-4">
+
+                        <div class="card shadow-sm h-100 border-primary">
+
+                            <div class="card-body">
+
+                                <h5 class="font-weight-bold">
+                                    🔵 Ritmo actual
+                                </h5>
+
+                                <p class="text-muted mb-3">
+                                    Manteniendo el ritmo proyectado actual
+                                </p>
+
+                                <h3 class="font-weight-bold">
+                                    {{ "{:,.2f}".format(escenario_actual_pct or 0) }} %
+                                </h3>
+
+                                <p class="mb-1">
+                                    <strong>Movilizado:</strong>
+                                    $
+                                    {{
+                                    "{:,.2f}".format(
+                                    escenario_actual_monto or 0
+                                    )
+                                    }}
+                                </p>
+
+                                <p class="mb-0">
+                                    <strong>Pendiente:</strong>
+                                    $
+                                    {{
+                                    "{:,.2f}".format(
+                                    escenario_actual_pendiente or 0
+                                    )
+                                    }}
+                                </p>
+
+                                <hr>
+
+                                <p class="mb-1 text-primary font-weight-bold">
+                                    Escenario base
+                                </p>
+
+                                <p class="mb-0 text-muted">
+                                    Referencia para comparar los escenarios
+                                    conservador y acelerado.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ====================================== -->
+                    <!-- ESCENARIO ACELERADO -->
+                    <!-- ====================================== -->
+                    <div class="col-md-4 mb-4">
+
+                        <div class="card shadow-sm h-100 border-success">
+
+                            <div class="card-body">
+
+                                <h5 class="font-weight-bold">
+                                    🟢 Escenario acelerado
+                                </h5>
+
+                                <p class="text-muted mb-3">
+                                    Ritmo proyectado incrementado en 20 %
+                                </p>
+
+                                <h3 class="font-weight-bold">
+                                    {{ "{:,.2f}".format(escenario_acelerado_pct or 0) }} %
+                                </h3>
+
+                                <p class="mb-1">
+                                    <strong>Movilizado:</strong>
+                                    $
+                                    {{
+                                    "{:,.2f}".format(
+                                    escenario_acelerado_monto or 0
+                                    )
+                                    }}
+                                </p>
+
+                                <p class="mb-0">
+                                    <strong>Pendiente:</strong>
+                                    $
+                                    {{
+                                    "{:,.2f}".format(
+                                    escenario_acelerado_pendiente or 0
+                                    )
+                                    }}
+                                </p>
+
+                                <hr>
+
+                                <p class="mb-1 text-success font-weight-bold">
+                                    ↑
+                                    {{
+                                    "{:,.2f}".format(
+                                    (escenario_acelerado_pct or 0)
+                                    -
+                                    (escenario_actual_pct or 0)
+                                    )
+                                    }}
+                                    puntos porcentuales
+                                </p>
+
+                                <p class="mb-0 text-muted">
+                                    $
+                                    {{
+                                    "{:,.2f}".format(
+                                    (escenario_acelerado_monto or 0)
+                                    -
+                                    (escenario_actual_monto or 0)
+                                    )
+                                    }}
+                                    adicionales frente al ritmo actual
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+            <!-- ========================================== -->
+            <!-- ANÁLISIS EJECUTIVO DE PROYECCIÓN FINANCIERA -->
+            <!-- ========================================== -->
+
+            <div class="row mt-2">
+
+                <div class="col-md-12 mb-4">
+
+                    <div class="card shadow-sm" style="
+                border-left: 5px solid #173f67;
+                border-radius: 10px;
+            ">
+
+                        <div class="card-body p-4">
+
+                            <!-- ============================= -->
+                            <!-- TÍTULO -->
+                            <!-- ============================= -->
+
+                            <div class="d-flex align-items-center mb-3">
+
+                                <div style="font-size: 28px; margin-right: 12px;">
+                                    🧠
+                                </div>
+
+                                <div>
+
+                                    <h4 class="font-weight-bold mb-0" style="color:#173f67;">
+                                        Análisis de Proyección Financiera
+                                    </h4>
+
+                                    <small class="text-muted">
+                                        Interpretación ejecutiva del comportamiento proyectado del PAC
+                                    </small>
+
+                                </div>
+
+                            </div>
+                            <hr>
+                            <!-- ============================= -->
+                            <!-- ESCENARIO ACTUAL -->
+                            <!-- ============================= -->
+
+                            <p style="
+                        font-size: 16px;
+                        line-height: 1.7;
+                        text-align: justify;
+                    ">
+
+                                Al mes objetivo seleccionado, manteniendo el
+                                <strong>ritmo actual de ingreso de procesos</strong>,
+                                se estima una movilización equivalente al
+
+                                <strong>
+                                    {{
+                                    "{:,.2f}".format(
+                                    escenario_actual_pct or 0
+                                    )
+                                    }}
+                                    %
+                                </strong>
+
+                                del PAC analizado, correspondiente a un monto aproximado de
+
+                                <strong>
+                                    $
+                                    {{
+                                    "{:,.2f}".format(
+                                    escenario_actual_monto or 0
+                                    )
+                                    }}
+                                </strong>.
+
+                                Bajo este escenario permanecería pendiente de movilización un valor de
+
+                                <strong>
+                                    $
+                                    {{
+                                    "{:,.2f}".format(
+                                    escenario_actual_pendiente or 0
+                                    )
+                                    }}
+                                </strong>.
+
+                            </p>
+
+
+                            <!-- ============================= -->
+                            <!-- COMPARACIÓN DE ESCENARIOS -->
+                            <!-- ============================= -->
+
+                            <div class="row mt-4">
+
+                                <!-- CONSERVADOR -->
+                                <div class="col-md-4 mb-3">
+
+                                    <div class="p-3 h-100" style="
+                                background:#fff5f6;
+                                border-left:4px solid #dc3545;
+                                border-radius:8px;
+                            ">
+
+                                        <div class="font-weight-bold text-danger mb-2">
+                                            🔴 Escenario conservador
+                                        </div>
+
+                                        <p class="mb-1">
+
+                                            La movilización se reduciría a
+
+                                            <strong>
+                                                {{
+                                                "{:,.2f}".format(
+                                                escenario_conservador_pct or 0
+                                                )
+                                                }}
+                                                %
+                                            </strong>.
+
+                                        </p>
+
+                                        <small class="text-muted">
+
+                                            Esto representa
+
+                                            <strong>
+                                                $
+                                                {{
+                                                "{:,.2f}".format(
+                                                (escenario_actual_monto or 0)
+                                                -
+                                                (escenario_conservador_monto or 0)
+                                                )
+                                                }}
+                                            </strong>
+
+                                            menos frente al ritmo actual.
+
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- ACTUAL -->
+                                <div class="col-md-4 mb-3">
+
+                                    <div class="p-3 h-100" style="
+                                background:#f4f8ff;
+                                border-left:4px solid #0d6efd;
+                                border-radius:8px;
+                            ">
+
+                                        <div class="font-weight-bold text-primary mb-2">
+                                            🔵 Ritmo actual
+                                        </div>
+
+                                        <p class="mb-1">
+
+                                            Constituye el escenario base con una movilización proyectada de
+
+                                            <strong>
+                                                {{
+                                                "{:,.2f}".format(
+                                                escenario_actual_pct or 0
+                                                )
+                                                }}
+                                                %
+                                            </strong>.
+
+                                        </p>
+
+                                        <small class="text-muted">
+                                            Sirve como referencia para evaluar variaciones en el ritmo de ingreso.
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- ACELERADO -->
+                                <div class="col-md-4 mb-3">
+
+                                    <div class="p-3 h-100" style="
+                                background:#f3fbf6;
+                                border-left:4px solid #28a745;
+                                border-radius:8px;
+                            ">
+
+                                        <div class="font-weight-bold text-success mb-2">
+                                            🟢 Escenario acelerado
+                                        </div>
+
+                                        <p class="mb-1">
+
+                                            La movilización podría alcanzar
+
+                                            <strong>
+                                                {{
+                                                "{:,.2f}".format(
+                                                escenario_acelerado_pct or 0
+                                                )
+                                                }}
+                                                %
+                                            </strong>.
+
+                                        </p>
+
+                                        <small class="text-muted">
+
+                                            Esto significaría aproximadamente
+
+                                            <strong>
+                                                $
+                                                {{
+                                                "{:,.2f}".format(
+                                                (escenario_acelerado_monto or 0)
+                                                -
+                                                (escenario_actual_monto or 0)
+                                                )
+                                                }}
+                                            </strong>
+
+                                            adicionales frente al ritmo actual.
+
+                                        </small>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+                            <!-- ========================================== -->
+                            <!-- LECTURA GERENCIAL DINÁMICA -->
+                            <!-- ========================================== -->
+
+                            <div class="mt-4 p-3" style="
+                                    background: #fff8e8;
+                                    border-left: 4px solid #f5b342;
+                                    border-radius: 8px;
+                                ">
+
+                                <p class="mb-2 font-weight-bold">
+                                    ⚠️ Lectura gerencial
+                                </p>
+
+                                {% set pct_actual = escenario_actual_pct or 0 %}
+                                {% set pct_acelerado = escenario_acelerado_pct or 0 %}
+                                {% set pct_conservador = escenario_conservador_pct or 0 %}
+
+                                {% if pct_actual >= 95 %}
+
+                                <p class="mb-0">
+                                    Manteniendo el ritmo actual, se proyecta una
+                                    <strong>movilización muy alta del PAC</strong>,
+                                    alcanzando aproximadamente el
+                                    <strong>
+                                        {{ "{:,.2f}".format(pct_actual) }} %
+                                    </strong>.
+
+                                    Al mes objetivo permanecería pendiente únicamente el
+                                    <strong>
+                                        {{ "{:,.2f}".format(100 - pct_actual) }} %
+                                    </strong>,
+                                    equivalente a
+                                    <strong>
+                                        $ {{ "{:,.2f}".format(escenario_actual_pendiente or 0) }}
+                                    </strong>.
+
+                                    {% if pct_acelerado >= 100 %}
+                                    El escenario acelerado permitiría alcanzar la
+                                    <strong>movilización total del PAC analizado</strong>.
+                                    {% else %}
+                                    El escenario acelerado elevaría la movilización hasta el
+                                    <strong>
+                                        {{ "{:,.2f}".format(pct_acelerado) }} %
+                                    </strong>.
+                                    {% endif %}
+
+                                    Una reducción del ritmo de ingreso, en cambio, disminuiría
+                                    la movilización al
+                                    <strong>
+                                        {{ "{:,.2f}".format(pct_conservador) }} %
+                                    </strong>.
+
+                                    En consecuencia, el comportamiento proyectado es
+                                    <strong>favorable</strong> y mantener el ritmo actual resulta
+                                    determinante para lograr una movilización prácticamente total
+                                    del PAC.
+                                </p>
+
+
+                                {% elif pct_actual >= 85 %}
+
+                                <p class="mb-0">
+                                    La proyección muestra un
+                                    <strong>nivel alto de movilización del PAC</strong>,
+                                    alcanzando aproximadamente el
+                                    <strong>
+                                        {{ "{:,.2f}".format(pct_actual) }} %
+                                    </strong>
+                                    al mes objetivo.
+
+                                    Permanecería pendiente un
+                                    <strong>
+                                        {{ "{:,.2f}".format(100 - pct_actual) }} %
+                                    </strong>,
+                                    equivalente a
+                                    <strong>
+                                        $ {{ "{:,.2f}".format(escenario_actual_pendiente or 0) }}
+                                    </strong>.
+
+                                    Mantener o incrementar el ritmo de ingreso permitiría
+                                    acercarse a la movilización total de los recursos
+                                    planificados.
+                                </p>
+
+
+                                {% elif pct_actual >= 70 %}
+
+                                <p class="mb-0">
+                                    La proyección refleja un
+                                    <strong>nivel moderado de movilización del PAC</strong>,
+                                    estimado en
+                                    <strong>
+                                        {{ "{:,.2f}".format(pct_actual) }} %
+                                    </strong>.
+
+                                    Al mes objetivo permanecería pendiente aproximadamente el
+                                    <strong>
+                                        {{ "{:,.2f}".format(100 - pct_actual) }} %
+                                    </strong>
+                                    del PAC analizado.
+
+                                    Se recomienda mantener seguimiento sobre los procesos
+                                    pendientes y evaluar medidas que permitan incrementar
+                                    el ritmo de ingreso a contratación.
+                                </p>
+
+
+                                {% elif pct_actual >= 50 %}
+
+                                <p class="mb-0">
+                                    La proyección evidencia un
+                                    <strong>nivel bajo de movilización del PAC</strong>,
+                                    alcanzando aproximadamente el
+                                    <strong>
+                                        {{ "{:,.2f}".format(pct_actual) }} %
+                                    </strong>.
+
+                                    Permanecería pendiente el
+                                    <strong>
+                                        {{ "{:,.2f}".format(100 - pct_actual) }} %
+                                    </strong>
+                                    de los recursos planificados.
+
+                                    Este comportamiento requiere
+                                    <strong>atención y seguimiento</strong>,
+                                    especialmente sobre los procesos que aún no han ingresado
+                                    a contratación.
+                                </p>
+
+
+                                {% else %}
+
+                                <p class="mb-0">
+                                    La proyección presenta un
+                                    <strong>nivel crítico de movilización del PAC</strong>,
+                                    estimado en apenas
+                                    <strong>
+                                        {{ "{:,.2f}".format(pct_actual) }} %
+                                    </strong>.
+
+                                    Al mes objetivo permanecería pendiente aproximadamente el
+                                    <strong>
+                                        {{ "{:,.2f}".format(100 - pct_actual) }} %
+                                    </strong>
+                                    del PAC analizado.
+
+                                    Se recomienda realizar una
+                                    <strong>revisión prioritaria de los procesos pendientes</strong>
+                                    e identificar las causas que están limitando su ingreso
+                                    a contratación.
+                                </p>
+
+                                {% endif %}
+
+                            </div>
+
+
+                        </div>
+                        <!-- ========================================== -->
+                        <!-- DETALLE DE PARTIDAS PRESUPUESTARIAS -->
+                        <!-- ========================================== -->
+
+                        <div class="card shadow-sm mt-4">
+
+                            <div class="card-header d-flex justify-content-between align-items-center"
+                                style="cursor:pointer;" data-toggle="collapse" data-target="#detallePartidas"
+                                aria-expanded="false" aria-controls="detallePartidas">
+
+                                <div>
+                                    <strong>
+                                        📂 Partidas presupuestarias pendientes de movilización
+                                    </strong>
+
+                                    <div class="text-muted small">
+                                        PAC vs monto ingresado por partida
+                                    </div>
+                                </div>
+
+                                <span>
+                                    ▼ Ver detalle
+                                </span>
+
+                            </div>
+
+
+                            <div id="detallePartidas" class="collapse">
+
+                                <div class="card-body">
+
+                                    <div class="table-responsive">
+
+                                        <table class="table table-sm table-bordered">
+
+                                            <thead class="thead-light">
+
+                                                <tr>
+                                                    <th>Partida</th>
+                                                    <th class="text-right">PAC</th>
+                                                    <th class="text-right">Ingresado</th>
+                                                    <th class="text-right">Pendiente</th>
+                                                    <th class="text-center">Avance</th>
+                                                </tr>
+
+                                            </thead>
+
+                                            <tbody>
+
+                                                {% for p in partidas_analisis %}
+
+                                                <tr>
+
+                                                    <td>
+                                                        {{ p.partida }}
+                                                    </td>
+
+                                                    <td class="text-right">
+                                                        $ {{ "{:,.2f}".format(p.pac or 0) }}
+                                                    </td>
+
+                                                    <td class="text-right">
+                                                        $ {{ "{:,.2f}".format(p.ingresado or 0) }}
+                                                    </td>
+
+                                                    <td class="text-right">
+                                                        $ {{ "{:,.2f}".format(p.pendiente or 0) }}
+                                                    </td>
+
+                                                    <td style="min-width:180px;">
+
+                                                        <div class="progress">
+
+                                                            <div class="progress-bar" role="progressbar"
+                                                                style="width: {{ p.porcentaje }}%;"
+                                                                aria-valuenow="{{ p.porcentaje }}" aria-valuemin="0"
+                                                                aria-valuemax="100">
+                                                                {{ p.porcentaje }} %
+                                                            </div>
+
+                                                        </div>
+
+                                                    </td>
+
+                                                </tr>
+
+                                                {% endfor %}
+
+                                            </tbody>
+
+                                        </table>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
             </div>
-
             {% else %}
 
             <div class="p-4 text-center text-muted">
@@ -830,29 +1673,39 @@
 
         font-weight: 600;
     }
+
     .card-riesgo::before {
-    background: #dc3545;
+        background: #dc3545;
     }
 </style>
 {% if analisis_generado %}
 
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-
     document.addEventListener(
         "DOMContentLoaded",
         function () {
 
-            const canvas =
+            const canvasReal =
                 document.getElementById(
-                    "graficoFlujoMensual"
+                    "graficoFlujoReal"
                 );
 
-            if (!canvas) {
+            const canvasProyectado =
+                document.getElementById(
+                    "graficoFlujoProyectado"
+                );
+
+            if (!canvasReal || !canvasProyectado) {
                 return;
             }
 
+
+            // ==========================================
+            // DATOS DESDE FLASK
+            // ==========================================
             const etiquetas =
                 {{ grafico_labels | tojson
         }};
@@ -864,55 +1717,255 @@
         {{ serie_proyectada_grafico | tojson }};
 
 
+    // ==========================================
+    // SEPARAR DATOS REALES
+    // ==========================================
+    const etiquetasReales = [];
+    const datosReales = [];
+
+    etiquetas.forEach(
+        function (etiqueta, indice) {
+
+            const valor =
+                valoresReales[indice];
+
+            if (
+                valor !== null
+                && valor !== undefined
+            ) {
+                etiquetasReales.push(
+                    etiqueta
+                );
+
+                datosReales.push(
+                    valor
+                );
+            }
+        }
+    );
+
+
+    // ==========================================
+    // SEPARAR DATOS PROYECTADOS
+    // ==========================================
+    const etiquetasProyectadas = [];
+    const datosProyectados = [];
+
+    etiquetas.forEach(
+        function (etiqueta, indice) {
+
+            const valor =
+                valoresProyectados[indice];
+
+            if (
+                valor !== null
+                && valor !== undefined
+            ) {
+                etiquetasProyectadas.push(
+                    etiqueta
+                );
+
+                datosProyectados.push(
+                    valor
+                );
+            }
+        }
+    );
+
+
+    // ==========================================
+    // FORMATO DE DINERO
+    // ==========================================
+    function formatoDinero(valor) {
+
+        return (
+            "$ "
+            +
+            Number(valor || 0)
+                .toLocaleString(
+                    "en-US",
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                )
+        );
+    }
+
+
+    // ==========================================
+    // OPCIONES COMUNES
+    // ==========================================
+    function opcionesGrafico() {
+
+        return {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            interaction: {
+                mode: "index",
+                intersect: false
+            },
+
+            plugins: {
+
+                legend: {
+                    display: false
+                },
+
+                tooltip: {
+
+                    callbacks: {
+
+                        label:
+                            function (context) {
+
+                                return formatoDinero(
+                                    context.raw
+                                );
+                            }
+                    }
+                }
+            },
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true,
+
+                    ticks: {
+
+                        callback:
+                            function (value) {
+
+                                return (
+                                    "$ "
+                                    +
+                                    Number(value)
+                                        .toLocaleString(
+                                            "en-US"
+                                        )
+                                );
+                            }
+                    }
+                }
+            }
+        };
+    }
+
+
+    // ==========================================
+    // GRÁFICO REAL
+    // ==========================================
     new Chart(
-        canvas,
+        canvasReal,
         {
-            type: "line",
+            type: "bar",
 
             data: {
 
-                labels: etiquetas,
+                labels:
+                    etiquetasReales,
 
                 datasets: [
-
                     {
-                        label: "Flujo real",
+                        label:
+                            "Monto recibido",
 
-                        data: valoresReales,
+                        data:
+                            datosReales,
 
-                        borderWidth: 3,
-
-                        tension: 0.30,
-
-                        fill: false,
-
-                        pointRadius: 5,
-
-                        pointHoverRadius: 7,
-
-                        spanGaps: false
-                    },
-
-                    {
-                        label: "Flujo proyectado",
-
-                        data: valoresProyectados,
-
-                        borderWidth: 3,
-
-                        borderDash: [8, 6],
-
-                        tension: 0.30,
-
-                        fill: false,
-
-                        pointRadius: 5,
-
-                        pointHoverRadius: 7,
-
-                        spanGaps: true
+                        borderWidth: 1
                     }
+                ]
+            },
 
+            options:
+                opcionesGrafico()
+        }
+    );
+
+
+    // ==========================================
+    // GRÁFICO PROYECTADO
+    // ==========================================
+    new Chart(
+        canvasProyectado,
+        {
+            type: "bar",
+
+            data: {
+
+                labels:
+                    etiquetasProyectadas,
+
+                datasets: [
+                    {
+                        label:
+                            "Monto proyectado",
+
+                        data:
+                            datosProyectados,
+
+                        borderWidth: 1
+                    }
+                ]
+            },
+
+            options:
+                opcionesGrafico()
+        }
+    );
+
+    }
+);
+    // ==========================================
+    // PAC MOVILIZADO VS PAC PENDIENTE
+    // ==========================================
+    const canvasPac =
+        document.getElementById(
+            "graficoPacMovilizado"
+        );
+
+    if (canvasPac) {
+
+        const porcentajeMovilizado =
+            Number(
+                {{ porcentaje_pac_proyectado | tojson }}
+            || 0
+        );
+
+    const porcentajePendiente =
+        Math.max(
+            0,
+            100 - porcentajeMovilizado
+        );
+
+
+    new Chart(
+        canvasPac,
+        {
+            type: "doughnut",
+
+            data: {
+
+                labels: [
+                    "PAC movilizado proyectado",
+                    "PAC pendiente proyectado"
+                ],
+
+                datasets: [
+                    {
+                        data: [
+                            porcentajeMovilizado,
+                            porcentajePendiente
+                        ],
+
+                        borderWidth: 2
+                    }
                 ]
             },
 
@@ -922,15 +1975,12 @@
 
                 maintainAspectRatio: false,
 
-                interaction: {
-                    mode: "index",
-                    intersect: false
-                },
+                cutout: "68%",
 
                 plugins: {
 
                     legend: {
-                        display: true
+                        position: "bottom"
                     },
 
                     tooltip: {
@@ -938,9 +1988,7 @@
                         callbacks: {
 
                             label:
-                                function (
-                                    context
-                                ) {
+                                function (context) {
 
                                     const valor =
                                         Number(
@@ -949,56 +1997,84 @@
                                         );
 
                                     return (
-                                        " $ "
-                                        +
-                                        valor
-                                            .toLocaleString(
-                                                "en-US",
-                                                {
-                                                    minimumFractionDigits: 2,
-                                                    maximumFractionDigits: 2
-                                                }
-                                            )
-                                    );
-                                }
-                        }
-                    }
-                },
-
-                scales: {
-
-                    y: {
-
-                        beginAtZero: true,
-
-                        ticks: {
-
-                            callback:
-                                function (
-                                    value
-                                ) {
-
-                                    return (
-                                        "$ "
-                                        +
-                                        Number(
-                                            value
-                                        )
-                                            .toLocaleString(
-                                                "en-US"
-                                            )
+                                        context.label
+                                        + ": "
+                                        + valor.toFixed(2)
+                                        + " %"
                                     );
                                 }
                         }
                     }
                 }
-            }
+            },
+
+            plugins: [
+                {
+                    id: "textoCentroPac",
+
+                    afterDraw(chart) {
+
+                        const {
+                            ctx,
+                            chartArea
+                        } = chart;
+
+                        if (!chartArea) {
+                            return;
+                        }
+
+                        const centroX =
+                            (
+                                chartArea.left
+                                +
+                                chartArea.right
+                            ) / 2;
+
+                        const centroY =
+                            (
+                                chartArea.top
+                                +
+                                chartArea.bottom
+                            ) / 2;
+
+
+                        ctx.save();
+
+                        ctx.textAlign =
+                            "center";
+
+                        ctx.textBaseline =
+                            "middle";
+
+
+                        ctx.font =
+                            "700 28px Arial";
+
+                        ctx.fillText(
+                            porcentajeMovilizado
+                                .toFixed(2)
+                            + " %",
+                            centroX,
+                            centroY - 8
+                        );
+
+
+                        ctx.font =
+                            "14px Arial";
+
+                        ctx.fillText(
+                            "PAC movilizado",
+                            centroX,
+                            centroY + 22
+                        );
+
+                        ctx.restore();
+                    }
+                }
+            ]
         }
     );
-
-    }
-);
-
+}
 </script>
 
 {% endif %}

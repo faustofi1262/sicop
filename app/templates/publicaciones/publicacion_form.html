@@ -123,16 +123,16 @@
                                 Seleccione...
                             </option>
 
-                            {% for u in unidades %}
-                                <option
-                                    value="{{ u[1] }}"
-                                    {% if publicacion and publicacion[8] == u[1] %}
-                                        selected
-                                    {% endif %}
-                                >
-                                    {{ u[1] }}
-                                </option>
-                            {% endfor %}
+                          {% for u in unidades %}
+                            <option
+                                value="{{ u[4] }}"
+                                {% if publicacion and publicacion[8] == u[4] %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ u[4] }}
+                            </option>
+                        {% endfor %}
                         </select>
                     </div>
 

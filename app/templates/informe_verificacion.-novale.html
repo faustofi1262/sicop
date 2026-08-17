@@ -67,18 +67,62 @@
         <strong>Código:</strong> {{ codigo_verificacion }}
 
     </div>
-
     <h5 class="subtitulo">1. DATOS GENERALES</h5>
-    <table class="table table-sm">
-        <tr><td><strong>Unidad Requirente:</strong></td><td>{{ unidad_solicitante }}</td></tr>
-        <tr><td><strong>Funcionario Encargado:</strong></td><td>{{ funcionario_encargado }}</td></tr>
-        <tr><td><strong>Objeto de la Contratación:</strong></td><td>{{ objeto_contratacion }}</td></tr>
-        <tr><td><strong>Código del Proceso:</strong></td><td>{{ codigo_proceso }}</td></tr>
-        <tr><td><strong>Tipo de Proceso:</strong></td><td>{{ tipo_proceso }}</td></tr>
-        <tr><td><strong>Monto Total sin IVA:</strong></td><td>$ {{ valor_sin_iva }}</td></tr>
-        <tr><td><strong>Monto Exento:</strong></td><td>{{ valor_en_letras }}</td></tr>
-         <tr><td><strong>Valor en Letras:</strong></td><td>$ {{ valor_exento }}</td></tr>
-    </table>
+
+<table class="table table-sm">
+
+    <tr>
+        <td><strong>Unidad Requirente:</strong></td>
+        <td>{{ unidad_solicitante }}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Departamento Principal:</strong></td>
+        <td>{{ departamento_principal }}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Funcionario Encargado:</strong></td>
+        <td>{{ funcionario_encargado }}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Objeto de la Contratación:</strong></td>
+        <td>{{ objeto_contratacion }}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Código del Proceso:</strong></td>
+        <td>{{ codigo_proceso }}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Tipo de Proceso:</strong></td>
+        <td>{{ tipo_proceso }}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Tipo de Compra:</strong></td>
+        <td>{{ tipo_compra }}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Monto Total sin IVA:</strong></td>
+        <td>$ {{ valor_sin_iva }}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Monto Exento:</strong></td>
+        <td>$ {{ valor_exento }}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Valor en Letras:</strong></td>
+        <td>{{ valor_en_letras }}</td>
+    </tr>
+
+</table>
+   
 
     <h5 class="subtitulo">2. VERIFICACIÓN DE DOCUMENTOS</h5>
     <div class="cuadro">
@@ -90,9 +134,7 @@
             <li class="check">{% if presenta_estudio_mercado %}✔{% else %}✖{% endif %} Estudio de Mercado</li>
             <li class="check">{% if determinacion_necesidad %}✔{% else %}✖{% endif %} Determinación de la Necesidad</li>
             <li class="check">{% if consta_catalogo_electronico %}✔{% else %}✖{% endif %} En Catálogo Electrónico</li>
-            <li class="check">
-            {{ '✔' if consta_poa else '✖' }} Certificación POA
-            </li>
+            <li class="check">{% if catalogado_incluido_gne %}✔{% else %}✖{% endif %} Certificacion POA</li>
             <li class="check">{% if consta_pac %}✔{% else %}✖{% endif %} Consta en el PAC</li>
             <li class="check">{% if presenta_errores %}✔{% else %}✖{% endif %} Presenta Errores</li>
             <li class="check">{% if cumple_normativa %}✔{% else %}✖{% endif %} Cumple Normativa</li>
@@ -122,7 +164,7 @@
 
     <div class="text-center btn-imprimir">
         <button onclick="window.print()" class="btn btn-primary">📄 Imprimir PDF</button>
-        <a href="{{ url_for('main.tareas') }}" class="btn btn-secondary ml-2">🔙 Regresar a Tareas</a>
+        <a href="/admin/tareas" class="btn btn-secondary ml-2">🔙 Regresar a Tareas</a>
         <a href="/informe/verificacion/{{ request.view_args['id_tarea'] }}/pdf" class="btn btn-success ml-2">⬇ Descargar PDF</a>
     </div>
 

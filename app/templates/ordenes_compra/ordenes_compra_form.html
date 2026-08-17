@@ -1,612 +1,398 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container mt-4">
 
-<h4 class="mb-3">🧾 Orden de Compra</h4>
+<style>
+    body { background: #f3f6fa; }
+    .oc-page { max-width: 1380px; margin: 28px auto; padding: 0 18px; }
+    .oc-card { background: #fff; border: 0; border-radius: 16px; overflow: hidden; box-shadow: 0 12px 32px rgba(15,47,79,.10); }
+    .oc-header { background: linear-gradient(135deg,#0b2f4f,#174f7c); color: #fff; padding: 24px 28px; }
+    .oc-header h3 { margin: 0; font-weight: 700; }
+    .oc-header p { margin: 6px 0 0; color: #dbeafe; }
+    .oc-body { padding: 28px; }
+    .section-title { color:#0b2f4f; font-size:17px; font-weight:700; border-bottom:2px solid #dbe7f2; padding-bottom:8px; margin:26px 0 18px; }
+    .section-box { background:#fbfcfe; border:1px solid #e1e7ef; border-radius:12px; padding:18px; margin-bottom:20px; }
+    .estructura-box { background:#f8fbfe; border:1px solid #dbe7f2; border-left:4px solid #1d70b7; border-radius:12px; padding:18px; margin-bottom:20px; }
+    .form-control { border-radius:8px; border-color:#cfd9e3; }
+    .form-control:focus { border-color:#3b82f6; box-shadow:0 0 0 .15rem rgba(59,130,246,.12); }
+    .readonly-field { background:#eef4f9 !important; color:#334155; font-weight:600; }
+    .numero-oc-box { background:#eef6ff; border:1px solid #cfe3f7; border-radius:10px; padding:14px; }
+    .tabla-items th { background:#edf3f8; color:#17324d; vertical-align:middle; }
+    .totales-box { max-width:430px; margin-left:auto; background:#f8fbfe; border:1px solid #dbe7f2; border-radius:12px; padding:16px; }
+    .btn-guardar-oc { background:#0f7a55; border-color:#0f7a55; font-weight:700; min-width:180px; }
+    .btn-guardar-oc:hover { background:#0b6547; border-color:#0b6547; }
+    @media (max-width:767px) {
+        .oc-body { padding:18px; }
+        .oc-header { padding:20px; }
+    }
+</style>
 
-<form method="post" action="{{ url_for('main.ordenes_compra_guardar') }}">
-{% if orden %}
-  <input type="hidden" name="id" value="{{ orden.id }}">
-  <input type="hidden" name="tarea_id" value="{{ orden.tarea_id }}">
-{% endif %}
-<!-- ===================== -->
-<!-- PROCESO ASOCIADO -->
-<!-- ===================== -->
-{% if not orden %}
-<div class="card mb-3">
-  <div class="card-header font-weight-bold">Proceso Asociado</div>
-  <div class="card-body">
-    <select name="tarea_id"
-              id="tarea_id"
-              class="form-control"
-              required>
+<div class="oc-page">
+  <div class="oc-card">
 
-        <option value="">
-          -- Seleccione una tarea --
-        </option>
+    <div class="oc-header">
+      <h3>🧾 {% if orden %}Editar{% else %}Nueva{% endif %} Orden de Compra</h3>
+      <p>Gestión de órdenes de compra de Ínfima Cuantía</p>
+    </div>
 
-        {% for t in tareas %}
+    <div class="oc-body">
+      <form method="post" action="{{ url_for('main.ordenes_compra_guardar') }}">
 
-          <option value="{{ t[0] }}"
-              {% if tarea_id_seleccionada
-                    and t[0] == tarea_id_seleccionada %}
-                  selected
-              {% endif %}>
+        {% if orden %}
+          <input type="hidden" name="id" value="{{ orden.id }}">
+          <input type="hidden" name="tarea_id" id="tarea_id" value="{{ orden.tarea_id }}">
+        {% endif %}
 
-              {{ t[1] }} — {{ t[2] }}
+        {% if not orden %}
+        <div class="section-title">📌 Proceso Asociado</div>
+        <div class="estructura-box">
+          <div class="form-row">
+            <div class="form-group col-lg-5 col-md-12">
+              <label>Código / Proceso</label>
+              <select name="tarea_id" id="tarea_id" class="form-control" required>
+                <option value="">-- Seleccione una tarea --</option>
+                {% for t in tareas %}
+                <option value="{{ t[0] }}" {% if tarea_id_seleccionada and t[0] == tarea_id_seleccionada %}selected{% endif %}>
+                  {{ t[1] }} — {{ t[2] }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
 
-          </option>
+            <div class="form-group col-lg-7 col-md-12">
+              <label>Número de Orden / Código del Proceso</label>
+              <input type="text" name="numero_oc" id="numero_oc" class="form-control readonly-field"
+                     value="{{ orden.numero_oc if orden else '' }}" readonly required>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="section-title">📌 Proceso Asociado</div>
+        <div class="numero-oc-box mb-3">
+          <label class="font-weight-bold">Número de Orden / Código del Proceso</label>
+          <input type="text" name="numero_oc" id="numero_oc" class="form-control readonly-field"
+                 value="{{ orden.numero_oc if orden else '' }}" readonly required>
+        </div>
+        {% endif %}
 
-        {% endfor %}
+        <div class="section-title">🏢 Datos Generales y Estructura Institucional</div>
+        <div class="estructura-box">
+          <div class="form-row">
+            <div class="form-group col-lg-3 col-md-6">
+              <label>Fecha</label>
+              <input type="date" name="fecha" class="form-control"
+                     value="{{ orden.fecha.strftime('%Y-%m-%d') if orden and orden.fecha else '' }}" required>
+            </div>
 
-      </select>
-  </div>
-</div>
-{% endif %}
-<!-- ===================== -->
-<!-- ENCABEZADO -->
-<!-- ===================== -->
-<div class="card mb-3">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <strong>No. DE ORDEN DE COMPRA: SERVICIO / BIEN / OBRA</strong>
-    <div>
-      <label class="mb-0"><strong>IC – ENTIDAD CONTRATANTE</strong></label>
-      <input type="text"
-               name="numero_oc"
-               id="numero_oc"
-               class="form-control"
-               value="{{ orden.numero_oc if orden else '' }}"
-               readonly required>
+            <div class="form-group col-lg-5 col-md-6">
+              <label>Unidad Requirente</label>
+              <input type="text" name="area_requirente" id="unidad_requirente"
+                     class="form-control readonly-field"
+                     value="{{ orden.area_requirente if orden else '' }}" readonly required>
+            </div>
+
+            <div class="form-group col-lg-4 col-md-6">
+              <label>N° Certificación Presupuestaria</label>
+              <input type="text" name="cert_presupuestaria" class="form-control"
+                     value="{{ orden.cert_presupuestaria if orden else '' }}" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Departamento Principal</label>
+              <input type="text" id="departamento_principal" class="form-control readonly-field"
+                     readonly placeholder="Se completa automáticamente">
+            </div>
+
+            <div class="form-group col-md-6">
+              <label>Bloque</label>
+              <input type="text" id="bloque" class="form-control readonly-field"
+                     readonly placeholder="Se completa automáticamente">
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">📝 Objeto de Contratación</div>
+        <div class="section-box">
+          <textarea name="objeto" id="objeto" class="form-control" rows="3" >{{ orden.objeto if orden else '' }}</textarea>
+        </div>
+
+        <div class="section-title">🏪 Proveedor y Proforma</div>
+        <div class="section-box">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Proveedor (Razón Social)</label>
+                <input type="text" name="proveedor" class="form-control" value="{{ orden.proveedor if orden else '' }}" required>
+              </div>
+              <div class="form-group">
+                <label>RUC</label>
+                <input type="text" name="ruc" class="form-control" value="{{ orden.ruc if orden else '' }}" required>
+              </div>
+              <div class="form-group">
+                <label>Teléfono</label>
+                <input type="text" name="telefono" class="form-control" value="{{ orden.telefono if orden else '' }}" required>
+              </div>
+              <div class="form-group">
+                <label>Dirección</label>
+                <input type="text" name="direccion" class="form-control" value="{{ orden.direccion if orden else '' }}" required>
+              </div>
+              <div class="form-group">
+                <label>Correo</label>
+                <input type="email" name="correo" class="form-control" value="{{ orden.correo if orden else '' }}" required>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Proforma Nro.</label>
+                <input type="text" name="proforma_num" class="form-control" value="{{ orden.proforma_num if orden else '' }}" required>
+              </div>
+              <div class="form-group">
+                <label>Fecha Proforma</label>
+                <input type="date" name="proforma_fecha" class="form-control"
+                       value="{{ orden.proforma_fecha.strftime('%Y-%m-%d') if orden and orden.proforma_fecha else '' }}" required>
+              </div>
+              <div class="form-group">
+                <label>Contacto</label>
+                <input type="text" name="contacto" class="form-control" value="{{ orden.contacto if orden else '' }}" required>
+              </div>
+              <div class="form-group">
+                <label>Vigencia</label>
+                <input type="text" name="vigencia" class="form-control" value="{{ orden.vigencia if orden else '' }}" required>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">⚙️ Condiciones de la Orden</div>
+        <div class="section-box">
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label>Administrador de la Orden</label>
+              <input type="text" name="administrador_orden" class="form-control"
+                     value="{{ orden.administrador_orden if orden else '' }}" required>
+            </div>
+            <div class="form-group col-md-3">
+              <label>Forma de Pago</label>
+              <input type="text" name="forma_pago" class="form-control" value="{{ orden.forma_pago if orden else '' }}" required>
+            </div>
+            <div class="form-group col-md-3">
+              <label>Plazo de Ejecución</label>
+              <input type="text" name="plazo_ejecucion" class="form-control"
+                     value="{{ orden.plazo_ejecucion if orden else '' }}" required>
+            </div>
+            <div class="form-group col-md-3">
+              <label>Lugar de Entrega</label>
+              <input type="text" name="lugar_entrega" class="form-control"
+                     value="{{ orden.lugar_entrega if orden else '' }}" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label>Máxima Autoridad o Delegado</label>
+              <input type="text" name="maxima_autoridad" class="form-control"
+                     value="{{ orden.maxima_autoridad if orden else '' }}">
+            </div>
+            <div class="form-group col-md-6">
+              <label>Cargo Máxima Autoridad</label>
+              <input type="text" name="cargo_maxima_autoridad" class="form-control"
+                     value="{{ orden.cargo_maxima_autoridad if orden else '' }}">
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">📦 Detalle de Ítems</div>
+        <div class="section-box">
+          <div class="table-responsive">
+            <table class="table table-bordered table-sm tabla-items" id="tabla-items">
+              <thead>
+                <tr class="text-center">
+                  <th style="width:5%">#</th>
+                  <th style="width:12%">CPC</th>
+                  <th>Descripción</th>
+                  <th style="width:10%">Unidad</th>
+                  <th style="width:10%">Cantidad</th>
+                  <th style="width:12%">V. Unitario</th>
+                  <th style="width:12%">V. Total</th>
+                  <th style="width:5%"></th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {% set lista_productos = productos if productos is defined else [] %}
+                {% for item in lista_productos %}
+                <tr>
+                  <td class="text-center">{{ loop.index }}</td>
+                  <td><input type="text" name="cpc[]" class="form-control form-control-sm" value="{{ item.cpc or '' }}"></td>
+                  <td><textarea name="descripcion[]" class="form-control form-control-sm" rows="3">{{ item.descripcion }}</textarea></td>
+                  <td><input type="text" name="unidad[]" class="form-control form-control-sm" value="{{ item.unidad }}"></td>
+                  <td><input type="number" step="any" name="cantidad[]" class="form-control form-control-sm cantidad" value="{{ item.cantidad }}"></td>
+                  <td><input type="number" step="any" name="valor_unitario[]" class="form-control form-control-sm valor-unitario" value="{{ item.valor_uni }}"></td>
+                  <td><input type="text" class="form-control form-control-sm total-fila"
+                             value="{{ '%.2f'|format((item.cantidad or 0) * (item.valor_uni or 0)) }}" readonly></td>
+                  <td class="text-center">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarFila(this)">✖</button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <button type="button" class="btn btn-sm btn-primary" onclick="agregarFila()">➕ Agregar ítem</button>
+        </div>
+
+        <div class="section-title">💰 Resumen Económico</div>
+        <div class="totales-box">
+          <table class="table table-borderless table-sm mb-0">
+            <tr>
+              <th class="text-right">Subtotal</th>
+              <td><input type="number" step="any" id="subtotal" name="subtotal"
+                         class="form-control readonly-field" value="{{ orden.subtotal if orden else '0.00' }}" readonly></td>
+            </tr>
+            <tr>
+              <th class="text-right">IVA</th>
+              <td><input type="number" step="any" id="iva" name="iva"
+                         class="form-control readonly-field" value="{{ orden.iva if orden else '0.00' }}" readonly></td>
+            </tr>
+            <tr>
+              <th class="text-right font-weight-bold">Total</th>
+              <td><input type="number" step="any" id="total" name="total"
+                         class="form-control readonly-field font-weight-bold" value="{{ orden.total if orden else '0.00' }}" readonly></td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="section-title">📝 Observaciones</div>
+        <div class="section-box">
+          <textarea name="observaciones" class="form-control" rows="3">{{ orden.observaciones if orden else '' }}</textarea>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+          <a href="{{ url_for('main.ordenes_compra') }}" class="btn btn-secondary">⬅️ Volver</a>
+          <button type="submit" class="btn btn-success btn-guardar-oc">💾 Guardar Orden</button>
+        </div>
+
+      </form>
     </div>
   </div>
 </div>
 
-<!-- ===================== -->
-<!-- DATOS GENERALES -->
-<!-- ===================== -->
-<div class="card mb-3">
-    <div class="card-header font-weight-bold">
-    Datos de la Orden de Compra
-    </div>
- <div class="card-body">
-
-    <div class="form-row">
-      <div class="form-group col-md-3">
-        <label>Fecha</label>
-        <input type="date"
-               name="fecha"
-               class="form-control"
-               value="{{ orden.fecha if orden else '' }}"
-               required>
-      </div>
-
-      <div class="form-group col-md-5">
-        <label>Área Requirente</label>
-         <input type="text"
-               name="area_requirente"
-               id="unidad_requirente"
-               class="form-control"
-               value="{{ orden.area_requirente if orden else '' }}"
-               readonly>
-      </div>
-
-      <div class="form-group col-md-4">
-        <label>N° Certificación Presupuestaria</label>
-         <input type="text"
-               name="cert_presupuestaria"
-               class="form-control"
-               value="{{ orden.cert_presupuestaria if orden else '' }}"
-               required>
-      </div>
-    </div>
-
-  </div>
-</div>
-<!-- ===================== -->
-<!--OBJETO DE CONTRATACIÓN -->
-<!-- ===================== -->
-<div class="card mb-3">
-  <div class="card-body">
-    <label>Objeto de Contratación</label>
-    <textarea name="objeto"
-          id="objeto"
-          class="form-control"
-          rows="2">{{ orden.objeto if orden else '' }}</textarea>
-  </div>
-</div>
-
-<!-- ===================== -->
-<!-- PROVEEDOR -->
-<!-- ===================== -->
-<div class="card mb-3">
-  <div class="card-body">
-    <div class="row">
-      <!-- PROVEEDOR -->
-      <div class="col-md-6">
-        <div class="form-group">
-          <label>Proveedor (Razón Social)</label>
-          <input type="text"
-               name="proveedor"
-               class="form-control"
-               value="{{ orden.proveedor if orden else '' }}"
-               required>
-        </div>
-        <div class="form-group">
-          <label>RUC</label>
-          <input type="text"
-               name="ruc"
-               class="form-control"
-               value="{{ orden.ruc if orden else '' }}"
-               required>
-        </div>
-        <div class="form-group">
-          <label>Teléfono</label>
-          <input type="text"
-               name="telefono"
-               class="form-control"
-               value="{{ orden.telefono if orden else '' }}"
-               required>
-        </div>
-        <div class="form-group">
-          <label>Dirección</label>
-         <input type="text"
-               name="direccion"
-               class="form-control"
-               value="{{ orden.direccion if orden else '' }}"
-               required>
-        </div>
-        <div class="form-group">
-          <label>Correo</label>
-          <input type="email"
-               name="correo"
-               class="form-control"
-               value="{{ orden.correo if orden else '' }}"
-               required>
-        </div>
-      </div>
-      <!-- PROFORMA -->
-      <div class="col-md-6">
-        <div class="form-group">
-          <label>Proforma Nro</label>
-           <input type="text"
-               name="proforma_num"
-               class="form-control"
-               value="{{ orden.proforma_num if orden else '' }}"
-               required>
-        </div>
-        <div class="form-group">
-          <label>Fecha Proforma</label>
-           <input type="date"
-               name="proforma_fecha"
-               class="form-control"
-               value="{{ orden.proforma_fecha if orden else '' }}"
-               required>
-        </div>
-        <div class="form-group">
-          <label>Contacto</label>
-          <input type="text"
-               name="contacto"
-               class="form-control"
-               value="{{ orden.contacto if orden else '' }}"
-               required>
-        </div>
-        <div class="form-group">
-          <label>Vigencia</label>
-         <input type="text"
-               name="vigencia"
-               class="form-control"
-               value="{{ orden.vigencia if orden else '' }}"
-               required>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- ===================== -->
-<!-- CONDICIONES DE LA ORDEN -->
-<!-- ===================== -->
-<div class="card mb-3">
-  <div class="card-body">
-    <div class="form-row">
-      <div class="form-group col-md-3">
-        <label>Administrador de la Orden</label>
-        <input type="text" 
-               name="administrador_orden"
-               class="form-control"
-               value="{{ orden.administrador_orden if orden else '' }}"
-               required>
-      </div>
-      <div class="form-group col-md-3">
-        <label>Forma de Pago</label>
-        <input type="text"
-               name="forma_pago"
-               class="form-control"
-               value="{{ orden.forma_pago if orden else '' }}"
-               required>
-      </div>
-      <div class="form-group col-md-3">
-        <label>Plazo de Ejecución</label>
-        <input type="text" 
-               name="plazo_ejecucion"
-               class="form-control" 
-               value="{{ orden.plazo_ejecucion if orden else '' }}"
-               required>
-      </div>
-      <div class="form-group col-md-3">
-        <label>Lugar de Entrega</label>
-        <input type="text" 
-               name="lugar_entrega"
-               class="form-control" 
-               value="{{ orden.lugar_entrega if orden else '' }}"
-               required>
-      </div>
-          <div class="row mt-3">
-
-        <div class="col-md-6">
-            <label>Máxima Autoridad o Delegado</label>
-            <input type="text"
-                  name="maxima_autoridad"
-                  class="form-control"
-                  value="{{ orden.maxima_autoridad if orden else '' }}">
-        </div>
-
-        <div class="col-md-6">
-            <label>Cargo Máxima Autoridad</label>
-            <input type="text"
-                  name="cargo_maxima_autoridad"
-                  class="form-control"
-                  value="{{ orden.cargo_maxima_autoridad if orden else '' }}">
-        </div>
-
-    </div>
-    </div>
-  </div>
-</div>
-<!-- ===================== -->
-<!-- ÍTEMS DE LA ORDEN DE COMPRA -->
-<!-- ===================== -->
-<div class="card mb-3">
-  <div class="card-header font-weight-bold">
-    Detalle de Ítems
-  </div>
-    <div class="card-body">
-
-    <table class="table table-bordered table-sm" id="tabla-items">
-      <thead class="thead-light">
-        <tr class="text-center">
-          <th style="width:5%">#</th>
-          <th style="width:12%">CPC</th>
-          <th>Descripción</th>
-          <th style="width:10%">Unidad</th>
-          <th style="width:10%">Cantidad</th>
-          <th style="width:12%">V. Unitario</th>
-          <th style="width:12%">V. Total</th>
-          <th style="width:5%"></th>
-        </tr>
-      </thead>
-  <tbody>
-      {% for item in productos %}
-      <tr>
-          <td>{{ loop.index }}</td>
-
-      <!-- CPC -->
-      <td>
-          <input type="text"
-                name="cpc[]"
-                class="form-control"
-                style="min-width:120px;"style="min-width:120px;"
-                value="{{ item.cpc or '' }}">
-      </td>
-
-          <!-- DESCRIPCIÓN -->
-          <td>
-              <textarea name="descripcion[]" class="form-control" rows="4">{{ item.descripcion }}</textarea>
-          </td>
-
-          <!-- UNIDAD -->
-          <td>
-              <input type="text" name="unidad[]" class="form-control"
-                    value="{{ item.unidad }}">
-          </td>
-
-          <!-- CANTIDAD -->
-          <td>
-              <input type="number" step="any" name="cantidad[]" class="form-control"
-                    value="{{ item.cantidad }}">
-          </td>
-
-          <!-- VALOR UNITARIO -->
-          <td>
-              <input type="number" step="any" name="valor_unitario[]" class="form-control"
-                    value="{{ item.valor_uni }}">
-          </td>
-
-          <!-- VALOR TOTAL -->
-          <td>
-              <input type="number" class="form-control"
-                    value="{{ item.cantidad * item.valor_uni }}" readonly>
-          </td>
-
-          <!-- ELIMINAR -->
-          <td class="text-center">
-              <button type="button" class="btn btn-danger btn-sm eliminar-fila">✖</button>
-          </td>
-      </tr>
-      {% endfor %}
-
-      </tbody>
-
-    </table>
-
-    <button type="button" class="btn btn-sm btn-primary" onclick="agregarFila()">
-      ➕ Agregar ítem
-    </button>
-
-  </div>
-</div>
-<!-- ===================== -->
-<!-- subtotales            -->
-<!-- ===================== -->
-<div class="card mb-3">
-  <div class="card-body d-flex justify-content-end">
-    <table class="table table-borderless table-sm w-auto mb-0">
-      <tr>
-        <th class="text-right">Subtotal</th>
-        <td>
-          <input type="number" step="any" id="subtotal" name="subtotal" class="form-control" readonly>
-        </td>
-      </tr>
-      <tr>
-        <th class="text-right">IVA</th>
-        <td>
-          <input type="number" step="any" id="iva" name="iva" class="form-control" readonly>
-             
-        </td>
-      </tr>
-      <tr>
-        <th class="text-right font-weight-bold">Total</th>
-        <td>
-          <input type="number" step="any" id="total" name="total" class="form-control" readonly>
-        </td>
-      </tr>
-    </table>
-  </div>
-</div>
-
-
-<!-- ===================== -->
-<!-- OBSERVACIONES -->
-<!-- ===================== -->
-<div class="card mb-3">
-  <div class="card-body">
-    <label>Observaciones</label>
-    <textarea name="observaciones"
-              class="form-control" rows="2"
-              required></textarea>
-  </div>
-</div>
-<!-- ===================== -->
-<!-- BOTONES-->
-<!-- ===================== -->
-
-<div class="d-flex justify-content-between">
-  <a href="{{ url_for('main.ordenes_compra') }}" class="btn btn-secondary">
-    ⬅️ Volver
-  </a>
-  <button type="submit" class="btn btn-success">
-    💾 Guardar Orden
-  </button>
-</div>
-
-</form>
-</div>
-
-<!-- ===================== -->
-<!-- AUTOLLENADO DESDE TAREA -->
-<!-- ===================== -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  console.log("JS de Ordenes cargado");
-
-  const selectTarea = document.getElementById("tarea_id");
-
-  if (!selectTarea) {
-    console.error("No existe el select tarea_id");
-    return;
-  }
-
-  selectTarea.addEventListener("change", function () {
-    console.log("Cambio de tarea detectado");
-
-    const tareaId = this.value;
-    console.log("tareaId:", tareaId);
-
+    const campoTarea = document.getElementById("tarea_id");
     const numeroOC = document.getElementById("numero_oc");
     const unidad = document.getElementById("unidad_requirente");
+    const departamento = document.getElementById("departamento_principal");
+    const bloque = document.getElementById("bloque");
     const objeto = document.getElementById("objeto");
 
-    if (!tareaId) {
-      numeroOC.value = "";
-      unidad.value = "";
-      objeto.value = "";
-      return;
+    function limpiarDatosProceso() {
+        if (numeroOC) numeroOC.value = "";
+        if (unidad) unidad.value = "";
+        if (departamento) departamento.value = "";
+        if (bloque) bloque.value = "";
+        if (objeto) objeto.value = "";
     }
 
-    fetch(`/api/tarea/${tareaId}`)
-      .then(response => response.json())
-      .then(data => {
-        console.log("DATA API:", data);
+    function cargarDatosTarea() {
+        if (!campoTarea || !campoTarea.value) {
+            limpiarDatosProceso();
+            return;
+        }
 
-        numeroOC.value = data.codigo_proceso || "";
-        unidad.value = data.unidad || "";
-        objeto.value = data.objeto || "";
-      })
-      .catch(err => console.error("Error fetch:", err));
-  });
-    // Si viene una tarea desde el listado, dispara el cambio automáticamente
-  if (selectTarea.value) {
-      selectTarea.dispatchEvent(new Event("change"));
-  }
+        fetch(`/api/tarea/${campoTarea.value}`)
+            .then(response => response.json())
+            .then(data => {
+                if (!data.ok) return;
+                if (numeroOC) numeroOC.value = data.codigo_proceso || "";
+                if (unidad) unidad.value = data.unidad || "";
+                if (departamento) departamento.value = data.departamento_principal || "";
+                if (bloque) bloque.value = data.bloque || "";
+                if (objeto) objeto.value = data.objeto || "";
+            })
+            .catch(error => console.error("Error cargando la tarea:", error));
+    }
+
+    if (campoTarea && campoTarea.tagName === "SELECT") {
+        campoTarea.addEventListener("change", cargarDatosTarea);
+    }
+
+    if (campoTarea && campoTarea.value) {
+        cargarDatosTarea();
+    }
 });
 </script>
 
-<!-- ===================== -->
-<!-- RECALCULAR SUBTOTALES -->
-<!-- ===================== -->
 <script>
-let contadorItems = 0;
-
-function agregarFila() {
-  const tbody = document.querySelector("#tabla-items tbody");
-  contadorItems++;
-
-  const fila = document.createElement("tr");
-  fila.innerHTML = `
-    <td class="text-center">${contadorItems}</td>
-
-    <td>
-      <input type="text" name="cpc[]" class="form-control form-control-sm">
-    </td>
-
-    <td>
-      <textarea
-          name="descripcion[]"
-          class="form-control form-control-sm"
-          rows="3"
-          required></textarea>
-    </td>
-
-    <td>
-      <input type="text" name="unidad[]" class="form-control form-control-sm">
-    </td>
-
-    <td>
-      <input type="number" name="cantidad[]" class="form-control form-control-sm cantidad"
-             min="1" step="1" value="1" required>
-    </td>
-
-    <td>
-      <input type="number" name="valor_unitario[]" class="form-control form-control-sm valor-unitario"
-             min="0" step="0.01" value="0" required>
-    </td>
-
-    <td>
-      <input type="text" class="form-control form-control-sm total-fila" readonly value="0.00">
-    </td>
-
-    <td class="text-center">
-      <button type="button" class="btn btn-sm btn-danger"
-              onclick="eliminarFila(this)">✖</button>
-    </td>
-  `;
-
-  tbody.appendChild(fila);
-  recalcularTotales();
+function numeroSeguro(valor) {
+    if (valor === null || valor === undefined || valor === "") return 0;
+    valor = String(valor).replace(",", ".");
+    const numero = parseFloat(valor);
+    return isNaN(numero) ? 0 : numero;
 }
 
-function eliminarFila(btn) {
-  btn.closest("tr").remove();
-  recalcularTotales();
+function agregarFila() {
+    const tbody = document.querySelector("#tabla-items tbody");
+    const contadorItems = tbody.querySelectorAll("tr").length + 1;
+    const fila = document.createElement("tr");
+
+    fila.innerHTML = `
+      <td class="text-center">${contadorItems}</td>
+      <td><input type="text" name="cpc[]" class="form-control form-control-sm"></td>
+      <td><textarea name="descripcion[]" class="form-control form-control-sm" rows="3" required></textarea></td>
+      <td><input type="text" name="unidad[]" class="form-control form-control-sm"></td>
+      <td><input type="number" name="cantidad[]" class="form-control form-control-sm cantidad" min="0" step="any" value="1" required></td>
+      <td><input type="number" name="valor_unitario[]" class="form-control form-control-sm valor-unitario" min="0" step="0.01" value="0" required></td>
+      <td><input type="text" class="form-control form-control-sm total-fila" value="0.00" readonly></td>
+      <td class="text-center"><button type="button" class="btn btn-sm btn-danger" onclick="eliminarFila(this)">✖</button></td>
+    `;
+
+    tbody.appendChild(fila);
+    recalcularTotales();
+}
+
+function eliminarFila(boton) {
+    boton.closest("tr").remove();
+    recalcularTotales();
 }
 
 function recalcularTotales() {
-  let subtotal = 0;
-
-  document.querySelectorAll("#tabla-items tbody tr").forEach(fila => {
-    const cantidad = parseFloat(fila.querySelector(".cantidad")?.value || 0);
-    const valor = parseFloat(fila.querySelector(".valor-unitario")?.value || 0);
-    const totalFila = cantidad * valor;
-
-    fila.querySelector(".total-fila").value = totalFila.toFixed(2);
-    subtotal += totalFila;
-  });
-
-  const iva = subtotal * 0.15;
-  const total = subtotal + iva;
-
-  document.getElementById("subtotal").value = subtotal.toFixed(2);
-  document.getElementById("iva").value = iva.toFixed(2);
-  document.getElementById("total").value = total.toFixed(2);
-}
-
-document.addEventListener("input", function (e) {
-  if (
-    e.target.classList.contains("cantidad") ||
-    e.target.classList.contains("valor-unitario")
-  ) {
-    recalcularTotales();
-  }
-});
-</script>
-
-<script>
-(function () {
-  function num(v) {
-    if (v === null || v === undefined) return 0;
-    // por si algún navegador mete comas
-    v = String(v).replace(",", ".");
-    const n = parseFloat(v);
-    return isNaN(n) ? 0 : n;
-  }
-
-  function recalcularTotales() {
     let subtotal = 0;
 
-    // recorre cada fila del tbody
-    document.querySelectorAll("tbody tr").forEach((fila) => {
-      const qtyInput = fila.querySelector('input[name="cantidad[]"]');
-      const unitInput = fila.querySelector('input[name="valor_unitario[]"]');
+    document.querySelectorAll("#tabla-items tbody tr").forEach(fila => {
+        const cantidad = numeroSeguro(fila.querySelector('input[name="cantidad[]"]')?.value);
+        const valor = numeroSeguro(fila.querySelector('input[name="valor_unitario[]"]')?.value);
+        const totalFila = cantidad * valor;
 
-      // el total de fila puede ser input readonly o un td
-      let totalInput = fila.querySelector('input[name="total_fila[]"]') 
-                    || fila.querySelector(".total-fila");
+        const totalInput = fila.querySelector(".total-fila");
+        if (totalInput) totalInput.value = totalFila.toFixed(2);
 
-      const cantidad = num(qtyInput?.value);
-      const valor = num(unitInput?.value);
-      const totalFila = cantidad * valor;
-
-      // si no existe input para total, intenta escribir en la celda V.Total (última antes del botón)
-      if (totalInput) {
-        totalInput.value = totalFila.toFixed(2);
-      } else {
-        // busca una celda con clase total o el 7mo td según tu tabla (#, CPC, Desc, Unidad, Cant, VU, VT)
-        const tds = fila.querySelectorAll("td");
-        if (tds.length >= 7) {
-          // intenta encontrar input dentro del td 6 (V.Total)
-          const posible = tds[6].querySelector("input");
-          if (posible) posible.value = totalFila.toFixed(2);
-          else tds[6].textContent = totalFila.toFixed(2);
-        }
-      }
-
-      subtotal += totalFila;
+        subtotal += totalFila;
     });
 
     const iva = subtotal * 0.15;
     const total = subtotal + iva;
 
-    // IMPORTANTÍSIMO: estos IDs deben existir en tu HTML
-    const elSubtotal = document.getElementById("subtotal");
-    const elIva = document.getElementById("iva");
-    const elTotal = document.getElementById("total");
+    const subtotalInput = document.getElementById("subtotal");
+    const ivaInput = document.getElementById("iva");
+    const totalInput = document.getElementById("total");
 
-    if (elSubtotal) elSubtotal.value = subtotal.toFixed(2);
-    if (elIva) elIva.value = iva.toFixed(2);
-    if (elTotal) elTotal.value = total.toFixed(2);
-  }
+    if (subtotalInput) subtotalInput.value = subtotal.toFixed(2);
+    if (ivaInput) ivaInput.value = iva.toFixed(2);
+    if (totalInput) totalInput.value = total.toFixed(2);
+}
 
-  // Recalcula al escribir en cantidad o valor unitario
-  document.addEventListener("input", (e) => {
-    const t = e.target;
-    if (t && (t.name === "cantidad[]" || t.name === "valor_unitario[]")) {
-      recalcularTotales();
+document.addEventListener("input", function (evento) {
+    const elemento = evento.target;
+    if (elemento && (elemento.name === "cantidad[]" || elemento.name === "valor_unitario[]")) {
+        recalcularTotales();
     }
-  });
+});
 
-  // Recalcula al cargar EDITAR
-  document.addEventListener("DOMContentLoaded", recalcularTotales);
-})();
+document.addEventListener("DOMContentLoaded", recalcularTotales);
 </script>
-
 
 {% endblock %}

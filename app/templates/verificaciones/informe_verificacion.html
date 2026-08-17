@@ -89,35 +89,57 @@
 <h5 class="subtitulo">DATOS GENERALES</h5>
 
 <table class="table table-sm">
+
     <tr>
         <td><strong>Unidad Requirente:</strong></td>
         <td>{{ unidad_solicitante }}</td>
     </tr>
-    
+
+    <tr>
+        <td><strong>Departamento Principal:</strong></td>
+        <td>{{ departamento_principal }}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Funcionario Encargado:</strong></td>
+        <td>{{ funcionario_encargado }}</td>
+    </tr>
+
     <tr>
         <td><strong>Objeto de la Contratación:</strong></td>
         <td>{{ objeto_contratacion }}</td>
     </tr>
+
     <tr>
         <td><strong>Código del Proceso:</strong></td>
         <td>{{ codigo_proceso }}</td>
     </tr>
+
     <tr>
         <td><strong>Tipo de Proceso:</strong></td>
         <td>{{ tipo_proceso }}</td>
     </tr>
+
+    <tr>
+        <td><strong>Tipo de Compra:</strong></td>
+        <td>{{ tipo_compra }}</td>
+    </tr>
+
     <tr>
         <td><strong>Monto Total sin IVA:</strong></td>
         <td>$ {{ "%.2f"|format(valor_sin_iva|float) }}</td>
     </tr>
+
     <tr>
         <td><strong>Monto Exento:</strong></td>
         <td>$ {{ "%.2f"|format(valor_exento|float) }}</td>
     </tr>
+
     <tr>
         <td><strong>Valor en Letras:</strong></td>
         <td>{{ valor_en_letras }}</td>
     </tr>
+
 </table>
 
 <!-- ================= 2. VERIFICACIÓN DOCUMENTAL ================= -->

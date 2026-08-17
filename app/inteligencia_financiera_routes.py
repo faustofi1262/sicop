@@ -71,9 +71,19 @@ def dashboard():
             SELECT
                 COALESCE(
                     SUM(
-                        COALESCE(t.valor_sin_iva, 0)
-                        +
-                        COALESCE(t.valor_exento, 0)
+                        CASE
+                            WHEN EXISTS (
+                                SELECT 1
+                                FROM certificaciones_plurianuales cp
+                                WHERE cp.tarea_id = t.id
+                            )
+                            THEN COALESCE(t.valor_certificacion, 0)
+
+                            ELSE
+                                COALESCE(t.valor_sin_iva, 0)
+                                +
+                                COALESCE(t.valor_exento, 0)
+                        END
                     ),
                     0
                 )
@@ -235,12 +245,24 @@ def dashboard():
         # ==========================================
 
         cur.execute("""
-            SELECT DISTINCT unidad
+            SELECT DISTINCT
+                CASE
+                    WHEN UPPER(TRIM(unidad)) IN ('DECANATO', 'SUBDECANATO')
+                        AND bloque IS NOT NULL
+                        AND TRIM(bloque) <> ''
+                    THEN unidad || ' - ' || bloque
+
+                    ELSE unidad
+                END AS unidad_visible
+
             FROM pac_detalle
+
             WHERE unidad IS NOT NULL
             AND TRIM(unidad) <> ''
-            ORDER BY unidad
+
+            ORDER BY unidad_visible
         """)
+
         unidades_filtro = [
             fila[0]
             for fila in cur.fetchall()
@@ -378,20 +400,66 @@ def dashboard():
                         fecha_corte
                     ]
 
-
                     # ==================================================
                     # 6.3 FILTRO POR UNIDAD
                     # ==================================================
 
                     if unidad:
 
-                        condiciones_mensuales.append(
-                            "t.unidad_solicitante = %s"
-                        )
+                        if " - " in unidad:
 
-                        parametros_mensuales.append(
-                            unidad
-                        )
+                            nombre_unidad, bloque_unidad = unidad.split(
+                                " - ",
+                                1
+                            )
+
+                            condiciones_mensuales.append("""
+                                EXISTS (
+                                    SELECT 1
+                                    FROM requerimientos r_unidad
+                                    JOIN unidades u_unidad
+                                        ON u_unidad.id = r_unidad.unid_requirente
+
+                                    WHERE r_unidad.id = t.requerimiento_id
+
+                                    AND UPPER(
+                                            TRIM(
+                                                COALESCE(
+                                                    u_unidad.bloque,
+                                                    ''
+                                                )
+                                            )
+                                        ) = UPPER(TRIM(%s))
+                                )
+                            """)
+
+                            parametros_mensuales.append(
+                                bloque_unidad
+                            )
+
+                        else:
+
+                            condiciones_mensuales.append("""
+                                EXISTS (
+                                    SELECT 1
+                                    FROM requerimientos r_unidad
+                                    JOIN unidades u_unidad
+                                        ON u_unidad.id = r_unidad.unid_requirente
+
+                                    WHERE r_unidad.id = t.requerimiento_id
+
+                                    AND UPPER(
+                                            TRIM(
+                                                u_unidad.nombre_unidad
+                                            )
+                                        ) = UPPER(TRIM(%s))
+                                )
+                            """)
+
+                            parametros_mensuales.append(
+                                unidad
+                            )
+                    
 
 
                     # ==================================================
@@ -488,15 +556,28 @@ def dashboard():
 
                             COALESCE(
                                 SUM(
-                                    COALESCE(
-                                        t.valor_sin_iva,
-                                        0
-                                    )
-                                    +
-                                    COALESCE(
-                                        t.valor_exento,
-                                        0
-                                    )
+                                    CASE
+                                        WHEN EXISTS (
+                                            SELECT 1
+                                            FROM certificaciones_plurianuales cp
+                                            WHERE cp.tarea_id = t.id
+                                        )
+                                        THEN COALESCE(
+                                            t.valor_certificacion,
+                                            0
+                                        )
+
+                                        ELSE
+                                            COALESCE(
+                                                t.valor_sin_iva,
+                                                0
+                                            )
+                                            +
+                                            COALESCE(
+                                                t.valor_exento,
+                                                0
+                                            )
+                                    END
                                 ),
                                 0
                             ) AS monto
@@ -893,13 +974,13 @@ def dashboard():
                     # para que visualmente continúe la curva existente.
                     # ==================================================
 
-                    if serie_real_grafico:
+                    #if serie_real_grafico:
 
-                        serie_proyectada_grafico[
-                            len(
-                                serie_real_grafico
-                            ) - 1
-                        ] = serie_real_grafico[-1]
+                        #serie_proyectada_grafico[
+                            #len(
+                                #serie_real_grafico
+                            #) - 1
+                        #] = serie_real_grafico[-1]
 
 
                     # ==================================================
@@ -1095,7 +1176,7 @@ def dashboard():
         porcentaje_pac_proyectado = 0
         saldo_pac_proyectado = 0
 
-
+       
         # ==========================================================
         # 8.1 CALCULAR PAC DEL ÁMBITO SELECCIONADO
         #
@@ -1119,17 +1200,34 @@ def dashboard():
                 pac_id
             ]
 
-
             if unidad:
 
-                condiciones_pac.append(
-                    "unidad = %s"
-                )
+                if " - " in unidad:
 
-                parametros_pac.append(
-                    unidad
-                )
+                    nombre_unidad, bloque_unidad = unidad.split(
+                        " - ",
+                        1
+                    )
 
+                    # Para facultades analizamos TODO el bloque
+                    condiciones_pac.append(
+                        "UPPER(TRIM(bloque)) = UPPER(TRIM(%s))"
+                    )
+
+                    parametros_pac.append(
+                        bloque_unidad
+                    )
+
+                else:
+
+                    condiciones_pac.append(
+                        "UPPER(TRIM(unidad)) = UPPER(TRIM(%s))"
+                    )
+
+                    parametros_pac.append(
+                        unidad
+                    )
+            
 
             if programa:
 
@@ -1247,22 +1345,65 @@ def dashboard():
                 inicio_ejercicio,
                 fecha_inicio
             ]
-
-
             # ======================================================
             # 8.3 FILTRO POR UNIDAD
             # ======================================================
 
             if unidad:
 
-                condiciones_anteriores.append(
-                    "t.unidad_solicitante = %s"
-                )
+                if " - " in unidad:
 
-                parametros_anteriores.append(
-                    unidad
-                )
+                    nombre_unidad, bloque_unidad = unidad.split(
+                        " - ",
+                        1
+                    )
 
+                    condiciones_anteriores.append("""
+                        EXISTS (
+                            SELECT 1
+                            FROM requerimientos r_unidad
+                            JOIN unidades u_unidad
+                                ON u_unidad.id = r_unidad.unid_requirente
+
+                            WHERE r_unidad.id = t.requerimiento_id
+
+                            AND UPPER(
+                                    TRIM(
+                                        COALESCE(
+                                            u_unidad.bloque,
+                                            ''
+                                        )
+                                    )
+                                ) = UPPER(TRIM(%s))
+                        )
+                    """)
+
+                    parametros_anteriores.append(
+                        bloque_unidad
+                    )
+
+                else:
+
+                    condiciones_anteriores.append("""
+                        EXISTS (
+                            SELECT 1
+                            FROM requerimientos r_unidad
+                            JOIN unidades u_unidad
+                                ON u_unidad.id = r_unidad.unid_requirente
+
+                            WHERE r_unidad.id = t.requerimiento_id
+
+                            AND UPPER(
+                                    TRIM(
+                                        u_unidad.nombre_unidad
+                                    )
+                                ) = UPPER(TRIM(%s))
+                        )
+                    """)
+
+                    parametros_anteriores.append(
+                        unidad
+                    )    
 
             # ======================================================
             # 8.4 FILTROS PRESUPUESTARIOS
@@ -1347,15 +1488,28 @@ def dashboard():
                 SELECT
                     COALESCE(
                         SUM(
-                            COALESCE(
-                                t.valor_sin_iva,
-                                0
-                            )
-                            +
-                            COALESCE(
-                                t.valor_exento,
-                                0
-                            )
+                            CASE
+                                WHEN EXISTS (
+                                    SELECT 1
+                                    FROM certificaciones_plurianuales cp
+                                    WHERE cp.tarea_id = t.id
+                                )
+                                THEN COALESCE(
+                                    t.valor_certificacion,
+                                    0
+                                )
+
+                                ELSE
+                                    COALESCE(
+                                        t.valor_sin_iva,
+                                        0
+                                    )
+                                    +
+                                    COALESCE(
+                                        t.valor_exento,
+                                        0
+                                    )
+                            END
                         ),
                         0
                     )
@@ -1455,6 +1609,586 @@ def dashboard():
                 saldo_pac_proyectado,
                 2
             )
+        # ==========================================================
+        # 9. ESCENARIOS DE PROYECCIÓN
+        #
+        # Conservador  = -20% sobre el ritmo actual
+        # Actual       = ritmo proyectado actual
+        # Acelerado    = +20% sobre el ritmo actual
+        # ==========================================================
+
+        escenario_conservador_pct = 0
+        escenario_actual_pct = 0
+        escenario_acelerado_pct = 0
+
+        escenario_conservador_monto = 0
+        escenario_actual_monto = 0
+        escenario_acelerado_monto = 0
+
+        escenario_conservador_pendiente = 0
+        escenario_actual_pendiente = 0
+        escenario_acelerado_pendiente = 0
+
+
+        if (
+            proyeccion_generada
+            and pac_ambito_seleccionado > 0
+        ):
+
+            # ==============================================
+            # BASE MENSUAL DE CADA ESCENARIO
+            # ==============================================
+
+            ritmo_conservador = (
+                promedio_mensual_proyectado
+                * 0.80
+            )
+
+            ritmo_actual = (
+                promedio_mensual_proyectado
+            )
+
+            ritmo_acelerado = (
+                promedio_mensual_proyectado
+                * 1.20
+            )
+
+
+            # ==============================================
+            # MONTO YA REALIZADO HASTA EL CORTE
+            #
+            # Este valor no cambia entre escenarios.
+            # ==============================================
+
+            base_real = (
+                monto_anterior_periodo
+                +
+                total_periodo_analizado
+            )
+
+
+            # ==============================================
+            # SI EL MES DE CORTE ESTÁ PARCIAL,
+            # CALCULAMOS SOLO LO QUE FALTA PARA CERRARLO
+            # ==============================================
+
+            faltante_mes_corte = 0
+
+            if mes_corte_es_parcial:
+
+                faltante_mes_corte = max(
+                    0,
+                    monto_mes_corte_estimado
+                    -
+                    monto_mes_corte_real
+                )
+
+
+            # ==============================================
+            # MESES FUTUROS COMPLETOS
+            # ==============================================
+
+            meses_futuros = (
+                meses_futuros_generados
+            )
+
+
+            # ==============================================
+            # ESCENARIO CONSERVADOR
+            # ==============================================
+
+            escenario_conservador_monto = (
+                base_real
+                +
+                faltante_mes_corte
+                +
+                (
+                    ritmo_conservador
+                    *
+                    meses_futuros
+                )
+            )
+
+
+            # ==============================================
+            # ESCENARIO ACTUAL
+            # ==============================================
+
+            escenario_actual_monto = (
+                base_real
+                +
+                faltante_mes_corte
+                +
+                (
+                    ritmo_actual
+                    *
+                    meses_futuros
+                )
+            )
+
+
+            # ==============================================
+            # ESCENARIO ACELERADO
+            # ==============================================
+
+            escenario_acelerado_monto = (
+                base_real
+                +
+                faltante_mes_corte
+                +
+                (
+                    ritmo_acelerado
+                    *
+                    meses_futuros
+                )
+            )
+
+
+            # ==============================================
+            # LIMITAR AL PAC ANALIZADO
+            # ==============================================
+
+            escenario_conservador_monto = min(
+                escenario_conservador_monto,
+                pac_ambito_seleccionado
+            )
+
+            escenario_actual_monto = min(
+                escenario_actual_monto,
+                pac_ambito_seleccionado
+            )
+
+            escenario_acelerado_monto = min(
+                escenario_acelerado_monto,
+                pac_ambito_seleccionado
+            )
+
+
+            # ==============================================
+            # PORCENTAJES
+            # ==============================================
+
+            escenario_conservador_pct = (
+                escenario_conservador_monto
+                /
+                pac_ambito_seleccionado
+                *
+                100
+            )
+
+            escenario_actual_pct = (
+                escenario_actual_monto
+                /
+                pac_ambito_seleccionado
+                *
+                100
+            )
+
+            escenario_acelerado_pct = (
+                escenario_acelerado_monto
+                /
+                pac_ambito_seleccionado
+                *
+                100
+            )
+
+
+            # ==============================================
+            # SALDO PENDIENTE
+            # ==============================================
+
+            escenario_conservador_pendiente = max(
+                0,
+                pac_ambito_seleccionado
+                -
+                escenario_conservador_monto
+            )
+
+            escenario_actual_pendiente = max(
+                0,
+                pac_ambito_seleccionado
+                -
+                escenario_actual_monto
+            )
+
+            escenario_acelerado_pendiente = max(
+                0,
+                pac_ambito_seleccionado
+                -
+                escenario_acelerado_monto
+            )
+
+
+            # ==============================================
+            # REDONDEAR
+            # ==============================================
+
+            escenario_conservador_monto = round(
+                escenario_conservador_monto,
+                2
+            )
+
+            escenario_actual_monto = round(
+                escenario_actual_monto,
+                2
+            )
+
+            escenario_acelerado_monto = round(
+                escenario_acelerado_monto,
+                2
+            )
+
+            escenario_conservador_pct = round(
+                escenario_conservador_pct,
+                2
+            )
+
+            escenario_actual_pct = round(
+                escenario_actual_pct,
+                2
+            )
+
+            escenario_acelerado_pct = round(
+                escenario_acelerado_pct,
+                2
+            )
+
+            escenario_conservador_pendiente = round(
+                escenario_conservador_pendiente,
+                2
+            )
+
+            escenario_actual_pendiente = round(
+                escenario_actual_pendiente,
+                2
+            )
+
+            escenario_acelerado_pendiente = round(
+                escenario_acelerado_pendiente,
+                2
+            )
+        # ==========================================================
+        # 10. ANALISIS POR PARTIDA PRESUPUESTARIA
+        # ==========================================================
+
+        partidas_analisis = []
+
+        if pac_id:
+
+            # ==============================================
+            # 10.1 PAC POR PARTIDA
+            # ==============================================
+
+            condiciones_partidas_pac = [
+                "pac_version_id = %s"
+            ]
+
+            parametros_partidas_pac = [
+                pac_id
+            ]
+
+            if unidad:
+
+                if " - " in unidad:
+
+                    nombre_unidad, bloque_unidad = unidad.split(
+                        " - ",
+                        1
+                    )
+
+                    condiciones_partidas_pac.append(
+                        "UPPER(TRIM(bloque)) = UPPER(TRIM(%s))"
+                    )
+
+                    parametros_partidas_pac.append(
+                        bloque_unidad
+                    )
+
+                else:
+
+                    condiciones_partidas_pac.append(
+                        "UPPER(TRIM(unidad)) = UPPER(TRIM(%s))"
+                    )
+
+                    parametros_partidas_pac.append(
+                        unidad
+                    )
+
+            if programa:
+
+                condiciones_partidas_pac.append(
+                    "programa = %s"
+                )
+
+                parametros_partidas_pac.append(
+                    programa
+                )
+
+            if partida:
+
+                condiciones_partidas_pac.append(
+                    "partida = %s"
+                )
+
+                parametros_partidas_pac.append(
+                    partida
+                )
+
+            if fuente:
+
+                condiciones_partidas_pac.append(
+                    "fuente = %s"
+                )
+
+                parametros_partidas_pac.append(
+                    fuente
+                )
+
+            where_partidas_pac = (
+                " WHERE "
+                + " AND ".join(
+                    condiciones_partidas_pac
+                )
+            )
+
+            cur.execute(
+                f"""
+                SELECT
+                    partida,
+                    COALESCE(SUM(subtotal), 0) AS monto_pac
+                FROM pac_detalle
+
+                {where_partidas_pac}
+
+                GROUP BY partida
+
+                ORDER BY partida
+                """,
+                parametros_partidas_pac
+            )
+
+            pac_por_partida = {
+                fila[0]: float(fila[1] or 0)
+                for fila in cur.fetchall()
+            }
+
+
+            # ==============================================
+            # 10.2 MONTO INGRESADO POR PARTIDA
+            # ==============================================
+
+            condiciones_partidas_ingreso = [
+
+                """
+                UPPER(
+                    TRIM(
+                        COALESCE(
+                            t.estado_requerimiento,
+                            ''
+                        )
+                    )
+                ) <> 'DEVUELTO'
+                """,
+
+                """
+                UPPER(
+                    TRIM(
+                        COALESCE(
+                            tp.nombre_proceso,
+                            ''
+                        )
+                    )
+                ) NOT IN (
+                    'VERIFICACION DE PRODUCCION NACIONAL',
+                    'ARRENDAMIENTOS DE BIENES MUEBLES'
+                )
+                """
+            ]
+
+            parametros_partidas_ingreso = []
+
+
+            if unidad:
+
+                if " - " in unidad:
+
+                    nombre_unidad, bloque_unidad = unidad.split(
+                        " - ",
+                        1
+                    )
+
+                    condiciones_partidas_ingreso.append("""
+                        EXISTS (
+                            SELECT 1
+                            FROM requerimientos r_unidad
+                            JOIN unidades u_unidad
+                                ON u_unidad.id = r_unidad.unid_requirente
+
+                            WHERE r_unidad.id = t.requerimiento_id
+                            AND UPPER(TRIM(u_unidad.bloque)) = UPPER(TRIM(%s))
+                        )
+                    """)
+
+                    parametros_partidas_ingreso.append(
+                        bloque_unidad
+                    )
+
+                else:
+
+                    condiciones_partidas_ingreso.append("""
+                        EXISTS (
+                            SELECT 1
+                            FROM requerimientos r_unidad
+                            JOIN unidades u_unidad
+                                ON u_unidad.id = r_unidad.unid_requirente
+
+                            WHERE r_unidad.id = t.requerimiento_id
+                            AND UPPER(TRIM(u_unidad.nombre_unidad)) = UPPER(TRIM(%s))
+                        )
+                    """)
+
+                    parametros_partidas_ingreso.append(
+                        unidad
+                    )
+
+
+            if programa:
+
+                condiciones_partidas_ingreso.append(
+                    "p.programa = %s"
+                )
+
+                parametros_partidas_ingreso.append(
+                    programa
+                )
+
+
+            if partida:
+
+                condiciones_partidas_ingreso.append(
+                    "p.num_part = %s"
+                )
+
+                parametros_partidas_ingreso.append(
+                    partida
+                )
+
+
+            if fuente:
+
+                condiciones_partidas_ingreso.append(
+                    "p.fuente = %s"
+                )
+
+                parametros_partidas_ingreso.append(
+                    fuente
+                )
+
+
+            where_partidas_ingreso = (
+                " WHERE "
+                + " AND ".join(
+                    condiciones_partidas_ingreso
+                )
+            )
+
+
+            cur.execute(
+                f"""
+                SELECT
+                    p.num_part,
+                    COALESCE(
+                        SUM(
+                            COALESCE(
+                                p.monto,
+                                0
+                            )
+                        ),
+                        0
+                    ) AS monto_ingresado
+
+                FROM partidas p
+
+                JOIN tareas t
+                    ON t.requerimiento_id = p.requerimiento_id
+
+                LEFT JOIN tipo_procesos tp
+                    ON t.tipo_proceso = tp.id::TEXT
+
+                {where_partidas_ingreso}
+
+                GROUP BY
+                    p.num_part
+
+                ORDER BY
+                    p.num_part
+                """,
+                parametros_partidas_ingreso
+            )
+
+            ingresado_por_partida = {
+                fila[0]: float(fila[1] or 0)
+                for fila in cur.fetchall()
+            }
+
+
+            # ==============================================
+            # 10.3 COMPARACION PAC VS INGRESADO
+            # ==============================================
+
+            for numero_partida, monto_pac_partida in pac_por_partida.items():
+
+                monto_ingresado_partida = float(
+                    ingresado_por_partida.get(
+                        numero_partida,
+                        0
+                    )
+                )
+
+                pendiente_partida = max(
+                    0,
+                    monto_pac_partida
+                    -
+                    monto_ingresado_partida
+                )
+
+                porcentaje_partida = 0
+
+                if monto_pac_partida > 0:
+
+                    porcentaje_partida = min(
+                        100,
+                        (
+                            monto_ingresado_partida
+                            /
+                            monto_pac_partida
+                            *
+                            100
+                        )
+                    )
+
+                partidas_analisis.append({
+                    "partida": numero_partida,
+                    "pac": round(
+                        monto_pac_partida,
+                        2
+                    ),
+                    "ingresado": round(
+                        monto_ingresado_partida,
+                        2
+                    ),
+                    "pendiente": round(
+                        pendiente_partida,
+                        2
+                    ),
+                    "porcentaje": round(
+                        porcentaje_partida,
+                        2
+                    )
+                })    
+            
+            
+       
         return render_template(
             "inteligencia_financiera/dashboard.html",
 
@@ -1487,7 +2221,7 @@ def dashboard():
             montos_mensuales=montos_mensuales,
 
             total_periodo_analizado=total_periodo_analizado,
-                        # ==========================================
+            # ==========================================
             # DATOS DEL MOTOR DE PROYECCIÓN
             # ==========================================
             proyeccion_generada=proyeccion_generada,
@@ -1513,8 +2247,21 @@ def dashboard():
             monto_proyectado_acumulado=monto_proyectado_acumulado,
             porcentaje_pac_proyectado=porcentaje_pac_proyectado,
             saldo_pac_proyectado=saldo_pac_proyectado,
-        )
+            
+            escenario_conservador_monto=escenario_conservador_monto,
+            escenario_actual_monto=escenario_actual_monto,
+            escenario_acelerado_monto=escenario_acelerado_monto,
 
+            escenario_conservador_pct=escenario_conservador_pct,
+            escenario_actual_pct=escenario_actual_pct,
+            escenario_acelerado_pct=escenario_acelerado_pct,
+
+            escenario_conservador_pendiente=escenario_conservador_pendiente,
+            escenario_actual_pendiente=escenario_actual_pendiente,
+            escenario_acelerado_pendiente=escenario_acelerado_pendiente,
+            partidas_analisis=partidas_analisis,
+        )
+    
     finally:
 
         cur.close()

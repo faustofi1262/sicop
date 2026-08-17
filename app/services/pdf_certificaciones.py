@@ -100,9 +100,31 @@ def generar_pdf_cate(datos, capturas):
     analista = datos[5]
     jefe_compras = datos[6]
     consta_catalogo = bool(datos[7])
-
+    # ==========================================
+    # ESTRUCTURA INSTITUCIONAL
+    # ==========================================
+    nombre_unidad = datos[8] or ""
+    departamento_principal = datos[9] or ""
+    bloque = datos[10] or ""
+    # ==========================================
+    # UNIDAD VISIBLE PARA EL PDF
+    # ==========================================
+    # SEGUNDA FILA DE ESTRUCTURA INSTITUCIONAL
+    # ==========================================
+    if nombre_unidad.strip().upper() in (
+        "DECANATO",
+        "SUBDECANATO"
+    ):
+        etiqueta_estructura = "Bloque:"
+        valor_estructura = bloque
+    else:
+        etiqueta_estructura = "Departamento Principal:"
+        valor_estructura = departamento_principal
+    # ==========================================
+    # BUFFER DEL PDF
+    # ==========================================
     buffer = BytesIO()
-
+    
     doc = SimpleDocTemplate(
         buffer,
         pagesize=A4,
@@ -199,6 +221,26 @@ def generar_pdf_cate(datos, capturas):
         [
             Paragraph("Objeto de contratación:", estilo_celda_bold),
             Paragraph(str(objeto_contratacion or ""), estilo_celda),
+        ],
+        [
+            Paragraph(
+                "Unidad Requirente:",
+                estilo_celda_bold
+            ),
+            Paragraph(
+                str(nombre_unidad or ""),
+                estilo_celda
+            ),
+        ],
+        [
+            Paragraph(
+                etiqueta_estructura,
+                estilo_celda_bold
+            ),
+            Paragraph(
+                str(valor_estructura or ""),
+                estilo_celda
+            ),
         ],
     ]
 
@@ -436,6 +478,12 @@ def generar_pdf_pac(datos, capturas):
     analista = datos[5]
     jefe_compras = datos[6]
     consta_pac = bool(datos[7])
+    # ==========================================
+    # ESTRUCTURA INSTITUCIONAL
+    # ==========================================
+    unidad_requirente = datos[8] or ""
+    departamento_principal = datos[9] or ""
+    bloque = datos[10] or ""
 
     buffer = BytesIO()
 
@@ -518,24 +566,96 @@ def generar_pdf_pac(datos, capturas):
         if fecha_certificacion
         else ""
     )
+    # ==========================================
+    # SEGUNDA FILA DE ESTRUCTURA INSTITUCIONAL
+    #
+    # Para DECANATO / SUBDECANATO se muestra
+    # la Facultad (bloque).
+    #
+    # Para las demás unidades se muestra
+    # el Departamento Principal.
+    # ==========================================
+    if unidad_requirente.strip().upper() in (
+        "DECANATO",
+        "SUBDECANATO"
+    ):
+        etiqueta_estructura = "Bloque:"
+        valor_estructura = bloque
 
+    else:
+        etiqueta_estructura = "Departamento Principal:"
+        valor_estructura = departamento_principal
+    # ==========================
+    # DATOS DEL PROCESO
+    # ==========================
     datos_proceso = [
+
         [
-            Paragraph("Fecha:", estilo_celda_bold),
-            Paragraph(fecha_texto, estilo_celda),
+            Paragraph(
+                "Fecha:",
+                estilo_celda_bold
+            ),
+            Paragraph(
+                fecha_texto,
+                estilo_celda
+            ),
         ],
+
         [
-            Paragraph("Código del proceso:", estilo_celda_bold),
-            Paragraph(str(codigo_proceso or ""), estilo_celda),
+            Paragraph(
+                "Unidad Requirente:",
+                estilo_celda_bold
+            ),
+            Paragraph(
+                str(unidad_requirente or ""),
+                estilo_celda
+            ),
         ],
+
+       [
+            Paragraph(
+                etiqueta_estructura,
+                estilo_celda_bold
+            ),
+            Paragraph(
+                str(valor_estructura or ""),
+                estilo_celda
+            ),
+        ],
+
         [
-            Paragraph("Tipo de proceso:", estilo_celda_bold),
-            Paragraph(str(tipo_proceso or ""), estilo_celda),
+            Paragraph(
+                "Código del proceso:",
+                estilo_celda_bold
+            ),
+            Paragraph(
+                str(codigo_proceso or ""),
+                estilo_celda
+            ),
         ],
+
         [
-            Paragraph("Objeto de contratación:", estilo_celda_bold),
-            Paragraph(str(objeto_contratacion or ""), estilo_celda),
+            Paragraph(
+                "Tipo de proceso:",
+                estilo_celda_bold
+            ),
+            Paragraph(
+                str(tipo_proceso or ""),
+                estilo_celda
+            ),
         ],
+
+        [
+            Paragraph(
+                "Objeto de contratación:",
+                estilo_celda_bold
+            ),
+            Paragraph(
+                str(objeto_contratacion or ""),
+                estilo_celda
+            ),
+        ],
+        
     ]
 
     tabla_datos = Table(

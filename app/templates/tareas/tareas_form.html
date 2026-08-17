@@ -1,502 +1,851 @@
 {% extends "base.html" %}
 {% block content %}
 {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for category, message in messages %}
-      <div class="alert alert-{{ category }} mt-3" role="alert">
-        {{ message }}
-      </div>
-    {% endfor %}
-  {% endif %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="alert alert-{{ category }} mt-3" role="alert">
+    {{ message }}
+</div>
+{% endfor %}
+{% endif %}
 {% endwith %}
 
-<form method="POST" action="{{ url_for('main.guardar_tarea') }}">
-    {% if tarea %}
-        <input type="hidden" name="id" value="{{ tarea[0] if tarea else '' }}">
-    {% endif %}
-      <div class="container mt-4" -->
-  
-  <!-- ========================= -->
-  <!-- TÍTULO -->
-  <!-- ========================= -->
-  <h4 class="mb-3">
-  <span style="width:22px; display:inline-block">
-    {% if tarea %}✏️{% else %}➕{% endif %}
-  </span>
-  {% if tarea %}Editar{% else %}Nueva{% endif %} Tarea del Proceso
-</h4>
-  
-  <!-- ========================= -->
-  <!-- REQUERIMIENTO VINCULADO -->
-  <!-- ========================= -->
-  <div class="card mb-4">
-    <div class="card-header bg-light font-weight-bold">
-      📌 Requerimiento Vinculado
-    </div>
-    <div class="card-body">
+<div class="tarea-page">
 
-      <div class="form-row">
-        <div class="form-group col-md-4">
-          <label>Memo Vice Administrativo</label>
-          <select name="requerimiento_id" id="requerimiento_id" class="form-control">
-            <option value="">-- Seleccione un memo --</option>
-            {% for r in requerimientos %}
-              <option value="{{ r[0] }}"
-                {% if tarea and tarea[14] == r[0] %}selected{% endif %}>
-                {{ r[1] }}
-              </option>
-            {% endfor %}
-          </select>
+    <div class="tarea-card">
+
+        <!-- ==========================================
+             ENCABEZADO
+        ========================================== -->
+        <div class="tarea-header">
+
+            <h3>
+                {% if tarea %}
+                ✏️ Editar Tarea del Proceso
+                {% else %}
+                ➕ Nueva Tarea del Proceso
+                {% endif %}
+            </h3>
+
+            <p>
+                Gestión del proceso y seguimiento institucional
+            </p>
         </div>
-        <div class="form-group col-md-4">
-          <label>Unidad Requirente</label>
-          <input type="text"
-                id="unidad_solicitante"
-                class="form-control"
-                value="{{ tarea[13] if tarea else '' }}"
-                readonly>
-          <input type="hidden" name="unidad_solicitante"
-                id="unidad_solicitante_hidden"
-                value="{{ tarea[13] if tarea else '' }}">
+        <div class="tarea-body">
 
-        </div>
+            <form method="POST" action="{{ url_for('main.guardar_tarea') }}">
 
-        <div class="form-group col-md-4">
-          <label>Funcionario Encargado</label>
-        <input type="text"
-              id="funcionario_encargado"
-              class="form-control"
-              value="{{ tarea[12] if tarea else '' }}"
-              readonly>
-        <input type="hidden" name="funcionario_encargado"
-              id="funcionario_encargado_hidden"
-              value="{{ tarea[12] if tarea else '' }}">
+                {% if tarea %}
+                <input type="hidden" name="id" value="{{ tarea[0] if tarea else '' }}">
+                {% endif %}
+                <!-- ========================= -->
+                <!-- REQUERIMIENTO VINCULADO -->
+                <!-- ========================= -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light font-weight-bold">
+                        📌 Requerimiento Vinculado
+                    </div>
+                    <div class="card-body">
+                        <!-- ==========================================
+                            REQUERIMIENTO VINCULADO
+                        ========================================== -->
+                        <div class="form-row">
 
-        </div>
-      </div>
+                            <!-- MEMO VICE ADMINISTRATIVO -->
+                            <div class="form-group col-md-4">
 
-    </div>
-  </div>
+                                <label>Memo Vice Administrativo</label>
 
-  <!-- ========================= -->
-  <!-- INFORMACIÓN DEL PROCESO -->
-  <!-- ========================= -->
-  <div class="card mb-4">
-    <div class="card-header bg-light font-weight-bold">
-      🧾 Información del Proceso
-    </div>
-    <div class="card-body">
+                                <select name="requerimiento_id" id="requerimiento_id" class="form-control">
 
-      <div class="form-row">
-        <div class="form-group col-md-4">
-          <label>Tipo de Proceso</label>
-          <select name="tipo_proceso" class="form-control">
-              <option value="">-- Seleccione --</option>
-              {% for t in tipos_proceso %}
-                <option value="{{ t[0] }}"
-                  {% if tarea and tarea[1] == t[0] %}selected{% endif %}>
-                  {{ t[1] }}
-                </option>
-              {% endfor %}
-            </select>
+                                    <option value="">
+                                        -- Seleccione un memo --
+                                    </option>
 
-        </div>
+                                    {% for r in requerimientos %}
 
-        <div class="form-group col-md-4">
-          <label>Estado del Requerimiento</label>
-          <select name="estado_requerimiento" class="form-control">
-            <option value="">-- Seleccione --</option>
+                                    <option value="{{ r[0] }}" {% if tarea and tarea[14]==r[0] %} selected {% endif %}>
+                                        {{ r[1] }}
+                                    </option>
 
-            {% set estado_actual = tarea[2] if tarea else '' %}
+                                    {% endfor %}
 
-            <option value="EN REVISIÓN" {% if estado_actual == 'EN REVISIÓN' %}selected{% endif %}>EN REVISIÓN</option>
-            <option value="OBSERVADA" {% if estado_actual == 'OBSERVADA' %}selected{% endif %}>OBSERVADA</option>
-            <option value="ENVIADO AUTORIZAR" {% if estado_actual == 'ENVIADO AUTORIZAR' %}selected{% endif %}>ENVIADO AUTORIZAR</option>
-            <option value="SOLICITUD DE CERTIFICACIÓN" {% if estado_actual == 'SOLICITUD DE CERTIFICACIÓN' %}selected{% endif %}>SOLICITUD DE CERTIFICACIÓN</option>
-            <option value="CERTIFICADA" {% if estado_actual == 'CERTIFICADA' %}selected{% endif %}>CERTIFICADA</option>
-            <option value="ORDEN DE COMPRA ENVIADA" {% if estado_actual == 'ORDEN DE COMPRA ENVIADA' %}selected{% endif %}>ORDEN DE COMPRA ENVIADA</option>
-            <option value="ELABORANDO PLIEGO" {% if estado_actual == 'ELABORANDO PLIEGO' %}selected{% endif %}>ELABORANDO PLIEGO</option>
-            <option value="PUBLICADA" {% if estado_actual == 'PUBLICADA' %}selected{% endif %}>PUBLICADA</option>
-            <option value="ADJUDICADA" {% if estado_actual == 'ADJUDICADA' %}selected{% endif %}>ADJUDICADA</option>
-            <option value="DESIERTA" {% if estado_actual == 'DESIERTA' %}selected{% endif %}>DESIERTA|</option>
-            <option value="REAPERTURA" {% if estado_actual == 'REAPERTURA' %}selected{% endif %}>REAPERTURA</option>
-            <option value="CONTRATO SUSCRITO" {% if estado_actual == 'CONTRATO SUSCRITO' %}selected{% endif %}>CONTRATO SUSCRITO</option>
-            <option value="EN EJECUCIÓN" {% if estado_actual == 'EN EJECUCIÓN' %}selected{% endif %}>EN EJECUCIÓN</option>
-            <option value="FINALIZADA" {% if estado_actual == 'FINALIZADA' %}selected{% endif %}>FINALIZADA</option>
-            <option value="PAGADA" {% if estado_actual == 'PAGADA' %}selected{% endif %}>PAGADA</option>
-            <option value="DEVUELTO" {% if estado_actual == 'DEVUELTO' %}selected{% endif %}>DEVUELTO</option>
-        </select>
-        </div>
+                                </select>
 
-        <div class="form-group col-md-4">
-          <label>Fecha de Recepción</label>
-          <input type="date" name="fecha_recepcion" class="form-control"
-          value="{{ tarea[5].strftime('%Y-%m-%d') if tarea and tarea[5] else '' }}">
-        </div>
-      </div>
+                            </div>
 
-      <div class="form-group">
-        <label>Objeto de la Contratación</label>
-        <textarea name="objeto_contratacion" class="form-control" rows="3">{{ tarea[3] if tarea else '' }}</textarea>
-      </div>
 
-      <div class="form-row">
-        <div class="form-group col-md-4">
-          <label>Código del Proceso</label>
-          <input type="text" name="codigo_proceso" class="form-control"
-              value="{{ tarea[4] if tarea else '' }}">
-        </div>
+                            <!-- UNIDAD REQUIRENTE -->
+                            <div class="form-group col-md-4">
 
-        <div class="form-group col-md-4">
-          <label>Valor sin IVA</label>
-          <input type="number" step="0.01" id="valor_sin_iva" name="valor_sin_iva"
-              class="form-control"
-              value="{{ tarea[6] if tarea else '' }}">
-        </div>
+                                <label>Unidad Requirente</label>
 
-        <div class="form-group col-md-4">
-          <label>Valor Exento</label>
-          <input type="number" step="0.01"  id="valor_exento" name="valor_exento"
-              class="form-control"
-              value="{{ tarea[7] if tarea else '' }}">
-        </div>
-      </div>
+                                <input type="text" id="unidad_solicitante" class="form-control"
+                                    value="{{ tarea[13] if tarea else '' }}" readonly>
 
-      <div class="form-group">
-        <label>Valor en Letras</label>
-        <input type="text" id="valor_en_letras" name="valor_en_letras"
-        class="form-control" readonly
-        value="{{ tarea[8] if tarea else '' }}">
-      </div>
+                                <input type="hidden" name="unidad_solicitante" id="unidad_solicitante_hidden"
+                                    value="{{ tarea[13] if tarea else '' }}">
 
-    </div>
-  </div>
+                            </div>
 
-  <!-- ========================= -->
-  <!-- RÉGIMEN Y BASE LEGAL -->
-  <!-- ========================= -->
-  <div class="card mb-4">
-    <div class="card-header bg-light font-weight-bold">
-      ⚖️ Régimen y Base Legal
-    </div>
-    <div class="card-body">
 
-      <div class="form-row">
-        <div class="form-group col-md-6">
-          <label>Tipo de Régimen</label>
-          <select name="tipo_regimen" class="form-control">
-            <option value="">-- Seleccione --</option>
-            {% for r in tipos_regimen %}
-              <option value="{{ r[0] }}"
-                {% if tarea and tarea[9]|string == r[0]|string %}selected{% endif %}>
-                {{ r[1] }}
-              </option>
-            {% endfor %}
-          </select>
+                            <!-- FUNCIONARIO ENCARGADO -->
+                            <div class="form-group col-md-4">
 
-        </div>
-    </div>
-        <div class="form-group col-md-6">
-          <label>Base Legal</label>
-          <input type="text" name="base_legal" class="form-control"
-               value="{{ tarea[10] if tarea else '' }}">
-        </div>
-      </div>
+                                <label>Funcionario Encargado</label>
 
-  <div class="form-row">
+                                <input type="text" id="funcionario_encargado" class="form-control"
+                                    value="{{ tarea[12] if tarea else '' }}" readonly>
 
-    <!-- OBSERVACIONES -->
-    <div class="form-group col-md-6">
-        <label>Observaciones</label>
-        <textarea name="observaciones" class="form-control" rows="3">
-            {{ tarea[11] if tarea else '' }}
-            </textarea>
-    </div>
+                                <input type="hidden" name="funcionario_encargado" id="funcionario_encargado_hidden"
+                                    value="{{ tarea[12] if tarea else '' }}">
 
-    <!-- TIPO DE COMPRA -->
-    <div class="form-group col-md-6">
-        <label>Tipo de compra</label>
-        <select name="tipo_compra" class="form-control" required>
-            <option value="">Seleccione…</option>
-            <option value="BIEN"
-                {% if tarea and tarea.tipo_compra == 'BIEN' %}selected{% endif %}>
-                Bien
-            </option>
-            <option value="SERVICIO"
-                {% if tarea and tarea.tipo_compra == 'SERVICIO' %}selected{% endif %}>
-                Servicio
-            </option>
-             <option value="SEGUROS"
-                {% if tarea and tarea.tipo_compra == 'SEGUROS' %}selected{% endif %}>
-                Seguros
-            </option>
-            <option value="OBRA"
-                {% if tarea and tarea.tipo_compra == 'OBRA' %}selected{% endif %}>
-                Obra
-            </option>
-            <option value="CONSULTORIA"
-                {% if tarea and tarea.tipo_compra == 'CONSULTORIA' %}selected{% endif %}>
-                Consultoría
-            </option>
-           
-        </select>
-    </div>
+                            </div>
 
-</div>
-  <!-- ========================= -->
-  <!-- GESTIÓN DE OBSERVACIONES -->
-  <!-- ========================= -->
-  <div class="card mb-4">
-    <div class="card-header bg-light font-weight-bold">
-      📝 Gestión de Observaciones
-    </div>
-    <div class="card-body">
+                        </div>
 
-      <div class="form-row">
-        <div class="form-group col-md-6">
-          <label>Fecha Envío Observaciones</label>
-          <input type="date" name="fecha_envio_observaciones"
-                  class="form-control"
-                  value="{{ tarea[15] if tarea else '' }}">
-        </div>
 
-        <div class="form-group col-md-6">
-          <label>Fecha Corrección Observaciones</label>
-          <input type="date" name="fecha_correccion_observacion"
-                  class="form-control"
-                  value="{{ tarea[16] if tarea else '' }}">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Jefe de Compras Públicas</label>
-        <input type="text" name="nombre_jefe_compras"
-            value="{{ tarea[17] if tarea else '' }}"
-            class="form-control">
-      </div>
-    </div>
-  </div>
-  <!-- ========================= -->
-  <!-- VERIFICACIÓN DE DOCUMENTOS -->
-  <!-- ========================= -->
-  <div class="card mb-4">
-    <div class="card-header bg-light font-weight-bold">
-      ✅ Verificación de Documentos
-    </div>
-    <div class="card-body">
+                        <!-- ==========================================
+                            ESTRUCTURA INSTITUCIONAL
+                        ========================================== -->
+                        <div class="form-row">
 
-      <div class="form-row">
-        <div class="form-group col-md-4">
-          <div class="form-check">
-            <input type="checkbox" name="presenta_estudio_previo" 
-                  {% if tarea and tarea[18] %}checked{% endif %}>
-            <label class="form-check-label">Estudio Previo</label>
-          </div>
-          <div class="form-check">
-             <input type="checkbox" name="presenta_terminos_referencia"
-                  {% if tarea and tarea[19] %}checked{% endif %}>
-            <label class="form-check-label">Términos de Referencia</label>
-          </div>
-          <div class="form-check">
-            <input type="checkbox" name="presenta_estudio_mercado"
-              {% if tarea and tarea[20] %}checked{% endif %}>
-            <label class="form-check-label">Estudio de Mercado</label>
-          </div>
-        </div>
+                            <!-- DEPARTAMENTO PRINCIPAL -->
+                            <div class="form-group col-md-6">
 
-        <div class="form-group col-md-4">
-          <div class="form-check">
-            <input type="checkbox" name="presenta_especificaciones"
-                {% if tarea and tarea[21] %}checked{% endif %}>
-            <label class="form-check-label">Especificaciones Técnicas</label>
-          </div>
-          <div class="form-check">
-            <input type="checkbox" name="presenta_proformas"
-            {% if tarea and tarea[22] %}checked{% endif %}>
-            <label class="form-check-label">Proformas</label>
-          </div>
-          <div class="form-check">
-            <input type="checkbox" name="determinacion_necesidad"
-                {% if tarea and tarea[23] %}checked{% endif %}>
-            <label class="form-check-label">Determinación de la Necesidad</label>
-          </div>
-        </div>
-        <div class="form-group col-md-4">
-          <div class="form-check">
-            <input type="checkbox" name="consta_catalogo_electronico"
-            {% if tarea and tarea[24] %}checked{% endif %}>
-            <label class="form-check-label">Catálogo Electrónico</label>
-          </div>
-          <div class="form-check">
-            <input type="checkbox" name="consta_poa"
-            {% if tarea and tarea[25] %}checked{% endif %}>
-            <label class="form-check-label">Certificación POA</label>
-          </div>
-          <div class="form-check">
-            <input type="checkbox" name="consta_pac"
-            {% if tarea and tarea[26] %}checked{% endif %}>
-            <label class="form-check-label">Consta en el PAC</label>
-          </div>
-        </div>
-      </div>
-      <hr>
-      <div class="form-check">
-        <input type="checkbox" name="presenta_errores"
-            {% if tarea and tarea[27] %}checked{% endif %}>
-        <label class="form-check-label">Presenta Errores</label>
-      </div>
-      <div class="form-check">
-        <input type="checkbox" name="cumple_normativa"
-              {% if tarea and tarea[28] %}checked{% endif %}>
-        <label class="form-check-label font-weight-bold">Cumple la Normativa</label>
-      </div>
-      <hr>
-<!-- ================= SOLO PARA OBRAS ================= -->
-<div class="card mb-3">
-    <div class="card-header font-weight-bold">
-        SOLO PARA OBRAS
-    </div>
-    <div class="card-body">
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" name="presenta_planos"
-                {% if tarea and tarea[29] %}checked{% endif %}>
-            <label class="form-check-label" for="presenta_planos">
-                Presenta Planos
-            </label>
-        </div>
+                                <label>Departamento Principal</label>
 
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" name="presenta_apus"
-                  {% if tarea and tarea[30] %}checked{% endif %}>
-            <label class="form-check-label" for="presenta_apus">
-                Presenta APUs
-            </label>
-        </div>
+                                <input type="text" id="departamento_principal" class="form-control" readonly>
 
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" name="presenta_condiciones_contratacion"
-                  {% if tarea and tarea[31] %}checked{% endif %}>
-            <label class="form-check-label" for="presenta_condiciones_contratacion">
-                Presenta Condiciones de Contratación
-            </label>
-        </div>
-      </div>
-</div>
+                            </div>
 
-<!-- ================= SOLO RÉGIMEN ESPECIAL CEP ================= -->
-<div class="card">
-    <div class="card-header font-weight-bold">
-        SOLO RÉGIMEN ESPECIAL (CEP)
-    </div>
-    <div class="card-body">
 
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" name="presenta_viabilidad_tecnico_economica"
-                  {% if tarea and tarea[32] %}checked{% endif %}>
-            <label class="form-check-label" for="presenta_viabilidad_tecnico_economica">
-                Presenta Informe de Viabilidad Técnico Económica
-            </label>
-        </div>
+                            <!-- BLOQUE -->
+                            <div class="form-group col-md-6">
 
-    </div>
-</div>
+                                <label>Bloque</label>
 
-  <!-- ========================= -->
-  <!-- BOTONES -->
-  <!-- ========================= -->
-    <div class="text-right mb-5">
-      <button type="submit" class="btn btn-primary">💾 Guardar Tarea</button>
-      <a href="{{ url_for('main.panel_principal') }}" class="btn btn-secondary">
-      ⬅️ Volver a Tareas
-      </a>
-    </div>
+                                <input type="text" id="bloque" class="form-control" readonly>
 
-</div>
-<script>
-document.getElementById("requerimiento_id").addEventListener("change", function () {
-    const reqId = this.value;
+                            </div>
 
-    if (!reqId) {
-        document.getElementById("unidad_solicitante_hidden").value = data.unidad || "";
-        document.getElementById("funcionario_encargado_hidden").value = data.funcionario || "";
-        return;
-    }
+                        </div>
 
-    fetch(`/api/requerimiento/${reqId}`)
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById("unidad_solicitante").value = data.unidad || "";
-            document.getElementById("funcionario_encargado").value = data.funcionario || "";
-            document.getElementById("unidad_solicitante_hidden").value = data.unidad || "";
-            document.getElementById("funcionario_encargado_hidden").value = data.funcionario || "";
-        });
-});
-</script>
-<script>
-function numeroALetras(num) {
-    const unidades = [
-        '', 'UNO', 'DOS', 'TRES', 'CUATRO', 'CINCO',
-        'SEIS', 'SIETE', 'OCHO', 'NUEVE'
-    ];
 
-    const decenas = [
-        '', 'DIEZ', 'VEINTE', 'TREINTA', 'CUARENTA',
-        'CINCUENTA', 'SESENTA', 'SETENTA', 'OCHENTA', 'NOVENTA'
-    ];
+                    </div>
+                </div>
 
-    const especiales = {
-        11: 'ONCE', 12: 'DOCE', 13: 'TRECE', 14: 'CATORCE',
-        15: 'QUINCE', 16: 'DIECISÉIS', 17: 'DIECISIETE',
-        18: 'DIECIOCHO', 19: 'DIECINUEVE'
-    };
+                <!-- ========================= -->
+                <!-- INFORMACIÓN DEL PROCESO -->
+                <!-- ========================= -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light font-weight-bold">
+                        🧾 Información del Proceso
+                    </div>
+                    <div class="card-body">
+                        <div class="form-row">
 
-    function convertir(n) {
-        if (n === 0) return 'CERO';
-        if (n < 10) return unidades[n];
-        if (n >= 11 && n <= 19) return especiales[n];
-        if (n < 100) {
-            const d = Math.floor(n / 10);
-            const u = n % 10;
-            return decenas[d] + (u ? ' Y ' + unidades[u] : '');
-        }
-        if (n < 1000) {
-            const c = Math.floor(n / 100);
-            const r = n % 100;
-            if (c === 1) return r ? 'CIENTO ' + convertir(r) : 'CIEN';
-            const centenas = ['','CIENTO','DOSCIENTOS','TRESCIENTOS','CUATROCIENTOS',
-                               'QUINIENTOS','SEISCIENTOS','SETECIENTOS','OCHOCIENTOS','NOVECIENTOS'];
-            return centenas[c] + (r ? ' ' + convertir(r) : '');
-        }
-        if (n < 1000000) {
-            const m = Math.floor(n / 1000);
-            const r = n % 1000;
-            return (m === 1 ? 'MIL' : convertir(m) + ' MIL') + (r ? ' ' + convertir(r) : '');
-        }
-        return '';
-    }
+                            <!-- ==========================================
+         TIPO DE PROCESO
+    ========================================== -->
+                            <div class="form-group col-md-4">
 
-    return convertir(num) + ',';
-}
-  function actualizarValorEnLetras() {
-        const sinIva = parseFloat(document.getElementById('valor_sin_iva').value) || 0;
-        const exento = parseFloat(document.getElementById('valor_exento').value) || 0;
+                                <label>Tipo de Proceso</label>
 
-        const total = (sinIva + exento).toFixed(2);
-        const partes = total.split('.');
-        const entero = parseInt(partes[0], 10);
-        const centavos = partes[1] || '00';
+                                <select name="tipo_proceso" class="form-control">
 
-        let texto = numeroALetras(entero) +
-            ' CON ' +
-            centavos + ' CENTAVOS';
+                                    <option value="">
+                                        -- Seleccione --
+                                    </option>
 
-        document.getElementById('valor_en_letras').value = texto;
-    }
+                                    {% for t in tipos_proceso %}
 
-    document.getElementById('valor_sin_iva')
-        .addEventListener('input', actualizarValorEnLetras);
+                                    <option value="{{ t[0] }}" {% if tarea and tarea[1]|string==t[0]|string %} selected
+                                        {% endif %}>
+                                        {{ t[1] }}
+                                    </option>
 
-    document.getElementById('valor_exento')
-        .addEventListener('input', actualizarValorEnLetras);
-</script>
-</form>
-{% endblock %}
+                                    {% endfor %}
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="form-group col-md-4">
+                                <label>Estado del Requerimiento</label>
+                                <select name="estado_requerimiento" class="form-control">
+                                    <option value="">-- Seleccione --</option>
+
+                                    {% set estado_actual = tarea[2] if tarea else '' %}
+
+                                    <option value="EN REVISIÓN" {% if estado_actual=='EN REVISIÓN' %}selected{% endif
+                                        %}>EN
+                                        REVISIÓN</option>
+                                    <option value="OBSERVADA" {% if estado_actual=='OBSERVADA' %}selected{% endif %}>
+                                        OBSERVADA</option>
+                                    <option value="ENVIADO AUTORIZAR" {% if estado_actual=='ENVIADO AUTORIZAR'
+                                        %}selected{% endif %}>ENVIADO AUTORIZAR</option>
+                                    <option value="SOLICITUD DE CERTIFICACIÓN" {% if
+                                        estado_actual=='SOLICITUD DE CERTIFICACIÓN' %}selected{% endif %}>SOLICITUD DE
+                                        CERTIFICACIÓN</option>
+                                    <option value="CERTIFICADA" {% if estado_actual=='CERTIFICADA' %}selected{% endif
+                                        %}>
+                                        CERTIFICADA</option>
+                                    <option value="ORDEN DE COMPRA ENVIADA" {% if
+                                        estado_actual=='ORDEN DE COMPRA ENVIADA' %}selected{% endif %}>ORDEN DE COMPRA
+                                        ENVIADA</option>
+                                    <option value="ELABORANDO PLIEGO" {% if estado_actual=='ELABORANDO PLIEGO'
+                                        %}selected{% endif %}>ELABORANDO PLIEGO</option>
+                                    <option value="PUBLICADA" {% if estado_actual=='PUBLICADA' %}selected{% endif %}>
+                                        PUBLICADA</option>
+                                    <option value="ADJUDICADA" {% if estado_actual=='ADJUDICADA' %}selected{% endif %}>
+                                        ADJUDICADA</option>
+                                    <option value="DESIERTA" {% if estado_actual=='DESIERTA' %}selected{% endif %}>
+                                        DESIERTA|
+                                    </option>
+                                    <option value="REAPERTURA" {% if estado_actual=='REAPERTURA' %}selected{% endif %}>
+                                        REAPERTURA</option>
+                                    <option value="CONTRATO SUSCRITO" {% if estado_actual=='CONTRATO SUSCRITO'
+                                        %}selected{% endif %}>CONTRATO SUSCRITO</option>
+                                    <option value="EN EJECUCIÓN" {% if estado_actual=='EN EJECUCIÓN' %}selected{% endif
+                                        %}>
+                                        EN EJECUCIÓN</option>
+                                    <option value="FINALIZADA" {% if estado_actual=='FINALIZADA' %}selected{% endif %}>
+                                        FINALIZADA</option>
+                                    <option value="PAGADA" {% if estado_actual=='PAGADA' %}selected{% endif %}>PAGADA
+                                    </option>
+                                    <option value="DEVUELTO" {% if estado_actual=='DEVUELTO' %}selected{% endif %}>
+                                        DEVUELTO
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group col-md-4">
+                                <label>Fecha de Recepción</label>
+                                <input type="date" name="fecha_recepcion" class="form-control"
+                                    value="{{ tarea[5].strftime('%Y-%m-%d') if tarea and tarea[5] else '' }}">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Objeto de la Contratación</label>
+                            <textarea name="objeto_contratacion" class="form-control"
+                                rows="3">{{ tarea[3] if tarea else '' }}</textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <label>Código del Proceso</label>
+                                <input type="text" name="codigo_proceso" class="form-control"
+                                    value="{{ tarea[4] if tarea else '' }}">
+                            </div>
+
+                            <div class="form-group col-md-4">
+                                <label>Valor sin IVA</label>
+                                <input type="number" step="0.01" id="valor_sin_iva" name="valor_sin_iva"
+                                    class="form-control" value="{{ tarea[6] if tarea else '' }}">
+                            </div>
+
+                            <div class="form-group col-md-4">
+                                <label>Valor Exento</label>
+                                <input type="number" step="0.01" id="valor_exento" name="valor_exento"
+                                    class="form-control" value="{{ tarea[7] if tarea else '' }}">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Valor en Letras</label>
+                            <input type="text" id="valor_en_letras" name="valor_en_letras" class="form-control" readonly
+                                value="{{ tarea[8] if tarea else '' }}">
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ========================= -->
+                <!-- RÉGIMEN Y BASE LEGAL -->
+                <!-- ========================= -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light font-weight-bold">
+                        ⚖️ Régimen y Base Legal
+                    </div>
+                    <div class="card-body">
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Tipo de Régimen</label>
+                                <select name="tipo_regimen" class="form-control">
+                                    <option value="">-- Seleccione --</option>
+                                    {% for r in tipos_regimen %}
+                                    <option value="{{ r[0] }}" {% if tarea and tarea[9]|string==r[0]|string %}selected{%
+                                        endif %}>
+                                        {{ r[1] }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Base Legal</label>
+                            <input type="text" name="base_legal" class="form-control"
+                                value="{{ tarea[10] if tarea else '' }}">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+
+                        <!-- OBSERVACIONES -->
+                        <div class="form-group col-md-6">
+                            <label>Observaciones</label>
+                            <textarea name="observaciones" class="form-control" rows="3">
+                            {{ tarea[11] if tarea else '' }}
+                            </textarea>
+                        </div>
+
+                        <!-- TIPO DE COMPRA -->
+                        <div class="form-group col-md-6">
+                            <label>Tipo de compra</label>
+                            <select name="tipo_compra" class="form-control" required>
+                                <option value="">Seleccione…</option>
+                                <option value="BIEN" {% if tarea and tarea.tipo_compra=='BIEN' %}selected{% endif %}>
+                                    Bien
+                                </option>
+                                <option value="SERVICIO" {% if tarea and tarea.tipo_compra=='SERVICIO' %}selected{%
+                                    endif %}>
+                                    Servicio
+                                </option>
+                                <option value="SEGUROS" {% if tarea and tarea.tipo_compra=='SEGUROS' %}selected{% endif
+                                    %}>
+                                    Seguros
+                                </option>
+                                <option value="OBRA" {% if tarea and tarea.tipo_compra=='OBRA' %}selected{% endif %}>
+                                    Obra
+                                </option>
+                                <option value="CONSULTORIA" {% if tarea and tarea.tipo_compra=='CONSULTORIA'
+                                    %}selected{% endif %}>
+                                    Consultoría
+                                </option>
+
+                            </select>
+                        </div>
+
+                    </div>
+                    <!-- ========================= -->
+                    <!-- GESTIÓN DE OBSERVACIONES -->
+                    <!-- ========================= -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light font-weight-bold">
+                            📝 Gestión de Observaciones
+                        </div>
+                        <div class="card-body">
+
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label>Fecha Envío Observaciones</label>
+                                    <input type="date" name="fecha_envio_observaciones" class="form-control"
+                                        value="{{ tarea[15] if tarea else '' }}">
+                                </div>
+
+                                <div class="form-group col-md-6">
+                                    <label>Fecha Corrección Observaciones</label>
+                                    <input type="date" name="fecha_correccion_observacion" class="form-control"
+                                        value="{{ tarea[16] if tarea else '' }}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Jefe de Compras Públicas</label>
+                                <input type="text" name="nombre_jefe_compras" value="{{ tarea[17] if tarea else '' }}"
+                                    class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ========================= -->
+                    <!-- VERIFICACIÓN DE DOCUMENTOS -->
+                    <!-- ========================= -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light font-weight-bold">
+                            ✅ Verificación de Documentos
+                        </div>
+                        <div class="card-body">
+
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <div class="form-check">
+                                        <input type="checkbox" name="presenta_estudio_previo" {% if tarea and tarea[18]
+                                            %}checked{% endif %}>
+                                        <label class="form-check-label">Estudio Previo</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="presenta_terminos_referencia" {% if tarea and
+                                            tarea[19] %}checked{% endif %}>
+                                        <label class="form-check-label">Términos de Referencia</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="presenta_estudio_mercado" {% if tarea and tarea[20]
+                                            %}checked{% endif %}>
+                                        <label class="form-check-label">Estudio de Mercado</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group col-md-4">
+                                    <div class="form-check">
+                                        <input type="checkbox" name="presenta_especificaciones" {% if tarea and
+                                            tarea[21] %}checked{% endif %}>
+                                        <label class="form-check-label">Especificaciones Técnicas</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="presenta_proformas" {% if tarea and tarea[22]
+                                            %}checked{% endif %}>
+                                        <label class="form-check-label">Proformas</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="determinacion_necesidad" {% if tarea and tarea[23]
+                                            %}checked{% endif %}>
+                                        <label class="form-check-label">Determinación de la Necesidad</label>
+                                    </div>
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <div class="form-check">
+                                        <input type="checkbox" name="consta_catalogo_electronico" {% if tarea and
+                                            tarea[24] %}checked{% endif %}>
+                                        <label class="form-check-label">Catálogo Electrónico</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="consta_poa" {% if tarea and tarea[25] %}checked{%
+                                            endif %}>
+                                        <label class="form-check-label">Certificación POA</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="consta_pac" {% if tarea and tarea[26] %}checked{%
+                                            endif %}>
+                                        <label class="form-check-label">Consta en el PAC</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="form-check">
+                                <input type="checkbox" name="presenta_errores" {% if tarea and tarea[27] %}checked{%
+                                    endif %}>
+                                <label class="form-check-label">Presenta Errores</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" name="cumple_normativa" {% if tarea and tarea[28] %}checked{%
+                                    endif %}>
+                                <label class="form-check-label font-weight-bold">Cumple la Normativa</label>
+                            </div>
+                            <hr>
+                            <!-- ================= SOLO PARA OBRAS ================= -->
+                            <div class="card mb-3">
+                                <div class="card-header font-weight-bold">
+                                    SOLO PARA OBRAS
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="presenta_planos" {% if
+                                            tarea and tarea[29] %}checked{% endif %}>
+                                        <label class="form-check-label" for="presenta_planos">
+                                            Presenta Planos
+                                        </label>
+                                    </div>
+
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="presenta_apus" {% if tarea
+                                            and tarea[30] %}checked{% endif %}>
+                                        <label class="form-check-label" for="presenta_apus">
+                                            Presenta APUs
+                                        </label>
+                                    </div>
+
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox"
+                                            name="presenta_condiciones_contratacion" {% if tarea and tarea[31]
+                                            %}checked{% endif %}>
+                                        <label class="form-check-label" for="presenta_condiciones_contratacion">
+                                            Presenta Condiciones de Contratación
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- ================= SOLO RÉGIMEN ESPECIAL CEP ================= -->
+                            <div class="card">
+                                <div class="card-header font-weight-bold">
+                                    SOLO RÉGIMEN ESPECIAL (CEP)
+                                </div>
+                                <div class="card-body">
+
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox"
+                                            name="presenta_viabilidad_tecnico_economica" {% if tarea and tarea[32]
+                                            %}checked{% endif %}>
+                                        <label class="form-check-label" for="presenta_viabilidad_tecnico_economica">
+                                            Presenta Informe de Viabilidad Técnico Económica
+                                        </label>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- ========================= -->
+                            <!-- BOTONES -->
+                            <!-- ========================= -->
+                            <div class="text-right mb-5">
+                                <button type="submit" class="btn btn-primary">💾 Guardar Tarea</button>
+                                <a href="{{ url_for('main.panel_principal') }}" class="btn btn-secondary">
+                                    ⬅️ Volver a Tareas
+                                </a>
+                            </div>
+
+                        </div>
+                        <script>
+                            document.addEventListener(
+                                "DOMContentLoaded",
+                                function () {
+
+                                    // ==========================================
+                                    // ELEMENTOS DEL FORMULARIO
+                                    // ==========================================
+                                    const requerimiento =
+                                        document.getElementById(
+                                            "requerimiento_id"
+                                        );
+
+                                    const unidad =
+                                        document.getElementById(
+                                            "unidad_solicitante"
+                                        );
+
+                                    const unidadHidden =
+                                        document.getElementById(
+                                            "unidad_solicitante_hidden"
+                                        );
+
+                                    const funcionario =
+                                        document.getElementById(
+                                            "funcionario_encargado"
+                                        );
+
+                                    const funcionarioHidden =
+                                        document.getElementById(
+                                            "funcionario_encargado_hidden"
+                                        );
+
+                                    const departamento =
+                                        document.getElementById(
+                                            "departamento_principal"
+                                        );
+
+                                    const bloque =
+                                        document.getElementById(
+                                            "bloque"
+                                        );
+
+
+                                    // ==========================================
+                                    // LIMPIAR CAMPOS
+                                    // ==========================================
+                                    function limpiarDatos() {
+
+                                        unidad.value = "";
+                                        unidadHidden.value = "";
+
+                                        funcionario.value = "";
+                                        funcionarioHidden.value = "";
+
+                                        departamento.value = "";
+                                        bloque.value = "";
+                                    }
+
+
+                                    // ==========================================
+                                    // CARGAR DATOS DEL REQUERIMIENTO
+                                    // ==========================================
+                                    function cargarRequerimiento() {
+
+                                        const reqId =
+                                            requerimiento.value;
+
+                                        if (!reqId) {
+
+                                            limpiarDatos();
+
+                                            return;
+                                        }
+
+
+                                        fetch(
+                                            `/api/requerimiento/${reqId}`
+                                        )
+                                            .then(
+                                                response => response.json()
+                                            )
+                                            .then(
+                                                data => {
+
+                                                    if (!data.ok) {
+
+                                                        limpiarDatos();
+
+                                                        return;
+                                                    }
+
+
+                                                    // ==================================
+                                                    // UNIDAD REQUIRENTE
+                                                    // ==================================
+                                                    unidad.value =
+                                                        data.unidad || "";
+
+                                                    unidadHidden.value =
+                                                        data.unidad || "";
+
+
+                                                    // ==================================
+                                                    // FUNCIONARIO ENCARGADO
+                                                    // ==================================
+                                                    funcionario.value =
+                                                        data.funcionario || "";
+
+                                                    funcionarioHidden.value =
+                                                        data.funcionario || "";
+
+
+                                                    // ==================================
+                                                    // ESTRUCTURA INSTITUCIONAL
+                                                    // ==================================
+                                                    departamento.value =
+                                                        data.departamento_principal || "";
+
+                                                    bloque.value =
+                                                        data.bloque || "";
+                                                }
+                                            )
+                                            .catch(
+                                                error => {
+
+                                                    console.error(
+                                                        "Error cargando requerimiento:",
+                                                        error
+                                                    );
+
+                                                    limpiarDatos();
+                                                }
+                                            );
+                                    }
+
+
+                                    // ==========================================
+                                    // CAMBIO DE MEMO
+                                    // ==========================================
+                                    requerimiento.addEventListener(
+                                        "change",
+                                        cargarRequerimiento
+                                    );
+
+
+                                    // ==========================================
+                                    // MODO EDICIÓN
+                                    //
+                                    // Si la tarea ya tiene requerimiento,
+                                    // cargar automáticamente la estructura.
+                                    // ==========================================
+                                    if (requerimiento.value) {
+                                        cargarRequerimiento();
+                                    }
+
+                                }
+                            );
+                        </script>
+                        <script>
+                            function numeroALetras(num) {
+                                const unidades = [
+                                    '', 'UNO', 'DOS', 'TRES', 'CUATRO', 'CINCO',
+                                    'SEIS', 'SIETE', 'OCHO', 'NUEVE'
+                                ];
+
+                                const decenas = [
+                                    '', 'DIEZ', 'VEINTE', 'TREINTA', 'CUARENTA',
+                                    'CINCUENTA', 'SESENTA', 'SETENTA', 'OCHENTA', 'NOVENTA'
+                                ];
+
+                                const especiales = {
+                                    11: 'ONCE', 12: 'DOCE', 13: 'TRECE', 14: 'CATORCE',
+                                    15: 'QUINCE', 16: 'DIECISÉIS', 17: 'DIECISIETE',
+                                    18: 'DIECIOCHO', 19: 'DIECINUEVE'
+                                };
+
+                                function convertir(n) {
+                                    if (n === 0) return 'CERO';
+                                    if (n < 10) return unidades[n];
+                                    if (n >= 11 && n <= 19) return especiales[n];
+                                    if (n < 100) {
+                                        const d = Math.floor(n / 10);
+                                        const u = n % 10;
+                                        return decenas[d] + (u ? ' Y ' + unidades[u] : '');
+                                    }
+                                    if (n < 1000) {
+                                        const c = Math.floor(n / 100);
+                                        const r = n % 100;
+                                        if (c === 1) return r ? 'CIENTO ' + convertir(r) : 'CIEN';
+                                        const centenas = ['', 'CIENTO', 'DOSCIENTOS', 'TRESCIENTOS', 'CUATROCIENTOS',
+                                            'QUINIENTOS', 'SEISCIENTOS', 'SETECIENTOS', 'OCHOCIENTOS', 'NOVECIENTOS'];
+                                        return centenas[c] + (r ? ' ' + convertir(r) : '');
+                                    }
+                                    if (n < 1000000) {
+                                        const m = Math.floor(n / 1000);
+                                        const r = n % 1000;
+                                        return (m === 1 ? 'MIL' : convertir(m) + ' MIL') + (r ? ' ' + convertir(r) : '');
+                                    }
+                                    return '';
+                                }
+
+                                return convertir(num) + ',';
+                            }
+                            function actualizarValorEnLetras() {
+                                const sinIva = parseFloat(document.getElementById('valor_sin_iva').value) || 0;
+                                const exento = parseFloat(document.getElementById('valor_exento').value) || 0;
+
+                                const total = (sinIva + exento).toFixed(2);
+                                const partes = total.split('.');
+                                const entero = parseInt(partes[0], 10);
+                                const centavos = partes[1] || '00';
+
+                                let texto = numeroALetras(entero) +
+                                    ' CON ' +
+                                    centavos + ' CENTAVOS';
+
+                                document.getElementById('valor_en_letras').value = texto;
+                            }
+
+                            document.getElementById('valor_sin_iva')
+                                .addEventListener('input', actualizarValorEnLetras);
+
+                            document.getElementById('valor_exento')
+                                .addEventListener('input', actualizarValorEnLetras);
+                        </script>
+            </form>
+            <style>
+                body {
+                    background: #f3f6fa;
+                }
+
+                .tarea-page {
+                    max-width: 1280px;
+                    margin: 34px auto;
+                    padding: 0 18px;
+                }
+
+                .tarea-card {
+                    border: 0;
+                    border-radius: 16px;
+                    overflow: hidden;
+
+                    background: #ffffff;
+
+                    box-shadow:
+                        0 12px 32px rgba(15, 47, 79, 0.10);
+                }
+
+                .tarea-header {
+                    background: linear-gradient(135deg,
+                            #0b2f4f,
+                            #174f7c);
+
+                    color: white;
+
+                    padding: 24px 28px;
+                }
+
+                .tarea-header h3 {
+                    margin: 0;
+                    font-weight: 700;
+                }
+
+                .tarea-header p {
+                    margin: 6px 0 0;
+                    color: #dbeafe;
+                }
+
+                .tarea-body {
+                    padding: 28px;
+                }
+
+                .section-title {
+                    color: #0b2f4f;
+
+                    font-size: 17px;
+                    font-weight: 700;
+
+                    border-bottom:
+                        2px solid #dbe7f2;
+
+                    padding-bottom: 8px;
+                    margin-bottom: 20px;
+                }
+
+                .section-box {
+                    background: #fbfcfe;
+
+                    border:
+                        1px solid #e1e7ef;
+
+                    border-radius: 12px;
+
+                    padding: 18px;
+
+                    margin-bottom: 24px;
+                }
+
+                .estructura-box {
+                    background: #f8fbfe;
+
+                    border:
+                        1px solid #dbe7f2;
+
+                    border-left:
+                        4px solid #1d70b7;
+
+                    border-radius: 12px;
+
+                    padding: 18px;
+
+                    margin-bottom: 24px;
+                }
+
+                .form-control {
+                    border-radius: 8px;
+                    border-color: #cfd9e3;
+                }
+
+                .form-control:focus {
+                    border-color: #3b82f6;
+
+                    box-shadow:
+                        0 0 0 0.15rem rgba(59, 130, 246, 0.12);
+                }
+
+                .readonly-field {
+                    background: #eef4f9 !important;
+
+                    color: #334155;
+
+                    font-weight: 600;
+                }
+
+                .btn-guardar-tarea {
+                    background: #0f7a55;
+                    border-color: #0f7a55;
+
+                    font-weight: 700;
+
+                    min-width: 180px;
+                }
+
+                .btn-guardar-tarea:hover {
+                    background: #0b6547;
+                    border-color: #0b6547;
+                }
+            </style>
+            {% endblock %}
