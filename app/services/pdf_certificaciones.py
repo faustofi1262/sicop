@@ -109,18 +109,6 @@ def generar_pdf_cate(datos, capturas):
     # ==========================================
     # UNIDAD VISIBLE PARA EL PDF
     # ==========================================
-    # SEGUNDA FILA DE ESTRUCTURA INSTITUCIONAL
-    # ==========================================
-    if nombre_unidad.strip().upper() in (
-        "DECANATO",
-        "SUBDECANATO"
-    ):
-        etiqueta_estructura = "Bloque:"
-        valor_estructura = bloque
-    else:
-        etiqueta_estructura = "Departamento Principal:"
-        valor_estructura = departamento_principal
-    # ==========================================
     # BUFFER DEL PDF
     # ==========================================
     buffer = BytesIO()
@@ -232,16 +220,28 @@ def generar_pdf_cate(datos, capturas):
                 estilo_celda
             ),
         ],
+        
         [
             Paragraph(
-                etiqueta_estructura,
+                "Departamento Principal:",
                 estilo_celda_bold
             ),
             Paragraph(
-                str(valor_estructura or ""),
+                str(departamento_principal or ""),
                 estilo_celda
             ),
         ],
+
+        [
+            Paragraph(
+                "Bloque / Facultad:",
+                estilo_celda_bold
+            ),
+            Paragraph(
+                str(bloque or ""),
+                estilo_celda
+            ),
+        ],       
     ]
 
     tabla_datos = Table(
@@ -575,16 +575,38 @@ def generar_pdf_pac(datos, capturas):
     # Para las demás unidades se muestra
     # el Departamento Principal.
     # ==========================================
-    if unidad_requirente.strip().upper() in (
-        "DECANATO",
-        "SUBDECANATO"
-    ):
-        etiqueta_estructura = "Bloque:"
-        valor_estructura = bloque
+    [
+        Paragraph(
+            "Unidad Requirente:",
+            estilo_celda_bold
+        ),
+        Paragraph(
+            str(unidad_requirente or ""),
+            estilo_celda
+        ),
+    ],
 
-    else:
-        etiqueta_estructura = "Departamento Principal:"
-        valor_estructura = departamento_principal
+    [
+        Paragraph(
+            "Departamento Principal:",
+            estilo_celda_bold
+        ),
+        Paragraph(
+            str(departamento_principal or ""),
+            estilo_celda
+        ),
+    ],
+
+    [
+        Paragraph(
+            "Bloque / Facultad:",
+            estilo_celda_bold
+        ),
+        Paragraph(
+            str(bloque or ""),
+            estilo_celda
+        ),
+    ],
     # ==========================
     # DATOS DEL PROCESO
     # ==========================
@@ -614,11 +636,22 @@ def generar_pdf_pac(datos, capturas):
 
        [
             Paragraph(
-                etiqueta_estructura,
+                "Departamento Principal:",
                 estilo_celda_bold
             ),
             Paragraph(
-                str(valor_estructura or ""),
+                str(departamento_principal or ""),
+                estilo_celda
+            ),
+        ],
+
+        [
+            Paragraph(
+                "Bloque / Facultad:",
+                estilo_celda_bold
+            ),
+            Paragraph(
+                str(bloque or ""),
                 estilo_celda
             ),
         ],

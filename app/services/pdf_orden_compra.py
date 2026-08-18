@@ -106,20 +106,8 @@ def generar_pdf_orden_compra(orden, productos):
     unidad_requirente = orden[-3] or area
     departamento_principal = orden[-2] or ""
     bloque = orden[-1] or ""
-    # ==========================================
-    # SEGUNDA FILA DE ESTRUCTURA INSTITUCIONAL
-    # ==========================================
-    if unidad_requirente.strip().upper() in (
-        "DECANATO",
-        "SUBDECANATO"
-    ):
-        etiqueta_estructura = "BLOQUE:"
-        valor_estructura = bloque
-    else:
-        etiqueta_estructura = "DEPARTAMENTO PRINCIPAL:"
-        valor_estructura = departamento_principal
+    
     subtotal = 0
-
     for p in productos:
         try:
             subtotal += float(p[3] or 0) * float(p[4] or 0)
@@ -193,8 +181,16 @@ def generar_pdf_orden_compra(orden, productos):
 
         [
             P(
-                f"<b>{etiqueta_estructura}</b> "
-                f"{valor_estructura}",
+                f"<b>DEPARTAMENTO PRINCIPAL:</b> "
+                f"{departamento_principal}",
+                normal
+            )
+        ],
+
+        [
+            P(
+                f"<b>BLOQUE / FACULTAD:</b> "
+                f"{bloque}",
                 normal
             )
         ],

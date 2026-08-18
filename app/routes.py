@@ -3518,7 +3518,8 @@ def informe_verificacion(id_tarea):
                 u.nombre_unidad
                     AS unidad_requirente_oficial,
 
-                u.departamento_principal
+                u.departamento_principal,
+                u.bloque
 
             FROM tareas t
 
@@ -3584,6 +3585,9 @@ def informe_verificacion(id_tarea):
             tarea['departamento_principal']
             or "",
 
+        bloque=
+            tarea['bloque']
+            or "",
 
         # ======================================
         # DATOS DEL PROCESO
