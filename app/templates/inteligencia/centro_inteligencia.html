@@ -497,6 +497,14 @@
             flex-wrap: wrap;
         }
     }
+    .consultas-card {
+        border-top: 3px solid #2dd4bf;
+    }
+
+    .consultas-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 28px rgba(45, 212, 191, 0.18);
+    }
 </style>
 
 
@@ -511,24 +519,18 @@
                 <div class="intel-brand-line">
                     🧠 Centro de Inteligencia SICOP
                 </div>
-
+                 <div class="intel-title-divider"></div>
                 <h1 class="intel-title">
-                    Arquitectura Inteligente<br>
+                    Arquitectura Inteligente para la Trazabilidad,<br>
 
                     <span class="intel-title-small">
-                        para la Trazabilidad, Analítica y Gestión<br>
-                        de la Contratación Pública
+                        Analítica y Gestión de la Contratación Pública<br>
+                        
                     </span>
                 </h1>
 
                 <div class="intel-title-divider"></div>
-
-                <p class="intel-subtitle">
-                    Plataforma inteligente para el análisis, seguimiento
-                    y apoyo a la toma de decisiones durante todo el ciclo
-                    de la contratación pública.
-                </p>
-
+                
                 <p class="intel-slogan">
                     Del dato a la decisión.
                 </p>
@@ -590,20 +592,50 @@
                 </div>
 
                 <div class="metric-label">
-                    Requerimientos
+                        Requerimientos
+                    </div>
+
+                        <h2 class="metric-value">
+                            {{ total_requerimientos }}
+                        </h2>
+
+                        <p class="metric-detail">
+                            Solicitudes registradas
+                        </p>
+
+                    </div>
+                </div>
+        <!-- CONSULTAS Y CRUCES -->
+        <div class="metric-card consultas-card">
+
+            <a href="{{ url_for('consultas.inicio') }}" style="
+            text-decoration:none;
+            color:inherit;
+            display:block;
+            height:100%;
+        ">
+
+                <div class="metric-icon">
+                    🔎
                 </div>
 
-                <h2 class="metric-value">
-                    {{ total_requerimientos }}
-                </h2>
+                <div class="metric-label">
+                    CONSULTAS Y CRUCES
+                </div>
 
-                <p class="metric-detail">
-                    Solicitudes registradas
-                </p>
+                <div class="metric-value" style="font-size:28px;">
+                    🔗
+                </div>
 
-            </div>
+                <div class="metric-subtitle">
+                    Cruces inteligentes,<br>
+                    de PAC, requerimientos <br>
+                    y gestión institucional
+                </div>
+
+            </a>
+
         </div>
-
 
         <div class="col-xl-2 col-lg-4 col-md-6 mb-4">
             <div class="metric-card cyan">
@@ -1017,131 +1049,131 @@
 
         </div>
         <!-- TAREAS -->
-<div class="smart-flow-row">
+        <div class="smart-flow-row">
 
-    <div class="smart-stage">
+            <div class="smart-stage">
 
-        <div class="smart-stage-icon">
-            📋
-        </div>
+                <div class="smart-stage-icon">
+                    📋
+                </div>
 
-        <div>
-            <div class="smart-stage-name">
-                Tareas
+                <div>
+                    <div class="smart-stage-name">
+                        Tareas
+                    </div>
+
+                    <div class="smart-stage-description">
+                        Estado operativo de los procesos asignados
+                    </div>
+                </div>
+
             </div>
 
-            <div class="smart-stage-description">
-                Estado operativo de los procesos asignados
-            </div>
-        </div>
 
-    </div>
+            <div class="smart-indicator green">
 
+                <div class="smart-indicator-label">
+                    Avanzadas / finalizadas
+                </div>
 
-    <div class="smart-indicator green">
+                <div class="smart-indicator-value">
+                    {{ tareas_verde }}
+                </div>
 
-        <div class="smart-indicator-label">
-            Avanzadas / finalizadas
-        </div>
-
-        <div class="smart-indicator-value">
-            {{ tareas_verde }}
-        </div>
-
-    </div>
-
-
-    <div class="smart-indicator yellow">
-
-        <div class="smart-indicator-label">
-            En trámite
-        </div>
-
-        <div class="smart-indicator-value">
-            {{ tareas_amarillo }}
-        </div>
-
-    </div>
-
-
-    <div class="smart-indicator red">
-
-        <div class="smart-indicator-label">
-            Devueltas
-        </div>
-
-        <div class="smart-indicator-value">
-            {{ tareas_rojo }}
-        </div>
-
-    </div>
-
-</div>
-<!-- FIN TAREAS -->
-
-
-<!-- ÓRDENES DE COMPRA -->
-<div class="smart-flow-row">
-
-    <div class="smart-stage">
-
-        <div class="smart-stage-icon">
-            📦
-        </div>
-
-        <div>
-            <div class="smart-stage-name">
-                Órdenes de Ínfima Cuantía
             </div>
 
-            <div class="smart-stage-description">
-                Procesos cuyo código inicia con IC
+
+            <div class="smart-indicator yellow">
+
+                <div class="smart-indicator-label">
+                    En trámite
+                </div>
+
+                <div class="smart-indicator-value">
+                    {{ tareas_amarillo }}
+                </div>
+
             </div>
+
+
+            <div class="smart-indicator red">
+
+                <div class="smart-indicator-label">
+                    Devueltas
+                </div>
+
+                <div class="smart-indicator-value">
+                    {{ tareas_rojo }}
+                </div>
+
+            </div>
+
         </div>
+        <!-- FIN TAREAS -->
 
-    </div>
+
+        <!-- ÓRDENES DE COMPRA -->
+        <div class="smart-flow-row">
+
+            <div class="smart-stage">
+
+                <div class="smart-stage-icon">
+                    📦
+                </div>
+
+                <div>
+                    <div class="smart-stage-name">
+                        Órdenes de Ínfima Cuantía
+                    </div>
+
+                    <div class="smart-stage-description">
+                        Procesos cuyo código inicia con IC
+                    </div>
+                </div>
+
+            </div>
 
 
-    <div class="smart-indicator green">
+            <div class="smart-indicator green">
 
-        <div class="smart-indicator-label">
-            Generadas
+                <div class="smart-indicator-label">
+                    Generadas
+                </div>
+
+                <div class="smart-indicator-value">
+                    {{ ordenes_verde }}
+                </div>
+
+            </div>
+
+
+            <div class="smart-indicator yellow">
+
+                <div class="smart-indicator-label">
+                    Sin orden
+                </div>
+
+                <div class="smart-indicator-value">
+                    {{ ordenes_amarillo }}
+                </div>
+
+            </div>
+
+
+            <div class="smart-indicator red">
+
+                <div class="smart-indicator-label">
+                    Incompletas
+                </div>
+
+                <div class="smart-indicator-value">
+                    {{ ordenes_rojo }}
+                </div>
+
+            </div>
+
         </div>
-
-        <div class="smart-indicator-value">
-            {{ ordenes_verde }}
-        </div>
-
-    </div>
-
-
-    <div class="smart-indicator yellow">
-
-        <div class="smart-indicator-label">
-            Sin orden
-        </div>
-
-        <div class="smart-indicator-value">
-            {{ ordenes_amarillo }}
-        </div>
-
-    </div>
-
-
-    <div class="smart-indicator red">
-
-        <div class="smart-indicator-label">
-            Incompletas
-        </div>
-
-        <div class="smart-indicator-value">
-            {{ ordenes_rojo }}
-        </div>
-
-    </div>
-
-</div>
-<!-- FIN ÓRDENES -->
+        <!-- FIN ÓRDENES -->
     </div>
 </div>
 

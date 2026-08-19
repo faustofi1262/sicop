@@ -1075,6 +1075,9 @@ def pac_version_detalle(version_id):
     unidad = request.args.get("unidad", "").strip()
     programa = request.args.get("programa", "").strip()
     tipo_presupuesto = request.args.get("tipo_presupuesto", "").strip()
+
+    grupo = request.args.get("grupo", "").strip()
+
     partida = request.args.get("partida", "").strip()
     fuente = request.args.get("fuente", "").strip()
 
@@ -1150,7 +1153,30 @@ def pac_version_detalle(version_id):
             ORDER BY partida
         """, (version_id,))
         partidas = [r[0] for r in cur.fetchall()]
+        # ==============================
+        # GRUPOS PRESUPUESTARIOS
+        # Primeros 2 dígitos de partida
+        # Ej.: 530204 -> 53
+        #       840107 -> 84
+        # ==============================
 
+        cur.execute("""
+            SELECT DISTINCT
+                LEFT(TRIM(partida), 2) AS grupo
+            FROM pac_detalle
+            WHERE pac_version_id = %s
+            AND partida IS NOT NULL
+            AND TRIM(partida) <> ''
+            ORDER BY grupo
+        """, (version_id,))
+
+        grupos = [
+            r[0]
+            for r in cur.fetchall()
+        ]
+              
+               
+        
         cur.execute("""
             SELECT DISTINCT fuente
             FROM pac_detalle
@@ -1198,7 +1224,9 @@ def pac_version_detalle(version_id):
         if partida:
             sql += " AND partida = %s"
             params.append(partida)
-
+        if grupo:
+            sql += " AND LEFT(TRIM(partida), 2) = %s"
+            params.append(grupo)
         if fuente:
             sql += " AND fuente = %s"
             params.append(fuente)
@@ -1233,16 +1261,24 @@ def pac_version_detalle(version_id):
             "planificacion/pac_version_detalle.html",
             version=version,
             detalles=detalles,
+
             unidades=unidades,
+            programas=programas,
+
             tipos_presupuesto=tipos_presupuesto,
             tipo_presupuesto=tipo_presupuesto,
-            programas=programas,
+
+            grupos=grupos,
+            grupo=grupo,
+
             partidas=partidas,
             fuentes=fuentes,
+
             unidad=unidad,
             programa=programa,
             partida=partida,
             fuente=fuente,
+
             total_registros=total_registros,
             subtotal=subtotal,
             iva=iva,

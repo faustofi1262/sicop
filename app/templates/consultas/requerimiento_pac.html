@@ -1,0 +1,634 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .consulta-page {
+        padding: 22px;
+        background: #f5f7fa;
+        min-height: calc(100vh - 60px);
+    }
+
+    .consulta-hero {
+        background: linear-gradient(120deg,
+                #08243e 0%,
+                #123e65 55%,
+                #18537e 100%);
+        border-radius: 14px;
+        padding: 26px 30px;
+        color: white;
+        margin-bottom: 24px;
+        box-shadow: 0 8px 22px rgba(0, 0, 0, .10);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .consulta-hero::after {
+        content: "";
+        position: absolute;
+        width: 260px;
+        height: 260px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, .035);
+        right: -70px;
+        top: -130px;
+    }
+
+    .consulta-hero-label {
+        display: inline-block;
+        margin-bottom: 9px;
+        color: #73c8ff;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+    }
+
+    .consulta-hero h2 {
+        margin: 0;
+        font-size: 27px;
+        font-weight: 700;
+    }
+
+    .consulta-hero p {
+        margin: 7px 0 0;
+        color: #d7e5f2;
+        font-size: 14px;
+    }
+
+    .consulta-card {
+        background: white;
+        border: 1px solid #e1e7ed;
+        border-radius: 12px;
+        box-shadow: 0 4px 14px rgba(16, 42, 67, .06);
+        overflow: hidden;
+    }
+
+    .consulta-card-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid #e7edf2;
+        font-weight: 700;
+        color: #17324d;
+    }
+
+    .consulta-card-body {
+        padding: 22px;
+    }
+
+    .consulta-select {
+        min-height: 45px;
+    }
+
+    .btn-consulta {
+        min-height: 45px;
+        font-weight: 600;
+    }
+</style>
+
+
+<div class="consulta-page">
+
+    <!-- ==========================================
+         ENCABEZADO
+    ========================================== -->
+
+    <div class="consulta-hero">
+
+        <div class="consulta-hero-label">
+            SICOP · CONSULTAS Y CRUCES
+        </div>
+
+        <h2>
+            📋 Requerimiento ↔ PAC
+        </h2>
+
+        <p>
+            Compare la información presupuestaria de un requerimiento
+            con la planificación institucional registrada en el PAC vigente.
+        </p>
+
+    </div>
+
+
+    <!-- ==========================================
+         SELECCIÓN DEL REQUERIMIENTO
+    ========================================== -->
+
+    <div class="consulta-card">
+
+        <div class="consulta-card-header">
+            🔎 Selección del requerimiento
+        </div>
+
+        <div class="consulta-card-body">
+
+            <form method="GET">
+
+                <div class="row align-items-end">
+
+                    <div class="mb-2">
+
+                        <label class="font-weight-bold">
+                            Requerimiento
+                        </label>
+
+                        <input type="text" id="buscadorRequerimiento" class="form-control mb-2"
+                            placeholder="🔎 Buscar por memorando, unidad o monto..." autocomplete="off">
+
+                        <select name="requerimiento_id" id="requerimiento_id" class="form-control consulta-select"
+                            size="1">
+
+                            <option value="">
+                                -- Seleccione un requerimiento --
+                            </option>
+
+                            {% for r in requerimientos %}
+
+                            <option value="{{ r[0] }}" {% if requerimiento_id==r[0] %}selected{% endif %} data-texto="
+                {{ r[1] }}
+                {{ r[5] }}
+                {{ r[4] }}
+            ">
+                                {{ r[1] }}
+                                —
+                                {{ r[5] }}
+                                —
+                                $ {{ "{:,.2f}".format(r[4] or 0) }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                        <small class="text-muted">
+                            Escriba parte del memorando, unidad o monto para reducir la lista.
+                        </small>
+
+                    </div>
+
+
+                    <div class="col-lg-2 col-md-3 mb-3">
+
+                        <button type="submit" class="btn btn-primary btn-block btn-consulta">
+                            🔎 Consultar
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================================
+         RESULTADO
+    ========================================== -->
+
+    <!-- ==========================================
+     RESULTADO
+========================================== -->
+
+<div class="consulta-card mt-4">
+
+    <div class="consulta-card-header">
+        🧠 Resultado de la consulta
+    </div>
+
+    <div class="consulta-card-body">
+
+        {% if requerimiento %}
+
+        <!-- ==========================================
+             DATOS GENERALES
+        ========================================== -->
+
+        <div class="row mb-3">
+
+            <!-- MEMORANDO -->
+            <div class="col-lg-3 col-md-6 mb-3">
+
+                <small class="text-muted">
+                    Memorando
+                </small>
+
+                <div class="font-weight-bold">
+                    {{ requerimiento[1] or '—' }}
+                </div>
+
+            </div>
+
+
+            <!-- CÓDIGO DEL PROCESO -->
+            <div class="col-lg-3 col-md-6 mb-3">
+
+                <small class="text-muted">
+                    Código del proceso
+                </small>
+
+                <div
+                    class="font-weight-bold"
+                    style="color:#173f67;"
+                >
+                    {{ requerimiento[11] or 'SIN PROCESO ASIGNADO' }}
+                </div>
+
+            </div>
+
+
+            <!-- FECHA -->
+            <div class="col-lg-3 col-md-6 mb-3">
+
+                <small class="text-muted">
+                    Fecha de recepción
+                </small>
+
+                <div class="font-weight-bold">
+                    {{ requerimiento[3] or '—' }}
+                </div>
+
+            </div>
+
+
+            <!-- MONTO -->
+            <div class="col-lg-3 col-md-6 mb-3">
+
+                <small class="text-muted">
+                    Monto del requerimiento
+                </small>
+
+                <div
+                    class="font-weight-bold"
+                    style="
+                        font-size:21px;
+                        color:#173f67;
+                    "
+                >
+                    $ {{ "{:,.2f}".format(
+                        requerimiento[6] or 0
+                    ) }}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==========================================
+             UNIDAD REQUIRENTE
+        ========================================== -->
+
+        <div
+            class="mb-3"
+            style="
+                background:#f8fafc;
+                border-left:4px solid #19a974;
+                border-radius:7px;
+                padding:12px 16px;
+            "
+        >
+
+            <small class="text-muted">
+                Unidad requirente
+            </small>
+
+            <div class="font-weight-bold mt-1">
+                {{ requerimiento[8] or '—' }}
+            </div>
+
+        </div>
+
+
+        <!-- ==========================================
+             OBJETO
+        ========================================== -->
+
+        <div
+            class="mb-4"
+            style="
+                background:#f5f8fb;
+                border-left:4px solid #1976d2;
+                border-radius:7px;
+                padding:15px 18px;
+            "
+        >
+
+            <small class="text-muted">
+                Objeto / descripción
+            </small>
+
+            <div class="font-weight-bold mt-1">
+
+                {{
+                    requerimiento[5]
+                    or requerimiento[4]
+                    or '—'
+                }}
+
+            </div>
+
+        </div>
+
+
+        <!-- ==========================================
+             PARTIDAS PRESUPUESTARIAS
+        ========================================== -->
+
+        <div class="d-flex justify-content-between align-items-center mb-2">
+
+            <div>
+
+                <h6 class="font-weight-bold mb-1">
+                    💰 Partidas presupuestarias del requerimiento
+                </h6>
+
+                <small class="text-muted">
+                    Información registrada en SICOP
+                </small>
+
+            </div>
+
+        </div>
+
+
+        {% if partidas %}
+
+        <div class="table-responsive mt-3">
+
+            <table class="table table-bordered table-hover">
+
+                <thead
+                    style="
+                        background:#edf3f8;
+                        color:#17324d;
+                    "
+                >
+
+                    <tr>
+                        <th>Programa</th>
+                        <th>Partida</th>
+                        <th>Nombre</th>
+                        <th>Fuente</th>
+                        <th class="text-right">Monto</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% set ns = namespace(total=0) %}
+
+                    {% for p in partidas %}
+
+                    {% set ns.total =
+                        ns.total + (p[5] or 0)
+                    %}
+
+                    <tr>
+
+                        <td>
+                            {{ p[4] or '—' }}
+                        </td>
+
+                        <td>
+                            <strong>
+                                {{ p[2] or '—' }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ p[1] or '—' }}
+                        </td>
+
+                        <td>
+                            {{ p[3] or '—' }}
+                        </td>
+
+                        <td class="text-right">
+                            $ {{ "{:,.2f}".format(
+                                p[5] or 0
+                            ) }}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+
+                <tfoot>
+
+                    <tr
+                        style="
+                            background:#edf4fb;
+                            font-weight:700;
+                        "
+                    >
+
+                        <td
+                            colspan="4"
+                            class="text-right"
+                        >
+                            TOTAL PARTIDAS
+                        </td>
+
+                        <td class="text-right">
+                            $ {{ "{:,.2f}".format(
+                                ns.total
+                            ) }}
+                        </td>
+
+                    </tr>
+
+                </tfoot>
+
+            </table>
+
+        </div>
+
+
+        {% else %}
+
+        <div class="alert alert-warning mt-3 mb-0">
+
+            ⚠️ Este requerimiento no tiene
+            partidas presupuestarias registradas en SICOP.
+
+        </div>
+
+        {% endif %}
+
+
+        {% else %}
+
+        <!-- ==========================================
+             SIN REQUERIMIENTO SELECCIONADO
+        ========================================== -->
+
+        <div class="text-center text-muted py-4">
+
+            <div style="font-size:34px;">
+                📊
+            </div>
+
+            Seleccione un requerimiento para iniciar
+            la comparación con el PAC vigente.
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+    <div class="mt-4">
+
+        <a href="{{ url_for('consultas.inicio') }}" class="btn btn-outline-secondary">
+            ⬅ Volver a Consultas y Cruces
+        </a>
+
+    </div>
+
+</div>
+<script>
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            const buscador =
+                document.getElementById(
+                    "buscadorRequerimiento"
+                );
+
+            const select =
+                document.getElementById(
+                    "requerimiento_id"
+                );
+
+            if (!buscador || !select) {
+                return;
+            }
+
+
+            const opcionesOriginales =
+                Array.from(
+                    select.options
+                );
+
+
+            buscador.addEventListener(
+                "input",
+                function () {
+
+                    const textoBusqueda =
+                        buscador.value
+                            .trim()
+                            .toUpperCase();
+
+
+                    const valorSeleccionado =
+                        select.value;
+
+
+                    // Limpiar select
+                    select.innerHTML = "";
+
+
+                    opcionesOriginales.forEach(
+                        function (opcion) {
+
+                            // Mantener siempre la opción inicial
+                            if (opcion.value === "") {
+
+                                select.appendChild(
+                                    opcion.cloneNode(true)
+                                );
+
+                                return;
+                            }
+
+
+                            const textoOpcion =
+                                (
+                                    opcion.dataset.texto
+                                    ||
+                                    opcion.textContent
+                                    ||
+                                    ""
+                                )
+                                    .toUpperCase();
+
+
+                            if (
+                                textoBusqueda === ""
+                                ||
+                                textoOpcion.includes(
+                                    textoBusqueda
+                                )
+                            ) {
+
+                                const nuevaOpcion =
+                                    opcion.cloneNode(true);
+
+                                if (
+                                    opcion.value
+                                    === valorSeleccionado
+                                ) {
+                                    nuevaOpcion.selected = true;
+                                }
+
+                                select.appendChild(
+                                    nuevaOpcion
+                                );
+                            }
+
+                        }
+                    );
+
+
+                    // Si escribió algo,
+                    // abrimos visualmente la lista
+                    if (textoBusqueda !== "") {
+
+                        select.size =
+                            Math.min(
+                                8,
+                                Math.max(
+                                    2,
+                                    select.options.length
+                                )
+                            );
+
+                    } else {
+
+                        select.size = 1;
+
+                    }
+
+                }
+            );
+
+
+            // Al escoger una opción,
+            // volver a modo compacto
+            select.addEventListener(
+                "change",
+                function () {
+
+                    select.size = 1;
+
+                }
+            );
+
+        }
+    );
+
+</script>
+
+{% endblock %}

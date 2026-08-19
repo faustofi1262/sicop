@@ -15,5 +15,8 @@ def create_app():
     from .inteligencia_financiera_routes import inteligencia_financiera
     app.register_blueprint(inteligencia_financiera)
     
+    from app.consultas_routes import consultas_bp
+    app.register_blueprint(consultas_bp)
+    
     return app
 

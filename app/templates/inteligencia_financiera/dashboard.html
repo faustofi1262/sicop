@@ -141,9 +141,144 @@
 
     </div>
     <!-- ==========================================
-     PARÁMETROS DE PROYECCIÓN
+     NUEVO CENTRO DE ANÁLISIS FINANCIERO
 ========================================== -->
-    <div class="analysis-card mb-4">
+
+    <div class="row mb-4">
+
+        <!-- ====================================== -->
+        <!-- LADO IZQUIERDO: VISIÓN EJECUTIVA -->
+        <!-- ====================================== -->
+        <div class="col-lg-8 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+
+                        <div>
+                            <h5 class="font-weight-bold mb-1">
+                                📊 Visión financiera institucional
+                            </h5>
+
+                            <small class="text-muted">
+                                Evolución y avance de la contratación frente al PAC
+                            </small>
+                        </div>
+
+                    </div>
+
+
+                    <!-- GRÁFICO DE BARRAS -->
+                    <div style="height: 300px;" class="mb-4">
+                        <canvas id="graficoEmbudoFinanciero"></canvas>
+                    </div>
+
+
+                    <!-- GRÁFICO DE EVOLUCIÓN 
+                    <div style="height: 300px;">
+                        <canvas id="graficoEvolucionPrincipal"></canvas>
+                    </div>
+                    -->
+                    <!-- ====================================== -->
+                    <!-- RESULTADO / CONTROLES DINÁMICOS -->
+                    <!-- ====================================== -->
+
+                    <div id="panelResultadoAnalisis">
+
+                        <div class="text-center text-muted py-4">
+
+                            <div style="font-size:34px;">
+                                🧠
+                            </div>
+
+                            Seleccione una opción para iniciar el análisis.
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ====================================== -->
+        <!-- LADO DERECHO: PANEL DE CONSULTA -->
+        <!-- ====================================== -->
+        <div class="col-lg-4 mb-4">
+
+            <div class="card shadow-sm h-100">
+
+                <div class="card-header bg-dark text-white">
+                    🎛 Centro de análisis
+                </div>
+
+                <div class="card-body">
+
+                    <p class="text-muted">
+                        Seleccione el tipo de análisis que desea realizar.
+                    </p>
+
+
+                    <div class="d-grid">
+
+                        <button type="button" class="btn btn-outline-primary btn-block mb-2"
+                            onclick="mostrarAnalisis('general')">
+                            📊 Análisis general
+                        </button>
+
+                        <button type="button" class="btn btn-outline-primary btn-block mb-2"
+                            onclick="mostrarAnalisis('fechas')">
+                            📅 Por fechas
+                        </button>
+
+                        <button type="button" class="btn btn-outline-primary btn-block mb-2"
+                            onclick="mostrarAnalisis('pronostico')">
+                            📈 Pronóstico
+                        </button>
+
+                        <button type="button" class="btn btn-outline-primary btn-block mb-2"
+                            onclick="mostrarAnalisis('unidad')">
+                            🏢 Por unidad
+                        </button>
+
+                        <button type="button" class="btn btn-outline-primary btn-block mb-2"
+                            onclick="mostrarAnalisis('programa')">
+                            📘 Por programa
+                        </button>
+
+                        <button type="button" class="btn btn-outline-primary btn-block mb-2"
+                            onclick="mostrarAnalisis('partida')">
+                            💳 Por partida
+                        </button>
+
+                        <button type="button" class="btn btn-outline-primary btn-block mb-3"
+                            onclick="mostrarAnalisis('fuente')">
+                            💰 Por fuente
+                        </button>
+
+                    </div>
+
+
+                    <hr>
+
+
+                    
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    <!-- ==========================================
+     PARÁMETROS DE PROYECCIÓN
+    ========================================== -->
+    <div id="parametrosProyeccion" class="analysis-card mb-4">
 
         <div class="analysis-card-header">
             🎯 Parámetros del análisis y proyección
@@ -1678,36 +1813,190 @@
         background: #dc3545;
     }
 </style>
-{% if analisis_generado %}
-
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
 
+        const canvas =
+            document.getElementById("graficoEmbudoFinanciero");
+
+        if (!canvas) {
+            return;
+        }
+
+        new Chart(canvas, {
+
+            type: "bar",
+
+            data: {
+
+                labels: [
+                    "PAC vigente",
+                    "Ingresado",
+                    "Certificado",
+                    "Adjudicado"
+                ],
+
+                datasets: [{
+                    label: "Monto",
+
+                    data: [
+                        {{ monto_pac or 0 }},
+                {{ monto_ingresado or 0 }},
+                    {{ monto_certificado or 0 }},
+        {{ monto_adjudicado or 0 }}
+                ],
+
+        borderWidth: 2,
+        borderRadius: 8
+            }]
+        },
+
+        options: {
+
+        responsive: true,
+        maintainAspectRatio: false,
+
+        plugins: {
+
+            legend: {
+                display: false
+            },
+
+            tooltip: {
+
+                callbacks: {
+
+                    label: function (context) {
+
+                        return "$ " +
+                            Number(context.raw || 0)
+                                .toLocaleString(
+                                    "en-US",
+                                    {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    }
+                                );
+                    }
+                }
+            }
+        },
+
+        scales: {
+
+            y: {
+
+                beginAtZero: true,
+
+                ticks: {
+
+                    callback: function (value) {
+
+                        return "$ " +
+                            Number(value)
+                                .toLocaleString("en-US");
+                    }
+                }
+            }
+        }
+    }
+    });
+
+});
+</script>
+{% if analisis_generado %}
 <script>
     document.addEventListener(
         "DOMContentLoaded",
         function () {
+            // ==========================================
+            // GRÁFICO FINANCIERO GENERAL
+            // ==========================================
 
-            const canvasReal =
+            const canvasEmbudo =
                 document.getElementById(
-                    "graficoFlujoReal"
+                    "graficoEmbudoFinanciero"
                 );
 
-            const canvasProyectado =
-                document.getElementById(
-                    "graficoFlujoProyectado"
-                );
+            if (canvasEmbudo) {
 
-            if (!canvasReal || !canvasProyectado) {
-                return;
+                new Chart(
+                    canvasEmbudo,
+                    {
+                        type: "bar",
+
+                        data: {
+                            labels: [
+                                "PAC",
+                                "Ingresado",
+                                "Certificado",
+                                "Adjudicado"
+                            ],
+
+                            datasets: [
+                                {
+                                    data: [
+                                        {{ monto_pac or 0 }},
+                                {{ monto_ingresado or 0 }},
+                                        {{ monto_certificado or 0 }},
+            {{ monto_adjudicado or 0 }}
+                                    ],
+
+            borderWidth: 1
+        }
+                            ]
+                        },
+
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+
+        plugins: {
+            legend: {
+                display: false
             }
+        },
+
+        scales: {
+            y: {
+                beginAtZero: true,
+
+                ticks: {
+                    callback:
+                        function (value) {
+                            return "$ "
+                                + Number(value)
+                                    .toLocaleString("en-US");
+                        }
+                }
+            }
+        }
+    }
+                    }
+    );
+            }
+    const canvasReal =
+        document.getElementById(
+            "graficoFlujoReal"
+        );
+
+    const canvasProyectado =
+        document.getElementById(
+            "graficoFlujoProyectado"
+        );
+
+    if (!canvasReal || !canvasProyectado) {
+        return;
+    }
 
 
-            // ==========================================
-            // DATOS DESDE FLASK
-            // ==========================================
-            const etiquetas =
-                {{ grafico_labels | tojson
+    // ==========================================
+    // DATOS DESDE FLASK
+    // ==========================================
+    const etiquetas =
+        {{ grafico_labels | tojson
         }};
 
     const valoresReales =
@@ -2076,6 +2365,375 @@
     );
 }
 </script>
-
 {% endif %}
+
+<script>
+window.mostrarAnalisis = function(tipo) {
+
+    const panel =
+        document.getElementById(
+        "panelResultadoAnalisis"
+        );
+
+        if (!panel) {
+        return;
+    }
+
+        const pac = Number(
+        {{ (monto_pac or 0) | tojson}}
+        );
+
+        const ingresado = Number(
+        {{ (monto_ingresado or 0) | tojson}}
+        );
+
+        const certificado = Number(
+        {{ (monto_certificado or 0) | tojson}}
+        );
+
+        const adjudicado = Number(
+        {{ (monto_adjudicado or 0) | tojson}}
+        );
+
+
+        function dinero(valor) {
+
+        return "$ "
+        + Number(valor || 0)
+        .toLocaleString(
+        "en-US",
+        {
+            minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+                    }
+        );
+    }
+
+
+        const pctIngresadoPac =
+        pac > 0
+        ? (ingresado / pac) * 100
+        : 0;
+
+        const pctCertificadoIngresado =
+        ingresado > 0
+        ? (certificado / ingresado) * 100
+        : 0;
+
+        const pctAdjudicadoIngresado =
+        ingresado > 0
+        ? (adjudicado / ingresado) * 100
+        : 0;
+
+        const pendientePac =
+        Math.max(
+        0,
+        pac - ingresado
+        );
+
+        const pctPendientePac =
+        Math.max(
+        0,
+        100 - pctIngresadoPac
+        );
+
+
+        // ==========================================
+        // ANÁLISIS GENERAL
+        // ==========================================
+        if (tipo === "general") {
+
+            let nivel = "";
+        let claseNivel = "";
+        let lectura = "";
+
+        if (pctIngresadoPac >= 85) {
+
+            nivel = "Movilización alta";
+        claseNivel = "success";
+
+        lectura =
+        "El nivel de movilización del PAC es alto. "
+        + "La prioridad debe concentrarse en completar "
+        + "los procesos pendientes y consolidar su ejecución.";
+
+        } else if (pctIngresadoPac >= 60) {
+
+            nivel = "Movilización moderada";
+        claseNivel = "primary";
+
+        lectura =
+        "La ejecución presenta un nivel moderado. "
+        + "Existe avance importante, aunque todavía permanece "
+        + "una proporción significativa del PAC pendiente.";
+
+        } else if (pctIngresadoPac >= 30) {
+
+            nivel = "Movilización baja";
+        claseNivel = "warning";
+
+        lectura =
+        "La movilización todavía es baja respecto del PAC vigente. "
+        + "Conviene revisar las unidades, partidas y procesos "
+        + "que aún no han ingresado a contratación.";
+
+        } else {
+
+            nivel = "Movilización crítica";
+        claseNivel = "danger";
+
+        lectura =
+        "El monto ingresado representa una proporción reducida "
+        + "del PAC vigente. Se recomienda identificar las áreas "
+        + "con mayor saldo pendiente y los procesos que todavía "
+        + "no han iniciado su gestión.";
+        }
+
+
+        panel.innerHTML = `
+
+        <h5 class="font-weight-bold mb-1">
+            📊 Situación financiera general
+        </h5>
+
+        <small class="text-muted">
+            Estado consolidado de la contratación institucional
+        </small>
+
+        <div class="border rounded p-3 mt-3 mb-3">
+
+            <div class="d-flex justify-content-between mb-2">
+                <span>PAC vigente</span>
+                <strong>${dinero(pac)}</strong>
+            </div>
+
+            <div class="d-flex justify-content-between mb-2">
+                <span>Monto ingresado</span>
+                <strong>${dinero(ingresado)}</strong>
+            </div>
+
+            <div class="d-flex justify-content-between mb-2">
+                <span>Monto certificado</span>
+                <strong>${dinero(certificado)}</strong>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <span>Monto adjudicado</span>
+                <strong>${dinero(adjudicado)}</strong>
+            </div>
+
+        </div>
+
+
+        <div class="mb-3">
+
+            <div class="d-flex justify-content-between mb-1">
+                <strong>PAC movilizado</strong>
+                <strong>${pctIngresadoPac.toFixed(2)} %</strong>
+            </div>
+
+            <div class="progress" style="height:18px;">
+
+                <div
+                    class="progress-bar"
+                    style="width:${Math.min(100, pctIngresadoPac)}%;"
+                >
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="row text-center mb-3">
+
+            <div class="col-6">
+
+                <div class="border rounded p-2 h-100">
+
+                    <small class="text-muted">
+                        Certificado / Ingresado
+                    </small>
+
+                    <div class="font-weight-bold mt-1">
+                        ${pctCertificadoIngresado.toFixed(2)} %
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-6">
+
+                <div class="border rounded p-2 h-100">
+
+                    <small class="text-muted">
+                        Adjudicado / Ingresado
+                    </small>
+
+                    <div class="font-weight-bold mt-1">
+                        ${pctAdjudicadoIngresado.toFixed(2)} %
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            class="p-3 rounded mb-3"
+            style="
+                    background:#f8fafc;
+                    border-left:4px solid #f59e0b;
+                "
+        >
+
+            <small class="text-muted">
+                PAC aún no movilizado
+            </small>
+
+            <div
+                class="font-weight-bold"
+                style="font-size:22px;"
+            >
+                ${dinero(pendientePac)}
+            </div>
+
+            <small class="text-muted">
+                ${pctPendientePac.toFixed(2)} % del PAC vigente
+            </small>
+
+        </div>
+
+
+        <div class="alert alert-${claseNivel} mb-0">
+
+            <div class="font-weight-bold mb-1">
+                🧠 ${nivel}
+            </div>
+
+            <div style="font-size:13px; line-height:1.5;">
+                ${lectura}
+            </div>
+
+        </div>
+        `;
+
+        return;
+    }
+
+
+        if (tipo === "fechas") {
+
+            panel.innerHTML = `
+
+            <h5 class="font-weight-bold">
+                📅 Análisis por fechas
+            </h5>
+
+            <p class="text-muted mb-0">
+                En el siguiente paso colocaremos aquí
+                la fecha inicial, fecha final y el resultado.
+            </p>
+        `;
+
+        return;
+    }
+
+
+        if (tipo === "pronostico") {
+
+            panel.innerHTML = `
+
+            <h5 class="font-weight-bold">
+                📈 Pronóstico financiero
+            </h5>
+
+            <p class="text-muted mb-0">
+                Aquí moveremos el Motor de Proyección
+                que actualmente está en la parte inferior.
+            </p>
+        `;
+
+        return;
+    }
+
+
+        if (tipo === "unidad") {
+
+            panel.innerHTML = `
+
+            <h5 class="font-weight-bold">
+                🏢 Análisis por unidad
+            </h5>
+
+            <p class="text-muted mb-0">
+                Aquí colocaremos el selector de unidades
+                y mostraremos el resultado directamente.
+            </p>
+        `;
+
+        return;
+    }
+
+
+        if (tipo === "programa") {
+
+            panel.innerHTML = `
+
+            <h5 class="font-weight-bold">
+                📘 Análisis por programa
+            </h5>
+
+            <p class="text-muted mb-0">
+                Permitirá identificar el nivel de movilización
+                por programa presupuestario.
+            </p>
+        `;
+
+        return;
+    }
+
+
+        if (tipo === "partida") {
+
+            panel.innerHTML = `
+
+            <h5 class="font-weight-bold">
+                💳 Análisis por partida
+            </h5>
+
+            <p class="text-muted mb-0">
+                Aquí mostraremos PAC, ingresado,
+                pendiente y porcentaje de avance por partida.
+            </p>
+        `;
+
+        return;
+    }
+
+
+        if (tipo === "fuente") {
+
+            panel.innerHTML = `
+
+            <h5 class="font-weight-bold">
+                💰 Análisis por fuente
+            </h5>
+
+            <p class="text-muted mb-0">
+                Permitirá conocer planificación,
+                ejecución y saldo pendiente por fuente.
+            </p>
+        `;
+
+        return;
+    }
+
+};
+
+</script>
+
 {% endblock %}
