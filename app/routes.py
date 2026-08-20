@@ -437,6 +437,7 @@ def guardar_requerimiento():
                 mem_requi = %s,
                 fecha_memo_requi = %s,
                 unid_requirente = %s,
+                funcionario_elaborador = %s,
                 funcionario_encargado = %s,
                 memo_vice_ad = %s,
                 fecha_memo_vice_ad = %s,
@@ -451,6 +452,7 @@ def guardar_requerimiento():
             request.form["mem_requi"],
             request.form["fecha_memo_requi"],
             request.form["unid_requirente"],
+            request.form.get("funcionario_elaborador"),
             request.form.get("funcionario_encargado"),
             request.form.get("memo_vice_ad"),
             request.form.get("fecha_memo_vice_ad"),
@@ -474,11 +476,19 @@ def guardar_requerimiento():
         # =====================
         # INSERT
         # =====================
+        # ==========================================================
+        # CREACIÓN DEL REQUERIMIENTO
+        # ==========================================================
+        # Registra también al funcionario de la unidad requirente
+        # que elaboró la documentación del expediente.
+        # ==========================================================
+
         cur.execute("""
             INSERT INTO requerimientos (
                 mem_requi,
                 fecha_memo_requi,
                 unid_requirente,
+                funcionario_elaborador,
                 funcionario_encargado,
                 memo_vice_ad,
                 fecha_memo_vice_ad,
@@ -489,12 +499,13 @@ def guardar_requerimiento():
                 descripcion,
                 monto_req
             )
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
             RETURNING id
         """, (
             request.form["mem_requi"],
             request.form["fecha_memo_requi"],
             request.form["unid_requirente"],
+            request.form.get("funcionario_elaborador"),
             request.form.get("funcionario_encargado"),
             request.form.get("memo_vice_ad"),
             request.form.get("fecha_memo_vice_ad"),
@@ -524,12 +535,20 @@ def editar_requerimiento(id):
     cur = conn.cursor()
 
     # Requerimiento (columnas explícitas)
+    # ==========================================================
+    # DATOS DEL REQUERIMIENTO PARA EDICIÓN
+    # ==========================================================
+    # Recupera también al funcionario elaborador para conservarlo
+    # y mostrarlo nuevamente al editar el requerimiento.
+    # ==========================================================
+
     cur.execute("""
         SELECT
             id,
             mem_requi,
             fecha_memo_requi,
             unid_requirente,
+            funcionario_elaborador,
             funcionario_encargado,
             memo_vice_ad,
             fecha_memo_vice_ad,
@@ -556,15 +575,21 @@ def editar_requerimiento(id):
         "mem_requi": row[1],
         "fecha_memo_requi": row[2],
         "unid_requirente": row[3],
-        "funcionario_encargado": row[4],
-        "memo_vice_ad": row[5],
-        "fecha_memo_vice_ad": row[6],
-        "memo_dir_ad": row[7],
-        "fecha_memo_dir_ad": row[8],
-        "fecha_recep_req": row[9],
-        "breve_descr": row[10],
-        "descripcion": row[11],
-        "monto_req": row[12],
+
+        # Servidor de la unidad que elaboró los documentos
+        "funcionario_elaborador": row[4],
+
+        # Analista UCP asignado al requerimiento
+        "funcionario_encargado": row[5],
+
+        "memo_vice_ad": row[6],
+        "fecha_memo_vice_ad": row[7],
+        "memo_dir_ad": row[8],
+        "fecha_memo_dir_ad": row[9],
+        "fecha_recep_req": row[10],
+        "breve_descr": row[11],
+        "descripcion": row[12],
+        "monto_req": row[13],
     }
 
     # ==========================================================

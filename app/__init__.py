@@ -17,6 +17,18 @@ def create_app():
     
     from app.consultas_routes import consultas_bp
     app.register_blueprint(consultas_bp)
+    # ==========================================================
+# REGISTRO DEL MÓDULO CONTROL Y EVIDENCIA
+# ==========================================================
+# Permite habilitar las rutas correspondientes al módulo
+# independiente de seguimiento y evidencia institucional.
+# ==========================================================
+
+    from app.control_evidencia_routes import control_evidencia_bp
+
+    app.register_blueprint(control_evidencia_bp)
+    
+    
     
     return app
 

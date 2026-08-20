@@ -1,0 +1,705 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    /* =====================================================
+       CONTENEDOR GENERAL DEL MÓDULO
+       =====================================================
+       Mantiene el mismo estilo ejecutivo utilizado
+       en Consultas y Cruces y Centro de Inteligencia.
+    ===================================================== */
+
+    .control-wrapper {
+        padding: 22px;
+        background: #f5f7fa;
+        min-height: calc(100vh - 60px);
+    }
+
+
+    /* =====================================================
+       ENCABEZADO EJECUTIVO
+       =====================================================
+       Identifica visualmente el módulo de Control
+       y Evidencia dentro de SICOP.
+    ===================================================== */
+
+    .control-hero {
+
+        background: linear-gradient(120deg,
+                #08243e 0%,
+                #123e65 55%,
+                #18537e 100%);
+
+        border-radius: 14px;
+
+        padding: 28px 32px;
+
+        color: white;
+
+        margin-bottom: 25px;
+
+        box-shadow:
+            0 8px 22px rgba(0, 0, 0, .10);
+
+        position: relative;
+
+        overflow: hidden;
+    }
+
+
+    /* =====================================================
+       EFECTO DECORATIVO DEL ENCABEZADO
+       =====================================================
+       Agrega el círculo translúcido del lado derecho,
+       igual al estilo ejecutivo de otros módulos SICOP.
+    ===================================================== */
+
+    .control-hero::after {
+
+        content: "";
+
+        position: absolute;
+
+        width: 290px;
+        height: 290px;
+
+        border-radius: 50%;
+
+        background:
+            rgba(255, 255, 255, .035);
+
+        right: -70px;
+        top: -135px;
+    }
+
+
+    /* =====================================================
+       ETIQUETA SUPERIOR DEL ENCABEZADO
+    ===================================================== */
+
+    .control-label {
+
+        display: inline-block;
+
+        margin-bottom: 10px;
+
+        color: #73c8ff;
+
+        font-size: 12px;
+
+        font-weight: 700;
+
+        text-transform: uppercase;
+
+        letter-spacing: 1.3px;
+    }
+
+
+    /* =====================================================
+       TÍTULO PRINCIPAL
+    ===================================================== */
+
+    .control-hero h2 {
+
+        margin: 0;
+
+        font-size: 29px;
+
+        font-weight: 700;
+    }
+
+
+    /* =====================================================
+       SUBTÍTULO PRINCIPAL
+    ===================================================== */
+
+    .control-hero p {
+
+        margin: 7px 0 0;
+
+        color: #d7e5f2;
+
+        font-size: 15px;
+    }
+
+
+    /* =====================================================
+       TÍTULO DE SECCIÓN
+    ===================================================== */
+
+    .control-section-title {
+
+        margin-bottom: 18px;
+    }
+
+    .control-section-title h5 {
+
+        margin-bottom: 3px;
+
+        color: #17324d;
+
+        font-weight: 700;
+    }
+
+    .control-section-title small {
+
+        color: #78899a;
+    }
+
+
+    /* =====================================================
+       TARJETAS PRINCIPALES DEL MÓDULO
+       =====================================================
+       Cada tarjeta representa una herramienta distinta:
+       recomendaciones, bitácora, evidencias, seguimiento
+       e informes.
+    ===================================================== */
+
+    .control-card {
+
+        background: white;
+
+        border: 1px solid #e1e7ed;
+
+        border-radius: 12px;
+
+        height: 100%;
+
+        overflow: hidden;
+
+        box-shadow:
+            0 4px 14px rgba(16, 42, 67, .06);
+
+        transition:
+            transform .22s ease,
+            box-shadow .22s ease;
+
+        position: relative;
+    }
+
+
+    /* =====================================================
+       EFECTO AL PASAR EL MOUSE
+    ===================================================== */
+
+    .control-card:hover {
+
+        transform: translateY(-4px);
+
+        box-shadow:
+            0 10px 25px rgba(16, 42, 67, .12);
+    }
+
+
+    /* =====================================================
+       BARRA SUPERIOR DE COLOR
+       =====================================================
+       Permite identificar visualmente cada herramienta
+       sin perder la estética sobria del sistema.
+    ===================================================== */
+
+    .control-card::before {
+
+        content: "";
+
+        display: block;
+
+        height: 5px;
+    }
+
+
+    .control-card.azul::before {
+        background: #1976d2;
+    }
+
+    .control-card.verde::before {
+        background: #19a974;
+    }
+
+    .control-card.morado::before {
+        background: #7556c9;
+    }
+
+    .control-card.ambar::before {
+        background: #e6a23c;
+    }
+
+    .control-card.cyan::before {
+        background: #1597a5;
+    }
+
+
+    /* =====================================================
+       CUERPO DE LAS TARJETAS
+    ===================================================== */
+
+    .control-card-body {
+
+        padding: 24px;
+    }
+
+
+    /* =====================================================
+       ÍCONOS PRINCIPALES
+    ===================================================== */
+
+    .control-icon {
+
+        width: 52px;
+
+        height: 52px;
+
+        border-radius: 11px;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        font-size: 25px;
+
+        margin-bottom: 17px;
+    }
+
+
+    .azul .control-icon {
+        background: #edf5ff;
+    }
+
+    .verde .control-icon {
+        background: #eaf9f3;
+    }
+
+    .morado .control-icon {
+        background: #f3effc;
+    }
+
+    .ambar .control-icon {
+        background: #fff7e8;
+    }
+
+    .cyan .control-icon {
+        background: #eaf7f8;
+    }
+
+
+    /* =====================================================
+       TÍTULO Y DESCRIPCIÓN DE CADA TARJETA
+    ===================================================== */
+
+    .control-card h4 {
+
+        font-size: 18px;
+
+        font-weight: 700;
+
+        color: #172b3a;
+
+        margin-bottom: 10px;
+    }
+
+    .control-card p {
+
+        color: #6f8090;
+
+        font-size: 14px;
+
+        line-height: 1.55;
+
+        min-height: 66px;
+    }
+
+
+    /* =====================================================
+       LÍNEA INFORMATIVA INFERIOR
+    ===================================================== */
+
+    .control-status {
+
+        border-top:
+            1px solid #edf0f3;
+
+        margin-top: 18px;
+
+        padding-top: 15px;
+
+        font-size: 12px;
+
+        color: #8795a3;
+    }
+
+
+    /* =====================================================
+       PUNTO DE COLOR DEL ESTADO
+    ===================================================== */
+
+    .status-dot {
+
+        display: inline-block;
+
+        width: 8px;
+
+        height: 8px;
+
+        border-radius: 50%;
+
+        margin-right: 6px;
+    }
+
+
+    /* =====================================================
+       BOTONES
+       =====================================================
+       Por ahora estarán desactivados excepto donde
+       decidamos comenzar la funcionalidad.
+    ===================================================== */
+
+    .control-btn {
+
+        display: block;
+
+        width: 100%;
+
+        margin-top: 18px;
+
+        padding: 10px 15px;
+
+        border-radius: 7px;
+
+        text-align: center;
+
+        font-weight: 600;
+
+        text-decoration: none !important;
+    }
+
+
+    /* =====================================================
+       PIE INFORMATIVO
+    ===================================================== */
+
+    .control-info {
+
+        margin-top: 24px;
+
+        background: white;
+
+        border: 1px solid #e1e7ed;
+
+        border-left: 4px solid #e6a23c;
+
+        border-radius: 8px;
+
+        padding: 17px 20px;
+
+        color: #627384;
+
+        font-size: 13px;
+    }
+</style>
+
+
+<div class="control-wrapper">
+
+
+    <!-- ==================================================
+         ENCABEZADO DEL MÓDULO
+         ==================================================
+         Presenta el propósito general de Control y Evidencia.
+    =================================================== -->
+
+    <div class="control-hero">
+
+        <span class="control-label">
+            SICOP · CONTROL INSTITUCIONAL
+        </span>
+
+        <h2>
+            🛡️ Control y Evidencia
+        </h2>
+
+        <p>
+            Seguimiento, trazabilidad y respaldo documental
+            de las acciones de control institucional.
+        </p>
+
+    </div>
+
+
+    <!-- ==================================================
+         INTRODUCCIÓN A LAS HERRAMIENTAS
+    =================================================== -->
+
+    <div class="control-section-title">
+
+        <h5>
+            Herramientas de control
+        </h5>
+
+        <small>
+            Seleccione la herramienta que desea utilizar.
+        </small>
+
+    </div>
+
+
+    <!-- ==================================================
+         TARJETAS DEL MÓDULO
+    =================================================== -->
+
+    <div class="row">
+
+        <!-- ==============================================
+             TARJETA: BITÁCORA DE CONTROL
+             ==============================================
+             Permitirá consolidar las actuaciones,
+             revisiones y controles efectuados en SICOP.
+        =============================================== -->
+
+        <div class="col-lg-4 col-md-6 mb-4">
+
+            <div class="control-card azul">
+
+                <div class="control-card-body">
+
+                    <div class="control-icon">
+                        🔎
+                    </div>
+
+                    <h4>
+                        Bitácora de control
+                    </h4>
+
+                    <p>
+                        Registro cronológico de revisiones,
+                        observaciones, subsanaciones y
+                        actuaciones realizadas.
+                    </p>
+
+                    <div class="control-status">
+
+                        <span class="status-dot" style="background:#1976d2;"></span>
+
+                        Trazabilidad de actuaciones
+
+                    </div>
+
+                    <button type="button" class="btn btn-outline-primary control-btn" disabled>
+                        Próximamente
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+        <!-- ==============================================
+             TARJETA: RECOMENDACIONES
+             ==============================================
+             Permitirá registrar y dar seguimiento
+             a recomendaciones emitidas por organismos
+             de control.
+        =============================================== -->
+
+        <div class="col-lg-4 col-md-6 mb-4">
+
+            <div class="control-card ambar">
+
+                <div class="control-card-body">
+
+                    <div class="control-icon">
+                        📋
+                    </div>
+
+                    <h4>
+                        Recomendaciones
+                    </h4>
+
+                    <p>
+                        Registro, clasificación y seguimiento
+                        de recomendaciones emitidas por
+                        organismos de control.
+                    </p>
+
+                    <div class="control-status">
+
+                        <span class="status-dot" style="background:#e6a23c;"></span>
+
+                        Matriz de recomendaciones
+
+                    </div>
+
+                    <button type="button" class="btn btn-outline-warning control-btn" disabled>
+                        Próximamente
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ==============================================
+             TARJETA: EVIDENCIAS
+             ==============================================
+             Permitirá conservar y vincular documentos
+             que respalden las actuaciones realizadas.
+        =============================================== -->
+
+        <div class="col-lg-4 col-md-6 mb-4">
+
+            <div class="control-card verde">
+
+                <div class="control-card-body">
+
+                    <div class="control-icon">
+                        📁
+                    </div>
+
+                    <h4>
+                        Evidencias
+                    </h4>
+
+                    <p>
+                        Respaldo documental de comunicaciones,
+                        revisiones, certificaciones, informes
+                        y demás actuaciones institucionales.
+                    </p>
+
+                    <div class="control-status">
+
+                        <span class="status-dot" style="background:#19a974;"></span>
+
+                        Evidencia verificable
+
+                    </div>
+
+                    <button type="button" class="btn btn-outline-success control-btn" disabled>
+                        Próximamente
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==============================================
+             TARJETA: SEGUIMIENTO
+             ==============================================
+             Permitirá identificar acciones pendientes
+             y controles que requieren atención.
+        =============================================== -->
+
+        <div class="col-lg-4 col-md-6 mb-4">
+
+            <div class="control-card morado">
+
+                <div class="control-card-body">
+
+                    <div class="control-icon">
+                        ⚠️
+                    </div>
+
+                    <h4>
+                        Seguimiento
+                    </h4>
+
+                    <p>
+                        Control de acciones pendientes,
+                        observaciones abiertas y actividades
+                        que requieren verificación.
+                    </p>
+
+                    <div class="control-status">
+
+                        <span class="status-dot" style="background:#7556c9;"></span>
+
+                        Monitoreo y alertas
+
+                    </div>
+
+                    <button type="button" class="btn btn-outline-secondary control-btn" disabled>
+                        Próximamente
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==============================================
+             TARJETA: INFORMES
+             ==============================================
+             Permitirá generar reportes PDF por período,
+             recomendación, proceso o responsable.
+        =============================================== -->
+
+        <div class="col-lg-4 col-md-6 mb-4">
+
+            <div class="control-card cyan">
+
+                <div class="control-card-body">
+
+                    <div class="control-icon">
+                        📊
+                    </div>
+
+                    <h4>
+                        Informes de control
+                    </h4>
+
+                    <p>
+                        Generación de reportes de acciones,
+                        seguimiento y evidencias por período
+                        o recomendación.
+                    </p>
+
+                    <div class="control-status">
+
+                        <span class="status-dot" style="background:#1597a5;"></span>
+
+                        Reportes y respaldos PDF
+
+                    </div>
+
+                    <button type="button" class="btn btn-outline-info control-btn" disabled>
+                        Próximamente
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==================================================
+         PIE INFORMATIVO DEL MÓDULO
+    =================================================== -->
+
+    <div class="control-info">
+
+        <strong>
+            🛡️ Sistema de control institucional
+        </strong>
+
+        &nbsp;
+
+        Este módulo permitirá consolidar actuaciones,
+        controles y evidencias generadas dentro del SICOP,
+        manteniendo trazabilidad documental para actividades
+        de seguimiento, evaluación y control.
+
+    </div>
+
+</div>
+
+{% endblock %}

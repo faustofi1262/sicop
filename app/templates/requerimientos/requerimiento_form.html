@@ -56,7 +56,32 @@
                         <input type="date" name="fecha_memo_requi" class="form-control" value="{{ requerimiento.fecha_memo_requi.strftime('%Y-%m-%d') if requerimiento and requerimiento.fecha_memo_requi else '' }}">
                     </div>
                 </div>
+                <!-- ==========================================================
+                FUNCIONARIO ELABORADOR
+                ==========================================================
+                Identifica al servidor de la unidad requirente que elaboró
+                la documentación remitida a Compras Públicas.
 
+                Este campo es diferente del funcionario encargado,
+                que corresponde al analista UCP asignado al requerimiento.
+                    ========================================================== -->
+
+                    <div class="form-group">
+
+                        <label for="funcionario_elaborador">
+                            Funcionario elaborador
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="funcionario_elaborador"
+                            name="funcionario_elaborador"
+                            value="{{ requerimiento.funcionario_elaborador if requerimiento else '' }}"
+                            placeholder="Nombre del servidor que elaboró la documentación"
+                        >
+
+                    </div>
                 <div class="estructura-box">
                     <div class="row">
                         <div class="col-lg-4 col-md-12 mb-3">
