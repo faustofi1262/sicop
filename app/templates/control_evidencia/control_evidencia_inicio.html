@@ -398,6 +398,203 @@
 
         font-size: 13px;
     }
+    /* =====================================================
+    GRID DE TARJETAS
+    ===================================================== */
+
+    .control-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 24px;
+    }
+
+
+    /* =====================================================
+    COMPATIBILIDAD CON LOS NUEVOS NOMBRES DE COLOR
+    ===================================================== */
+
+    .control-card-blue::before {
+        background: #1976d2;
+    }
+
+    .control-card-orange::before {
+        background: #e6a23c;
+    }
+
+    .control-card-green::before {
+        background: #19a974;
+    }
+
+    .control-card-purple::before {
+        background: #7556c9;
+    }
+
+    .control-card-cyan::before {
+        background: #1597a5;
+    }
+
+    .control-card-dark::before {
+        background: #17324d;
+    }
+
+
+    /* ICONOS */
+
+    .control-card-blue .control-icon {
+        background: #edf5ff;
+    }
+
+    .control-card-orange .control-icon {
+        background: #fff7e8;
+    }
+
+    .control-card-green .control-icon {
+        background: #eaf9f3;
+    }
+
+    .control-card-purple .control-icon {
+        background: #f3effc;
+    }
+
+    .control-card-cyan .control-icon {
+        background: #eaf7f8;
+    }
+
+    .control-card-dark .control-icon {
+        background: #edf1f4;
+    }
+
+
+    /* CONTENIDO INTERNO */
+
+    .control-grid .control-card {
+        padding: 24px;
+    }
+
+    .control-grid .control-card h3 {
+        font-size: 18px;
+        font-weight: 700;
+        color: #172b3a;
+        margin-bottom: 10px;
+    }
+
+    .control-grid .control-card p {
+        color: #6f8090;
+        font-size: 14px;
+        line-height: 1.55;
+        min-height: 66px;
+    }
+
+
+    /* LÍNEA INFORMATIVA */
+
+    .control-meta {
+        border-top: 1px solid #edf0f3;
+        margin-top: 18px;
+        padding-top: 15px;
+        font-size: 12px;
+        color: #8795a3;
+    }
+
+    .control-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 6px;
+    }
+
+    .control-dot.blue {
+        background: #1976d2;
+    }
+
+    .control-dot.orange {
+        background: #e6a23c;
+    }
+
+    .control-dot.green {
+        background: #19a974;
+    }
+
+    .control-dot.purple {
+        background: #7556c9;
+    }
+
+    .control-dot.cyan {
+        background: #1597a5;
+    }
+
+    .control-dot.dark {
+        background: #17324d;
+    }
+
+
+    /* BOTONES */
+
+    .control-btn-blue {
+        border: 1px solid #1976d2;
+        color: #1976d2;
+    }
+
+    .control-btn-orange {
+        border: 1px solid #e6a23c;
+        color: #e6a23c;
+        background: white;
+    }
+
+    .control-btn-green {
+        border: 1px solid #19a974;
+        color: #19a974;
+        background: white;
+    }
+
+    .control-btn-purple {
+        border: 1px solid #7556c9;
+        color: #7556c9;
+        background: white;
+    }
+
+    .control-btn-cyan {
+        border: 1px solid #1597a5;
+        color: #1597a5;
+        background: white;
+    }
+
+    .control-btn-dark {
+        border: 1px solid #17324d;
+        color: #17324d;
+    }
+
+
+    /* HOVER BOTONES ACTIVOS */
+
+    a.control-btn-blue:hover,
+    a.control-btn-dark:hover {
+        color: white;
+    }
+
+    a.control-btn-blue:hover {
+        background: #1976d2;
+    }
+
+    a.control-btn-dark:hover {
+        background: #17324d;
+    }
+
+
+    /* RESPONSIVE */
+
+    @media (max-width: 1100px) {
+        .control-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 700px) {
+        .control-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 
 
@@ -445,241 +642,210 @@
     </div>
 
 
-    <!-- ==================================================
-         TARJETAS DEL MÓDULO
-    =================================================== -->
+        <div class="control-grid">
 
-    <div class="row">
+            <!-- =====================================================
+                BITÁCORA DE CONTROL
+            ====================================================== -->
+            <div class="control-card control-card-blue">
 
-        <!-- ==============================================
-             TARJETA: BITÁCORA DE CONTROL
-             ==============================================
-             Permitirá consolidar las actuaciones,
-             revisiones y controles efectuados en SICOP.
-        =============================================== -->
-
-        <div class="col-lg-4 col-md-6 mb-4">
-
-            <div class="control-card azul">
-
-                <div class="control-card-body">
-
-                    <div class="control-icon">
-                        🔎
-                    </div>
-
-                    <h4>
-                        Bitácora de control
-                    </h4>
-
-                    <p>
-                        Registro cronológico de revisiones,
-                        observaciones, subsanaciones y
-                        actuaciones realizadas.
-                    </p>
-
-                    <div class="control-status">
-
-                        <span class="status-dot" style="background:#1976d2;"></span>
-
-                        Trazabilidad de actuaciones
-
-                    </div>
-
-                    <button type="button" class="btn btn-outline-primary control-btn" disabled>
-                        Próximamente
-                    </button>
-
+                <div class="control-icon">
+                    🔎
                 </div>
+
+                <h3>
+                    Bitácora de control
+                </h3>
+
+                <p>
+                    Registro cronológico de revisiones, observaciones,
+                    comunicaciones, subsanaciones y verificaciones realizadas.
+                </p>
+
+                <div class="control-meta">
+                    <span class="control-dot blue"></span>
+                    Trazabilidad de actuaciones
+                </div>
+
+                <a
+                    href="{{ url_for('control_evidencia.bitacora_nueva') }}"
+                    class="control-btn control-btn-blue"
+                >
+                    Ingresar
+                </a>
+
+            </div>
+
+
+            <!-- =====================================================
+                RECOMENDACIONES
+            ====================================================== -->
+            <div class="control-card control-card-orange">
+
+                <div class="control-icon">
+                    📋
+                </div>
+
+                <h3>
+                    Recomendaciones
+                </h3>
+
+                <p>
+                    Registro, clasificación y seguimiento de recomendaciones
+                    emitidas por organismos de control.
+                </p>
+
+                <div class="control-meta">
+                    <span class="control-dot orange"></span>
+                    Matriz de recomendaciones
+                </div>
+
+                <button
+                    type="button"
+                    class="control-btn control-btn-orange"
+                    disabled
+                >
+                    Próximamente
+                </button>
+
+            </div>
+
+
+            <!-- =====================================================
+                EVIDENCIAS
+            ====================================================== -->
+            <div class="control-card control-card-green">
+
+                <div class="control-icon">
+                    📁
+                </div>
+
+                <h3>
+                    Evidencias
+                </h3>
+
+                <p>
+                    Consulta de comunicaciones, revisiones, certificaciones,
+                    informes y actuaciones vinculadas al expediente.
+                </p>
+
+                <div class="control-meta">
+                    <span class="control-dot green"></span>
+                    Evidencia verificable
+                </div>
+
+                <button
+                    type="button"
+                    class="control-btn control-btn-green"
+                    disabled
+                >
+                    Próximamente
+                </button>
+
+            </div>
+
+
+            <!-- =====================================================
+                SEGUIMIENTO
+            ====================================================== -->
+            <div class="control-card control-card-purple">
+
+                <div class="control-icon">
+                    ⚠️
+                </div>
+
+                <h3>
+                    Seguimiento
+                </h3>
+
+                <p>
+                    Control de observaciones pendientes, subsanaciones,
+                    reincidencias y actuaciones que requieren seguimiento.
+                </p>
+
+                <div class="control-meta">
+                    <span class="control-dot purple"></span>
+                    Alertas y pendientes
+                </div>
+
+                <button
+                    type="button"
+                    class="control-btn control-btn-purple"
+                    disabled
+                >
+                    Próximamente
+                </button>
+
+            </div>
+
+
+            <!-- =====================================================
+                INFORMES DE CONTROL
+            ====================================================== -->
+            <div class="control-card control-card-cyan">
+
+                <div class="control-icon">
+                    📊
+                </div>
+
+                <h3>
+                    Informes de control
+                </h3>
+
+                <p>
+                    Generación de reportes consolidados de revisiones,
+                    observaciones, resultados y acciones de seguimiento.
+                </p>
+
+                <div class="control-meta">
+                    <span class="control-dot cyan"></span>
+                    Reportes institucionales
+                </div>
+
+                <button
+                    type="button"
+                    class="control-btn control-btn-cyan"
+                    disabled
+                >
+                    Próximamente
+                </button>
+
+            </div>
+
+
+            <!-- =====================================================
+                NORMATIVA DE CONTROL
+            ====================================================== -->
+            <div class="control-card control-card-dark">
+
+                <div class="control-icon">
+                    ⚖️
+                </div>
+
+                <h3>
+                    Normativa de Control
+                </h3>
+
+                <p>
+                    Administra leyes, reglamentos y disposiciones
+                    utilizadas por la revisión inteligente de documentos.
+                </p>
+
+                <div class="control-meta">
+                    <span class="control-dot dark"></span>
+                    Base normativa para IA
+                </div>
+
+                <a
+                    href="{{ url_for('normativa_control.inicio_normativa_control') }}"
+                    class="control-btn control-btn-dark"
+                >
+                    Administrar normativa
+                </a>
 
             </div>
 
         </div>
-        <!-- ==============================================
-             TARJETA: RECOMENDACIONES
-             ==============================================
-             Permitirá registrar y dar seguimiento
-             a recomendaciones emitidas por organismos
-             de control.
-        =============================================== -->
-
-        <div class="col-lg-4 col-md-6 mb-4">
-
-            <div class="control-card ambar">
-
-                <div class="control-card-body">
-
-                    <div class="control-icon">
-                        📋
-                    </div>
-
-                    <h4>
-                        Recomendaciones
-                    </h4>
-
-                    <p>
-                        Registro, clasificación y seguimiento
-                        de recomendaciones emitidas por
-                        organismos de control.
-                    </p>
-
-                    <div class="control-status">
-
-                        <span class="status-dot" style="background:#e6a23c;"></span>
-
-                        Matriz de recomendaciones
-
-                    </div>
-
-                    <button type="button" class="btn btn-outline-warning control-btn" disabled>
-                        Próximamente
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- ==============================================
-             TARJETA: EVIDENCIAS
-             ==============================================
-             Permitirá conservar y vincular documentos
-             que respalden las actuaciones realizadas.
-        =============================================== -->
-
-        <div class="col-lg-4 col-md-6 mb-4">
-
-            <div class="control-card verde">
-
-                <div class="control-card-body">
-
-                    <div class="control-icon">
-                        📁
-                    </div>
-
-                    <h4>
-                        Evidencias
-                    </h4>
-
-                    <p>
-                        Respaldo documental de comunicaciones,
-                        revisiones, certificaciones, informes
-                        y demás actuaciones institucionales.
-                    </p>
-
-                    <div class="control-status">
-
-                        <span class="status-dot" style="background:#19a974;"></span>
-
-                        Evidencia verificable
-
-                    </div>
-
-                    <button type="button" class="btn btn-outline-success control-btn" disabled>
-                        Próximamente
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- ==============================================
-             TARJETA: SEGUIMIENTO
-             ==============================================
-             Permitirá identificar acciones pendientes
-             y controles que requieren atención.
-        =============================================== -->
-
-        <div class="col-lg-4 col-md-6 mb-4">
-
-            <div class="control-card morado">
-
-                <div class="control-card-body">
-
-                    <div class="control-icon">
-                        ⚠️
-                    </div>
-
-                    <h4>
-                        Seguimiento
-                    </h4>
-
-                    <p>
-                        Control de acciones pendientes,
-                        observaciones abiertas y actividades
-                        que requieren verificación.
-                    </p>
-
-                    <div class="control-status">
-
-                        <span class="status-dot" style="background:#7556c9;"></span>
-
-                        Monitoreo y alertas
-
-                    </div>
-
-                    <button type="button" class="btn btn-outline-secondary control-btn" disabled>
-                        Próximamente
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- ==============================================
-             TARJETA: INFORMES
-             ==============================================
-             Permitirá generar reportes PDF por período,
-             recomendación, proceso o responsable.
-        =============================================== -->
-
-        <div class="col-lg-4 col-md-6 mb-4">
-
-            <div class="control-card cyan">
-
-                <div class="control-card-body">
-
-                    <div class="control-icon">
-                        📊
-                    </div>
-
-                    <h4>
-                        Informes de control
-                    </h4>
-
-                    <p>
-                        Generación de reportes de acciones,
-                        seguimiento y evidencias por período
-                        o recomendación.
-                    </p>
-
-                    <div class="control-status">
-
-                        <span class="status-dot" style="background:#1597a5;"></span>
-
-                        Reportes y respaldos PDF
-
-                    </div>
-
-                    <button type="button" class="btn btn-outline-info control-btn" disabled>
-                        Próximamente
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
 
     <!-- ==================================================
          PIE INFORMATIVO DEL MÓDULO

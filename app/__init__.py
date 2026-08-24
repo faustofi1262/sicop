@@ -16,7 +16,9 @@ def create_app():
     app.register_blueprint(inteligencia_financiera)
     
     from app.consultas_routes import consultas_bp
+    from app.normativa_control_routes import normativa_control_bp
     app.register_blueprint(consultas_bp)
+    app.register_blueprint(normativa_control_bp)
     # ==========================================================
 # REGISTRO DEL MÓDULO CONTROL Y EVIDENCIA
 # ==========================================================
@@ -28,7 +30,9 @@ def create_app():
 
     app.register_blueprint(control_evidencia_bp)
     
-    
-    
+   
+   
+  
+  
     return app
 

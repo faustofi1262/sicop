@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Normativa de Control | SICOP</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f4f7fa;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #173957;
+        }
+
+        .nc-container {
+            max-width: 1500px;
+            margin: 25px auto;
+            padding: 0 22px 30px;
+        }
+
+
+        /* =====================================================
+           CABECERA
+        ====================================================== */
+
+        .nc-header {
+            background: linear-gradient(
+                135deg,
+                #153f60,
+                #1d567d
+            );
+
+            color: white;
+            padding: 28px 34px;
+            border-radius: 18px;
+            box-shadow: 0 8px 22px rgba(23, 63, 95, .15);
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nc-header-small {
+            font-size: 12px;
+            font-weight: 700;
+            color: #65c6ff;
+            letter-spacing: 1px;
+            margin-bottom: 7px;
+        }
+
+        .nc-header h1 {
+            margin: 0;
+            font-size: 27px;
+        }
+
+        .nc-header p {
+            margin: 8px 0 0;
+            color: #e1edf5;
+            font-size: 14px;
+        }
+
+        .nc-back {
+            background: rgba(255,255,255,.13);
+            color: white;
+            text-decoration: none;
+            padding: 11px 17px;
+            border-radius: 9px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+
+        /* =====================================================
+           CARDS
+        ====================================================== */
+
+        .nc-card {
+            margin-top: 20px;
+            background: white;
+            border: 1px solid #dce6ee;
+            border-radius: 16px;
+            padding: 24px 28px;
+            box-shadow: 0 5px 15px rgba(20, 54, 80, .05);
+        }
+
+        .nc-title {
+            font-size: 18px;
+            font-weight: 700;
+            padding-bottom: 13px;
+            border-bottom: 1px solid #d9e4ec;
+            margin-bottom: 20px;
+        }
+
+
+        /* =====================================================
+           FORMULARIO
+        ====================================================== */
+
+        .nc-grid-2 {
+            display: grid;
+            grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+            gap: 17px 22px;
+        }
+
+        .nc-field-wrap {
+            min-width: 0;
+        }
+
+        .nc-field-wrap label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 7px;
+        }
+
+        .nc-field {
+            width: 100%;
+            height: 45px;
+
+            padding: 9px 12px;
+
+            border: 1px solid #cbd9e4;
+            border-radius: 9px;
+
+            background: white;
+            color: #173957;
+
+            font-size: 14px;
+
+            outline: none;
+        }
+
+        .nc-field:focus {
+            border-color: #238ad0;
+            box-shadow: 0 0 0 3px rgba(35, 138, 208, .10);
+        }
+
+        textarea.nc-field {
+            height: 82px;
+            resize: vertical;
+        }
+
+
+        /* =====================================================
+           CARGA PDF
+        ====================================================== */
+
+        .nc-upload-box {
+            margin-top: 18px;
+
+            border: 1px solid #bcd7ea;
+            border-left: 4px solid #258cd1;
+
+            background: #f6fafc;
+
+            border-radius: 11px;
+
+            padding: 16px 18px;
+        }
+
+        .nc-upload-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .nc-file-name {
+            color: #718396;
+            font-size: 13px;
+            margin-top: 7px;
+        }
+
+
+        /* =====================================================
+           BOTONES
+        ====================================================== */
+
+        .nc-btn {
+            border: 0;
+            border-radius: 9px;
+            padding: 11px 18px;
+            cursor: pointer;
+
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .nc-btn-primary {
+            background: #1978b8;
+            color: white;
+        }
+
+        .nc-btn-primary:hover {
+            background: #14699f;
+        }
+
+        .nc-btn-upload {
+            background: #eaf2f7;
+            color: #173957;
+            border: 1px solid #cbdce8;
+        }
+
+        .nc-btn-green {
+            background: #168960;
+            color: white;
+        }
+
+        .nc-actions {
+            margin-top: 18px;
+
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+
+        /* =====================================================
+           TABLA
+        ====================================================== */
+
+        .nc-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .nc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .nc-table th {
+            background: #edf4f8;
+            color: #173957;
+            text-align: left;
+            padding: 12px 13px;
+            border-bottom: 1px solid #d2dee7;
+        }
+
+        .nc-table td {
+            padding: 12px 13px;
+            border-bottom: 1px solid #e3eaf0;
+            vertical-align: middle;
+        }
+
+        .nc-table tbody tr:hover {
+            background: #f9fbfc;
+        }
+
+        .nc-empty {
+            text-align: center;
+            color: #8191a0;
+            padding: 30px !important;
+        }
+
+
+        /* =====================================================
+           BADGES
+        ====================================================== */
+
+        .nc-badge {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .nc-badge-ok {
+            background: #e1f5ec;
+            color: #11714e;
+        }
+
+        .nc-badge-off {
+            background: #f4e7e7;
+            color: #9b3d3d;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ====================================================== */
+
+        @media (max-width: 850px) {
+
+            .nc-grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .nc-upload-row {
+                grid-template-columns: 1fr;
+            }
+
+            .nc-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="nc-container">
+
+
+    <!-- =====================================================
+         CABECERA
+    ====================================================== -->
+
+    <div class="nc-header">
+
+        <div>
+
+            <div class="nc-header-small">
+                SICOP · CONTROL INSTITUCIONAL
+            </div>
+
+            <h1>
+                ⚖️ Administrador de Normativa
+            </h1>
+
+            <p>
+                Gestión de leyes, reglamentos y disposiciones
+                utilizadas para la revisión inteligente de documentos.
+            </p>
+
+        </div>
+
+        <a
+            href="{{ url_for('control_evidencia.inicio') }}"
+            class="nc-back"
+        >
+            ← Volver
+        </a>
+
+    </div>
+
+
+    <!-- =====================================================
+         REGISTRO DE NORMATIVA
+    ====================================================== -->
+
+    <div class="nc-card">
+
+        <div class="nc-title">
+            📚 Registrar normativa
+        </div>
+
+
+        <div class="nc-grid-2">
+
+
+            <div class="nc-field-wrap">
+
+                <label for="nombre">
+                    Nombre de la normativa
+                </label>
+
+                <input
+                    type="text"
+                    id="nombre"
+                    class="nc-field"
+                    placeholder="Ej.: Ley Orgánica del Sistema Nacional de Contratación Pública"
+                >
+
+            </div>
+
+
+            <div class="nc-field-wrap">
+
+                <label for="tipo_norma">
+                    Tipo de norma
+                </label>
+
+                <select
+                    id="tipo_norma"
+                    class="nc-field"
+                >
+
+                    <option value="">
+                        Seleccione
+                    </option>
+
+                    <option value="LEY">
+                        Ley
+                    </option>
+
+                    <option value="REGLAMENTO">
+                        Reglamento
+                    </option>
+
+                    <option value="RESOLUCION">
+                        Resolución
+                    </option>
+
+                    <option value="NORMA_INTERNA">
+                        Norma interna
+                    </option>
+
+                    <option value="OTRA">
+                        Otra normativa
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="nc-field-wrap">
+
+                <label for="numero_norma">
+                    Número / identificación
+                </label>
+
+                <input
+                    type="text"
+                    id="numero_norma"
+                    class="nc-field"
+                    placeholder="Ej.: LOSNCP"
+                >
+
+            </div>
+
+
+            <div class="nc-field-wrap">
+
+                <label for="fecha_publicacion">
+                    Fecha de publicación / vigencia
+                </label>
+
+                <input
+                    type="date"
+                    id="fecha_publicacion"
+                    class="nc-field"
+                >
+
+            </div>
+
+
+            <div class="nc-field-wrap">
+
+                <label for="fuente_oficial">
+                    Fuente oficial
+                </label>
+
+                <input
+                    type="text"
+                    id="fuente_oficial"
+                    class="nc-field"
+                    placeholder="Ej.: Registro Oficial / SERCOP"
+                >
+
+            </div>
+
+
+            <div class="nc-field-wrap">
+
+                <label for="observaciones">
+                    Observaciones
+                </label>
+
+                <textarea
+                    id="observaciones"
+                    class="nc-field"
+                    placeholder="Notas adicionales sobre la normativa..."
+                ></textarea>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =================================================
+             PDF
+        ================================================== -->
+
+        <div class="nc-upload-box">
+
+            <div class="nc-upload-row">
+
+                <div>
+
+                    <strong>
+                        📄 Documento oficial en PDF
+                    </strong>
+
+                    <div
+                        id="nombre_pdf"
+                        class="nc-file-name"
+                    >
+                        Ningún archivo seleccionado
+                    </div>
+
+                </div>
+
+
+                <div>
+
+                    <input
+                        type="file"
+                        id="archivo_pdf"
+                        accept=".pdf,application/pdf"
+                        hidden
+                    >
+
+                    <button
+                        type="button"
+                        id="btn_seleccionar_pdf"
+                        class="nc-btn nc-btn-upload"
+                    >
+                        📎 Seleccionar PDF
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             ACCIONES
+        ================================================== -->
+
+        <div class="nc-actions">
+
+            <button
+                type="button"
+                id="btn_guardar_normativa"
+                class="nc-btn nc-btn-primary"
+            >
+                💾 Registrar normativa
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         NORMATIVAS CARGADAS
+    ====================================================== -->
+
+    <div class="nc-card">
+
+        <div class="nc-title">
+            📖 Normativas registradas
+        </div>
+
+
+        <div class="nc-table-wrapper">
+
+            <table class="nc-table">
+
+                <thead>
+
+                    <tr>
+                        <th style="width:60px;">
+                            N.º
+                        </th>
+
+                        <th>
+                            Normativa
+                        </th>
+
+                        <th style="width:150px;">
+                            Tipo
+                        </th>
+
+                        <th style="width:150px;">
+                            Fecha
+                        </th>
+
+                        <th style="width:110px;">
+                            Estado
+                        </th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% if normativas %}
+
+                        {% for norma in normativas %}
+
+                        <tr>
+
+                            <td>
+                                {{ loop.index }}
+                            </td>
+
+
+                            <td>
+
+                                <strong>
+                                    {{ norma.nombre }}
+                                </strong>
+
+                                {% if norma.numero_norma %}
+
+                                <div
+                                    style="
+                                        margin-top:4px;
+                                        color:#718396;
+                                    "
+                                >
+                                    {{ norma.numero_norma }}
+                                </div>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+                                {{ norma.tipo_norma or '—' }}
+                            </td>
+
+
+                            <td>
+
+                                {% if norma.fecha_publicacion %}
+
+                                    {{
+                                        norma.fecha_publicacion.strftime(
+                                            '%d/%m/%Y'
+                                        )
+                                    }}
+
+                                {% else %}
+
+                                    —
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+
+                                {% if norma.vigente %}
+
+                                    <span
+                                        class="nc-badge nc-badge-ok"
+                                    >
+                                        VIGENTE
+                                    </span>
+
+                                {% else %}
+
+                                    <span
+                                        class="nc-badge nc-badge-off"
+                                    >
+                                        INACTIVA
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+
+                    {% else %}
+
+
+                        <tr>
+
+                            <td
+                                colspan="5"
+                                class="nc-empty"
+                            >
+                                No existen normativas registradas.
+                            </td>
+
+                        </tr>
+
+
+                    {% endif %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<script>
+
+
+    // ============================================================
+    // SELECCIONAR PDF
+    // ============================================================
+
+    const archivoPDF =
+        document.getElementById("archivo_pdf");
+
+    const btnSeleccionarPDF =
+        document.getElementById("btn_seleccionar_pdf");
+
+    const nombrePDF =
+        document.getElementById("nombre_pdf");
+
+
+    btnSeleccionarPDF.addEventListener(
+        "click",
+        function () {
+
+            archivoPDF.click();
+
+        }
+    );
+
+
+    archivoPDF.addEventListener(
+        "change",
+        function () {
+
+            if (
+                this.files &&
+                this.files.length > 0
+            ) {
+
+                nombrePDF.textContent =
+                    this.files[0].name;
+
+            } else {
+
+                nombrePDF.textContent =
+                    "Ningún archivo seleccionado";
+
+            }
+
+        }
+    );
+
+
+
+    // ============================================================
+    // REGISTRAR NORMATIVA
+    // ============================================================
+    const btnGuardarNormativa =
+        document.getElementById("btn_guardar_normativa");
+
+    btnGuardarNormativa.addEventListener(
+        "click",
+        async function () {
+
+            const nombre =
+                document.getElementById("nombre").value.trim();
+
+            const tipoNorma =
+                document.getElementById("tipo_norma").value;
+
+            const numeroNorma =
+                document.getElementById("numero_norma").value.trim();
+
+            const fechaPublicacion =
+                document.getElementById("fecha_publicacion").value;
+
+            const fuenteOficial =
+                document.getElementById("fuente_oficial").value.trim();
+
+            const observaciones =
+                document.getElementById("observaciones").value.trim();
+
+            const archivo =
+                document.getElementById("archivo_pdf").files[0];
+
+
+            // ==========================================
+            // VALIDACIONES
+            // ==========================================
+
+            if (!nombre) {
+                alert("Ingrese el nombre de la normativa.");
+                return;
+            }
+
+            if (!archivo) {
+                alert("Seleccione el PDF oficial de la normativa.");
+                return;
+            }
+
+
+            // ==========================================
+            // PREPARAR FORM DATA
+            // ==========================================
+
+            const formData = new FormData();
+
+            formData.append("nombre", nombre);
+            formData.append("tipo_norma", tipoNorma);
+            formData.append("numero_norma", numeroNorma);
+            formData.append("fecha_publicacion", fechaPublicacion);
+            formData.append("fuente_oficial", fuenteOficial);
+            formData.append("observaciones", observaciones);
+            formData.append("archivo_pdf", archivo);
+
+
+            btnGuardarNormativa.disabled = true;
+            btnGuardarNormativa.innerHTML = "⏳ Procesando normativa...";
+
+
+            try {
+
+                const response = await fetch(
+                    "/normativa-control/guardar",
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+
+                const data = await response.json();
+
+
+                if (!response.ok || !data.ok) {
+
+                    alert(
+                        data.mensaje ||
+                        "No fue posible registrar la normativa."
+                    );
+
+                    return;
+                }
+
+
+                alert(data.mensaje);
+
+                window.location.reload();
+
+
+            } catch (error) {
+
+                console.error(
+                    "ERROR REGISTRANDO NORMATIVA:",
+                    error
+                );
+
+                alert(
+                    "Ocurrió un error al registrar la normativa."
+                );
+
+
+            } finally {
+
+                btnGuardarNormativa.disabled = false;
+
+                btnGuardarNormativa.innerHTML =
+                    "💾 Registrar normativa";
+            }
+        }
+    );
+   
+
+
+</script>
+
+
+</body>
+
+</html>

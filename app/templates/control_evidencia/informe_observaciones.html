@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Informe de Observaciones</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --azul: #173f5f;
+            --azul-2: #245b82;
+            --azul-suave: #eef5f9;
+            --gris: #66788a;
+            --borde: #d7e1e8;
+            --fondo: #f7fafc;
+        }
+
+        body {
+            margin: 0;
+            padding: 28px;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            background: #eef2f5;
+            color: #263746;
+
+            font-size: 12.5px;
+            line-height: 1.5;
+        }
+
+
+        /* =====================================================
+           CONTENEDOR
+        ====================================================== */
+
+        .documento {
+            max-width: 960px;
+            margin: auto;
+
+            background: white;
+
+            padding: 38px 46px 46px;
+
+            box-shadow:
+                0 4px 22px rgba(21, 54, 78, .10);
+        }
+
+
+        /* =====================================================
+           ENCABEZADO
+        ====================================================== */
+
+        .encabezado {
+            display: grid;
+
+            grid-template-columns:
+                90px 1fr 90px;
+
+            align-items: center;
+
+            border-bottom:
+                3px solid var(--azul);
+
+            padding-bottom: 18px;
+        }
+
+        .institucion {
+            text-align: center;
+        }
+
+        .institucion .universidad {
+            font-size: 13px;
+            font-weight: 700;
+
+            color: var(--azul);
+
+            letter-spacing: .3px;
+        }
+
+        .institucion .unidad {
+            margin-top: 4px;
+
+            color: var(--gris);
+
+            font-size: 11px;
+        }
+
+        .marca {
+            text-align: right;
+
+            font-weight: 700;
+            color: var(--azul-2);
+        }
+
+
+        /* =====================================================
+           TÍTULO
+        ====================================================== */
+
+        .titulo-principal {
+            text-align: center;
+
+            padding: 28px 0 22px;
+        }
+
+        .titulo-principal h1 {
+            margin: 0;
+
+            font-size: 23px;
+            letter-spacing: .5px;
+
+            color: var(--azul);
+        }
+
+        .titulo-principal p {
+            margin: 5px 0 0;
+
+            color: var(--gris);
+            font-size: 12px;
+        }
+
+
+        /* =====================================================
+           DATOS GENERALES
+        ====================================================== */
+
+        .datos-generales {
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 0;
+
+            border:
+                1px solid var(--borde);
+
+            border-radius: 8px;
+
+            overflow: hidden;
+
+            margin-bottom: 25px;
+        }
+
+        .dato {
+            padding: 10px 14px;
+
+            border-bottom:
+                1px solid var(--borde);
+        }
+
+        .dato:nth-child(odd) {
+            border-right:
+                1px solid var(--borde);
+        }
+
+        .dato strong {
+            display: block;
+
+            color: var(--azul);
+
+            font-size: 10px;
+            text-transform: uppercase;
+
+            margin-bottom: 3px;
+        }
+
+        .dato span {
+            font-size: 12px;
+        }
+
+
+        /* =====================================================
+           TÍTULOS DE SECCIÓN
+        ====================================================== */
+
+        .seccion-titulo {
+            margin-top: 26px;
+            margin-bottom: 12px;
+
+            padding-bottom: 7px;
+
+            border-bottom:
+                2px solid #dce6ed;
+
+            color: var(--azul);
+
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+
+        /* =====================================================
+           RECOMENDACIÓN
+        ====================================================== */
+
+        .recomendacion {
+            background:
+                #fffaf1;
+
+            border:
+                1px solid #edd8aa;
+
+            border-left:
+                4px solid #dea12e;
+
+            border-radius:
+                7px;
+
+            padding:
+                14px 16px;
+
+            margin-bottom:
+                25px;
+        }
+
+        .recomendacion-titulo {
+            font-weight: 700;
+
+            color: #805a10;
+
+            margin-bottom: 5px;
+        }
+
+        .recomendacion-info {
+            margin-bottom: 7px;
+            color: #526577;
+        }
+
+        .recomendacion-texto {
+            text-align: justify;
+        }
+
+
+        /* =====================================================
+           REVISIONES
+        ====================================================== */
+
+        .revision {
+            border: 1px solid var(--borde);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: visible;
+
+            page-break-inside: auto;
+            break-inside: auto;
+        }
+
+        .revision-cabecera {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            padding:
+                10px 14px;
+
+            background:
+                var(--azul-suave);
+
+            border-bottom:
+                1px solid var(--borde);
+
+            color:
+                var(--azul);
+
+            font-weight: 700;
+        }
+
+        .revision-numero {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 25px;
+            height: 25px;
+
+            border-radius: 50%;
+
+            background:
+                var(--azul);
+
+            color: white;
+
+            margin-right: 8px;
+        }
+
+        .revision-fecha {
+            color:
+                var(--gris);
+
+            font-size:
+                10px;
+
+            font-weight:
+                normal;
+        }
+
+        .revision-contenido {
+            padding: 10px 14px;
+            line-height: 1.38;
+
+            text-align:
+                justify;
+
+            white-space:
+                pre-line;
+        }
+
+        .revision-contenido strong {
+            color:
+                #183b57;
+        }
+
+        .subtitulo-observacion {
+            display: block;
+
+            color:
+                var(--azul);
+
+            font-weight:
+                700;
+
+            margin:
+                10px 0 5px;
+        }
+
+
+        /* =====================================================
+           FIRMA
+        ====================================================== */
+
+        .firma-area {
+            margin-top:
+                55px;
+
+            display:
+                grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap:
+                70px;
+        }
+
+        .firma {
+            text-align:
+                center;
+
+            padding-top:
+                45px;
+
+            border-top:
+                1px solid #6f7f8b;
+        }
+
+        .firma strong {
+            display:
+                block;
+
+            color:
+                var(--azul);
+        }
+
+        .firma span {
+            color:
+                var(--gris);
+
+            font-size:
+                10px;
+        }
+
+
+        /* =====================================================
+           PIE
+        ====================================================== */
+
+        .pie {
+            margin-top:
+                35px;
+
+            padding-top:
+                10px;
+
+            border-top:
+                1px solid #dce5eb;
+
+            text-align:
+                center;
+
+            color:
+                #8292a0;
+
+            font-size:
+                9px;
+        }
+
+
+        /* =====================================================
+           BOTONES PANTALLA
+        ====================================================== */
+
+        .acciones {
+            max-width:
+                960px;
+
+            margin:
+                0 auto 15px;
+
+            display:
+                flex;
+
+            justify-content:
+                flex-end;
+
+            gap:
+                10px;
+        }
+
+        .btn {
+            border:
+                none;
+
+            padding:
+                10px 18px;
+
+            border-radius:
+                7px;
+
+            cursor:
+                pointer;
+
+            font-weight:
+                700;
+        }
+
+        .btn-imprimir {
+            background:
+                #16865f;
+
+            color:
+                white;
+        }
+
+        .btn-volver {
+            background:
+                #e8eff4;
+
+            color:
+                var(--azul);
+        }
+
+
+        /* =====================================================
+           IMPRESIÓN
+        ====================================================== */
+
+        @page {
+            size: A4;
+            margin: 14mm 14mm 16mm 14mm;
+        }
+
+        @media print {
+
+            body {
+                background:
+                    white;
+
+                padding:
+                    0;
+
+                font-size:
+                    10.5pt;
+            }
+
+            .acciones {
+                display:
+                    none !important;
+            }
+
+            .documento {
+                max-width:
+                    none;
+
+                margin:
+                    0;
+
+                padding:
+                    0;
+
+                box-shadow:
+                    none;
+            }
+
+
+            .seccion-titulo {
+                break-after:
+                    avoid-page;
+            }
+
+            .firma-area {
+                break-inside:
+                    avoid-page;
+            }
+        }
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================================================
+     BOTONES
+========================================================== -->
+
+    <div class="acciones">
+
+        <button type="button" class="btn btn-volver" onclick="window.close()">
+            ← Volver
+        </button>
+
+        <button type="button" class="btn btn-imprimir" onclick="window.print()">
+            🖨️ Imprimir informe
+        </button>
+
+    </div>
+
+
+    <!-- =========================================================
+     DOCUMENTO
+========================================================== -->
+
+    <div class="documento">
+
+
+        <!-- =====================================================
+         ENCABEZADO
+    ====================================================== -->
+
+        <div class="encabezado">
+
+            <div>
+                <!-- espacio para logo institucional -->
+            </div>
+
+            <div class="institucion">
+
+                <div class="universidad">
+                    UNIVERSIDAD TÉCNICA DE MACHALA
+                </div>
+
+                <div class="unidad">
+                    UNIDAD DE COMPRAS PÚBLICAS
+                </div>
+
+            </div>
+
+            <div class="marca">
+                SICOP
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+         TÍTULO
+    ====================================================== -->
+
+        <div class="titulo-principal">
+
+            <h1>
+                INFORME DE OBSERVACIONES
+            </h1>
+
+            <p>
+                Revisión documental de procedimientos de contratación pública
+            </p>
+
+        </div>
+
+
+        <!-- =====================================================
+         DATOS DEL REQUERIMIENTO
+    ====================================================== -->
+
+        <div class="datos-generales">
+
+            <div class="dato">
+
+                <strong>
+                    Oficio de Vicerrectorado
+                </strong>
+
+                <span>
+                    {{ requerimiento.memo }}
+                </span>
+
+            </div>
+
+
+            <div class="dato">
+
+                <strong>
+                    Fecha de ingreso
+                </strong>
+
+                <span>
+                    {{
+                    requerimiento.fecha_ingreso.strftime('%d/%m/%Y')
+                    if requerimiento.fecha_ingreso
+                    else ''
+                    }}
+                </span>
+
+            </div>
+
+
+            <div class="dato">
+
+                <strong>
+                    Código del proceso
+                </strong>
+
+                <span>
+                    {{ requerimiento.codigo_proceso }}
+                </span>
+
+            </div>
+
+
+            <div class="dato">
+
+                <strong>
+                    Unidad requirente
+                </strong>
+
+                <span>
+                    {{ requerimiento.unidad_requirente }}
+                </span>
+
+            </div>
+
+
+            <div class="dato">
+
+                <strong>
+                    Funcionario elaborador
+                </strong>
+
+                <span>
+                    {{ requerimiento.funcionario_elaborador or '—' }}
+                </span>
+
+            </div>
+
+
+            <div class="dato">
+
+                <strong>
+                    Servidor que realizó la revisión
+                </strong>
+
+                <span>
+                    {{ requerimiento.servidor_revision }}
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+         RECOMENDACIÓN DE CONTROL
+    ====================================================== -->
+
+        {% if recomendacion %}
+
+        <div class="seccion-titulo">
+            Recomendación de control vinculada
+        </div>
+
+
+        <div class="recomendacion">
+
+            <div class="recomendacion-titulo">
+
+                Recomendación
+                {{ recomendacion.numero }}
+                —
+                {{ recomendacion.organismo }}
+
+            </div>
+
+
+            {% if recomendacion.informe %}
+
+            <div class="recomendacion-info">
+
+                <strong>
+                    Informe de origen:
+                </strong>
+
+                {{ recomendacion.informe }}
+
+            </div>
+
+            {% endif %}
+
+
+            <div class="recomendacion-texto">
+
+                {{ recomendacion.texto }}
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- =====================================================
+         OBSERVACIONES
+    ====================================================== -->
+
+        <div class="seccion-titulo">
+            Observaciones de la revisión documental
+        </div>
+
+
+        {% if revisiones %}
+
+
+        {% for revision in revisiones %}
+
+
+        <div class="revision">
+
+
+            <div class="revision-cabecera">
+
+                <div>
+
+                    <span class="revision-numero">
+                        {{ loop.index }}
+                    </span>
+
+
+                    {% if revision.tipo_documento == 'ESTUDIOS_PREVIOS' %}
+
+                    Estudios previos
+
+                    {% elif revision.tipo_documento == 'DETERMINACION_NECESIDAD' %}
+
+                    Determinación de la necesidad
+
+                    {% elif revision.tipo_documento == 'ESPECIFICACIONES_TECNICAS' %}
+
+                    Especificaciones técnicas
+
+                    {% elif revision.tipo_documento == 'TERMINOS_REFERENCIA' %}
+
+                    Términos de referencia
+
+                    {% elif revision.tipo_documento == 'PRESUPUESTO_REFERENCIAL' %}
+
+                    Determinación del presupuesto referencial
+
+                    {% elif revision.tipo_documento == 'PROFORMAS' %}
+
+                    Proformas
+
+                    {% else %}
+
+                    Otros documentos
+
+                    {% endif %}
+
+                </div>
+
+
+                <div class="revision-fecha">
+
+                    {% if revision.fecha_revision %}
+
+                    Revisado:
+                    {{ revision.fecha_revision.strftime('%d/%m/%Y') }}
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <div class="revision-contenido observacion-format">
+                {{ revision.observacion }}
+            </div>
+
+        </div>
+
+
+        {% endfor %}
+
+
+        {% else %}
+
+        <div class="revision">
+
+            <div class="revision-contenido">
+
+                No existen observaciones registradas
+                para este requerimiento.
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- =====================================================
+            FIRMAS
+        ====================================================== -->
+
+        <div class="firma-area">
+
+            <div class="firma">
+
+                <strong>
+                    Ing. {{ requerimiento.servidor_revision }}
+                </strong>
+
+                <span>
+                    Analista
+                </span>
+
+            </div>
+
+
+            <div class="firma">
+
+                <strong>
+                    JEFE DE COMPRAS PÚBLICAS
+                </strong>
+
+                <span>
+                    Unidad de Compras Públicas
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =====================================================
+         PIE
+    ====================================================== -->
+
+        <div class="pie">
+
+            Documento generado mediante
+            el Sistema SICOP —
+            Control y Evidencia Institucional.
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =========================================================
+     FORMATEAR TEXTO DE OBSERVACIONES
+========================================================== -->
+
+    <script>
+
+        document.querySelectorAll(
+            ".observacion-format"
+        ).forEach(function (elemento) {
+
+            let texto =
+                elemento.textContent || "";
+
+
+            // Escapar primero
+            const temporal =
+                document.createElement("div");
+
+            temporal.textContent =
+                texto;
+
+            let html =
+                temporal.innerHTML;
+
+
+            // Negrita Markdown
+            html = html.replace(
+                /\*\*([^*]+)\*\*/g,
+                "<strong>$1</strong>"
+            );
+
+
+            // Encabezados que vienen de las observaciones
+            html = html.replace(
+                /INCONSISTENCIAS O RIESGOS:/gi,
+                '<span class="subtitulo-observacion">INCONSISTENCIAS O RIESGOS</span>'
+            );
+
+            html = html.replace(
+                /RECOMENDACIONES:/gi,
+                '<span class="subtitulo-observacion">RECOMENDACIONES</span>'
+            );
+
+
+            // Saltos de línea
+            html = html.replace(
+                /\r?\n/g,
+                "<br>"
+            );
+
+
+            elemento.innerHTML =
+                html;
+
+        });
+
+    </script>
+
+
+</body>
+
+</html>
