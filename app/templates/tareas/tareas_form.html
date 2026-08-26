@@ -33,7 +33,7 @@
         </div>
         <div class="tarea-body">
 
-            <form method="POST" action="{{ url_for('main.guardar_tarea') }}"autocomplete="off">
+            <form method="POST" action="{{ url_for('main.guardar_tarea') }}" autocomplete="off">
 
                 {% if tarea %}
                 <input type="hidden" name="id" value="{{ tarea[0] if tarea else '' }}">
@@ -179,45 +179,17 @@
 
                                     {% set estado_actual = tarea[2] if tarea else '' %}
 
-                                    <option value="EN REVISIÓN" {% if estado_actual=='EN REVISIÓN' %}selected{% endif
-                                        %}>EN
-                                        REVISIÓN</option>
-                                    <option value="OBSERVADA" {% if estado_actual=='OBSERVADA' %}selected{% endif %}>
-                                        OBSERVADA</option>
-                                    <option value="ENVIADO AUTORIZAR" {% if estado_actual=='ENVIADO AUTORIZAR'
-                                        %}selected{% endif %}>ENVIADO AUTORIZAR</option>
-                                    <option value="SOLICITUD DE CERTIFICACIÓN" {% if
-                                        estado_actual=='SOLICITUD DE CERTIFICACIÓN' %}selected{% endif %}>SOLICITUD DE
-                                        CERTIFICACIÓN</option>
-                                    <option value="CERTIFICADA" {% if estado_actual=='CERTIFICADA' %}selected{% endif
-                                        %}>
-                                        CERTIFICADA</option>
-                                    <option value="ORDEN DE COMPRA ENVIADA" {% if
-                                        estado_actual=='ORDEN DE COMPRA ENVIADA' %}selected{% endif %}>ORDEN DE COMPRA
-                                        ENVIADA</option>
-                                    <option value="ELABORANDO PLIEGO" {% if estado_actual=='ELABORANDO PLIEGO'
-                                        %}selected{% endif %}>ELABORANDO PLIEGO</option>
-                                    <option value="PUBLICADA" {% if estado_actual=='PUBLICADA' %}selected{% endif %}>
-                                        PUBLICADA</option>
-                                    <option value="ADJUDICADA" {% if estado_actual=='ADJUDICADA' %}selected{% endif %}>
-                                        ADJUDICADA</option>
-                                    <option value="DESIERTA" {% if estado_actual=='DESIERTA' %}selected{% endif %}>
-                                        DESIERTA|
-                                    </option>
-                                    <option value="REAPERTURA" {% if estado_actual=='REAPERTURA' %}selected{% endif %}>
-                                        REAPERTURA</option>
-                                    <option value="CONTRATO SUSCRITO" {% if estado_actual=='CONTRATO SUSCRITO'
-                                        %}selected{% endif %}>CONTRATO SUSCRITO</option>
-                                    <option value="EN EJECUCIÓN" {% if estado_actual=='EN EJECUCIÓN' %}selected{% endif
-                                        %}>
-                                        EN EJECUCIÓN</option>
-                                    <option value="FINALIZADA" {% if estado_actual=='FINALIZADA' %}selected{% endif %}>
-                                        FINALIZADA</option>
-                                    <option value="PAGADA" {% if estado_actual=='PAGADA' %}selected{% endif %}>PAGADA
-                                    </option>
-                                    <option value="DEVUELTO" {% if estado_actual=='DEVUELTO' %}selected{% endif %}>
-                                        DEVUELTO
-                                    </option>
+                                    <option value="EN REVISIÓN">EN REVISIÓN</option>
+                                    <option value="DEVUELTO">DEVUELTO</option>
+                                    <option value="SOLICITUD DE CERTIFICACIÓN">SOLICITUD DE CERTIFICACIÓN</option>
+                                    <option value="CON CERTIFICACIÓN">CON CERTIFICACIÓN</option>
+                                    <option value="DESIERTA">DESIERTA</option>
+                                    <option value="ADJUDICADA">ADJUDICADA</option>
+                                    <option value="CON ORDEN DE COMPRA">CON ORDEN DE COMPRA</option>
+                                    <option value="CON CONTRATO">CON CONTRATO</option>
+                                    <option value="EN EJECUCIÓN">EN EJECUCIÓN</option>
+                                    <option value="FINALIZADA">FINALIZADA</option>
+                                    
                                 </select>
                             </div>
 
