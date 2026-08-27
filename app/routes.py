@@ -1333,16 +1333,27 @@ def guardar_tarea():
         flash("✅ Tarea actualizada correctamente", "success")
 
     else:
+        
         # =========================
         # INSERT (NUEVA)
         # =========================
         cur.execute("""
             INSERT INTO tareas (
-                tipo_proceso, estado_requerimiento, objeto_contratacion,
-                codigo_proceso, fecha_recepcion,
-                valor_sin_iva, valor_exento, valor_en_letras,
-                tipo_regimen, tipo_compra, base_legal, observaciones,
-                funcionario_encargado, nombre_jefe_compras, unidad_solicitante,
+                tipo_proceso,
+                estado_requerimiento,
+                objeto_contratacion,
+                codigo_proceso,
+                fecha_recepcion,
+                valor_sin_iva,
+                valor_exento,
+                valor_en_letras,
+                tipo_regimen,
+                tipo_compra,
+                base_legal,
+                observaciones,
+                funcionario_encargado,
+                nombre_jefe_compras,
+                unidad_solicitante,
                 requerimiento_id,
 
                 presenta_estudio_previo,
@@ -1363,14 +1374,13 @@ def guardar_tarea():
                 presenta_viabilidad_tecnico_economica
             )
             VALUES (
-                %s,%s,%s,%s,%s,
-                %s,%s,%s,%s,%s,
-                %s,%s,%s,%s,%s,%s,
-
-                %s,%s,%s,%s,%s,
-                %s,%s,%s,%s,%s,
-
-                %s,%s,%s,%s,%s
+                %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s,
+                %s
             )
         """, (
             request.form.get("tipo_proceso"),
@@ -1378,11 +1388,11 @@ def guardar_tarea():
             request.form.get("objeto_contratacion"),
             codigo_proceso,
             request.form.get("fecha_recepcion"),
-            to_decimal(request.form.get("valor_sin_iva")),
-            to_decimal(request.form.get("valor_exento")),
+
             valor_sin_iva,
             valor_exento,
             valor_en_letras,
+
             request.form.get("tipo_regimen"),
             tipo_compra,
             request.form.get("base_legal"),
@@ -1390,7 +1400,7 @@ def guardar_tarea():
             request.form.get("funcionario_encargado"),
             nombre_jefe,
             request.form.get("unidad_solicitante"),
-            request.form.get("requerimiento_id"),
+            request.form.get("requerimiento_id") or None,
 
             presenta_estudio_previo,
             presenta_terminos_referencia,
