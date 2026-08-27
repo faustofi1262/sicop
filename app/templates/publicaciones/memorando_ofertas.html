@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+
+    <title>Memorando de ofertas recibidas</title>
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: #222;
+            line-height: 1.55;
+            margin: 40px 65px;
+            font-size: 14px;
+        }
+
+        .titulo {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .titulo h2 {
+            margin: 0;
+            font-size: 19px;
+        }
+
+        .datos {
+            margin-bottom: 25px;
+            padding: 15px 18px;
+            border: 1px solid #d7dfe5;
+            background: #f8fafc;
+        }
+
+        .datos div {
+            margin-bottom: 6px;
+        }
+
+        p {
+            text-align: justify;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 22px 0;
+        }
+
+        th,
+        td {
+            border: 1px solid #b8c3cc;
+            padding: 8px 9px;
+            vertical-align: top;
+        }
+
+        th {
+            background: #0b2f4f;
+            color: white;
+            text-align: left;
+        }
+
+        .numero {
+            text-align: center;
+            width: 45px;
+        }
+
+        .monto {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .advertencia {
+            margin: 22px 0;
+            padding: 15px 18px;
+            border-left: 5px solid #d99a20;
+            background: #fff9ed;
+        }
+
+        .firma {
+            margin-top: 55px;
+        }
+
+        .acciones {
+            margin-bottom: 25px;
+            text-align: right;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 9px 15px;
+            border-radius: 6px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-imprimir {
+            background: #176fae;
+            color: white;
+        }
+
+        .btn-volver {
+            background: #e9eef2;
+            color: #243b4d;
+            margin-right: 8px;
+        }
+
+        @media print {
+
+            .acciones {
+                display: none;
+            }
+
+            body {
+                margin: 15mm 18mm;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="acciones">
+
+        <a
+            href="{{ url_for('main.publicacion_necesidad_detalle', publicacion_id=publicacion[0]) }}"
+            class="btn btn-volver"
+        >
+            ← Volver
+        </a>
+
+        <button
+            type="button"
+            class="btn btn-imprimir"
+            onclick="window.print()"
+        >
+            🖨️ Imprimir memorando
+        </button>
+
+    </div>
+
+
+    <div class="titulo">
+
+        <h2>
+            COMUNICACIÓN DE OFERTAS RECIBIDAS
+        </h2>
+
+    </div>
+
+
+    <div class="datos">
+
+        <div>
+            <strong>Código de publicación:</strong>
+            {{ publicacion[9] or '' }}
+        </div>
+
+        <div>
+            <strong>Código del proceso:</strong>
+            {{ publicacion[13] or '' }}
+        </div>
+
+        <div>
+            <strong>Objeto de contratación:</strong>
+            {{ publicacion[2] or '' }}
+        </div>
+
+        <div>
+            <strong>Fecha de publicación:</strong>
+            {% if publicacion[3] %}
+                {{ publicacion[3].strftime('%d/%m/%Y') }}
+            {% endif %}
+        </div>
+
+        <div>
+            <strong>Fecha límite:</strong>
+            {% if publicacion[4] %}
+                {{ publicacion[4].strftime('%d/%m/%Y') }}
+            {% endif %}
+        </div>
+
+    </div>
+
+
+    <p>
+        De mis consideraciones:
+    </p>
+
+
+    <p>
+        Una vez concluido el período de publicación del requerimiento
+        correspondiente al proceso
+        <strong>{{ publicacion[9] or publicacion[13] or '' }}</strong>,
+        cuyo objeto es
+        <strong>{{ publicacion[2] or '' }}</strong>,
+        me permito comunicar que se recibieron
+        <strong>{{ total_ofertas }}</strong>
+        oferta(s) o proforma(s) dentro del período establecido.
+    </p>
+
+
+    <p>
+        Para efectos de revisión y continuidad del procedimiento,
+        se deja constancia de las ofertas recibidas:
+    </p>
+
+
+    <table>
+
+        <thead>
+            <tr>
+                <th class="numero">N.º</th>
+                <th>Proveedor</th>
+                <th>RUC</th>
+                <th>Fecha de recepción</th>
+                <th>Valor ofertado</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for proforma in proformas %}
+
+            <tr>
+
+                <td class="numero">
+                    {{ loop.index }}
+                </td>
+
+                <td>
+                    {{ proforma[0] or '' }}
+                </td>
+
+                <td>
+                    {{ proforma[1] or '' }}
+                </td>
+
+                <td>
+                    {% if proforma[2] %}
+                        {{ proforma[2].strftime('%d/%m/%Y') }}
+                    {% endif %}
+                </td>
+
+                <td class="monto">
+                    {% if proforma[3] is not none %}
+                        ${{ "{:,.2f}".format(proforma[3]) }}
+                    {% endif %}
+                </td>
+
+            </tr>
+
+            {% else %}
+
+            <tr>
+                <td colspan="5" style="text-align:center;">
+                    No se registraron ofertas o proformas.
+                </td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+
+    <p>
+        Corresponde al área requirente efectuar la
+        <strong>revisión integral de la documentación presentada por los oferentes</strong>,
+        verificando el cumplimiento de las condiciones y características
+        requeridas, cantidades, valores, vigencia de las ofertas,
+        documentación presentada y demás requisitos aplicables.
+    </p>
+
+
+    <p>
+        En caso de identificarse imprecisiones o inconsistencias de
+        carácter formal en las proformas presentadas, deberán observarse
+        las reglas previstas en la normativa vigente antes de adoptar la
+        decisión de selección del proveedor.
+    </p>
+
+
+    <div class="advertencia">
+
+        <strong>IMPORTANTE:</strong>
+
+        <p>
+            Las solicitudes de aclaración y las respuestas correspondientes
+            deberán efectuarse mediante
+            <strong>correo electrónico</strong>,
+            utilizando la información de contacto disponible del proveedor,
+            de manera que exista constancia verificable de la comunicación.
+        </p>
+
+        <p>
+            Para estas actuaciones no deberá utilizarse el chat en línea
+            u otros medios informales de comunicación.
+        </p>
+
+        <p>
+            El correo remitido, la respuesta del proveedor y los documentos
+            que formen parte de la aclaración deberán incorporarse al
+            expediente del procedimiento como evidencia de la actuación
+            realizada.
+        </p>
+
+        <p>
+            La aclaración no podrá utilizarse para modificar aspectos
+            sustanciales de la oferta ni alterar el valor económico cuando
+            la normativa aplicable así lo prohíba.
+        </p>
+
+    </div>
+
+
+    <p>
+        De conformidad con el artículo 269, numeral 5, del Reglamento
+        General a la Ley Orgánica del Sistema Nacional de Contratación
+        Pública, cuando se identifiquen imprecisiones o inconsistencias
+        de carácter formal en las proformas, la entidad contratante podrá
+        solicitar las aclaraciones necesarias, otorgando para el efecto
+        un término máximo de dos (2) días.
+    </p>
+
+
+    <p>
+        En consecuencia, se pone en conocimiento del área requirente
+        la información correspondiente a las ofertas recibidas para su
+        revisión, evaluación y pronunciamiento, a fin de continuar con
+        el procedimiento y mantener la debida trazabilidad documental.
+    </p>
+
+
+    <div class="firma">
+
+        <strong>
+            UNIDAD DE COMPRAS PÚBLICAS
+        </strong>
+
+        <br>
+
+        Universidad Técnica de Machala
+
+    </div>
+
+</body>
+</html>

@@ -18,8 +18,7 @@
             </p>
         </div>
 
-        <a href="{{ url_for('main.publicaciones_necesidad') }}"
-           class="btn btn-secondary">
+        <a href="{{ url_for('main.publicaciones_necesidad') }}" class="btn btn-secondary">
             ⬅ Volver
         </a>
 
@@ -104,9 +103,9 @@
                     <strong>Fecha publicación</strong>
                     <div>
                         {% if publicacion[3] %}
-                            {{ publicacion[3].strftime('%d/%m/%Y') }}
+                        {{ publicacion[3].strftime('%d/%m/%Y') }}
                         {% else %}
-                            —
+                        —
                         {% endif %}
                     </div>
                 </div>
@@ -115,9 +114,9 @@
                     <strong>Fecha límite</strong>
                     <div>
                         {% if publicacion[4] %}
-                            {{ publicacion[4].strftime('%d/%m/%Y') }}
+                        {{ publicacion[4].strftime('%d/%m/%Y') }}
                         {% else %}
-                            —
+                        —
                         {% endif %}
                     </div>
                 </div>
@@ -133,9 +132,9 @@
                     <strong>Notificado</strong>
                     <div>
                         {% if publicacion[11] %}
-                            ✅ Sí
+                        ✅ Sí
                         {% else %}
-                            ❌ No
+                        ❌ No
                         {% endif %}
                     </div>
                 </div>
@@ -145,9 +144,9 @@
                     <strong>OC subida</strong>
                     <div>
                         {% if publicacion[12] %}
-                            ✅ Sí
+                        ✅ Sí
                         {% else %}
-                            ❌ No
+                        ❌ No
                         {% endif %}
                     </div>
                 </div>
@@ -194,7 +193,7 @@
 
                     <tbody>
 
-                    {% for i in items %}
+                        {% for i in items %}
 
                         <tr>
                             <td>
@@ -218,16 +217,15 @@
                             </td>
                         </tr>
 
-                    {% else %}
+                        {% else %}
 
                         <tr>
-                            <td colspan="5"
-                                class="text-center text-muted">
+                            <td colspan="5" class="text-center text-muted">
                                 No existen productos registrados.
                             </td>
                         </tr>
 
-                    {% endfor %}
+                        {% endfor %}
 
                     </tbody>
 
@@ -251,12 +249,21 @@
                 💵 Proformas recibidas
             </span>
 
-            <button type="button"
-                    class="btn btn-success btn-sm"
-                    data-toggle="modal"
+            <div class="d-flex">
+
+                <a href="{{ url_for(
+                'main.memorando_ofertas_publicacion',
+                publicacion_id=publicacion[0]
+            ) }}" class="btn btn-primary btn-sm mr-2">
+                    📄 Generar memorando
+                </a>
+
+                <button type="button" class="btn btn-success btn-sm" data-toggle="modal"
                     data-target="#modalNuevaProforma">
-                ➕ Agregar proforma
-            </button>
+                    ➕ Agregar proforma
+                </button>
+
+            </div>
 
         </div>
 
@@ -266,8 +273,7 @@
 
                 <strong>Total de proformas recibidas:</strong>
 
-                <span class="badge badge-primary"
-                      style="font-size:16px;">
+                <span class="badge badge-primary" style="font-size:16px;">
                     {{ proformas|length }}
                 </span>
 
@@ -280,21 +286,19 @@
 
                     <thead class="thead-light">
                         <tr>
-                            <tr>
-                                <th>#</th>
-                                <th>Proveedor</th>
-                                <th>RUC</th>
-                                <th>Fecha recepción</th>
-                                <th>Monto</th>
-                                <th>Observaciones</th>
-                                <th style="min-width: 150px;">Acciones</th>
-                            </tr>
+                            <th>#</th>
+                            <th>Proveedor</th>
+                            <th>RUC</th>
+                            <th>Fecha recepción</th>
+                            <th>Monto</th>
+                            <th>Observaciones</th>
+                            <th style="min-width: 150px;">Acciones</th>
                         </tr>
                     </thead>
 
                     <tbody>
 
-                    {% for p in proformas %}
+                        {% for p in proformas %}
 
                         <tr>
 
@@ -312,15 +316,15 @@
 
                             <td>
                                 {% if p[3] %}
-                                    {{ p[3].strftime('%d/%m/%Y') }}
+                                {{ p[3].strftime('%d/%m/%Y') }}
                                 {% endif %}
                             </td>
 
                             <td>
                                 {% if p[4] is not none %}
-                                    $ {{ "{:,.2f}".format(p[4]) }}
+                                $ {{ "{:,.2f}".format(p[4]) }}
                                 {% else %}
-                                    —
+                                —
                                 {% endif %}
                             </td>
 
@@ -329,29 +333,22 @@
                             </td>
                             <td style="white-space: nowrap;">
 
-                                <button type="button"
-                                        class="btn btn-warning btn-sm btn-editar-proforma"
-                                        data-toggle="modal"
-                                        data-target="#modalEditarProforma"
-                                        data-id="{{ p[0] }}"
-                                        data-proveedor="{{ p[1] or '' }}"
-                                        data-ruc="{{ p[2] or '' }}"
-                                        data-fecha="{{ p[3].strftime('%Y-%m-%d') if p[3] else '' }}"
-                                        data-monto="{{ p[4] if p[4] is not none else '' }}"
-                                        data-observaciones="{{ p[5] or '' }}">
+                                <button type="button" class="btn btn-warning btn-sm btn-editar-proforma"
+                                    data-toggle="modal" data-target="#modalEditarProforma" data-id="{{ p[0] }}"
+                                    data-proveedor="{{ p[1] or '' }}" data-ruc="{{ p[2] or '' }}"
+                                    data-fecha="{{ p[3].strftime('%Y-%m-%d') if p[3] else '' }}"
+                                    data-monto="{{ p[4] if p[4] is not none else '' }}"
+                                    data-observaciones="{{ p[5] or '' }}">
                                     ✏️
                                 </button>
 
-                                <form method="POST"
-                                    action="{{ url_for(
+                                <form method="POST" action="{{ url_for(
                                         'main.eliminar_proforma_publicacion',
                                         proforma_id=p[0]
-                                    ) }}"
-                                    style="display:inline;"
+                                    ) }}" style="display:inline;"
                                     onsubmit="return confirm('¿Está seguro de eliminar esta proforma?');">
 
-                                    <button type="submit"
-                                            class="btn btn-danger btn-sm">
+                                    <button type="submit" class="btn btn-danger btn-sm">
                                         🗑
                                     </button>
 
@@ -360,16 +357,15 @@
                             </td>
                         </tr>
 
-                    {% else %}
+                        {% else %}
 
                         <tr>
-                            <td colspan="7"
-                                class="text-center text-muted">
+                            <td colspan="7" class="text-center text-muted">
                                 No existen proformas registradas.
                             </td>
                         </tr>
 
-                    {% endfor %}
+                        {% endfor %}
 
                     </tbody>
 
@@ -388,14 +384,11 @@
      MODAL NUEVA PROFORMA
 =========================================== -->
 
-<div class="modal fade"
-     id="modalNuevaProforma"
-     tabindex="-1">
+<div class="modal fade" id="modalNuevaProforma" tabindex="-1">
 
     <div class="modal-dialog">
 
-        <form method="POST"
-            action="{{ url_for(
+        <form method="POST" action="{{ url_for(
                 'main.guardar_proforma_publicacion',
                 publicacion_id=publicacion[0]
             ) }}">
@@ -408,9 +401,7 @@
                         ➕ Registrar proforma
                     </h5>
 
-                    <button type="button"
-                            class="close"
-                            data-dismiss="modal">
+                    <button type="button" class="close" data-dismiss="modal">
                         &times;
                     </button>
 
@@ -423,10 +414,7 @@
 
                         <label>Proveedor</label>
 
-                        <input type="text"
-                               name="proveedor"
-                               class="form-control"
-                               required>
+                        <input type="text" name="proveedor" class="form-control" required>
 
                     </div>
 
@@ -435,9 +423,7 @@
 
                         <label>RUC</label>
 
-                        <input type="text"
-                               name="ruc"
-                               class="form-control">
+                        <input type="text" name="ruc" class="form-control">
 
                     </div>
 
@@ -446,9 +432,7 @@
 
                         <label>Fecha de recepción</label>
 
-                        <input type="date"
-                               name="fecha_recepcion"
-                               class="form-control">
+                        <input type="date" name="fecha_recepcion" class="form-control">
 
                     </div>
 
@@ -457,12 +441,8 @@
 
                         <label>Monto de la proforma</label>
 
-                        <input type="number"
-                               name="monto_proforma"
-                               class="form-control"
-                               step="0.01"
-                               min="0"
-                               placeholder="0.00">
+                        <input type="number" name="monto_proforma" class="form-control" step="0.01" min="0"
+                            placeholder="0.00">
 
                     </div>
 
@@ -471,9 +451,7 @@
 
                         <label>Observaciones</label>
 
-                        <textarea name="observaciones"
-                                  class="form-control"
-                                  rows="3"></textarea>
+                        <textarea name="observaciones" class="form-control" rows="3"></textarea>
 
                     </div>
 
@@ -482,8 +460,7 @@
 
                 <div class="modal-footer">
 
-                    <button type="submit"
-                            class="btn btn-success">
+                    <button type="submit" class="btn btn-success">
                         💾 Guardar proforma
                     </button>
 
@@ -500,14 +477,11 @@
      MODAL EDITAR PROFORMA
 =========================================== -->
 
-<div class="modal fade"
-     id="modalEditarProforma"
-     tabindex="-1">
+<div class="modal fade" id="modalEditarProforma" tabindex="-1">
 
     <div class="modal-dialog">
 
-        <form method="POST"
-              id="formEditarProforma">
+        <form method="POST" id="formEditarProforma">
 
             <div class="modal-content">
 
@@ -516,9 +490,7 @@
                         ✏️ Editar proforma
                     </h5>
 
-                    <button type="button"
-                            class="close"
-                            data-dismiss="modal">
+                    <button type="button" class="close" data-dismiss="modal">
                         &times;
                     </button>
                 </div>
@@ -528,56 +500,39 @@
                     <div class="form-group">
                         <label>Proveedor</label>
 
-                        <input type="text"
-                               name="proveedor"
-                               id="editarProveedor"
-                               class="form-control"
-                               required>
+                        <input type="text" name="proveedor" id="editarProveedor" class="form-control" required>
                     </div>
 
                     <div class="form-group">
                         <label>RUC</label>
 
-                        <input type="text"
-                               name="ruc"
-                               id="editarRuc"
-                               class="form-control">
+                        <input type="text" name="ruc" id="editarRuc" class="form-control">
                     </div>
 
                     <div class="form-group">
                         <label>Fecha de recepción</label>
 
-                        <input type="date"
-                               name="fecha_recepcion"
-                               id="editarFecha"
-                               class="form-control">
+                        <input type="date" name="fecha_recepcion" id="editarFecha" class="form-control">
                     </div>
 
                     <div class="form-group">
                         <label>Monto de la proforma</label>
 
-                        <input type="number"
-                               name="monto_proforma"
-                               id="editarMonto"
-                               class="form-control"
-                               step="0.01"
-                               min="0">
+                        <input type="number" name="monto_proforma" id="editarMonto" class="form-control" step="0.01"
+                            min="0">
                     </div>
 
                     <div class="form-group">
                         <label>Observaciones</label>
 
-                        <textarea name="observaciones"
-                                  id="editarObservaciones"
-                                  class="form-control"
-                                  rows="3"></textarea>
+                        <textarea name="observaciones" id="editarObservaciones" class="form-control"
+                            rows="3"></textarea>
                     </div>
 
                 </div>
 
                 <div class="modal-footer">
-                    <button type="submit"
-                            class="btn btn-warning">
+                    <button type="submit" class="btn btn-warning">
                         💾 Guardar cambios
                     </button>
                 </div>
@@ -590,52 +545,52 @@
 
 </div>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function () {
 
-    const botonesEditar =
-        document.querySelectorAll(".btn-editar-proforma");
+        const botonesEditar =
+            document.querySelectorAll(".btn-editar-proforma");
 
-    botonesEditar.forEach(function (boton) {
+        botonesEditar.forEach(function (boton) {
 
-        boton.addEventListener("click", function () {
+            boton.addEventListener("click", function () {
 
-            const id = this.getAttribute("data-id");
-            const proveedor = this.getAttribute("data-proveedor");
-            const ruc = this.getAttribute("data-ruc");
-            const fecha = this.getAttribute("data-fecha");
-            const monto = this.getAttribute("data-monto");
-            const observaciones =
-                this.getAttribute("data-observaciones");
+                const id = this.getAttribute("data-id");
+                const proveedor = this.getAttribute("data-proveedor");
+                const ruc = this.getAttribute("data-ruc");
+                const fecha = this.getAttribute("data-fecha");
+                const monto = this.getAttribute("data-monto");
+                const observaciones =
+                    this.getAttribute("data-observaciones");
 
-            document.getElementById(
-                "editarProveedor"
-            ).value = proveedor || "";
+                document.getElementById(
+                    "editarProveedor"
+                ).value = proveedor || "";
 
-            document.getElementById(
-                "editarRuc"
-            ).value = ruc || "";
+                document.getElementById(
+                    "editarRuc"
+                ).value = ruc || "";
 
-            document.getElementById(
-                "editarFecha"
-            ).value = fecha || "";
+                document.getElementById(
+                    "editarFecha"
+                ).value = fecha || "";
 
-            document.getElementById(
-                "editarMonto"
-            ).value = monto || "";
+                document.getElementById(
+                    "editarMonto"
+                ).value = monto || "";
 
-            document.getElementById(
-                "editarObservaciones"
-            ).value = observaciones || "";
+                document.getElementById(
+                    "editarObservaciones"
+                ).value = observaciones || "";
 
-            document.getElementById(
-                "formEditarProforma"
-            ).action =
-                `/proformas_publicacion/${id}/editar`;
+                document.getElementById(
+                    "formEditarProforma"
+                ).action =
+                    `/proformas_publicacion/${id}/editar`;
+
+            });
 
         });
 
     });
-
-});
 </script>
 {% endblock %}

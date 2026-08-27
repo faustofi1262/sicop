@@ -9251,3 +9251,78 @@ def api_tarea_certificacion(tarea_id):
     finally:
         cur.close()
         conn.close()
+# ============================================================
+# MEMORANDO - OFERTAS RECIBIDAS EN PUBLICACIÓN
+# ============================================================
+@main.route(
+    "/publicaciones_necesidad/<int:publicacion_id>/memorando-ofertas"
+)
+@login_required()
+def memorando_ofertas_publicacion(publicacion_id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+
+        # ========================================================
+        # 1. DATOS DE LA PUBLICACIÓN
+        # ========================================================
+        cur.execute("""
+            SELECT
+                id,
+                numero_solicitud,
+                objeto_compra,
+                fecha_publicacion,
+                fecha_limite,
+                encargado,
+                correo,
+                tipo_publicacion,
+                unidad_requirente,
+                codigo_publicacion,
+                numero_publicacion,
+                estado,
+                observaciones,
+                codigo_proceso
+            FROM publicaciones_necesidad
+            WHERE id = %s
+        """, (publicacion_id,))
+
+        publicacion = cur.fetchone()
+
+        if not publicacion:
+            return "La publicación no existe.", 404
+
+
+        # ========================================================
+        # 2. PROFORMAS RECIBIDAS
+        # ========================================================
+        cur.execute("""
+            SELECT
+                proveedor,
+                ruc,
+                fecha_recepcion,
+                monto_proforma,
+                observaciones
+            FROM proformas_publicacion
+            WHERE publicacion_id = %s
+            ORDER BY fecha_recepcion ASC NULLS LAST, id ASC
+        """, (publicacion_id,))
+
+        proformas = cur.fetchall()
+
+
+        # ========================================================
+        # 3. MOSTRAR MEMORANDO
+        # ========================================================
+        return render_template(
+            "publicaciones/memorando_ofertas.html",
+            publicacion=publicacion,
+            proformas=proformas,
+            total_ofertas=len(proformas)
+        )
+
+    finally:
+
+        cur.close()
+        conn.close()

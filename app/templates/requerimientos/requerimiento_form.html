@@ -168,7 +168,7 @@
                             <label>Breve descripción</label>
                             <select name="breve_descr" class="form-control">
                                 <option value="">Seleccione</option>
-                                {% for v in ['Bien','Servicio','Obra','Consultoría'] %}
+                                {% for v in ['Bien','Servicio','Obra','Consultoría','Seguros'] %}
                                 <option value="{{ v }}" {% if requerimiento and requerimiento.breve_descr == v %}selected{% endif %}>{{ v }}</option>
                                 {% endfor %}
                             </select>
