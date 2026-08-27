@@ -1289,6 +1289,7 @@ def guardar_tarea():
                 presenta_apus = %s,
                 presenta_condiciones_contratacion = %s,
                 presenta_viabilidad_tecnico_economica = %s
+
             WHERE id = %s
         """, (
             request.form.get("tipo_proceso"),
@@ -1296,11 +1297,11 @@ def guardar_tarea():
             request.form.get("objeto_contratacion"),
             codigo_proceso,
             request.form.get("fecha_recepcion"),
-            to_decimal(request.form.get("valor_sin_iva")),
-            to_decimal(request.form.get("valor_exento")),
+
             valor_sin_iva,
             valor_exento,
             valor_en_letras,
+
             request.form.get("tipo_regimen"),
             tipo_compra,
             request.form.get("base_legal"),
