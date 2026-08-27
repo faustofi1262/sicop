@@ -42,22 +42,45 @@ from datetime import datetime, date, timedelta
 from decimal import Decimal
 
 def valor_en_letras_con_decimales(valor):
-    valor = Decimal(valor).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-    entero = int(valor)
-    decimal = int((valor - entero) * 100)
 
-    letras = num2words(entero, lang="es").capitalize()
-    return f"{letras} dólares con {decimal:02d}/100"
+    if valor is None or str(valor).strip() == "":
+        return ""
 
-def generar_numero_verificacion(cur):
-    year = datetime.now().year
-    
-    cur.execute("""
-        SELECT COUNT(*) FROM verificaciones_procedimiento
-        WHERE EXTRACT(YEAR FROM fecha_elaboracion) = %s
-    """, (year,))
-    count = cur.fetchone()[0] + 1
-    return f"UCP-VERF-{year}-{str(count).zfill(4)}"
+    # Convertir a texto y limpiar separadores de miles
+    texto = str(valor).strip()
+
+    # Si viene como 1.178.568
+    if texto.count(".") > 1:
+        texto = texto.replace(".", "")
+
+    # Si viene como 1,178,568
+    if texto.count(",") > 1:
+        texto = texto.replace(",", "")
+
+    # Si viene con coma decimal: 1178568,50
+    elif "," in texto and "." not in texto:
+        texto = texto.replace(",", ".")
+
+    valor_decimal = Decimal(texto).quantize(
+        Decimal("0.01"),
+        rounding=ROUND_HALF_UP
+    )
+
+    entero = int(valor_decimal)
+
+    centavos = int(
+        (valor_decimal - Decimal(entero)) * 100
+    )
+
+    letras = num2words(
+        entero,
+        lang="es"
+    ).upper()
+
+    return (
+        f"{letras} DÓLARES DE LOS ESTADOS UNIDOS "
+        f"DE AMÉRICA CON {centavos:02d}/100"
+    )
 
 main = Blueprint(
     "main",
@@ -1140,7 +1163,20 @@ def guardar_tarea():
     codigo_proceso = (request.form.get("codigo_proceso") or "").strip()
     nombre_jefe = (request.form.get("nombre_jefe_compras") or "").strip()
     tipo_compra = (request.form.get("tipo_compra") or "").strip()
+    # -------------------------
+    # VALORES ECONÓMICOS
+    # -------------------------
+    valor_sin_iva = to_decimal(
+        request.form.get("valor_sin_iva")
+    )
 
+    valor_exento = to_decimal(
+        request.form.get("valor_exento")
+    )
+
+    valor_en_letras = valor_en_letras_con_decimales(
+        valor_sin_iva
+    )
     # -------------------------
     # 3) PROTEGER NOMBRE JEFE (EDICIÓN)
     # -------------------------
@@ -1262,7 +1298,9 @@ def guardar_tarea():
             request.form.get("fecha_recepcion"),
             to_decimal(request.form.get("valor_sin_iva")),
             to_decimal(request.form.get("valor_exento")),
-            request.form.get("valor_en_letras"),
+            valor_sin_iva,
+            valor_exento,
+            valor_en_letras,
             request.form.get("tipo_regimen"),
             tipo_compra,
             request.form.get("base_legal"),
@@ -1342,7 +1380,9 @@ def guardar_tarea():
             request.form.get("fecha_recepcion"),
             to_decimal(request.form.get("valor_sin_iva")),
             to_decimal(request.form.get("valor_exento")),
-            request.form.get("valor_en_letras"),
+            valor_sin_iva,
+            valor_exento,
+            valor_en_letras,
             request.form.get("tipo_regimen"),
             tipo_compra,
             request.form.get("base_legal"),
@@ -9293,6 +9333,49 @@ def memorando_ofertas_publicacion(publicacion_id):
         if not publicacion:
             return "La publicación no existe.", 404
 
+        # ========================================================
+        # HISTORIAL DE PUBLICACIONES DEL MISMO REQUERIMIENTO
+        # ========================================================
+
+        cur.execute("""
+            SELECT
+                p.id,
+                p.tipo_publicacion,
+                p.codigo_publicacion,
+                p.numero_publicacion,
+                p.fecha_publicacion,
+                p.fecha_limite,
+                COUNT(pr.id) AS total_proformas
+            FROM publicaciones_necesidad p
+
+            LEFT JOIN proformas_publicacion pr
+                ON pr.publicacion_id = p.id
+
+            WHERE
+                UPPER(TRIM(p.objeto_compra)) =
+                UPPER(TRIM(%s))
+
+                AND
+                UPPER(TRIM(p.unidad_requirente)) =
+                UPPER(TRIM(%s))
+
+            GROUP BY
+                p.id,
+                p.tipo_publicacion,
+                p.codigo_publicacion,
+                p.numero_publicacion,
+                p.fecha_publicacion,
+                p.fecha_limite
+
+            ORDER BY
+                p.fecha_publicacion ASC,
+                p.id ASC
+        """, (
+            publicacion[2],
+            publicacion[8]
+        ))
+
+        historial_publicaciones = cur.fetchall()
 
         # ========================================================
         # 2. PROFORMAS RECIBIDAS
@@ -9319,7 +9402,8 @@ def memorando_ofertas_publicacion(publicacion_id):
             "publicaciones/memorando_ofertas.html",
             publicacion=publicacion,
             proformas=proformas,
-            total_ofertas=len(proformas)
+            total_ofertas=len(proformas),
+            historial_publicaciones=historial_publicaciones
         )
 
     finally:
