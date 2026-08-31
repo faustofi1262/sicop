@@ -703,6 +703,11 @@ def revisar_documento_ia():
         request.form.get("tipo_documento") or ""
     ).strip()
 
+    requerimiento_id = request.form.get(
+        "requerimiento_id",
+        type=int
+    )
+
 
     # ========================================================
     # VALIDACIONES
@@ -715,7 +720,13 @@ def revisar_documento_ia():
             "mensaje":
                 "Debe seleccionar el tipo de documento."
         }), 400
+    if not requerimiento_id:
 
+        return jsonify({
+            "ok": False,
+            "mensaje":
+                "Debe seleccionar primero un requerimiento."
+        }), 400
 
     if not archivo or not archivo.filename:
 

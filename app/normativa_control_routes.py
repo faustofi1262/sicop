@@ -201,7 +201,7 @@ def guardar_normativa_control():
         articulos = extraer_articulos(
             texto
         )
-        if len(articulos) > 500:
+        if len(articulos) > 150:
             raise ValueError(
                 f"Se detectaron {len(articulos)} artículos, "
                 "lo que parece incorrecto. Revise el PDF o el patrón de extracción."

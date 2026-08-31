@@ -1010,10 +1010,21 @@ def tareas_nueva():
     cur = conn.cursor()
 
     # Requerimientos (para memo)
+    # Los históricos anteriores al 27-08-2026 se mantienen disponibles.
+    # Desde esa fecha, solo aparecen si pasaron por Bitácora.
     cur.execute("""
-        SELECT id, memo_vice_ad
-        FROM requerimientos
-        ORDER BY memo_vice_ad
+        SELECT r.id, r.memo_vice_ad
+        FROM requerimientos r
+        WHERE
+            r.fecha_recep_req < DATE '2026-08-27'
+            OR EXISTS (
+                SELECT 1
+                FROM bitacora_control b
+                WHERE b.origen = 'REQUERIMIENTO'
+                AND b.origen_id = r.id
+                AND b.estado = 'ACTIVO'
+            )
+        ORDER BY r.memo_vice_ad
     """)
     requerimientos = cur.fetchall()
 

@@ -2036,8 +2036,24 @@
             if (!archivo) { alert("Seleccione primero un archivo PDF."); return; }
 
             const formData = new FormData();
-            formData.append("tipo_documento", tipoDocumento);
-            formData.append("archivo", archivo);
+
+            const requerimientoId =
+                document.getElementById("requerimiento_id").value;
+
+            formData.append(
+                "tipo_documento",
+                tipoDocumento
+            );
+
+            formData.append(
+                "archivo",
+                archivo
+            );
+
+            formData.append(
+                "requerimiento_id",
+                requerimientoId
+            );
 
             const resultadoBox = document.getElementById("resultado_revision_ia");
             const resultadoContenido = document.getElementById("contenido_resultado_ia");
