@@ -1848,3 +1848,520 @@ def cargar_estado_bitacora(requerimiento_id):
 
         cur.close()
         conn.close()
+# ============================================================
+# SEGUIMIENTO DE REVISIONES
+# Consulta general de expedientes revisados en Bitácora
+# ============================================================
+
+@control_evidencia_bp.route(
+    "/seguimiento-revisiones",
+    methods=["GET"]
+)
+@login_required()
+def seguimiento_revisiones():
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+
+        # ========================================================
+        # CARGAR EXPEDIENTES / BITÁCORAS ACTIVAS
+        # ========================================================
+
+        cur.execute("""
+            SELECT
+                b.id,
+                b.origen_id,
+                b.codigo_proceso,
+                b.referencia_requerimiento,
+                b.unidad_requirente,
+                b.resultado,
+                b.numero_memorando_observacion,
+                b.fecha_devolucion,
+                b.fecha_subsanacion,
+                b.fecha_actuacion,
+                COUNT(r.id) AS total_revisiones,
+                MAX(r.fecha_revision) AS ultima_revision
+
+            FROM bitacora_control b
+
+            LEFT JOIN revisiones_documentales_control r
+                ON r.bitacora_id = b.id
+
+            WHERE b.origen = 'REQUERIMIENTO'
+              AND b.estado = 'ACTIVO'
+              AND b.tipo_actuacion = 'REVISION DOCUMENTAL'
+
+            GROUP BY
+                b.id,
+                b.origen_id,
+                b.codigo_proceso,
+                b.referencia_requerimiento,
+                b.unidad_requirente,
+                b.resultado,
+                b.numero_memorando_observacion,
+                b.fecha_devolucion,
+                b.fecha_subsanacion,
+                b.fecha_actuacion
+
+            ORDER BY
+                MAX(r.fecha_revision) DESC NULLS LAST,
+                b.id DESC
+        """)
+
+        filas = cur.fetchall()
+
+        seguimientos = []
+
+        for fila in filas:
+
+            resultado = (
+                fila[5] or "PENDIENTE"
+            ).strip().upper()
+
+            numero_memorando = fila[6]
+            fecha_devolucion = fila[7]
+
+            # ====================================================
+            # DETERMINAR ESTADO VISUAL DEL EXPEDIENTE
+            # ====================================================
+
+            if resultado == "SUBSANADO":
+
+                estado_visual = "SUBSANADO"
+                estado_clase = "subsanado"
+
+            elif resultado == "PERSISTE OBSERVACION":
+
+                estado_visual = "PERSISTE OBSERVACIÓN"
+                estado_clase = "observado"
+
+            elif resultado == "SIN OBSERVACIONES":
+
+                estado_visual = "SIN OBSERVACIONES"
+                estado_clase = "sin-observaciones"
+
+            elif numero_memorando and fecha_devolucion:
+
+                estado_visual = "OBSERVACIONES COMUNICADAS"
+                estado_clase = "comunicado"
+
+            else:
+
+                estado_visual = "EN REVISIÓN"
+                estado_clase = "revision"
+
+
+            # ====================================================
+            # IDENTIFICADOR DEL EXPEDIENTE
+            # ====================================================
+
+            codigo_proceso = fila[2] or ""
+
+            referencia = fila[3] or ""
+
+            identificador = (
+                codigo_proceso
+                if codigo_proceso.strip()
+                else referencia
+            )
+
+
+            seguimientos.append({
+
+                "bitacora_id": fila[0],
+
+                "requerimiento_id": fila[1],
+
+                "codigo_proceso": codigo_proceso,
+
+                "referencia": referencia,
+
+                "identificador": identificador,
+
+                "unidad_requirente": fila[4] or "",
+
+                "resultado": resultado,
+
+                "numero_memorando": numero_memorando or "",
+
+                "fecha_devolucion": (
+                    fecha_devolucion.isoformat()
+                    if fecha_devolucion
+                    else ""
+                ),
+
+                "fecha_subsanacion": (
+                    fila[8].isoformat()
+                    if fila[8]
+                    else ""
+                ),
+
+                "fecha_actuacion": (
+                    fila[9].isoformat()
+                    if fila[9]
+                    else ""
+                ),
+
+                "total_revisiones": fila[10] or 0,
+
+                "ultima_revision": (
+                    fila[11].isoformat()
+                    if fila[11]
+                    else ""
+                ),
+
+                "estado_visual": estado_visual,
+
+                "estado_clase": estado_clase
+            })
+
+
+        # ========================================================
+        # INDICADORES
+        # ========================================================
+
+        total = len(seguimientos)
+
+        total_revision = sum(
+            1
+            for item in seguimientos
+            if item["estado_clase"] == "revision"
+        )
+
+        total_comunicados = sum(
+            1
+            for item in seguimientos
+            if item["estado_clase"] == "comunicado"
+        )
+
+        total_subsanados = sum(
+            1
+            for item in seguimientos
+            if item["estado_clase"] == "subsanado"
+        )
+
+        total_observados = sum(
+            1
+            for item in seguimientos
+            if item["estado_clase"] == "observado"
+        )
+
+        total_sin_observaciones = sum(
+            1
+            for item in seguimientos
+            if item["estado_clase"] == "sin-observaciones"
+        )
+
+
+        return render_template(
+            "control_evidencia/seguimiento_revisiones.html",
+
+            seguimientos=seguimientos,
+
+            total=total,
+
+            total_revision=total_revision,
+
+            total_comunicados=total_comunicados,
+
+            total_subsanados=total_subsanados,
+
+            total_observados=total_observados,
+
+            total_sin_observaciones=
+                total_sin_observaciones
+        )
+
+
+    except Exception as e:
+
+        print(
+            "ERROR SEGUIMIENTO DE REVISIONES:",
+            e
+        )
+
+        return (
+            "No fue posible cargar el seguimiento "
+            "de revisiones.",
+            500
+        )
+
+
+    finally:
+
+        cur.close()
+        conn.close()
+# ============================================================
+# DETALLE DEL SEGUIMIENTO DE UNA REVISIÓN
+# Muestra el expediente y todos los análisis IA almacenados
+# ============================================================
+
+@control_evidencia_bp.route(
+    "/seguimiento-revisiones/<int:bitacora_id>",
+    methods=["GET"]
+)
+@login_required()
+def detalle_seguimiento_revision(bitacora_id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    try:
+
+        # ========================================================
+        # 1. DATOS GENERALES DE LA BITÁCORA / REQUERIMIENTO
+        # ========================================================
+
+        cur.execute("""
+            SELECT
+                b.id,
+                b.origen_id,
+                b.codigo_proceso,
+                b.referencia_requerimiento,
+                b.unidad_requirente,
+                b.fecha_ingreso,
+                b.servidor_responsable,
+                b.resultado,
+                b.numero_memorando_observacion,
+                b.fecha_devolucion,
+                b.respuesta_subsanacion,
+                b.fecha_subsanacion,
+                b.fecha_actuacion,
+                r.funcionario_elaborador,
+                r.funcionario_encargado
+            FROM bitacora_control b
+
+            LEFT JOIN requerimientos r
+                ON r.id = b.origen_id
+               AND b.origen = 'REQUERIMIENTO'
+
+            WHERE b.id = %s
+              AND b.estado = 'ACTIVO'
+
+            LIMIT 1
+        """, (bitacora_id,))
+
+        fila = cur.fetchone()
+
+        if not fila:
+            return "No se encontró la revisión solicitada.", 404
+
+
+        resultado = (
+            fila[7] or "PENDIENTE"
+        ).strip().upper()
+
+        numero_memorando = fila[8]
+        fecha_devolucion = fila[9]
+
+
+        # ========================================================
+        # 2. ESTADO VISUAL
+        # ========================================================
+
+        if resultado == "SUBSANADO":
+
+            estado_visual = "SUBSANADO"
+            estado_clase = "subsanado"
+
+        elif resultado == "PERSISTE OBSERVACION":
+
+            estado_visual = "PERSISTE OBSERVACIÓN"
+            estado_clase = "observado"
+
+        elif resultado == "SIN OBSERVACIONES":
+
+            estado_visual = "SIN OBSERVACIONES"
+            estado_clase = "sin-observaciones"
+
+        elif numero_memorando and fecha_devolucion:
+
+            estado_visual = "OBSERVACIONES COMUNICADAS"
+            estado_clase = "comunicado"
+
+        else:
+
+            estado_visual = "EN REVISIÓN"
+            estado_clase = "revision"
+
+
+        expediente = {
+
+            "bitacora_id": fila[0],
+
+            "requerimiento_id": fila[1],
+
+            "codigo_proceso": fila[2] or "",
+
+            "referencia": fila[3] or "",
+
+            "unidad_requirente": fila[4] or "",
+
+            "fecha_ingreso": fila[5],
+
+            "servidor_responsable": fila[6] or "",
+
+            "resultado": resultado,
+
+            "numero_memorando": fila[8] or "",
+
+            "fecha_devolucion": fila[9],
+
+            "respuesta_subsanacion": fila[10] or "",
+
+            "fecha_subsanacion": fila[11],
+
+            "fecha_actuacion": fila[12],
+
+            "funcionario_elaborador": fila[13] or "",
+
+            "funcionario_encargado": fila[14] or "",
+
+            "estado_visual": estado_visual,
+
+            "estado_clase": estado_clase
+        }
+
+
+        # ========================================================
+        # 3. TODAS LAS REVISIONES DOCUMENTALES DEL EXPEDIENTE
+        # ========================================================
+
+        cur.execute("""
+            SELECT
+                id,
+                tipo_documento,
+                referencia_documento,
+                observacion_analista,
+                resultado_ia,
+                fecha_revision,
+                fecha_registro
+            FROM revisiones_documentales_control
+
+            WHERE bitacora_id = %s
+
+            ORDER BY
+                fecha_revision ASC,
+                id ASC
+        """, (bitacora_id,))
+
+        filas_revisiones = cur.fetchall()
+
+
+        nombres_documentos = {
+
+            "ESTUDIOS_PREVIOS":
+                "Estudios previos",
+
+            "DETERMINACION_NECESIDAD":
+                "Determinación de la necesidad",
+
+            "ESPECIFICACIONES_TECNICAS":
+                "Especificaciones técnicas",
+
+            "TERMINOS_REFERENCIA":
+                "Términos de referencia",
+
+            "PRESUPUESTO_REFERENCIAL":
+                "Determinación del presupuesto referencial",
+
+            "PROFORMAS":
+                "Proformas",
+
+            "OTROS_DOCUMENTOS":
+                "Otros documentos"
+        }
+
+
+        revisiones = []
+
+        for revision in filas_revisiones:
+
+            tipo = revision[1] or ""
+
+            revisiones.append({
+
+                "id": revision[0],
+
+                "tipo_documento": tipo,
+
+                "nombre_documento":
+                    nombres_documentos.get(
+                        tipo,
+                        tipo.replace("_", " ").title()
+                    ),
+
+                "referencia_documento":
+                    revision[2] or "",
+
+                "observacion_analista":
+                    revision[3] or "",
+
+                "resultado_ia":
+                    revision[4] or "",
+
+                "fecha_revision":
+                    revision[5],
+
+                "fecha_registro":
+                    revision[6]
+            })
+
+
+        # ========================================================
+        # 4. RESUMEN
+        # ========================================================
+
+        total_revisiones = len(revisiones)
+
+        ultima_revision = None
+
+        if revisiones:
+
+            fechas = [
+                r["fecha_revision"]
+                for r in revisiones
+                if r["fecha_revision"]
+            ]
+
+            if fechas:
+                ultima_revision = max(fechas)
+
+
+        # ========================================================
+        # 5. MOSTRAR DETALLE
+        # ========================================================
+
+        return render_template(
+            "control_evidencia/detalle_seguimiento_revision.html",
+
+            expediente=expediente,
+
+            revisiones=revisiones,
+
+            total_revisiones=total_revisiones,
+
+            ultima_revision=ultima_revision
+        )
+
+
+    except Exception as e:
+
+        print(
+            "ERROR DETALLE SEGUIMIENTO REVISION:",
+            e
+        )
+
+        return (
+            "No fue posible consultar el detalle "
+            "de la revisión.",
+            500
+        )
+
+
+    finally:
+
+        cur.close()
+        conn.close()

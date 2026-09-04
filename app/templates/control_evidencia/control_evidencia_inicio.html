@@ -3,422 +3,140 @@
 {% block content %}
 
 <style>
-    /* =====================================================
-       CONTENEDOR GENERAL DEL MÓDULO
-       =====================================================
-       Mantiene el mismo estilo ejecutivo utilizado
-       en Consultas y Cruces y Centro de Inteligencia.
-    ===================================================== */
+    /* ============================================================
+       CONTROL Y EVIDENCIA - PORTADA
+    ============================================================ */
 
     .control-wrapper {
-        padding: 22px;
+        padding: 18px 22px 24px;
         background: #f5f7fa;
         min-height: calc(100vh - 60px);
     }
 
-
-    /* =====================================================
-       ENCABEZADO EJECUTIVO
-       =====================================================
-       Identifica visualmente el módulo de Control
-       y Evidencia dentro de SICOP.
-    ===================================================== */
+    /* ============================================================
+       ENCABEZADO
+    ============================================================ */
 
     .control-hero {
-
-        background: linear-gradient(120deg,
-                #08243e 0%,
-                #123e65 55%,
-                #18537e 100%);
-
-        border-radius: 14px;
-
-        padding: 28px 32px;
-
-        color: white;
-
-        margin-bottom: 25px;
-
-        box-shadow:
-            0 8px 22px rgba(0, 0, 0, .10);
-
         position: relative;
-
         overflow: hidden;
+        background: linear-gradient(
+            120deg,
+            #08243e 0%,
+            #123e65 55%,
+            #18537e 100%
+        );
+        border-radius: 14px;
+        padding: 22px 28px;
+        color: #fff;
+        margin-bottom: 18px;
+        box-shadow: 0 8px 22px rgba(0, 0, 0, .10);
     }
-
-
-    /* =====================================================
-       EFECTO DECORATIVO DEL ENCABEZADO
-       =====================================================
-       Agrega el círculo translúcido del lado derecho,
-       igual al estilo ejecutivo de otros módulos SICOP.
-    ===================================================== */
 
     .control-hero::after {
-
         content: "";
-
         position: absolute;
-
-        width: 290px;
-        height: 290px;
-
+        width: 250px;
+        height: 250px;
         border-radius: 50%;
-
-        background:
-            rgba(255, 255, 255, .035);
-
-        right: -70px;
-        top: -135px;
+        background: rgba(255, 255, 255, .035);
+        right: -55px;
+        top: -125px;
     }
 
-
-    /* =====================================================
-       ETIQUETA SUPERIOR DEL ENCABEZADO
-    ===================================================== */
-
     .control-label {
-
         display: inline-block;
-
-        margin-bottom: 10px;
-
+        margin-bottom: 7px;
         color: #73c8ff;
-
-        font-size: 12px;
-
+        font-size: 11px;
         font-weight: 700;
-
         text-transform: uppercase;
-
         letter-spacing: 1.3px;
     }
 
-
-    /* =====================================================
-       TÍTULO PRINCIPAL
-    ===================================================== */
-
     .control-hero h2 {
-
         margin: 0;
-
-        font-size: 29px;
-
+        font-size: 27px;
         font-weight: 700;
     }
 
-
-    /* =====================================================
-       SUBTÍTULO PRINCIPAL
-    ===================================================== */
-
     .control-hero p {
-
-        margin: 7px 0 0;
-
+        margin: 6px 0 0;
         color: #d7e5f2;
-
-        font-size: 15px;
+        font-size: 14px;
     }
 
-
-    /* =====================================================
+    /* ============================================================
        TÍTULO DE SECCIÓN
-    ===================================================== */
+    ============================================================ */
 
     .control-section-title {
-
-        margin-bottom: 18px;
+        margin-bottom: 14px;
     }
 
     .control-section-title h5 {
-
-        margin-bottom: 3px;
-
+        margin: 0 0 3px;
         color: #17324d;
-
+        font-size: 17px;
         font-weight: 700;
     }
 
     .control-section-title small {
-
         color: #78899a;
-    }
-
-
-    /* =====================================================
-       TARJETAS PRINCIPALES DEL MÓDULO
-       =====================================================
-       Cada tarjeta representa una herramienta distinta:
-       recomendaciones, bitácora, evidencias, seguimiento
-       e informes.
-    ===================================================== */
-
-    .control-card {
-
-        background: white;
-
-        border: 1px solid #e1e7ed;
-
-        border-radius: 12px;
-
-        height: 100%;
-
-        overflow: hidden;
-
-        box-shadow:
-            0 4px 14px rgba(16, 42, 67, .06);
-
-        transition:
-            transform .22s ease,
-            box-shadow .22s ease;
-
-        position: relative;
-    }
-
-
-    /* =====================================================
-       EFECTO AL PASAR EL MOUSE
-    ===================================================== */
-
-    .control-card:hover {
-
-        transform: translateY(-4px);
-
-        box-shadow:
-            0 10px 25px rgba(16, 42, 67, .12);
-    }
-
-
-    /* =====================================================
-       BARRA SUPERIOR DE COLOR
-       =====================================================
-       Permite identificar visualmente cada herramienta
-       sin perder la estética sobria del sistema.
-    ===================================================== */
-
-    .control-card::before {
-
-        content: "";
-
-        display: block;
-
-        height: 5px;
-    }
-
-
-    .control-card.azul::before {
-        background: #1976d2;
-    }
-
-    .control-card.verde::before {
-        background: #19a974;
-    }
-
-    .control-card.morado::before {
-        background: #7556c9;
-    }
-
-    .control-card.ambar::before {
-        background: #e6a23c;
-    }
-
-    .control-card.cyan::before {
-        background: #1597a5;
-    }
-
-
-    /* =====================================================
-       CUERPO DE LAS TARJETAS
-    ===================================================== */
-
-    .control-card-body {
-
-        padding: 24px;
-    }
-
-
-    /* =====================================================
-       ÍCONOS PRINCIPALES
-    ===================================================== */
-
-    .control-icon {
-
-        width: 52px;
-
-        height: 52px;
-
-        border-radius: 11px;
-
-        display: flex;
-
-        align-items: center;
-
-        justify-content: center;
-
-        font-size: 25px;
-
-        margin-bottom: 17px;
-    }
-
-
-    .azul .control-icon {
-        background: #edf5ff;
-    }
-
-    .verde .control-icon {
-        background: #eaf9f3;
-    }
-
-    .morado .control-icon {
-        background: #f3effc;
-    }
-
-    .ambar .control-icon {
-        background: #fff7e8;
-    }
-
-    .cyan .control-icon {
-        background: #eaf7f8;
-    }
-
-
-    /* =====================================================
-       TÍTULO Y DESCRIPCIÓN DE CADA TARJETA
-    ===================================================== */
-
-    .control-card h4 {
-
-        font-size: 18px;
-
-        font-weight: 700;
-
-        color: #172b3a;
-
-        margin-bottom: 10px;
-    }
-
-    .control-card p {
-
-        color: #6f8090;
-
-        font-size: 14px;
-
-        line-height: 1.55;
-
-        min-height: 66px;
-    }
-
-
-    /* =====================================================
-       LÍNEA INFORMATIVA INFERIOR
-    ===================================================== */
-
-    .control-status {
-
-        border-top:
-            1px solid #edf0f3;
-
-        margin-top: 18px;
-
-        padding-top: 15px;
-
         font-size: 12px;
-
-        color: #8795a3;
     }
 
-
-    /* =====================================================
-       PUNTO DE COLOR DEL ESTADO
-    ===================================================== */
-
-    .status-dot {
-
-        display: inline-block;
-
-        width: 8px;
-
-        height: 8px;
-
-        border-radius: 50%;
-
-        margin-right: 6px;
-    }
-
-
-    /* =====================================================
-       BOTONES
-       =====================================================
-       Por ahora estarán desactivados excepto donde
-       decidamos comenzar la funcionalidad.
-    ===================================================== */
-
-    .control-btn {
-
-        display: block;
-
-        width: 100%;
-
-        margin-top: 18px;
-
-        padding: 10px 15px;
-
-        border-radius: 7px;
-
-        text-align: center;
-
-        font-weight: 600;
-
-        text-decoration: none !important;
-    }
-
-
-    /* =====================================================
-       PIE INFORMATIVO
-    ===================================================== */
-
-    .control-info {
-
-        margin-top: 24px;
-
-        background: white;
-
-        border: 1px solid #e1e7ed;
-
-        border-left: 4px solid #e6a23c;
-
-        border-radius: 8px;
-
-        padding: 17px 20px;
-
-        color: #627384;
-
-        font-size: 13px;
-    }
-    /* =====================================================
-    GRID DE TARJETAS
-    ===================================================== */
+    /* ============================================================
+       GRID
+    ============================================================ */
 
     .control-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 24px;
+        gap: 18px;
     }
 
+    /* ============================================================
+       TARJETAS
+    ============================================================ */
 
-    /* =====================================================
-    COMPATIBILIDAD CON LOS NUEVOS NOMBRES DE COLOR
-    ===================================================== */
+    .control-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        min-height: 330px;
+        padding: 18px 20px 20px;
+        background: #fff;
+        border: 1px solid #e1e7ed;
+        border-radius: 13px;
+        box-shadow: 0 5px 16px rgba(16, 42, 67, .06);
+        transition: transform .20s ease, box-shadow .20s ease;
+        overflow: hidden;
+    }
+
+    .control-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(16, 42, 67, .11);
+    }
+
+    .control-card::before {
+        content: "";
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 20px;
+        right: 20px;
+        height: 4px;
+        border-radius: 0 0 4px 4px;
+    }
 
     .control-card-blue::before {
         background: #1976d2;
     }
 
     .control-card-orange::before {
-        background: #e6a23c;
+        background: #e69a19;
     }
 
     .control-card-green::before {
@@ -426,7 +144,7 @@
     }
 
     .control-card-purple::before {
-        background: #7556c9;
+        background: #6b39c9;
     }
 
     .control-card-cyan::before {
@@ -434,155 +152,253 @@
     }
 
     .control-card-dark::before {
-        background: #17324d;
+        background: #173b5d;
     }
 
+    /* ============================================================
+       ICONOS
+    ============================================================ */
 
-    /* ICONOS */
+    .control-icon {
+        width: 48px;
+        height: 48px;
+        flex: 0 0 48px;
+        margin-top: 8px;
+        margin-bottom: 13px;
+        border-radius: 11px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
 
     .control-card-blue .control-icon {
-        background: #edf5ff;
+        background: #e9f3ff;
     }
 
     .control-card-orange .control-icon {
-        background: #fff7e8;
+        background: #fff4df;
     }
 
     .control-card-green .control-icon {
-        background: #eaf9f3;
+        background: #e7f8f1;
     }
 
     .control-card-purple .control-icon {
-        background: #f3effc;
+        background: #f0e9ff;
     }
 
     .control-card-cyan .control-icon {
-        background: #eaf7f8;
+        background: #e7f7f8;
     }
 
     .control-card-dark .control-icon {
-        background: #edf1f4;
+        background: #e9eef3;
     }
 
+    /* ============================================================
+       TEXTOS
+    ============================================================ */
 
-    /* CONTENIDO INTERNO */
-
-    .control-grid .control-card {
-        padding: 24px;
-    }
-
-    .control-grid .control-card h3 {
+    .control-card h3 {
+        margin: 0 0 7px;
+        color: #102d49;
         font-size: 18px;
+        line-height: 1.25;
         font-weight: 700;
-        color: #172b3a;
-        margin-bottom: 10px;
     }
 
-    .control-grid .control-card p {
-        color: #6f8090;
-        font-size: 14px;
-        line-height: 1.55;
-        min-height: 66px;
+    .control-card > p {
+        margin: 0;
+        color: #667d91;
+        font-size: 13.5px;
+        line-height: 1.48;
+        min-height: 61px;
     }
 
+    /* ============================================================
+       LISTA DE FUNCIONES
+    ============================================================ */
 
-    /* LÍNEA INFORMATIVA */
-
-    .control-meta {
-        border-top: 1px solid #edf0f3;
-        margin-top: 18px;
-        padding-top: 15px;
-        font-size: 12px;
-        color: #8795a3;
+    .control-features {
+        margin: 13px 0 17px;
+        padding: 0;
+        list-style: none;
+        flex: 1;
     }
 
-    .control-dot {
-        display: inline-block;
+    .control-features li {
+        position: relative;
+        margin: 7px 0;
+        padding-left: 20px;
+        color: #5d7489;
+        font-size: 13px;
+        line-height: 1.3;
+    }
+
+    .control-features li::before {
+        content: "";
+        position: absolute;
+        left: 1px;
+        top: 6px;
         width: 8px;
         height: 8px;
         border-radius: 50%;
-        margin-right: 6px;
     }
 
-    .control-dot.blue {
+    .control-card-blue .control-features li::before {
         background: #1976d2;
     }
 
-    .control-dot.orange {
-        background: #e6a23c;
+    .control-card-orange .control-features li::before {
+        background: #e69a19;
     }
 
-    .control-dot.green {
+    .control-card-green .control-features li::before {
         background: #19a974;
     }
 
-    .control-dot.purple {
-        background: #7556c9;
+    .control-card-purple .control-features li::before {
+        background: #6b39c9;
     }
 
-    .control-dot.cyan {
+    .control-card-cyan .control-features li::before {
         background: #1597a5;
     }
 
-    .control-dot.dark {
-        background: #17324d;
+    .control-card-dark .control-features li::before {
+        background: #173b5d;
     }
 
+    /* ============================================================
+       BOTONES
+    ============================================================ */
 
-    /* BOTONES */
+    .control-btn {
+        width: 100%;
+        min-height: 46px;
+        margin-top: auto;
+        padding: 11px 15px;
+        border: 0;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        box-sizing: border-box;
+        text-decoration: none !important;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: filter .18s ease, transform .18s ease;
+    }
+
+    .control-btn:hover {
+        filter: brightness(.96);
+        transform: translateY(-1px);
+        text-decoration: none !important;
+    }
 
     .control-btn-blue {
-        border: 1px solid #1976d2;
-        color: #1976d2;
+        color: #fff !important;
+        background: linear-gradient(90deg, #0874d1, #0d7ce2);
     }
 
     .control-btn-orange {
-        border: 1px solid #e6a23c;
-        color: #e6a23c;
-        background: white;
+        color: #fff !important;
+        background: linear-gradient(90deg, #df9000, #efa10e);
     }
 
     .control-btn-green {
-        border: 1px solid #19a974;
-        color: #19a974;
-        background: white;
+        color: #fff !important;
+        background: linear-gradient(90deg, #079d64, #08ae70);
     }
 
     .control-btn-purple {
-        border: 1px solid #7556c9;
-        color: #7556c9;
-        background: white;
+        color: #fff !important;
+        background: linear-gradient(90deg, #6125c2, #7536d6);
     }
 
     .control-btn-cyan {
-        border: 1px solid #1597a5;
-        color: #1597a5;
-        background: white;
+        color: #fff !important;
+        background: linear-gradient(90deg, #078f9c, #10a6b3);
     }
 
     .control-btn-dark {
-        border: 1px solid #17324d;
-        color: #17324d;
+        color: #fff !important;
+        background: linear-gradient(90deg, #123b60, #075084);
     }
 
-
-    /* HOVER BOTONES ACTIVOS */
-
-    a.control-btn-blue:hover,
-    a.control-btn-dark:hover {
-        color: white;
+    button.control-btn:disabled {
+        opacity: 1;
+        cursor: default;
+        transform: none;
     }
 
-    a.control-btn-blue:hover {
-        background: #1976d2;
+    .control-btn-left {
+        display: flex;
+        align-items: center;
+        gap: 9px;
     }
 
-    a.control-btn-dark:hover {
-        background: #17324d;
+    .control-btn-arrow {
+        font-size: 21px;
+        line-height: 1;
+        font-weight: 400;
     }
 
+    /* ============================================================
+       TARJETA SEGUIMIENTO - DESTACADA
+    ============================================================ */
 
-    /* RESPONSIVE */
+    .control-card-purple {
+        border-color: #d8c9f7;
+        background: linear-gradient(
+            145deg,
+            #ffffff 0%,
+            #ffffff 70%,
+            #faf7ff 100%
+        );
+    }
+
+    /* ============================================================
+       PIE INFORMATIVO
+    ============================================================ */
+
+    .control-info {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 18px;
+        background: #fff;
+        border: 1px solid #dfe7ee;
+        border-left: 4px solid #e6a23c;
+        border-radius: 9px;
+        padding: 13px 18px;
+        color: #627384;
+        font-size: 12.5px;
+    }
+
+    .control-info-icon {
+        width: 32px;
+        height: 32px;
+        flex: 0 0 32px;
+        border-radius: 50%;
+        background: #eaf4ff;
+        color: #1976d2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+    }
+
+    .control-info strong {
+        color: #173b5d;
+    }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
 
     @media (max-width: 1100px) {
         .control-grid {
@@ -591,8 +407,24 @@
     }
 
     @media (max-width: 700px) {
+        .control-wrapper {
+            padding: 14px;
+        }
+
         .control-grid {
             grid-template-columns: 1fr;
+        }
+
+        .control-card {
+            min-height: auto;
+        }
+
+        .control-hero {
+            padding: 20px;
+        }
+
+        .control-hero h2 {
+            font-size: 23px;
         }
     }
 </style>
@@ -600,12 +432,9 @@
 
 <div class="control-wrapper">
 
-
-    <!-- ==================================================
-         ENCABEZADO DEL MÓDULO
-         ==================================================
-         Presenta el propósito general de Control y Evidencia.
-    =================================================== -->
+    <!-- ============================================================
+         ENCABEZADO
+    ============================================================ -->
 
     <div class="control-hero">
 
@@ -625,9 +454,9 @@
     </div>
 
 
-    <!-- ==================================================
-         INTRODUCCIÓN A LAS HERRAMIENTAS
-    =================================================== -->
+    <!-- ============================================================
+         TÍTULO
+    ============================================================ -->
 
     <div class="control-section-title">
 
@@ -642,227 +471,284 @@
     </div>
 
 
-        <div class="control-grid">
+    <!-- ============================================================
+         TARJETAS
+    ============================================================ -->
 
-            <!-- =====================================================
-                BITÁCORA DE CONTROL
-            ====================================================== -->
-            <div class="control-card control-card-blue">
+    <div class="control-grid">
 
-                <div class="control-icon">
-                    🔎
-                </div>
 
-                <h3>
-                    Bitácora de control
-                </h3>
+        <!-- ========================================================
+             BITÁCORA
+        ========================================================= -->
 
-                <p>
-                    Registro cronológico de revisiones, observaciones,
-                    comunicaciones, subsanaciones y verificaciones realizadas.
-                </p>
+        <div class="control-card control-card-blue">
 
-                <div class="control-meta">
-                    <span class="control-dot blue"></span>
-                    Trazabilidad de actuaciones
-                </div>
-
-                <a
-                    href="{{ url_for('control_evidencia.bitacora_nueva') }}"
-                    class="control-btn control-btn-blue"
-                >
-                    Ingresar
-                </a>
-
+            <div class="control-icon">
+                🔎
             </div>
 
+            <h3>
+                Bitácora de Control
+            </h3>
 
-            <!-- =====================================================
-                RECOMENDACIONES
-            ====================================================== -->
-            <div class="control-card control-card-orange">
+            <p>
+                Registro y revisión de la documentación de los
+                requerimientos y procedimientos de contratación.
+            </p>
 
-                <div class="control-icon">
-                    📋
-                </div>
+            <ul class="control-features">
+                <li>Revisión documental con IA</li>
+                <li>Observaciones y seguimiento</li>
+                <li>Generación de informes</li>
+            </ul>
 
-                <h3>
-                    Recomendaciones
-                </h3>
+            <a
+                href="{{ url_for('control_evidencia.bitacora_nueva') }}"
+                class="control-btn control-btn-blue"
+            >
+                <span class="control-btn-left">
+                    <span>📄</span>
+                    <span>Ingresar a Bitácora</span>
+                </span>
 
-                <p>
-                    Registro, clasificación y seguimiento de recomendaciones
-                    emitidas por organismos de control.
-                </p>
-
-                <div class="control-meta">
-                    <span class="control-dot orange"></span>
-                    Matriz de recomendaciones
-                </div>
-
-                <button
-                    type="button"
-                    class="control-btn control-btn-orange"
-                    disabled
-                >
-                    Próximamente
-                </button>
-
-            </div>
-
-
-            <!-- =====================================================
-                EVIDENCIAS
-            ====================================================== -->
-            <div class="control-card control-card-green">
-
-                <div class="control-icon">
-                    📁
-                </div>
-
-                <h3>
-                    Evidencias
-                </h3>
-
-                <p>
-                    Consulta de comunicaciones, revisiones, certificaciones,
-                    informes y actuaciones vinculadas al expediente.
-                </p>
-
-                <div class="control-meta">
-                    <span class="control-dot green"></span>
-                    Evidencia verificable
-                </div>
-
-                <button
-                    type="button"
-                    class="control-btn control-btn-green"
-                    disabled
-                >
-                    Próximamente
-                </button>
-
-            </div>
-
-
-            <!-- =====================================================
-                SEGUIMIENTO
-            ====================================================== -->
-            <div class="control-card control-card-purple">
-
-                <div class="control-icon">
-                    ⚠️
-                </div>
-
-                <h3>
-                    Seguimiento
-                </h3>
-
-                <p>
-                    Control de observaciones pendientes, subsanaciones,
-                    reincidencias y actuaciones que requieren seguimiento.
-                </p>
-
-                <div class="control-meta">
-                    <span class="control-dot purple"></span>
-                    Alertas y pendientes
-                </div>
-
-                <button
-                    type="button"
-                    class="control-btn control-btn-purple"
-                    disabled
-                >
-                    Próximamente
-                </button>
-
-            </div>
-
-
-            <!-- =====================================================
-                INFORMES DE CONTROL
-            ====================================================== -->
-            <div class="control-card control-card-cyan">
-
-                <div class="control-icon">
-                    📊
-                </div>
-
-                <h3>
-                    Informes de control
-                </h3>
-
-                <p>
-                    Generación de reportes consolidados de revisiones,
-                    observaciones, resultados y acciones de seguimiento.
-                </p>
-
-                <div class="control-meta">
-                    <span class="control-dot cyan"></span>
-                    Reportes institucionales
-                </div>
-
-                <button
-                    type="button"
-                    class="control-btn control-btn-cyan"
-                    disabled
-                >
-                    Próximamente
-                </button>
-
-            </div>
-
-
-            <!-- =====================================================
-                NORMATIVA DE CONTROL
-            ====================================================== -->
-            <div class="control-card control-card-dark">
-
-                <div class="control-icon">
-                    ⚖️
-                </div>
-
-                <h3>
-                    Normativa de Control
-                </h3>
-
-                <p>
-                    Administra leyes, reglamentos y disposiciones
-                    utilizadas por la revisión inteligente de documentos.
-                </p>
-
-                <div class="control-meta">
-                    <span class="control-dot dark"></span>
-                    Base normativa para IA
-                </div>
-
-                <a
-                    href="{{ url_for('normativa_control.inicio_normativa_control') }}"
-                    class="control-btn control-btn-dark"
-                >
-                    Administrar normativa
-                </a>
-
-            </div>
+                <span class="control-btn-arrow">→</span>
+            </a>
 
         </div>
 
-    <!-- ==================================================
-         PIE INFORMATIVO DEL MÓDULO
-    =================================================== -->
+
+        <!-- ========================================================
+             RECOMENDACIONES
+        ========================================================= -->
+
+        <div class="control-card control-card-orange">
+
+            <div class="control-icon">
+                📋
+            </div>
+
+            <h3>
+                Recomendaciones
+            </h3>
+
+            <p>
+                Registro, clasificación y seguimiento de recomendaciones
+                emitidas por organismos de control.
+            </p>
+
+            <ul class="control-features">
+                <li>Matriz de recomendaciones</li>
+                <li>Vinculación con expedientes</li>
+                <li>Control de cumplimiento</li>
+            </ul>
+
+            <button
+                type="button"
+                class="control-btn control-btn-orange"
+                disabled
+            >
+                <span class="control-btn-left">
+                    <span>📋</span>
+                    <span>Próximamente</span>
+                </span>
+
+                <span class="control-btn-arrow">→</span>
+            </button>
+
+        </div>
+
+
+        <!-- ========================================================
+             EVIDENCIAS
+        ========================================================= -->
+
+        <div class="control-card control-card-green">
+
+            <div class="control-icon">
+                📁
+            </div>
+
+            <h3>
+                Evidencias
+            </h3>
+
+            <p>
+                Consulta de comunicaciones, revisiones, certificaciones,
+                informes y actuaciones vinculadas al expediente.
+            </p>
+
+            <ul class="control-features">
+                <li>Expediente documental</li>
+                <li>Consulta de actuaciones</li>
+                <li>Trazabilidad completa</li>
+            </ul>
+
+            <button
+                type="button"
+                class="control-btn control-btn-green"
+                disabled
+            >
+                <span class="control-btn-left">
+                    <span>📁</span>
+                    <span>Próximamente</span>
+                </span>
+
+                <span class="control-btn-arrow">→</span>
+            </button>
+
+        </div>
+
+
+        <!-- ========================================================
+             SEGUIMIENTO DE REVISIONES
+        ========================================================= -->
+
+        <div class="control-card control-card-purple">
+
+            <div class="control-icon">
+                📊
+            </div>
+
+            <h3>
+                Seguimiento de Revisiones
+            </h3>
+
+            <p>
+                Consulta de procesos revisados, documentos analizados
+                y estado actual de la verificación.
+            </p>
+
+            <ul class="control-features">
+                <li>Listado de expedientes revisados</li>
+                <li>Estado y última actuación</li>
+                <li>Filtros por unidad, fechas y estado</li>
+            </ul>
+
+            <!--
+                IMPORTANTE:
+                Todavía NO conectamos este botón a una ruta
+                para evitar BuildError mientras creamos la pantalla.
+            -->
+
+            <a
+                href="{{ url_for('control_evidencia.seguimiento_revisiones') }}"
+                class="control-btn control-btn-purple"
+            >
+                <span class="control-btn-left">
+                    <span>📊</span>
+                    <span>Ver seguimiento</span>
+                </span>
+
+                <span class="control-btn-arrow">→</span>
+            </a>
+
+        </div>
+
+
+        <!-- ========================================================
+             INFORMES
+        ========================================================= -->
+
+        <div class="control-card control-card-cyan">
+
+            <div class="control-icon">
+                📄
+            </div>
+
+            <h3>
+                Informes de Control
+            </h3>
+
+            <p>
+                Generación de reportes consolidados de revisiones,
+                observaciones, resultados y acciones de seguimiento.
+            </p>
+
+            <ul class="control-features">
+                <li>Reportes institucionales</li>
+                <li>Estadísticas y análisis</li>
+                <li>Exportación en PDF y Excel</li>
+            </ul>
+
+            <button
+                type="button"
+                class="control-btn control-btn-cyan"
+                disabled
+            >
+                <span class="control-btn-left">
+                    <span>📄</span>
+                    <span>Próximamente</span>
+                </span>
+
+                <span class="control-btn-arrow">→</span>
+            </button>
+
+        </div>
+
+
+        <!-- ========================================================
+             NORMATIVA
+        ========================================================= -->
+
+        <div class="control-card control-card-dark">
+
+            <div class="control-icon">
+                ⚖️
+            </div>
+
+            <h3>
+                Normativa de Control
+            </h3>
+
+            <p>
+                Administra leyes, reglamentos y disposiciones utilizadas
+                por la revisión inteligente de documentos.
+            </p>
+
+            <ul class="control-features">
+                <li>Base normativa para IA</li>
+                <li>Gestión de articulados</li>
+                <li>Actualización de disposiciones</li>
+            </ul>
+
+            <a
+                href="{{ url_for('normativa_control.inicio_normativa_control') }}"
+                class="control-btn control-btn-dark"
+            >
+                <span class="control-btn-left">
+                    <span>⚖️</span>
+                    <span>Administrar normativa</span>
+                </span>
+
+                <span class="control-btn-arrow">→</span>
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================================================
+         PIE
+    ============================================================ -->
 
     <div class="control-info">
 
-        <strong>
-            🛡️ Sistema de control institucional
-        </strong>
+        <div class="control-info-icon">
+            i
+        </div>
 
-        &nbsp;
+        <div>
+            <strong>
+                Sistema de control institucional
+            </strong>
 
-        Este módulo permitirá consolidar actuaciones,
-        controles y evidencias generadas dentro del SICOP,
-        manteniendo trazabilidad documental para actividades
-        de seguimiento, evaluación y control.
+            &nbsp; Este módulo permitirá consolidar actuaciones,
+            controles y evidencias generadas dentro del SICOP,
+            manteniendo trazabilidad documental para actividades
+            de seguimiento, evaluación y control.
+        </div>
 
     </div>
 

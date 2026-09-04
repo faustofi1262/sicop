@@ -1,0 +1,867 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .detalle-wrapper {
+        max-width: 1450px;
+        margin: 22px auto;
+        padding: 0 22px 35px;
+        box-sizing: border-box;
+    }
+
+    /* ============================================================
+       ENCABEZADO
+    ============================================================ */
+
+    .detalle-hero {
+        background: linear-gradient(120deg,
+                #08243e 0%,
+                #123e65 55%,
+                #18537e 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 22px 26px;
+        margin-bottom: 18px;
+        box-shadow: 0 8px 22px rgba(16, 42, 67, .10);
+    }
+
+    .detalle-label {
+        color: #73c8ff;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1.1px;
+        text-transform: uppercase;
+        margin-bottom: 7px;
+    }
+
+    .detalle-hero h2 {
+        margin: 0;
+        font-size: 25px;
+        font-weight: 700;
+    }
+
+    .detalle-hero p {
+        margin: 6px 0 0;
+        color: #d8e6f2;
+        font-size: 13px;
+    }
+
+    /* ============================================================
+       BOTONES SUPERIORES
+    ============================================================ */
+
+    .detalle-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 18px;
+    }
+
+    .detalle-actions-left,
+    .detalle-actions-right {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .detalle-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-height: 40px;
+        padding: 9px 14px;
+        border-radius: 8px;
+        border: 1px solid #ccd8e2;
+        background: white;
+        color: #29465e !important;
+        text-decoration: none !important;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .detalle-btn-primary {
+        background: #173b5d;
+        border-color: #173b5d;
+        color: white !important;
+    }
+
+    .detalle-btn-print {
+        background: #1976d2;
+        border-color: #1976d2;
+        color: white !important;
+    }
+
+    /* ============================================================
+       RESUMEN
+    ============================================================ */
+
+    .detalle-summary {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+
+    .detalle-summary-card {
+        background: white;
+        border: 1px solid #e0e7ed;
+        border-radius: 11px;
+        padding: 15px 17px;
+        box-shadow: 0 4px 14px rgba(16, 42, 67, .05);
+    }
+
+    .detalle-summary-label {
+        color: #7a8d9d;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        margin-bottom: 5px;
+    }
+
+    .detalle-summary-value {
+        color: #173b5d;
+        font-size: 17px;
+        font-weight: 700;
+        line-height: 1.3;
+        word-break: break-word;
+    }
+
+    /* ============================================================
+       ESTADO
+    ============================================================ */
+
+    .detalle-status {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 14px;
+        padding: 6px 10px;
+        font-size: 10px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .detalle-status.revision {
+        background: #eaf3ff;
+        color: #176fae;
+    }
+
+    .detalle-status.comunicado {
+        background: #fff3df;
+        color: #a96900;
+    }
+
+    .detalle-status.subsanado {
+        background: #e9f8f1;
+        color: #12805a;
+    }
+
+    .detalle-status.observado {
+        background: #fdeaea;
+        color: #b23a36;
+    }
+
+    .detalle-status.sin-observaciones {
+        background: #edf1f4;
+        color: #536879;
+    }
+
+    /* ============================================================
+       TARJETAS GENERALES
+    ============================================================ */
+
+    .detalle-card {
+        background: white;
+        border: 1px solid #e0e7ed;
+        border-radius: 12px;
+        padding: 18px 20px;
+        margin-bottom: 18px;
+        box-shadow: 0 4px 14px rgba(16, 42, 67, .05);
+    }
+
+    .detalle-card-title {
+        margin-bottom: 14px;
+        color: #173b5d;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .detalle-data-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 13px 20px;
+    }
+
+    .detalle-data-item {
+        border-bottom: 1px solid #edf1f4;
+        padding-bottom: 9px;
+    }
+
+    .detalle-data-label {
+        color: #8494a1;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    .detalle-data-value {
+        color: #314c62;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    /* ============================================================
+       DOCUMENTOS REVISADOS
+    ============================================================ */
+
+    .revision-item {
+        border: 1px solid #dfe7ed;
+        border-radius: 11px;
+        margin-bottom: 16px;
+        overflow: hidden;
+        background: #fff;
+    }
+
+    .revision-header {
+        background: #f5f8fa;
+        padding: 13px 16px;
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        align-items: center;
+        border-bottom: 1px solid #e3e9ee;
+    }
+
+    .revision-title {
+        color: #173b5d;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .revision-date {
+        color: #7e8f9d;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
+    .revision-body {
+        padding: 16px;
+    }
+
+    .revision-section {
+        margin-bottom: 16px;
+    }
+
+    .revision-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .revision-section-title {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin-bottom: 8px;
+        color: #173b5d;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .3px;
+    }
+
+    .revision-text {
+        background: #fbfcfd;
+        border: 1px solid #e5ebef;
+        border-radius: 8px;
+        padding: 13px 14px;
+        color: #40586b;
+        font-size: 12.5px;
+        line-height: 1.58;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .revision-text.ia {
+        background: #f8fbff;
+        border-left: 4px solid #1976d2;
+    }
+
+    .revision-text.analista {
+        background: #fffdf7;
+        border-left: 4px solid #e6a23c;
+    }
+
+    .sin-dato {
+        color: #98a5af;
+        font-style: italic;
+    }
+
+    /* ============================================================
+       ACTUACIONES
+    ============================================================ */
+
+    .actuaciones-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 15px;
+    }
+
+    .actuacion-box {
+        border: 1px solid #e2e8ed;
+        border-radius: 9px;
+        padding: 14px;
+        background: #fbfcfd;
+    }
+
+    .actuacion-box h5 {
+        color: #173b5d;
+        font-size: 13px;
+        margin: 0 0 9px;
+        font-weight: 700;
+    }
+
+    .actuacion-row {
+        margin-bottom: 7px;
+        color: #546b7d;
+        font-size: 12px;
+        line-height: 1.45;
+    }
+
+    .actuacion-row strong {
+        color: #314c62;
+    }
+
+    /* ============================================================
+       VACÍO
+    ============================================================ */
+
+    .detalle-empty {
+        padding: 28px;
+        text-align: center;
+        color: #8797a5;
+        background: #fafcfd;
+        border: 1px dashed #d5dee5;
+        border-radius: 9px;
+    }
+
+    /* ============================================================
+       PRINT
+    ============================================================ */
+
+    @media print {
+
+        .detalle-actions {
+            display: none !important;
+        }
+
+        .detalle-wrapper {
+            max-width: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .detalle-hero {
+            box-shadow: none;
+        }
+
+        .detalle-card,
+        .detalle-summary-card {
+            box-shadow: none;
+        }
+    }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+
+    @media (max-width: 1000px) {
+
+        .detalle-summary {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .detalle-data-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 700px) {
+
+        .detalle-wrapper {
+            padding: 0 14px 25px;
+        }
+
+        .detalle-summary,
+        .detalle-data-grid,
+        .actuaciones-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .revision-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+</style>
+
+
+<div class="detalle-wrapper">
+
+    <!-- ============================================================
+         ENCABEZADO
+    ============================================================ -->
+
+    <div class="detalle-hero">
+
+        <div class="detalle-label">
+            SICOP · CONTROL INSTITUCIONAL
+        </div>
+
+        <h2>
+            📋 Informe de Revisión del Expediente
+        </h2>
+
+        <p>
+            Detalle consolidado de documentos analizados,
+            resultados de IA, observaciones del analista
+            y actuaciones registradas.
+        </p>
+
+    </div>
+
+
+    <!-- ============================================================
+         ACCIONES
+    ============================================================ -->
+
+    <div class="detalle-actions">
+
+        <div class="detalle-actions-left">
+
+            <a href="{{ url_for('control_evidencia.seguimiento_revisiones') }}" class="detalle-btn">
+                ← Volver al seguimiento
+            </a>
+
+        </div>
+
+        <div class="detalle-actions-right">
+
+            <button type="button" class="detalle-btn detalle-btn-print" onclick="window.print()">
+                🖨 Imprimir informe
+            </button>
+
+            <a href="{{ url_for('control_evidencia.bitacora_nueva') }}?requerimiento_id={{ expediente.requerimiento_id }}"
+                class="detalle-btn detalle-btn-primary">
+                ✏️ Abrir Bitácora
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================================================
+         RESUMEN
+    ============================================================ -->
+
+    <div class="detalle-summary">
+
+        <div class="detalle-summary-card">
+
+            <div class="detalle-summary-label">
+                Expediente
+            </div>
+
+            <div class="detalle-summary-value">
+
+                {% if expediente.codigo_proceso %}
+                {{ expediente.codigo_proceso }}
+                {% else %}
+                {{ expediente.referencia or '—' }}
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <div class="detalle-summary-card">
+
+            <div class="detalle-summary-label">
+                Documentos revisados
+            </div>
+
+            <div class="detalle-summary-value">
+                {{ total_revisiones }}
+            </div>
+
+        </div>
+
+
+        <div class="detalle-summary-card">
+
+            <div class="detalle-summary-label">
+                Última revisión
+            </div>
+
+            <div class="detalle-summary-value">
+
+                {% if ultima_revision %}
+                {{ ultima_revision.strftime('%d/%m/%Y') }}
+                {% else %}
+                —
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <div class="detalle-summary-card">
+
+            <div class="detalle-summary-label">
+                Estado actual
+            </div>
+
+            <div class="detalle-summary-value">
+
+                <span class="detalle-status {{ expediente.estado_clase }}">
+                    {{ expediente.estado_visual }}
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================================================
+         DATOS GENERALES
+    ============================================================ -->
+
+    <div class="detalle-card">
+
+        <div class="detalle-card-title">
+            📌 Datos generales del expediente
+        </div>
+
+        <div class="detalle-data-grid">
+
+            <div class="detalle-data-item">
+
+                <div class="detalle-data-label">
+                    Referencia
+                </div>
+
+                <div class="detalle-data-value">
+                    {{ expediente.referencia or '—' }}
+                </div>
+
+            </div>
+
+
+            <div class="detalle-data-item">
+
+                <div class="detalle-data-label">
+                    Código de proceso
+                </div>
+
+                <div class="detalle-data-value">
+                    {{ expediente.codigo_proceso or '—' }}
+                </div>
+
+            </div>
+
+
+            <div class="detalle-data-item">
+
+                <div class="detalle-data-label">
+                    Unidad requirente
+                </div>
+
+                <div class="detalle-data-value">
+                    {{ expediente.unidad_requirente or '—' }}
+                </div>
+
+            </div>
+
+
+            <div class="detalle-data-item">
+
+                <div class="detalle-data-label">
+                    Fecha de ingreso
+                </div>
+
+                <div class="detalle-data-value">
+
+                    {% if expediente.fecha_ingreso %}
+                    {{ expediente.fecha_ingreso.strftime('%d/%m/%Y') }}
+                    {% else %}
+                    —
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <div class="detalle-data-item">
+
+                <div class="detalle-data-label">
+                    Funcionario elaborador
+                </div>
+
+                <div class="detalle-data-value">
+                    {{ expediente.funcionario_elaborador or '—' }}
+                </div>
+
+            </div>
+
+
+            <div class="detalle-data-item">
+
+                <div class="detalle-data-label">
+                    Servidor responsable
+                </div>
+
+                <div class="detalle-data-value">
+                    {{ expediente.servidor_responsable or expediente.funcionario_encargado or '—' }}
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================================================
+         DOCUMENTOS ANALIZADOS
+    ============================================================ -->
+
+    <div class="detalle-card">
+
+        <div class="detalle-card-title">
+            🤖 Documentos analizados y resultados de revisión
+        </div>
+
+
+        {% if revisiones %}
+
+        {% for revision in revisiones %}
+
+        <div class="revision-item">
+
+            <div class="revision-header">
+
+                <div class="revision-title">
+                    {{ loop.index }}. {{ revision.nombre_documento }}
+                </div>
+
+                <div class="revision-date">
+
+                    {% if revision.fecha_revision %}
+                    Revisado:
+                    {{ revision.fecha_revision.strftime('%d/%m/%Y') }}
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <div class="revision-body">
+
+
+                <!-- ========================================
+                             RESULTADO IA
+                        ========================================= -->
+
+                <div class="revision-section">
+
+                    <div class="revision-section-title">
+                        🤖 Resultado del análisis con IA
+                    </div>
+
+                    {% if revision.resultado_ia %}
+
+                    <div class="revision-text ia">
+                        {{ revision.resultado_ia }}
+                    </div>
+
+                    {% else %}
+
+                    <div class="revision-text ia sin-dato">
+                        No existe resultado de IA almacenado para esta revisión.
+                    </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- ========================================
+                             OBSERVACIÓN DEL ANALISTA
+                        ========================================= -->
+
+                <div class="revision-section">
+
+                    <div class="revision-section-title">
+                        👤 Observación validada por el analista
+                    </div>
+
+                    {% if revision.observacion_analista %}
+
+                    <div class="revision-text analista">
+                        {{ revision.observacion_analista }}
+                    </div>
+
+                    {% else %}
+
+                    <div class="revision-text analista sin-dato">
+                        No existe observación registrada por el analista.
+                    </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+
+        {% else %}
+
+        <div class="detalle-empty">
+            Este expediente todavía no tiene revisiones documentales registradas.
+        </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- ============================================================
+         ACTUACIONES POSTERIORES
+    ============================================================ -->
+
+    <div class="detalle-card">
+
+        <div class="detalle-card-title">
+            🔄 Actuaciones del expediente
+        </div>
+
+        <div class="actuaciones-grid">
+
+
+            <!-- ================================================
+                 COMUNICACIÓN
+            ================================================= -->
+
+            <div class="actuacion-box">
+
+                <h5>
+                    📤 Comunicación de observaciones
+                </h5>
+
+                <div class="actuacion-row">
+
+                    <strong>
+                        Memorando:
+                    </strong>
+
+                    {{ expediente.numero_memorando or 'No registrado' }}
+
+                </div>
+
+                <div class="actuacion-row">
+
+                    <strong>
+                        Fecha de comunicación:
+                    </strong>
+
+                    {% if expediente.fecha_devolucion %}
+                    {{ expediente.fecha_devolucion.strftime('%d/%m/%Y') }}
+                    {% else %}
+                    No registrada
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================================
+                 SUBSANACIÓN
+            ================================================= -->
+
+            <div class="actuacion-box">
+
+                <h5>
+                    ✅ Subsanación y verificación
+                </h5>
+
+                <div class="actuacion-row">
+
+                    <strong>
+                        Fecha de subsanación:
+                    </strong>
+
+                    {% if expediente.fecha_subsanacion %}
+                    {{ expediente.fecha_subsanacion.strftime('%d/%m/%Y') }}
+                    {% else %}
+                    No registrada
+                    {% endif %}
+
+                </div>
+
+                <div class="actuacion-row">
+
+                    <strong>
+                        Resultado:
+                    </strong>
+
+                    {{ expediente.resultado or 'PENDIENTE' }}
+
+                </div>
+
+                <div class="actuacion-row">
+
+                    <strong>
+                        Respuesta:
+                    </strong>
+
+                    {% if expediente.respuesta_subsanacion %}
+                    {{ expediente.respuesta_subsanacion }}
+                    {% else %}
+                    No registrada
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    <div style="
+                margin-top: 22px;
+                display: flex;
+                justify-content: flex-start;
+            ">
+        <a href="{{ url_for('control_evidencia.seguimiento_revisiones') }}" class="detalle-btn">
+            ← Volver al seguimiento
+        </a>
+    </div>
+</div>
+
+{% endblock %}

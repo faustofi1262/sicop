@@ -1,0 +1,812 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .sr-page {
+        max-width: 1500px;
+        margin: 22px auto;
+        padding: 0 22px 30px;
+        box-sizing: border-box;
+    }
+
+    /* ============================================================
+       ENCABEZADO
+    ============================================================ */
+
+    .sr-header {
+        background: linear-gradient(120deg, #08243e, #164f7c);
+        color: white;
+        border-radius: 15px;
+        padding: 23px 28px;
+        margin-bottom: 18px;
+        box-shadow: 0 8px 22px rgba(15, 53, 86, .12);
+    }
+
+    .sr-header-label {
+        color: #74c7ff;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+
+    .sr-header h2 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+    }
+
+    .sr-header p {
+        margin: 6px 0 0;
+        color: #d7e5f2;
+        font-size: 13px;
+    }
+
+    /* ============================================================
+       INDICADORES
+    ============================================================ */
+
+    .sr-stats {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+
+    .sr-stat {
+        background: white;
+        border: 1px solid #e0e7ed;
+        border-radius: 12px;
+        padding: 16px 18px;
+        box-shadow: 0 4px 14px rgba(16, 42, 67, .05);
+    }
+
+    .sr-stat-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: #7a8d9d;
+        margin-bottom: 6px;
+    }
+
+    .sr-stat-value {
+        font-size: 27px;
+        font-weight: 700;
+        color: #173b5d;
+    }
+
+    .sr-stat-note {
+        margin-top: 3px;
+        font-size: 11px;
+        color: #93a1ad;
+    }
+
+    .sr-stat.blue {
+        border-top: 4px solid #1976d2;
+    }
+
+    .sr-stat.orange {
+        border-top: 4px solid #e6a23c;
+    }
+
+    .sr-stat.green {
+        border-top: 4px solid #19a974;
+    }
+
+    .sr-stat.red {
+        border-top: 4px solid #d9534f;
+    }
+
+    .sr-stat.gray {
+        border-top: 4px solid #708090;
+    }
+
+    /* ============================================================
+       FILTROS
+    ============================================================ */
+
+    .sr-card {
+        background: white;
+        border: 1px solid #e0e7ed;
+        border-radius: 13px;
+        padding: 18px 20px;
+        margin-bottom: 18px;
+        box-shadow: 0 4px 14px rgba(16, 42, 67, .05);
+    }
+
+    .sr-card-title {
+        color: #173b5d;
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 14px;
+    }
+
+    .sr-filters {
+        display: grid;
+        grid-template-columns:
+            minmax(180px, 1.3fr)
+            minmax(180px, 1fr)
+            minmax(170px, .8fr)
+            minmax(140px, .7fr);
+        gap: 14px;
+        align-items: end;
+    }
+
+    .sr-field label {
+        display: block;
+        margin-bottom: 6px;
+        color: #324e65;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .sr-field input,
+    .sr-field select {
+        width: 100%;
+        height: 42px;
+        box-sizing: border-box;
+        border: 1px solid #ccd8e2;
+        border-radius: 8px;
+        padding: 8px 11px;
+        color: #294359;
+        background: white;
+        font-size: 13px;
+        outline: none;
+    }
+
+    .sr-field input:focus,
+    .sr-field select:focus {
+        border-color: #1976d2;
+        box-shadow: 0 0 0 3px rgba(25, 118, 210, .08);
+    }
+
+    .sr-clear {
+        height: 42px;
+        border: 1px solid #ccd8e2;
+        background: #f5f8fa;
+        color: #435d70;
+        border-radius: 8px;
+        padding: 0 15px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    /* ============================================================
+       TABLA
+    ============================================================ */
+
+    .sr-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e2e8ed;
+        border-radius: 10px;
+    }
+
+    .sr-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12.5px;
+    }
+
+    .sr-table thead {
+        background: #f3f7fa;
+    }
+
+    .sr-table th {
+        text-align: left;
+        padding: 11px 12px;
+        color: #29465e;
+        font-weight: 700;
+        border-bottom: 1px solid #dce5ec;
+        white-space: nowrap;
+    }
+
+    .sr-table td {
+        padding: 12px;
+        border-bottom: 1px solid #edf1f4;
+        color: #536879;
+        vertical-align: middle;
+    }
+
+    .sr-table tbody tr:hover {
+        background: #fafcfd;
+    }
+
+    .sr-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .sr-process {
+        font-weight: 700;
+        color: #173b5d;
+    }
+
+    .sr-ref {
+        margin-top: 3px;
+        font-size: 11px;
+        color: #8999a7;
+    }
+
+    .sr-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 28px;
+        height: 28px;
+        padding: 0 8px;
+        border-radius: 14px;
+        background: #edf4fa;
+        color: #176fae;
+        font-weight: 700;
+    }
+
+    /* ============================================================
+       ESTADOS
+    ============================================================ */
+
+    .sr-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 14px;
+        padding: 6px 10px;
+        font-size: 10px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .sr-status.revision {
+        background: #eaf3ff;
+        color: #176fae;
+    }
+
+    .sr-status.comunicado {
+        background: #fff3df;
+        color: #a96900;
+    }
+
+    .sr-status.subsanado {
+        background: #e9f8f1;
+        color: #12805a;
+    }
+
+    .sr-status.observado {
+        background: #fdeaea;
+        color: #b23a36;
+    }
+
+    .sr-status.sin-observaciones {
+        background: #edf1f4;
+        color: #536879;
+    }
+
+    /* ============================================================
+       BOTONES
+    ============================================================ */
+
+    .sr-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 7px 11px;
+        border: none;
+        border-radius: 7px;
+        text-decoration: none !important;
+        font-weight: 700;
+        cursor: pointer;
+        font-size: 11px;
+    }
+
+    .sr-btn-view {
+        background: #173b5d;
+        color: white !important;
+    }
+
+    .sr-btn-back {
+        background: #eef3f7;
+        color: #29465e !important;
+        padding: 9px 15px;
+        font-size: 12px;
+    }
+
+    .sr-actions {
+        margin-top: 16px;
+    }
+
+    .sr-empty {
+        text-align: center;
+        padding: 30px !important;
+        color: #8797a5 !important;
+    }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+
+    @media(max-width: 1150px) {
+        .sr-stats {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .sr-filters {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media(max-width: 700px) {
+        .sr-stats,
+        .sr-filters {
+            grid-template-columns: 1fr;
+        }
+
+        .sr-page {
+            padding: 0 14px 25px;
+        }
+    }
+</style>
+
+
+<div class="sr-page">
+
+    <!-- ============================================================
+         ENCABEZADO
+    ============================================================ -->
+
+    <div class="sr-header">
+
+        <div class="sr-header-label">
+            SICOP · CONTROL INSTITUCIONAL
+        </div>
+
+        <h2>
+            📊 Seguimiento de Revisiones
+        </h2>
+
+        <p>
+            Consulta de expedientes revisados, documentos analizados
+            y estado actual de la verificación.
+        </p>
+
+    </div>
+
+
+    <!-- ============================================================
+         INDICADORES
+    ============================================================ -->
+
+    <div class="sr-stats">
+
+        <div class="sr-stat gray">
+            <div class="sr-stat-title">
+                Expedientes revisados
+            </div>
+
+            <div class="sr-stat-value">
+                {{ total }}
+            </div>
+
+            <div class="sr-stat-note">
+                Registros activos
+            </div>
+        </div>
+
+
+        <div class="sr-stat blue">
+            <div class="sr-stat-title">
+                En revisión
+            </div>
+
+            <div class="sr-stat-value">
+                {{ total_revision }}
+            </div>
+
+            <div class="sr-stat-note">
+                Pendientes de concluir
+            </div>
+        </div>
+
+
+        <div class="sr-stat orange">
+            <div class="sr-stat-title">
+                Observaciones comunicadas
+            </div>
+
+            <div class="sr-stat-value">
+                {{ total_comunicados }}
+            </div>
+
+            <div class="sr-stat-note">
+                Esperando respuesta
+            </div>
+        </div>
+
+
+        <div class="sr-stat green">
+            <div class="sr-stat-title">
+                Subsanados
+            </div>
+
+            <div class="sr-stat-value">
+                {{ total_subsanados }}
+            </div>
+
+            <div class="sr-stat-note">
+                Verificación favorable
+            </div>
+        </div>
+
+
+        <div class="sr-stat red">
+            <div class="sr-stat-title">
+                Persiste observación
+            </div>
+
+            <div class="sr-stat-value">
+                {{ total_observados }}
+            </div>
+
+            <div class="sr-stat-note">
+                Requieren seguimiento
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- ============================================================
+         FILTROS
+    ============================================================ -->
+
+    <div class="sr-card">
+
+        <div class="sr-card-title">
+            🔎 Filtros de consulta
+        </div>
+
+        <div class="sr-filters">
+
+            <div class="sr-field">
+                <label>
+                    Proceso / requerimiento
+                </label>
+
+                <input
+                    type="text"
+                    id="filtro_proceso"
+                    placeholder="Código del proceso u oficio..."
+                >
+            </div>
+
+
+            <div class="sr-field">
+                <label>
+                    Unidad requirente
+                </label>
+
+                <input
+                    type="text"
+                    id="filtro_unidad"
+                    placeholder="Buscar unidad..."
+                >
+            </div>
+
+
+            <div class="sr-field">
+                <label>
+                    Estado
+                </label>
+
+                <select id="filtro_estado">
+                    <option value="">
+                        Todos
+                    </option>
+
+                    <option value="EN REVISIÓN">
+                        En revisión
+                    </option>
+
+                    <option value="OBSERVACIONES COMUNICADAS">
+                        Observaciones comunicadas
+                    </option>
+
+                    <option value="SUBSANADO">
+                        Subsanado
+                    </option>
+
+                    <option value="PERSISTE OBSERVACIÓN">
+                        Persiste observación
+                    </option>
+
+                    <option value="SIN OBSERVACIONES">
+                        Sin observaciones
+                    </option>
+                </select>
+            </div>
+
+
+            <button
+                type="button"
+                id="btn_limpiar_filtros"
+                class="sr-clear"
+            >
+                ✖ Limpiar filtros
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- ============================================================
+         TABLA
+    ============================================================ -->
+
+    <div class="sr-card">
+
+        <div class="sr-card-title">
+            📋 Expedientes revisados
+        </div>
+
+        <div class="sr-table-wrap">
+
+            <table
+                class="sr-table"
+                id="tabla_seguimientos"
+            >
+
+                <thead>
+
+                    <tr>
+                        <th style="width:55px;">N.º</th>
+                        <th>Proceso / Requerimiento</th>
+                        <th>Unidad requirente</th>
+                        <th style="width:110px;">Documentos</th>
+                        <th style="width:130px;">Última revisión</th>
+                        <th style="width:200px;">Estado</th>
+                        <th style="width:120px;">Acciones</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% if seguimientos %}
+
+                        {% for item in seguimientos %}
+
+                            <tr
+                                class="sr-row"
+                                data-proceso="{{ (item.identificador or '')|lower }}"
+                                data-unidad="{{ (item.unidad_requirente or '')|lower }}"
+                                data-estado="{{ item.estado_visual }}"
+                            >
+
+                                <td>
+                                    {{ loop.index }}
+                                </td>
+
+
+                                <td>
+
+                                    <div class="sr-process">
+                                        {{ item.identificador or 'Sin identificación' }}
+                                    </div>
+
+                                    {% if item.codigo_proceso and item.referencia %}
+
+                                        <div class="sr-ref">
+                                            Oficio: {{ item.referencia }}
+                                        </div>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+                                    {{ item.unidad_requirente or '—' }}
+                                </td>
+
+
+                                <td>
+                                    <span class="sr-count">
+                                        {{ item.total_revisiones }}
+                                    </span>
+                                </td>
+
+
+                                <td>
+
+                                    {% if item.ultima_revision %}
+
+                                        {{ item.ultima_revision }}
+
+                                    {% else %}
+
+                                        —
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+                                    <span
+                                        class="sr-status {{ item.estado_clase }}"
+                                    >
+                                        {{ item.estado_visual }}
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+
+                                    <a
+                                        href="{{ url_for(
+                                            'control_evidencia.detalle_seguimiento_revision',
+                                            bitacora_id=item.bitacora_id
+                                        ) }}"
+                                        class="sr-btn sr-btn-view"
+                                    >
+                                        👁 Ver detalle
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <tr>
+                            <td
+                                colspan="7"
+                                class="sr-empty"
+                            >
+                                Todavía no existen expedientes
+                                registrados en la Bitácora de Control.
+                            </td>
+                        </tr>
+
+                    {% endif %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <div class="sr-actions">
+
+            <a
+                href="{{ url_for('control_evidencia.inicio') }}"
+                class="sr-btn sr-btn-back"
+            >
+                ← Volver a Control y Evidencia
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    /* ============================================================
+       FILTROS
+    ============================================================ */
+
+    const filtroProceso =
+        document.getElementById("filtro_proceso");
+
+    const filtroUnidad =
+        document.getElementById("filtro_unidad");
+
+    const filtroEstado =
+        document.getElementById("filtro_estado");
+
+
+    function aplicarFiltros() {
+
+        const proceso =
+            (filtroProceso.value || "")
+                .toLowerCase()
+                .trim();
+
+        const unidad =
+            (filtroUnidad.value || "")
+                .toLowerCase()
+                .trim();
+
+        const estado =
+            filtroEstado.value;
+
+
+        const filas =
+            document.querySelectorAll(".sr-row");
+
+
+        filas.forEach(function (fila) {
+
+            const textoProceso =
+                fila.dataset.proceso || "";
+
+            const textoUnidad =
+                fila.dataset.unidad || "";
+
+            const textoEstado =
+                fila.dataset.estado || "";
+
+
+            const coincideProceso =
+                !proceso ||
+                textoProceso.includes(proceso);
+
+
+            const coincideUnidad =
+                !unidad ||
+                textoUnidad.includes(unidad);
+
+
+            const coincideEstado =
+                !estado ||
+                textoEstado === estado;
+
+
+            fila.style.display =
+                coincideProceso &&
+                coincideUnidad &&
+                coincideEstado
+                    ? ""
+                    : "none";
+
+        });
+
+    }
+
+
+    filtroProceso.addEventListener(
+        "input",
+        aplicarFiltros
+    );
+
+
+    filtroUnidad.addEventListener(
+        "input",
+        aplicarFiltros
+    );
+
+
+    filtroEstado.addEventListener(
+        "change",
+        aplicarFiltros
+    );
+
+
+    document.getElementById(
+        "btn_limpiar_filtros"
+    ).addEventListener(
+        "click",
+        function () {
+
+            filtroProceso.value = "";
+            filtroUnidad.value = "";
+            filtroEstado.value = "";
+
+            aplicarFiltros();
+        }
+    );
+
+</script>
+
+{% endblock %}
